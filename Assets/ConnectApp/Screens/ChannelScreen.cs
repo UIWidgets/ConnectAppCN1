@@ -283,17 +283,12 @@ namespace ConnectApp.screens {
         Widget _buildViewImage() {
             return new GestureDetector(
                 onTap: () => { this.setState(() => { this.viewImages = null; }); },
-                child: new Container(
-                    color: Colors.black,
-                    child: new PageView(
-                        controller: this._viewImageController,
-                        children: this.viewImages.Select<string, Widget>(url => {
-                            return CachedNetworkImageProvider.cachedNetworkImage(
-                                url,
-                                fit: BoxFit.contain,
-                                headers: this.headers);
-                        }).ToList()) ));
-            
+                child: new PhotoView(
+                    urls: this.viewImages,
+                    controller: this._viewImageController,
+                    useCachedNetworkImage: true,
+                    headers: this.headers));
+
         }
 
         Widget _buildNewMessageNotification() {
@@ -823,20 +818,25 @@ namespace ConnectApp.screens {
             get { return emojiBoardRowSize * emojiBoardColumSize - 1; }
         }
 
+        float emojiSize {
+            get {
+                return (MediaQuery.of(this.context).size.width - 42 - (emojiBoardRowSize - 1) * 2) / emojiBoardRowSize;
+            }
+        }
+
         List<Widget> _buildEmojiBoardPages() {
             List<Widget> emojiPages = new List<Widget>();
             for (int i = 0; i < emojiList.Count; i += emojiBoardPageSize) {
                 List<Widget> rows = new List<Widget>();
                 for (int j = 0; j < emojiBoardColumSize; j++) {
                     List<Widget> emojis = new List<Widget>();
-                    emojis.Add(new Flexible(child: new Container()));
+                    emojis.Add(new Container(width: 21));
                     for (int k = 0; k < emojiBoardRowSize; k++) {
                         emojis.Add(j == emojiBoardColumSize - 1 && k == emojiBoardRowSize - 1
                             ? this._buildDeleteKey(EdgeInsets.only(left: 2))
                             : this._buildEmojiButton(i, j, k));
                     }
-
-                    emojis.Add(new Flexible(child: new Container()));
+                    emojis.Add(new Container(width: 21));
                     if (j > 0) {
                         rows.Add(new Container(height: 8));
                     }
@@ -960,8 +960,8 @@ namespace ConnectApp.screens {
                     })
                     : null,
                 child: new Container(
-                    width: 40,
-                    height: 40,
+                    width: this.emojiSize,
+                    height: this.emojiSize,
                     padding: k == 0 ? EdgeInsets.zero : EdgeInsets.only(left: 2),
                     child: new Center(
                         child: new Text(
