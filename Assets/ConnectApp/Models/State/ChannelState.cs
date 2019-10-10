@@ -133,7 +133,8 @@ namespace ConnectApp.Models.State {
                 var channelId = readState.channelId;
                 if (this.channelDict.TryGetValue(channelId, out var channel)) {
                     channel.mentioned = readState.mentionCount;
-                    channel.unread = readState.lastMessageId != channel.lastMessageId ? 1 : 0;
+                    channel.unread = readState.lastMessageId != channel.lastMessageId &&
+                                     channel.lastMessageId != null ? 1 : 0;
                     channel.atMe = channel.mentioned > 0 && channel.unread > 0;
                 }
             }
