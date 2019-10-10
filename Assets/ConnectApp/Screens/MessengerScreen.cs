@@ -146,7 +146,7 @@ namespace ConnectApp.screens {
                                     color: CColors.Background,
                                     child: new SectionView(
                                         controller: this._refreshController,
-                                        enablePullDown: false,
+                                        enablePullDown: true,
                                         enablePullUp: false,
                                         onRefresh: this._onRefresh,
                                         hasBottomMargin: true,
@@ -314,11 +314,9 @@ namespace ConnectApp.screens {
         }
 
         void _onRefresh(bool up) {
-            if (!up) {
-                this.widget.actionModel.fetchChannels()
-                    .Then(() => this._refreshController.sendBack(false, mode: RefreshStatus.idle))
-                    .Catch(e => this._refreshController.sendBack(false, mode: RefreshStatus.idle));
-            }
+            this.widget.actionModel.fetchChannels()
+                .Then(() => this._refreshController.sendBack(up, mode: RefreshStatus.completed))
+                .Catch(e => this._refreshController.sendBack(up, mode: RefreshStatus.completed));
         }
     }
 
