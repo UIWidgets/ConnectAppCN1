@@ -1162,7 +1162,7 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
 }
 #pragma  mark - 定时器
 -(void)initTimer{
-    __weak typeof(self) weakSelf = self;
+    __weak __typeof(self) weakSelf = self;
     self.playbackTimeObserver =  [self.player addPeriodicTimeObserverForInterval:CMTimeMakeWithSeconds(1.0, NSEC_PER_SEC)  queue:dispatch_get_main_queue() /* If you pass NULL, the main queue is used. */
         usingBlock:^(CMTime time){
         [weakSelf syncScrubber];
@@ -1220,7 +1220,7 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
 //        int32_t timeScale = self.player.currentItem.asset.duration.timescale;
         //currentItem.asset.duration.timescale计算的时候严重堵塞主线程，慎用
         /* A timescale of 1 means you can only specify whole seconds to seek to. The timescale is the number of parts per second. Use 600 for video, as Apple recommends, since it is a product of the common video frame rates like 50, 60, 25 and 24 frames per second*/
-        __weak typeof(self) weakSelf = self;
+        __weak __typeof(self) weakSelf = self;
 
         [self.player seekToTime:CMTimeMakeWithSeconds(seekTime, self.currentItem.currentTime.timescale) toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:^(BOOL finished) {
             weakSelf.seekTime = 0;

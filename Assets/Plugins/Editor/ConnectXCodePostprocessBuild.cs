@@ -1,4 +1,5 @@
 using System.IO;
+using System.Text;
 using ConnectApp.Constants;
 using UnityEditor;
 using UnityEditor.Callbacks;
@@ -15,6 +16,28 @@ namespace Plugins.Editor {
 
             ModifyPbxProject(path: path);
             ModifyPlist(path: path);
+            ModifyBuildSettings(path);
+        }
+
+        static void ModifyBuildSettings(string pathToBuiltProject) {
+            var xcodeProjectPath = Path.Combine(pathToBuiltProject, "Unity-iPhone.xcodeproj");
+            var pbxPath = Path.Combine(xcodeProjectPath, "project.pbxproj");
+            var xcodeProjectLines = File.ReadAllLines(pbxPath);
+            var sb = new StringBuilder();
+            foreach (var line in xcodeProjectLines) {
+                if (line.Contains("GCC_ENABLE_OBJC_EXCEPTIONS") ||
+                    line.Contains("GCC_ENABLE_CPP_EXCEPTIONS") ||
+                    line.Contains("CLANG_ENABLE_MODULES")) {
+                    var newLine = line.Replace("NO", "YES");
+                    Debug.Log(line);
+                    sb.AppendLine(newLine);
+                }
+                else {
+                    sb.AppendLine(line);
+                }
+            }
+
+            File.WriteAllText(pbxPath, sb.ToString());
         }
 
         static void ModifyPbxProject(string path) {
@@ -162,7 +185,7 @@ namespace Plugins.Editor {
 
             // 出口合规信息
             rootDict.SetBoolean("ITSAppUsesNonExemptEncryption", false);
-            
+
             rootDict.SetString("NSCameraUsageDescription", "App需要您的同意,才能访问相机");
             rootDict.SetString("NSPhotoLibraryUsageDescription", "App需要您的同意,才能访问相册");
             rootDict.SetString("NSMicrophoneUsageDescription", "App需要您的同意,才能访问麦克风");
