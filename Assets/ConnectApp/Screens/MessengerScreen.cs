@@ -55,7 +55,7 @@ namespace ConnectApp.screens {
                             .ToList(),
                         publicChannels = state.channelState.publicChannels
                             .Select(channelId => state.channelState.channelDict[key: channelId])
-                            .Take(state.channelState.publicChannels.Count > 0
+                            .Take(state.channelState.joinedChannels.Count > 0
                                 ? 8
                                 : state.channelState.publicChannels.Count)
                             .ToList(),
@@ -81,9 +81,7 @@ namespace ConnectApp.screens {
                         pushToChannelDetail = channelId => dispatcher.dispatch(new MainNavigatorPushToChannelDetailAction {
                             channelId = channelId
                         }),
-                        fetchChannels = () => dispatcher.dispatch<IPromise>(Actions.fetchChannels(
-                            viewModel.discoverPage + 1
-                        )),
+                        fetchChannels = () => dispatcher.dispatch<IPromise>(Actions.fetchChannels(1)),
                         joinChannel = (channelId, groupId) =>
                             dispatcher.dispatch<IPromise>(Actions.joinChannel(channelId: channelId, groupId: groupId))
                     };
