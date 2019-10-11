@@ -5,7 +5,6 @@ using ConnectApp.Components;
 using ConnectApp.Main;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
-using ConnectApp.Models.ViewModel;
 using ConnectApp.Reality;
 using ConnectApp.redux.actions;
 using ConnectApp.screens;
@@ -250,6 +249,8 @@ namespace ConnectApp.redux.reducers {
                     article.favorite = action.articleDetail.favorite;
                     article.isNotFirst = true;
                     article.currOldestMessageId = action.articleDetail.comments.currOldestMessageId;
+                    article.videoSliceMap = action.articleDetail.videoSliceMap;
+                    article.videoPosterMap = action.articleDetail.videoPosterMap;
                     var dict = state.articleState.articleDict;
                     if (dict.ContainsKey(key: article.id)) {
                         state.articleState.articleDict[key: article.id] = article;
@@ -1603,7 +1604,7 @@ namespace ConnectApp.redux.reducers {
                     if (action.url != null) {
                         Router.navigator.push(new PageRouteBuilder(
                                 pageBuilder: (context, animation, secondaryAnimation) =>
-                                    new VideoViewScreen(url: action.url),
+                                    new VideoViewScreen(action.url, action.needUpdate, action.limitSeconds),
                                 transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
                                     new PushPageTransition(
                                         routeAnimation: animation,
@@ -2642,7 +2643,7 @@ namespace ConnectApp.redux.reducers {
                     }
 
                     action.members.ForEach(channelMember => {
-                        state.channelState.membersDict[channelMember.id] = channelMember;
+                        channel.membersDict[channelMember.id] = channelMember;
                         if (!channel.memberIds.Contains(channelMember.id)) {
                             channel.memberIds.Add(channelMember.id);
                         }
@@ -2657,6 +2658,20 @@ namespace ConnectApp.redux.reducers {
                 case JoinChannelSuccessAction action: {
                     var channel = state.channelState.channelDict[key: action.channelId];
                     channel.joined = true;
+                    channel.memberCount++;
+                    if (!channel.memberIds.Contains(state.loginState.loginInfo.userId)) {
+                        channel.memberIds.Add(state.loginState.loginInfo.userId);
+                        channel.membersDict[state.loginState.loginInfo.userId] = new ChannelMember {
+                            channelId = action.channelId,
+                            id = state.loginState.loginInfo.userId,
+                            role = "member",
+                            user = new User {
+                                fullName = state.loginState.loginInfo.userFullName,
+                                avatar = state.loginState.loginInfo.userAvatar,
+                                id = state.loginState.loginInfo.userId
+                            }
+                        };
+                    }
                     if (!state.channelState.joinedChannels.Contains(item: action.channelId)) {
                         state.channelState.joinedChannels.Add(item: action.channelId);
                     }
@@ -2667,6 +2682,7 @@ namespace ConnectApp.redux.reducers {
                 case LeaveChannelSuccessAction action: {
                     var channel = state.channelState.channelDict[key: action.channelId];
                     channel.joined = false;
+                    channel.memberIds.Remove(state.loginState.loginInfo.userId);
                     channel.memberCount -= 1;
                     state.channelState.joinedChannels.Remove(item: action.channelId);
                     break;
@@ -2691,10 +2707,7 @@ namespace ConnectApp.redux.reducers {
                     }
                     else {
                         var messageIds = new List<string>();
-                        if (action.messages[0].id != channel.messageIds[0]) {
-                            break;
-                        }
-                        for (int i = action.messages.Count - 1; i >= 1; i--) {
+                        for (int i = action.messages.Count - 1; i >= 0; i--) {
                             var message = action.messages[i];
                             if (!channel.messageIds.Contains(message.id)) {
                                 messageIds.Add(message.id);
@@ -2750,8 +2763,6 @@ namespace ConnectApp.redux.reducers {
                 case PushReadyAction action: {
                     state.channelState.updateSessionReadyData(action.readyData);
                     state.channelState.updateTotalMention();
-
-                    Debug.Log("WebSocket Online!");
                     break;
                 }
 
@@ -2826,21 +2837,41 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case PushPresentUpdateAction action: {
-                    //TODO
-                    Debug.Log(
-                        $"presence update {action.presentUpdateData.userId} as {action.presentUpdateData.status}");
+                    foreach (var channel in state.channelState.channelDict.Values) {
+                        if (channel.membersDict.ContainsKey(action.presentUpdateData.userId)) {
+                            channel.membersDict[action.presentUpdateData.userId].presenceStatus =
+                                action.presentUpdateData.status;
+                        }
+                    }
                     break;
                 }
 
                 case PushChannelAddMemberAction action: {
-                    //TODO
-                    Debug.Log($"member add {action.memberData.user} to {action.memberData.channelId}");
+                    if (state.channelState.channelDict.ContainsKey(action.memberData.channelId)) {
+                        ChannelView channel = state.channelState.channelDict[action.memberData.channelId];
+                        if (channel.membersDict.ContainsKey(action.memberData.id)) {
+                            channel.membersDict[action.memberData.id]
+                                .updateFromSocketResponseChannelMemberChangeData(action.memberData);
+                        }
+                        else {
+                            channel.membersDict[action.memberData.id] =
+                                ChannelMember.fromSocketResponseChannelMemberChangeData(action.memberData);
+                        }
+                        if (!channel.memberIds.Contains(action.memberData.id)) {
+                            channel.memberIds.Add(action.memberData.id);
+                            channel.memberCount++;
+                        }
+                    }
+                    
                     break;
                 }
 
                 case PushChannelRemoveMemberAction action: {
-                    //TODO
-                    Debug.Log($"member remove {action.memberData.user} from {action.memberData.channelId}");
+                    if (state.channelState.channelDict.ContainsKey(action.memberData.channelId)) {
+                        ChannelView channel = state.channelState.channelDict[action.memberData.channelId];
+                        channel.memberIds.Remove(action.memberData.id);
+                        channel.memberCount--;
+                    }
                     break;
                 }
 

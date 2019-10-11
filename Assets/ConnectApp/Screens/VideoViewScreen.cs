@@ -2,29 +2,36 @@ using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Constants;
 using ConnectApp.Main;
+using ConnectApp.Plugins;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
     public class VideoViewScreen : StatefulWidget {
         public VideoViewScreen(
-            string url = null,
+            string url,
+            bool needUpdate,
+            int limitSeconds,
             Key key = null
         ) : base(key) {
             this.url = url;
+            this.needUpdate = needUpdate;
+            this.limitSeconds = limitSeconds;
         }
 
         public readonly string url;
+        public readonly bool needUpdate;
+        public readonly int limitSeconds;
+
 
         public override State createState() {
             return new _VideoViewScreenState();
         }
     }
 
-    public class _VideoViewScreenState : State<VideoViewScreen> {
+    public class _VideoViewScreenState : State<VideoViewScreen>, RouteAware {
         bool _isFullScreen;
 
         public override void initState() {
@@ -32,9 +39,13 @@ namespace ConnectApp.screens {
             StatusBarManager.hideStatusBar(true);
         }
 
+        public override void didChangeDependencies() {
+            base.didChangeDependencies();
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(this.context));
+        }
+
         public override void dispose() {
-            StatusBarManager.hideStatusBar(false);
-            StatusBarManager.statusBarStyle(false);
+            Router.routeObserve.unsubscribe(this);
             base.dispose();
         }
 
@@ -42,24 +53,12 @@ namespace ConnectApp.screens {
             return new Container(
                 color: CColors.Black,
                 child: new CustomSafeArea(
-                    top: !this._isFullScreen,
-                    bottom: !this._isFullScreen,
                     child: new Container(
                         color: CColors.Black,
                         child: new Stack(
                             children: new List<Widget> {
-                                new Align(
-                                    alignment: Alignment.center,
-                                    child: new CustomVideoPlayer(this.widget.url,
-                                        context,
-                                        new Container(),
-                                        isFullScreen => {
-                                            this.setState(() => { this._isFullScreen = isFullScreen; });
-                                        }, 0, true
-                                    )
-                                ),
                                 new Positioned(
-                                    top: 0, left: 0, right: 0, child: this._isFullScreen
+                                    top: 0, left: 16, right: 0, child: this._isFullScreen
                                         ? new Container()
                                         : new Container(
                                             child: new Row(
@@ -81,6 +80,27 @@ namespace ConnectApp.screens {
                     )
                 )
             );
+        }
+
+        public void didPopNext() {
+        }
+
+        public void didPush() {
+            var width = MediaQuery.of(this.context).size.width;
+            var height = width * 9 / 16;
+            var originY = (MediaQuery.of(this.context).size.height - height) / 2;
+
+            AVPlayerPlugin.initVideoPlayer(this.widget.url, HttpManager.getCookie(), 0, originY, width, height, false,
+                this.widget.needUpdate, this.widget.limitSeconds);
+        }
+
+        public void didPop() {
+            AVPlayerPlugin.removePlayer();
+            StatusBarManager.hideStatusBar(false);
+            StatusBarManager.statusBarStyle(false);
+        }
+
+        public void didPushNext() {
         }
     }
 }

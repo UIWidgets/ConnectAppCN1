@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.Api;
 using ConnectApp.Models.Api;
@@ -56,13 +57,18 @@ namespace ConnectApp.redux.actions {
                             hasMore = channelMessagesResponse.hasMore,
                             hasMoreNew = channelMessagesResponse.hasMoreNew
                         });
-                        dispatcher.dispatch(channelMessagesResponse.items?.isNotEmpty() ?? false
-                            ? saveMessagesToDB(channelMessagesResponse.items)
-                            : loadMessagesFromDB(channelId, CStringUtils.HexToLong(before)));
+                        try {
+                            dispatcher.dispatch(channelMessagesResponse.items?.isNotEmpty() ?? false
+                                ? saveMessagesToDB(channelMessagesResponse.items)
+                                : loadMessagesFromDB(channelId, CStringUtils.HexToLong(before)));
+                        }
+                        catch (Exception e) {
+                            Debug.LogError(e);
+                        }
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new FetchChannelMessagesFailureAction());
-                        Debug.Log(error);
+                        Debug.LogError(error);
                         dispatcher.dispatch(loadMessagesFromDB(channelId, CStringUtils.HexToLong(before)));
                     });
             });

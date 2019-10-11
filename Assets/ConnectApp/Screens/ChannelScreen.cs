@@ -89,6 +89,7 @@ namespace ConnectApp.screens {
                         mainRouterPop = () => {
                             dispatcher.dispatch(new MainNavigatorPopAction());
                             dispatcher.dispatch(Actions.ackChannelMessage(viewModel.channel.lastMessageId));
+                            dispatcher.dispatch(new ChannelScreenLeaveBottom {channelId = this.channelId});
                         },
                         openUrl = url => OpenUrlUtil.OpenUrl(url: url, dispatcher: dispatcher),
                         fetchMessages = (before, after) => dispatcher.dispatch<IPromise>(
@@ -149,6 +150,8 @@ namespace ConnectApp.screens {
     class _ChannelScreenState : TickerProviderStateMixin<ChannelScreen>, RouteAware {
         readonly TextEditingController _textController = new TextEditingController();
         readonly RefreshController _refreshController = new RefreshController();
+        readonly PageController _viewImageController = new PageController();
+        GlobalKey _smartRefresherKey = GlobalKey<State<SmartRefresher>>.key("SmartRefresher");
         TabController _emojiTabController;
         FocusNode _focusNode;
         GlobalKey _focusNodeKey;
@@ -156,6 +159,7 @@ namespace ConnectApp.screens {
         float messageBubbleWidth = 0;
         bool _showEmojiBoard = false;
         Dictionary<string, string> headers;
+        List<string> viewImages;
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
@@ -193,6 +197,7 @@ namespace ConnectApp.screens {
                 this._refreshController.scrollController.addListener(this._handleScrollListener);
                 this.widget.actionModel.fetchMessages(null, null);
                 this.widget.actionModel.fetchMembers();
+                this.widget.actionModel.reportHitBottom();
             });
             this._focusNode = new FocusNode();
             this._focusNodeKey = GlobalKey.key("_channelFocusNodeKey");
@@ -213,6 +218,7 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
+            
             if (this.showKeyboard || this.showEmojiBoard) {
                 SchedulerBinding.instance.addPostFrameCallback(_ => this._refreshController.scrollTo(0));
             }
@@ -252,6 +258,15 @@ namespace ConnectApp.screens {
                         : new Container(height: MediaQuery.of(this.context).viewInsets.bottom)
                 }
             );
+            
+            if (this.viewImages != null) {
+                ret = new Stack(
+                    children: new List<Widget> {
+                        ret,
+                        Positioned.fill(child: this._buildViewImage())
+                    }
+                );
+            }
 
             return new Container(
                 color: CColors.White,
@@ -263,6 +278,17 @@ namespace ConnectApp.screens {
                     )
                 )
             );
+        }
+
+        Widget _buildViewImage() {
+            return new GestureDetector(
+                onTap: () => { this.setState(() => { this.viewImages = null; }); },
+                child: new PhotoView(
+                    urls: this.viewImages,
+                    controller: this._viewImageController,
+                    useCachedNetworkImage: true,
+                    headers: this.headers));
+
         }
 
         Widget _buildNewMessageNotification() {
@@ -293,7 +319,12 @@ namespace ConnectApp.screens {
                         mainAxisSize: MainAxisSize.min,
                         children: new List<Widget> {
                             new GestureDetector(
-                                onTap: () => this._refreshController.scrollTo(0),
+                                onTap: () => {
+                                    this.widget.actionModel.reportHitBottom();
+                                    Promise.Delayed(TimeSpan.FromMilliseconds(200)).Then(
+                                        () => this._refreshController.scrollTo(0)
+                                    );
+                                },
                                 child: ret
                             ),
                             new Container(height: this.inputBarHeight + 16)
@@ -327,19 +358,30 @@ namespace ConnectApp.screens {
         Widget _buildContent() {
             Widget ret = new Container(
                 color: CColors.White,
-                child: new SmartRefresher(
-                    controller: this._refreshController,
-                    enablePullDown: false,
-                    enablePullUp: this.widget.viewModel.channel.hasMore,
-                    onRefresh: this._onRefresh,
-                    reverse: true,
-                    headerBuilder: (context, mode) => new SmartRefreshHeader(mode: mode),
-                    child: this.widget.viewModel.messageLoading &&
-                           this.widget.viewModel.messages.isEmpty()
-                        ? this._buildLoadingPage()
-                        : this._buildMessageListView()
+                child: new CustomScrollbar(
+                    child: new SmartRefresher(
+                        key: this._smartRefresherKey,
+                        controller: this._refreshController,
+                        enablePullDown: false,
+                        enablePullUp: this.widget.viewModel.channel.hasMore,
+                        onRefresh: this._onRefresh,
+                        reverse: true,
+                        headerBuilder: (context, mode) => new SmartRefreshHeader(mode: mode),
+                        child: this.widget.viewModel.messageLoading &&
+                               this.widget.viewModel.messages.isEmpty()
+                            ? this._buildLoadingPage()
+                            : this._buildMessageListView()
+                    )
                 )
             );
+
+            if (this.showKeyboard || this.showEmojiBoard) {
+                ret = new GestureDetector(
+                    onTap: () => this.setState(this._dismissKeyboard),
+                    child: ret
+                );
+            }
+
             return ret;
         }
 
@@ -445,14 +487,47 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildAvatar(User user) {
+            const float avatarSize = 40;
+
+            var httpsUrl = user.avatar ?? "";
+            // fix Android 9 http request error 
+            if (httpsUrl.Contains("http://")) {
+                httpsUrl = httpsUrl.Replace("http://", "https://");
+            }
+
             return new Container(
                 padding: EdgeInsets.symmetric(0, 10),
                 child: new GestureDetector(
                     onTap: () => this.widget.actionModel.pushToUserDetail(user.id),
-                    child: Avatar.User(
-                        user.avatar.isNotEmpty()
-                            ? user.copyWith(avatar: CImageUtils.SizeTo200ImageUrl(user.avatar))
-                            : user, 40, useCachedNetworkImage: true)
+                    child: new Container(
+                        width: avatarSize,
+                        height: avatarSize,
+                        child: new Stack(
+                            children: new List<Widget> {
+                                user.avatar.isEmpty()
+                                    ? new Container(
+                                        padding: EdgeInsets.all(1.0f / Window.instance.devicePixelRatio),
+                                        color: Colors.white,
+                                        child: new _Placeholder(
+                                            user.id ?? "",
+                                            user.fullName ?? "",
+                                            size: avatarSize
+                                        )
+                                    )
+                                    : new Container(
+                                        padding: EdgeInsets.all(1.0f / Window.instance.devicePixelRatio),
+                                        color: Colors.white,
+                                        child: CachedNetworkImageProvider.cachedNetworkImage(src: httpsUrl)
+                                    ),
+                                Positioned.fill(
+                                    Image.asset(
+                                        "image/avatar-circle-1", 
+                                        fit: BoxFit.cover
+                                    )
+                                ),
+                            }
+                        )
+                    )
                 )
             );
         }
@@ -466,13 +541,27 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildImageMessageContent(ChannelMessageView message) {
-            return new _ImageMessage(
-                url: message.content,
-                size: 140,
-                ratio: 16.0f / 9.0f,
-                srcWidth: message.width,
-                srcHeight: message.height,
-                headers: this.headers
+            return new GestureDetector(
+                onTap: () => {
+                    this.setState(() => {
+                        this.viewImages = this.widget.viewModel.messages
+                            .Where(msg => msg.type == ChannelMessageType.image)
+                            .Select(msg => CImageUtils.SizeToScreenImageUrl(msg.content))
+                            .ToList();
+                        SchedulerBinding.instance.addPostFrameCallback(_ => {
+                            this._viewImageController.jumpToPage(this.viewImages.IndexOf(
+                                CImageUtils.SizeToScreenImageUrl(message.content)));
+                        });
+                    });
+                },
+                child: new _ImageMessage(
+                    url: message.content,
+                    size: 140,
+                    ratio: 16.0f / 9.0f,
+                    srcWidth: message.width,
+                    srcHeight: message.height,
+                    headers: this.headers
+                )
             );
         }
 
@@ -490,7 +579,10 @@ namespace ConnectApp.screens {
                     message.content.Substring(0, startIndex),
                     style: CTextStyle.PLargeBody,
                     children: new List<TextSpan> {
-                        new TextSpan(message.embeds[0].embedData.url, style: CTextStyle.PLargeBlue),
+                        new TextSpan(message.embeds[0].embedData.url, style: CTextStyle.PLargeBlue, recognizer: new TapGestureRecognizer
+                        {
+                            onTap = () => this.widget.actionModel.openUrl(message.embeds[0].embedData.url)
+                        }),
                         new TextSpan(message.content.Substring(startIndex + message.embeds[0].embedData.url.Length),
                             style: CTextStyle.PLargeBody),
                     }
@@ -738,20 +830,25 @@ namespace ConnectApp.screens {
             get { return emojiBoardRowSize * emojiBoardColumSize - 1; }
         }
 
+        float emojiSize {
+            get {
+                return (MediaQuery.of(this.context).size.width - 42 - (emojiBoardRowSize - 1) * 2) / emojiBoardRowSize;
+            }
+        }
+
         List<Widget> _buildEmojiBoardPages() {
             List<Widget> emojiPages = new List<Widget>();
             for (int i = 0; i < emojiList.Count; i += emojiBoardPageSize) {
                 List<Widget> rows = new List<Widget>();
                 for (int j = 0; j < emojiBoardColumSize; j++) {
                     List<Widget> emojis = new List<Widget>();
-                    emojis.Add(new Flexible(child: new Container()));
+                    emojis.Add(new Container(width: 21));
                     for (int k = 0; k < emojiBoardRowSize; k++) {
                         emojis.Add(j == emojiBoardColumSize - 1 && k == emojiBoardRowSize - 1
                             ? this._buildDeleteKey(EdgeInsets.only(left: 2))
                             : this._buildEmojiButton(i, j, k));
                     }
-
-                    emojis.Add(new Flexible(child: new Container()));
+                    emojis.Add(new Container(width: 21));
                     if (j > 0) {
                         rows.Add(new Container(height: 8));
                     }
@@ -875,8 +972,8 @@ namespace ConnectApp.screens {
                     })
                     : null,
                 child: new Container(
-                    width: 40,
-                    height: 40,
+                    width: this.emojiSize,
+                    height: this.emojiSize,
                     padding: k == 0 ? EdgeInsets.zero : EdgeInsets.only(left: 2),
                     child: new Center(
                         child: new Text(
@@ -899,7 +996,7 @@ namespace ConnectApp.screens {
                     this._textController.value = new TextEditingValue(
                         text: this._textController.text.Substring(startIndex: 0,
                                   length: selection.start - this.codeUnitLengthAt(this._textController.value)) +
-                        this._textController.text.Substring(selection.end),
+                              this._textController.text.Substring(selection.end),
                         TextSelection.collapsed(selection.start - this.codeUnitLengthAt(this._textController.value)));
                 }
             }
@@ -912,14 +1009,15 @@ namespace ConnectApp.screens {
         }
 
         void _handleSubmit(string text) {
-            if (text == "") {
+            if (string.IsNullOrWhiteSpace(text)) {
+                CustomDialogUtils.showToast("不能发送空消息", Icons.error_outline);
                 return;
             }
 
             this.widget.actionModel.startSendMessage();
             this.widget.actionModel.sendMessage(
                     this.widget.viewModel.channel.id,
-                    text, Snowflake.CreateNonce(), "")
+                    text.Trim(), Snowflake.CreateNonce(), "")
                 .Catch(_ => CustomDialogUtils.showToast("消息发送失败", Icons.error_outline));
             this._refreshController.scrollTo(0);
             FocusScope.of(this.context).requestFocus(this._focusNode);
@@ -940,11 +1038,16 @@ namespace ConnectApp.screens {
 
         float? _lastScrollPosition = null;
 
-        const float bottomThreashold = 50;
+        const float bottomThreshold = 50;
+
+        void _dismissKeyboard() {
+            this._showEmojiBoard = false;
+            TextInputPlugin.TextInputHide();
+        }
 
         void _handleScrollListener() {
-            if (this._refreshController.offset <= bottomThreashold) {
-                if (this._lastScrollPosition == null || this._lastScrollPosition > bottomThreashold) {
+            if (this._refreshController.offset <= bottomThreshold) {
+                if (this._lastScrollPosition == null || this._lastScrollPosition > bottomThreshold) {
                     if (this.widget.viewModel.channel.newMessageIds.isNotEmpty()) {
                         float offset = 0;
                         for (int i = 0; i < this.widget.viewModel.newMessages.Count; i++) {
@@ -957,24 +1060,23 @@ namespace ConnectApp.screens {
                                       TimeSpan.FromMinutes(5),
                                 this.messageBubbleWidth);
                         }
+
                         this._refreshController.scrollController.jumpTo(
                             this._refreshController.scrollController.offset + offset);
                     }
+
                     this.widget.actionModel.reportHitBottom();
                 }
             }
-            else if (this._refreshController.offset > bottomThreashold) {
-                if (this._lastScrollPosition == null || this._lastScrollPosition <= bottomThreashold) {
+            else if (this._refreshController.offset > bottomThreshold) {
+                if (this._lastScrollPosition == null || this._lastScrollPosition <= bottomThreshold) {
                     this.widget.actionModel.reportLeaveBottom();
                 }
             }
 
             if (this._lastScrollPosition != null && this._lastScrollPosition < this._refreshController.offset) {
-                if (this._showEmojiBoard) {
-                    this.setState(() => {
-                        this._showEmojiBoard = false;
-                        TextInputPlugin.TextInputHide();
-                    });
+                if (this.showEmojiBoard || this.showKeyboard) {
+                    this.setState(this._dismissKeyboard);
                 }
             }
 
@@ -1152,7 +1254,7 @@ namespace ConnectApp.screens {
             base.initState();
             if (this.widget.srcSize == null) {
                 this.image = CachedNetworkImageProvider.cachedNetworkImage(
-                    src: CImageUtils.SizeTo200ImageUrl(this.widget.url),
+                    src: CImageUtils.SizeToScreenImageUrl(this.widget.url),
                     headers: this.widget.headers);
                 this.stream = this.image.image
                     .resolve(new ImageConfiguration());
@@ -1183,7 +1285,7 @@ namespace ConnectApp.screens {
                         width: this.size.width,
                         height: this.size.height,
                         child: CachedNetworkImageProvider.cachedNetworkImage(
-                            CImageUtils.SizeTo200ImageUrl(this.widget.url),
+                            CImageUtils.SizeToScreenImageUrl(this.widget.url),
                             headers: this.widget.headers,
                             fit: BoxFit.cover))
                 );

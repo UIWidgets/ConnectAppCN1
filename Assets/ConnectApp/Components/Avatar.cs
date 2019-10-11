@@ -172,7 +172,7 @@ namespace ConnectApp.Components {
         }
     }
 
-    class _Placeholder : StatelessWidget {
+    public class _Placeholder : StatelessWidget {
         public _Placeholder(
             string id,
             string title,
