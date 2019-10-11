@@ -26,7 +26,7 @@ namespace ConnectApp.Plugins {
         [DllImport ("__Internal")]
         static extern void UIWidgetsTextInputHide();
 #elif UNITY_ANDROID
-        internal static void UIWidgetsTextInputShow() {
+        static void UIWidgetsTextInputShow() {
             using (
                 AndroidJavaClass pluginClass =
                     new AndroidJavaClass("com.unity.uiwidgets.plugin.editing.TextInputPlugin")
@@ -35,7 +35,7 @@ namespace ConnectApp.Plugins {
             }
         }
 
-        internal static void UIWidgetsTextInputHide() {
+        static void UIWidgetsTextInputHide() {
             using (
                 AndroidJavaClass pluginClass =
                     new AndroidJavaClass("com.unity.uiwidgets.plugin.editing.TextInputPlugin")
