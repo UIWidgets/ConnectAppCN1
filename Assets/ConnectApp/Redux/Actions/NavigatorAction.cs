@@ -64,6 +64,8 @@ namespace ConnectApp.redux.actions {
 
     public class MainNavigatorPushToVideoPlayerAction : BaseAction {
         public string url;
+        public bool needUpdate;
+        public int limitSeconds;
     }
 
     public class MainNavigatorPushToReportAction : BaseAction {
@@ -97,7 +99,7 @@ namespace ConnectApp.redux.actions {
     public class MainNavigatorPushToWebViewAction : BaseAction {
         public string url = "";
     }
-    
+
     public class EnterRealityAction : BaseAction {
     }
 

@@ -20,11 +20,15 @@ namespace ConnectApp.Constants {
 
         public const string versionNumber = "1.1.4";
 
-        public const int versionCode = 60;
+        public const int versionCode = 61;
 
         public const string originCodeUrl = "https://github.com/UnityTech/ConnectAppCN";
 
         public const string widgetOriginCodeUrl = "https://github.com/UnityTech/UIWidgets";
+
+        public const string unityStoreUrl = "https://store.unity.com/";
+
+        public const string unityLearnPremiumUrl = "https://unity.com/learn-premium";
 
         public const int miniProgramType = 0; // 0 -> 正式版  1 -> 开发版  2 -> 体验版
 

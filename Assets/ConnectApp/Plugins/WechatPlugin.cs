@@ -38,13 +38,13 @@ namespace ConnectApp.Plugins {
 
         void addListener() {
             if (!this.isListen) {
-                UIWidgetsMessageManager.instance.AddChannelMessageDelegate("wechat", this._handleMethodCall);
+                UIWidgetsMessageManager.instance.AddChannelMessageDelegate("wechat", del: this._handleMethodCall);
                 this.isListen = true;
             }
         }
 
         void _handleMethodCall(string method, List<JSONNode> args) {
-            using (WindowProvider.of(this.context).getScope()) {
+            using (WindowProvider.of(context: this.context).getScope()) {
                 switch (method) {
                     case "callback": {
                         if (args.isEmpty()) {
@@ -52,12 +52,12 @@ namespace ConnectApp.Plugins {
                         }
 
                         var node = args[0];
-                        var dict = JSON.Parse(node);
+                        var dict = JSON.Parse(aJSON: node);
                         var type = dict["type"];
                         if (type == "code") {
                             var code = dict["code"];
                             if (this.codeCallBack != null) {
-                                this.codeCallBack(code);
+                                this.codeCallBack(obj: code);
                             }
                         }
                     }
@@ -79,7 +79,7 @@ namespace ConnectApp.Plugins {
                 return;
             }
 
-            var uri = new Uri(schemeUrl);
+            var uri = new Uri(uriString: schemeUrl);
             if (uri.Scheme.Equals("unityconnect")) {
                 if (uri.Host.Equals("connectapp")) {
                     var type = "";
@@ -93,8 +93,8 @@ namespace ConnectApp.Plugins {
                         return;
                     }
 
-                    var subType = HttpUtility.ParseQueryString(uri.Query).Get("type");
-                    var id = HttpUtility.ParseQueryString(uri.Query).Get("id");
+                    var subType = HttpUtility.ParseQueryString(query: uri.Query).Get("type");
+                    var id = HttpUtility.ParseQueryString(query: uri.Query).Get("id");
                     if (id != instance().currentEventId) {
                         if (type == "event") {
                             var eventType = EventType.offline;
@@ -115,35 +115,36 @@ namespace ConnectApp.Plugins {
                 }
             }
             else {
-                JPushPlugin.openUrl(schemeUrl);
+                JPushPlugin.openUrl(schemeUrl: schemeUrl);
             }
         }
 
         public void login(string stateId) {
             if (!Application.isEditor) {
                 this.addListener();
-                loginWechat(stateId);
+                loginWechat(stateId: stateId);
             }
         }
 
         public void shareToFriend(string title, string description, string url, string imageBytes) {
             if (!Application.isEditor) {
                 this.addListener();
-                toFriends(title, description, url, imageBytes);
+                toFriends(title: title, description: description, url: url, imageBytes: imageBytes);
             }
         }
 
         public void shareToTimeline(string title, string description, string url, string imageBytes) {
             if (!Application.isEditor) {
                 this.addListener();
-                toTimeline(title, description, url, imageBytes);
+                toTimeline(title: title, description: description, url: url, imageBytes: imageBytes);
             }
         }
 
         public void shareToMiniProgram(string title, string description, string url, string imageBytes, string path) {
             if (!Application.isEditor) {
                 this.addListener();
-                toMiNiProgram(title, description, url, imageBytes, Config.miniId, path, Config.miniProgramType);
+                toMiNiProgram(title: title, description: description, url: url, imageBytes: imageBytes,
+                    ysId: Config.miniId, path: path, miniProgramType: Config.miniProgramType);
             }
         }
 
@@ -160,7 +161,7 @@ namespace ConnectApp.Plugins {
         public void toOpenMiNi(string path) {
             if (!Application.isEditor) {
                 this.addListener();
-                openMiNi(Config.miniId, path, Config.miniProgramType);
+                openMiNi(ysId: Config.miniId, path: path, miniProgramType: Config.miniProgramType);
             }
         }
 #if UNITY_IOS
@@ -224,12 +225,25 @@ namespace ConnectApp.Plugins {
             Plugin().Call("openMiNi", Config.wechatAppId, ysId, path,miniProgramType);
         }
 #else
-        static bool isInstallWechat() {return true;}
-        static void loginWechat(string stateId) {}
-        static void toFriends(string title, string description, string url,string imageBytes) {}
-        static void toTimeline(string title, string description, string url,string imageBytes) {}
-        static void toMiNiProgram(string title, string description, string url, string imageBytes,string ysId, string path) {}
-        static void openMiNi(string ysId, string path) {}
+        static bool isInstallWechat() {
+            return true;
+        }
+
+        static void loginWechat(string stateId) {
+        }
+
+        static void toFriends(string title, string description, string url, string imageBytes) {
+        }
+
+        static void toTimeline(string title, string description, string url, string imageBytes) {
+        }
+
+        static void toMiNiProgram(string title, string description, string url, string imageBytes, string ysId,
+            string path, int miniProgramType) {
+        }
+
+        static void openMiNi(string ysId, string path, int miniProgramType) {
+        }
 #endif
     }
 }
