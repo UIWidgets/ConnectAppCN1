@@ -55,7 +55,7 @@ namespace ConnectApp.screens {
                             .ToList(),
                         publicChannels = state.channelState.publicChannels
                             .Select(channelId => state.channelState.channelDict[key: channelId])
-                            .Take(state.channelState.joinedChannels.Count > 0
+                            .Take(joinedChannels.Count > 0
                                 ? 8
                                 : state.channelState.publicChannels.Count)
                             .ToList(),
@@ -81,7 +81,10 @@ namespace ConnectApp.screens {
                         pushToChannelDetail = channelId => dispatcher.dispatch(new MainNavigatorPushToChannelDetailAction {
                             channelId = channelId
                         }),
-                        fetchChannels = () => dispatcher.dispatch<IPromise>(Actions.fetchChannels(1)),
+                        fetchChannels = pageNumber => dispatcher.dispatch<IPromise>(Actions.fetchChannels(page: pageNumber)),
+                        startJoinChannel = channelId => dispatcher.dispatch(new StartJoinChannelAction {
+                            channelId = channelId
+                        }),
                         joinChannel = (channelId, groupId) =>
                             dispatcher.dispatch<IPromise>(Actions.joinChannel(channelId: channelId, groupId: groupId))
                     };
@@ -111,6 +114,7 @@ namespace ConnectApp.screens {
 
     public class _MessageScreenState : AutomaticKeepAliveClientMixin<MessengerScreen>, RouteAware {
         RefreshController _refreshController;
+        int _pageNumber;
 
         protected override bool wantKeepAlive {
             get { return true; }
@@ -119,6 +123,7 @@ namespace ConnectApp.screens {
         public override void initState() {
             base.initState();
             this._refreshController = new RefreshController();
+            this._pageNumber = 1;
         }
 
         public override void didChangeDependencies() {
@@ -310,7 +315,10 @@ namespace ConnectApp.screens {
                         this.widget.actionModel.pushToChannelDetail(obj: publicChannel.id);
                     }
                 },
-                () => this.widget.actionModel.joinChannel(arg1: publicChannel.id, arg2: publicChannel.groupId)
+                () => {
+                    this.widget.actionModel.startJoinChannel(obj: publicChannel.id);
+                    this.widget.actionModel.joinChannel(arg1: publicChannel.id, arg2: publicChannel.groupId);
+                }
             );
         }
 
@@ -330,9 +338,16 @@ namespace ConnectApp.screens {
         }
 
         void _onRefresh(bool up) {
-            this.widget.actionModel.fetchChannels()
-                .Then(() => this._refreshController.sendBack(up, mode: RefreshStatus.completed))
-                .Catch(e => this._refreshController.sendBack(up, mode: RefreshStatus.completed));
+            if (up) {
+                this._pageNumber = 1;
+            }
+            else {
+                this._pageNumber++;
+            }
+
+            this.widget.actionModel.fetchChannels(arg: this._pageNumber)
+                .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))
+                .Catch(e => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed));
         }
     }
 }
