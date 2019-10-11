@@ -84,16 +84,6 @@ namespace ConnectApp.Api {
             }).Catch(exception => { promise.Reject(exception); });
             return promise;
         }
-
-        public static Promise<FetchSuggestUserDetailResponse> QueryUser(string keyword) {
-            var promise = new Promise<FetchSuggestUserDetailResponse>();
-            var request = HttpManager.GET($"https://connect.unity.com/api/u?k=[%22q:{keyword}%22]");
-            HttpManager.resume(request).Then(responseText => {
-                var ret = JsonConvert.DeserializeObject<FetchSuggestUserDetailResponse>(responseText);
-                promise.Resolve(ret);
-            }).Catch(exception => { promise.Reject(exception);});
-            return promise;
-        }
         
         public static Promise<FetchSendMessageResponse> SendImage(string channelId, string content, string nonce,
             string imageData, string parentMessageId = "") {

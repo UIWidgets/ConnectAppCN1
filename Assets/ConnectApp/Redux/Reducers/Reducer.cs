@@ -2880,6 +2880,38 @@ namespace ConnectApp.redux.reducers {
 
                     break;
                 }
+                
+                case MainNavigatorPushToChannelMentionAction action: {
+                    Router.navigator.push(new PageRouteBuilder(
+                            pageBuilder: (context, animation, secondaryAnimation) =>
+                                new ChannelMentionScreenConnector(action.channelId),
+                            transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
+                                new PushPageTransition(
+                                    routeAnimation: animation,
+                                    child: child
+                                )
+                        )
+                    );
+                    break;
+                }
+
+                case ChannelChooseMentionCancelAction action: {
+                    state.channelState.mentionAutoFocus = true;
+                    state.channelState.mentionUserId = "";
+                    break;
+                }
+                
+                case ChannelChooseMentionConfirmAction action: {
+                    state.channelState.mentionAutoFocus = true;
+                    state.channelState.mentionUserId = action.mentionUserId;
+                    break;
+                }
+
+                case ChannelClearMentionAction action: {
+                    state.channelState.mentionAutoFocus = false;
+                    state.channelState.mentionUserId = "";
+                    break;
+                }
             }
 
             return state;

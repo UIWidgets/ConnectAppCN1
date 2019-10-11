@@ -131,4 +131,8 @@ namespace ConnectApp.redux.actions {
     public class MainNavigatorPushToEditFavoriteAction : BaseAction {
         public string tagId = "";
     }
+    
+    public class MainNavigatorPushToChannelMentionAction : BaseAction {
+        public string channelId;
+    }
 }

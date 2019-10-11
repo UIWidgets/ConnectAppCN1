@@ -361,4 +361,14 @@ namespace ConnectApp.redux.actions {
     public class MergeOldChannelMessages : BaseAction {
         public string channelId;
     }
+    
+    public class ChannelChooseMentionConfirmAction : BaseAction {
+        public string mentionUserId;
+    }
+
+    public class ChannelChooseMentionCancelAction : BaseAction {
+    }
+
+    public class ChannelClearMentionAction : BaseAction {
+    }
 }

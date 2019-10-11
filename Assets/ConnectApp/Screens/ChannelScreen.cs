@@ -65,13 +65,16 @@ namespace ConnectApp.screens {
                         messages = channel.messageIds.Select(getMessage).ToList();
                     }
 
+                    
                     return new ChannelScreenViewModel {
                         channel = state.channelState.channelDict[this.channelId],
                         messages = messages,
                         newMessages = newMessages ?? new List<ChannelMessageView>(),
                         me = state.loginState.loginInfo.userId,
                         messageLoading = state.channelState.messageLoading,
-                        newMessageCount = state.channelState.channelDict[this.channelId].unread
+                        newMessageCount = state.channelState.channelDict[this.channelId].unread,
+                        mentionAutoFocus = state.channelState.mentionAutoFocus,
+                        mentionUserId = state.channelState.mentionUserId
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -123,7 +126,11 @@ namespace ConnectApp.screens {
                         },
                         reportLeaveBottom = () => dispatcher.dispatch(new ChannelScreenLeaveBottom {
                             channelId = this.channelId
-                        })
+                        }),
+                        pushToChannelMention = () => dispatcher.dispatch(new MainNavigatorPushToChannelMentionAction {
+                            channelId = this.channelId
+                        }),
+                        clearLastChannelMention = () => dispatcher.dispatch(new ChannelClearMentionAction())
                     };
                     return new ChannelScreen(viewModel: viewModel, actionModel: actionModel);
                 }
@@ -222,101 +229,30 @@ namespace ConnectApp.screens {
             base.dispose();
         }
 
-        string _lastMessegeEditingContent = "";
-        string _lastMentionKey;
-        bool _suggestionBatching = false;
-        readonly List<string> _suggestMentions = new List<string>();
-        const int SuggestionMaxNum = 10;
-
-        void _updateSuggestMentions(FetchSuggestUserDetailResponse response, bool clearOnly = false) {
-            this._suggestMentions.Clear();
-            if (clearOnly) {
-                return;
-            }
-
-            if (response != null) {
-                foreach (var item in response.items) {
-                    if (this._suggestMentions.Count >= SuggestionMaxNum) {
-                        break;
-                    }
-                    this._suggestMentions.Add(item.id);
-                }
-            }
-
-            foreach (var id in this.widget.viewModel.channel.memberIds) {
-                if (this._suggestMentions.Count >= SuggestionMaxNum) {
-                    break;
-                }
-                this._suggestMentions.Add(id);
-            }
-        }
-
-        void queryMentionSuggestion() {
-            if (this._suggestionBatching) {
-                return;
-            }
-            
-            this._suggestionBatching = true;
-            ChannelApi.QueryUser(this._lastMentionKey).Then(
-                response => {
-                    if (!this.mounted) {
-                        return;
-                    }
-
-                    this.setState(() => {
-                        if (string.IsNullOrEmpty(this._lastMentionKey)) {
-                            this._suggestionBatching = false;
-                            return;
-                        }
-                        
-                        this._updateSuggestMentions(response);
-                        if (this._suggestionBatching) {
-                            this._suggestionBatching = false;
-                            this.queryMentionSuggestion();     
-                        }
-                    });
-                }
-            );
-        }
-
-        void _onUserSuggestKeyChange(string newKey) {
-            if (this._lastMentionKey == newKey) {
-                return;
-            }
-            
-            this._lastMentionKey = newKey;
-            switch (this._lastMentionKey)
-            {
-                case null:
-                    this.setState(() => { this._updateSuggestMentions(null, true); });
-                    break;
-                case "":
-                    this.setState(() => {
-                        this._updateSuggestMentions(null);
-                    });
-                    break;
-                default:
-                    this.queryMentionSuggestion();
-                    break;
-            }
-        }
-        
+        string _lastMessageEditingContent = "";
         void _onTextChanged() {
             var curTextContent = this._textController.text;
-            if (curTextContent != this._lastMessegeEditingContent) {
-                this._lastMessegeEditingContent = curTextContent;
-                var lastAtPosition = curTextContent.LastIndexOf("@");
-                if (lastAtPosition != -1 && lastAtPosition > curTextContent.LastIndexOf(" ")) {
-                    var queryKey = curTextContent.Substring(lastAtPosition + 1);
-                    this._onUserSuggestKeyChange(queryKey);
-                }
-                else {
-                    this._onUserSuggestKeyChange(null);
+            if (curTextContent != this._lastMessageEditingContent) {
+                var isDelete = curTextContent.Length < this._lastMessageEditingContent.Length;
+                this._lastMessageEditingContent = curTextContent;
+                
+                if (!isDelete && 
+                    this._lastMessageEditingContent.isNotEmpty() && 
+                    this._lastMessageEditingContent[this._lastMessageEditingContent.Length - 1] == '@') {
+                    this.widget.actionModel.pushToChannelMention();
                 }
             }
         }
 
         public override Widget build(BuildContext context) {
+            if (this.widget.viewModel.mentionAutoFocus) {
+                FocusScope.of(this.context).requestFocus(this._focusNode);
+                if (!this.widget.viewModel.mentionUserId.isEmpty()) {
+                    this._textController.text += this.widget.viewModel.mentionUserId;
+                    this._textController.selection = TextSelection.collapsed(this._textController.text.Length);
+                }
+                this.widget.actionModel.clearLastChannelMention();
+            }
             
             if (this.showKeyboard || this.showEmojiBoard) {
                 SchedulerBinding.instance.addPostFrameCallback(_ => this._refreshController.scrollTo(0));
@@ -341,7 +277,6 @@ namespace ConnectApp.screens {
                 children: new List<Widget> {
                     this._buildContent(),
                     this._buildInputBar(),
-                    this._buildMentionSuggestion(),
                     this.widget.viewModel.newMessageCount == 0 ||
                     this.widget.viewModel.messageLoading
                         ? new Container()
@@ -823,28 +758,6 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildMentionSuggestion() {
-            var suggestions = new List<Widget>();
-            foreach (var mention in this._suggestMentions) {
-                suggestions.Add(new Text(mention));
-            }
-            
-            Widget ret = this._lastMentionKey == null ? (Widget) new Container() : new Positioned(
-                left: 0,
-                right: 0,
-                bottom: 64,
-                child: new Container(
-                    padding: EdgeInsets.symmetric(0, 16),
-                    color: CColors.Grey,
-                    child: new Column(
-                        children: suggestions
-                    )
-                )
-            );
-            
-            return ret;
-        }
-
         Widget _buildInputBar() {
             Widget ret = new Container(
                 padding: EdgeInsets.symmetric(0, 16),
@@ -1229,6 +1142,7 @@ namespace ConnectApp.screens {
         }
 
         public void didPop() {
+            
         }
 
         public void didPopNext() {
