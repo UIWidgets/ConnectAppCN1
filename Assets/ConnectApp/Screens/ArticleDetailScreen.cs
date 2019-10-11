@@ -68,6 +68,12 @@ namespace ConnectApp.screens {
                                 limitSeconds = limitSeconds
                             });
                         },
+                        browserImage = url => {
+                            dispatcher.dispatch(new MainNavigatorPushToPhotoViewAction {
+                                urls = ContentDescription.imageUrls,
+                                url = url
+                            });
+                        },
                         pushToArticleDetail = id => dispatcher.dispatch(
                             new MainNavigatorPushToArticleDetailAction {
                                 articleId = id
@@ -377,7 +383,8 @@ namespace ConnectApp.screens {
                     UserInfoManager.isLogin()
                         ? CCommonUtils.GetUserLicense(UserInfoManager.initUserInfo().userId,
                             this.widget.viewModel.userLicenseDict)
-                        : ""
+                        : "",
+                    this.widget.actionModel.browserImage
                 )
             );
             // originItems.Add(this._buildActionCards(this._article.like));
@@ -499,7 +506,8 @@ namespace ConnectApp.screens {
                     }
                     else {
                         if (this._article.favorite == null) {
-                            ActionSheetUtils.showModalActionSheet(new FavoriteSheetConnector(articleId: this._article.id));
+                            ActionSheetUtils.showModalActionSheet(
+                                new FavoriteSheetConnector(articleId: this._article.id));
                         }
                         else {
                             ActionSheetUtils.showModalActionSheet(
@@ -510,7 +518,8 @@ namespace ConnectApp.screens {
                                             "确定",
                                             type: ActionType.normal,
                                             () => {
-                                                this.widget.actionModel.unFavoriteArticle(arg: this._article.favorite.id);
+                                                this.widget.actionModel.unFavoriteArticle(
+                                                    arg: this._article.favorite.id);
                                             }
                                         ),
                                         new ActionSheetItem("取消", type: ActionType.cancel)
@@ -526,7 +535,8 @@ namespace ConnectApp.screens {
 
         void _onRefresh(bool up) {
             if (!up) {
-                this.widget.actionModel.fetchArticleComments(arg1: this._article.channelId, arg2: this._article.currOldestMessageId)
+                this.widget.actionModel.fetchArticleComments(arg1: this._article.channelId,
+                        arg2: this._article.currOldestMessageId)
                     .Then(() => { this._refreshController.sendBack(up, mode: RefreshStatus.idle); })
                     .Catch(err => { this._refreshController.sendBack(up, mode: RefreshStatus.failed); });
             }

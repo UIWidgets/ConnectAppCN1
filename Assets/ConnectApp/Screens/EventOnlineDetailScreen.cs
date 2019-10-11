@@ -78,6 +78,12 @@ namespace ConnectApp.screens {
                             );
                         },
                         openUrl = url => { OpenUrlUtil.OpenUrl(url, dispatcher); },
+                        browserImage = url => {
+                            dispatcher.dispatch(new MainNavigatorPushToPhotoViewAction {
+                                urls = ContentDescription.imageUrls,
+                                url = url
+                            });
+                        },
                         copyText = text => dispatcher.dispatch(new CopyTextAction {text = text}),
                         startFetchEventDetail = () => dispatcher.dispatch(new StartFetchEventDetailAction()),
                         fetchEventDetail = (id, eventType) =>
@@ -437,6 +443,7 @@ namespace ConnectApp.screens {
                     userLicenseDict: this.widget.viewModel.userLicenseDict,
                     eventObj: eventObj,
                     openUrl: this.widget.actionModel.openUrl,
+                    this.widget.actionModel.browserImage,
                     pushToUserDetail: this.widget.actionModel.pushToUserDetail,
                     titleKey: eventTitleKey
                 )

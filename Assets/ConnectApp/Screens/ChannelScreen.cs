@@ -17,8 +17,8 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -92,6 +92,12 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch(new ChannelScreenLeaveBottom {channelId = this.channelId});
                         },
                         openUrl = url => OpenUrlUtil.OpenUrl(url: url, dispatcher: dispatcher),
+                        browserImage = (url, imageUrls) => {
+                            dispatcher.dispatch(new MainNavigatorPushToPhotoViewAction {
+                                url = url,
+                                urls = imageUrls
+                            });
+                        },
                         fetchMessages = (before, after) => dispatcher.dispatch<IPromise>(
                             Actions.fetchChannelMessages(channelId: this.channelId, before: before, after: after)),
                         fetchMembers = () => dispatcher.dispatch<IPromise>(
@@ -159,7 +165,6 @@ namespace ConnectApp.screens {
         float messageBubbleWidth = 0;
         bool _showEmojiBoard = false;
         Dictionary<string, string> headers;
-        List<string> viewImages;
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
@@ -203,7 +208,7 @@ namespace ConnectApp.screens {
             this._focusNodeKey = GlobalKey.key("_channelFocusNodeKey");
             this.headers = new Dictionary<string, string> {
                 {HttpManager.COOKIE, HttpManager.getCookie()},
-                {"AppVersion", Config.versionNumber},
+                {"ConnectAppVersion", Config.versionNumber},
                 {"X-Requested-With", "XmlHttpRequest"}
             };
         }
@@ -218,7 +223,6 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
-            
             if (this.showKeyboard || this.showEmojiBoard) {
                 SchedulerBinding.instance.addPostFrameCallback(_ => this._refreshController.scrollTo(0));
             }
@@ -258,15 +262,6 @@ namespace ConnectApp.screens {
                         : new Container(height: MediaQuery.of(this.context).viewInsets.bottom)
                 }
             );
-            
-            if (this.viewImages != null) {
-                ret = new Stack(
-                    children: new List<Widget> {
-                        ret,
-                        Positioned.fill(child: this._buildViewImage())
-                    }
-                );
-            }
 
             return new Container(
                 color: CColors.White,
@@ -278,17 +273,6 @@ namespace ConnectApp.screens {
                     )
                 )
             );
-        }
-
-        Widget _buildViewImage() {
-            return new GestureDetector(
-                onTap: () => { this.setState(() => { this.viewImages = null; }); },
-                child: new PhotoView(
-                    urls: this.viewImages,
-                    controller: this._viewImageController,
-                    useCachedNetworkImage: true,
-                    headers: this.headers));
-
         }
 
         Widget _buildNewMessageNotification() {
@@ -521,7 +505,7 @@ namespace ConnectApp.screens {
                                     ),
                                 Positioned.fill(
                                     Image.asset(
-                                        "image/avatar-circle-1", 
+                                        "image/avatar-circle-1",
                                         fit: BoxFit.cover
                                     )
                                 ),
@@ -544,14 +528,12 @@ namespace ConnectApp.screens {
             return new GestureDetector(
                 onTap: () => {
                     this.setState(() => {
-                        this.viewImages = this.widget.viewModel.messages
+                        var iamgeUrls = this.widget.viewModel.messages
                             .Where(msg => msg.type == ChannelMessageType.image)
                             .Select(msg => CImageUtils.SizeToScreenImageUrl(msg.content))
                             .ToList();
-                        SchedulerBinding.instance.addPostFrameCallback(_ => {
-                            this._viewImageController.jumpToPage(this.viewImages.IndexOf(
-                                CImageUtils.SizeToScreenImageUrl(message.content)));
-                        });
+                        var url = CImageUtils.SizeToScreenImageUrl(message.content);
+                        this.widget.actionModel.browserImage(url, iamgeUrls);
                     });
                 },
                 child: new _ImageMessage(
@@ -579,10 +561,10 @@ namespace ConnectApp.screens {
                     message.content.Substring(0, startIndex),
                     style: CTextStyle.PLargeBody,
                     children: new List<TextSpan> {
-                        new TextSpan(message.embeds[0].embedData.url, style: CTextStyle.PLargeBlue, recognizer: new TapGestureRecognizer
-                        {
-                            onTap = () => this.widget.actionModel.openUrl(message.embeds[0].embedData.url)
-                        }),
+                        new TextSpan(message.embeds[0].embedData.url, style: CTextStyle.PLargeBlue,
+                            recognizer: new TapGestureRecognizer {
+                                onTap = () => this.widget.actionModel.openUrl(message.embeds[0].embedData.url)
+                            }),
                         new TextSpan(message.content.Substring(startIndex + message.embeds[0].embedData.url.Length),
                             style: CTextStyle.PLargeBody),
                     }
@@ -848,6 +830,7 @@ namespace ConnectApp.screens {
                             ? this._buildDeleteKey(EdgeInsets.only(left: 2))
                             : this._buildEmojiButton(i, j, k));
                     }
+
                     emojis.Add(new Container(width: 21));
                     if (j > 0) {
                         rows.Add(new Container(height: 8));
