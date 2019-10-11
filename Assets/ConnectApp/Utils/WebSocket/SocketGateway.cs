@@ -289,7 +289,7 @@ namespace ConnectApp.Utils {
                 return;
             }
 
-            var requestUrl = $"{Config.apiAddress}/api/socketgw";
+            var requestUrl = $"{Config.apiAddress}/api/connectapp/v1/socketgw";
             var request = HttpManager.GET(requestUrl, null);
 
             HttpManager.resumeAll(request).Then(responseContent => {
