@@ -2,6 +2,8 @@ namespace ConnectApp.Constants {
     public static class Config {
         public const string apiAddress = "https://connect.unity.com";
 
+        public const string apiPath = "/api/connectapp/v1";
+
         public const string domain = ".connect.unity.com";
 
         public const string idBaseUrl = "https://id.unity.com";
@@ -14,7 +16,7 @@ namespace ConnectApp.Constants {
 
         public const string jgAppKey = "a50eff2d99416a0495f02766";
 
-        public const string MINIID = "gh_f731aec0bdd0";
+        public const string miniId = "gh_f731aec0bdd0";
 
         public const string versionNumber = "1.1.4";
 
