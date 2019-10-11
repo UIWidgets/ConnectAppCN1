@@ -12,11 +12,11 @@ namespace ConnectApp.Api {
                 {"platform", platform},
                 {"store", store}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/reviewUrl", para);
-            HttpManager.resume(request).Then(responseText => {
-                var urlDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(responseText);
+            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/reviewUrl", parameter: para);
+            HttpManager.resume(request: request).Then(responseText => {
+                var urlDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(value: responseText);
                 promise.Resolve(urlDictionary["url"]);
-            }).Catch(exception => { promise.Reject(exception); });
+            }).Catch(exception => promise.Reject(ex: exception));
             return promise;
         }
 
@@ -27,11 +27,11 @@ namespace ConnectApp.Api {
                 {"store", store},
                 {"version", version}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/version", para);
-            HttpManager.resume(request).Then(responseText => {
-                var versionDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(responseText);
-                promise.Resolve(versionDictionary);
-            }).Catch(exception => { promise.Reject(exception); });
+            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/version", parameter: para);
+            HttpManager.resume(request: request).Then(responseText => {
+                var versionDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(value: responseText);
+                promise.Resolve(value: versionDictionary);
+            }).Catch(exception => promise.Reject(ex: exception));
             return promise;
         }
     }

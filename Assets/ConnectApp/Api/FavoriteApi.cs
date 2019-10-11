@@ -13,7 +13,7 @@ namespace ConnectApp.Api {
             var para = new Dictionary<string, object> {
                 {"offset", offset}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/favorite-tag/{userId}/list",
+            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/favorite-tag/{userId}/list",
                 parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var favoritesResponse = JsonConvert.DeserializeObject<FetchFavoriteTagsResponse>(value: responseText);
@@ -28,7 +28,7 @@ namespace ConnectApp.Api {
                 {"tagId", tagId},
                 {"offset", offset}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/favorite/{userId}/list",
+            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/favorite/{userId}/list",
                 parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var favoriteDetailResponse =
@@ -45,7 +45,7 @@ namespace ConnectApp.Api {
                 {"description", description},
                 {"iconStyle", iconStyle}
             };
-            var request = HttpManager.POST($"{Config.apiAddress}/api/connectapp/favorite-tag", parameter: para);
+            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/favorite-tag", parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var createFavoriteTagResponse = JsonConvert.DeserializeObject<FavoriteTag>(value: responseText);
                 promise.Resolve(value: createFavoriteTagResponse);
@@ -62,7 +62,8 @@ namespace ConnectApp.Api {
                 {"description", description},
                 {"iconStyle", iconStyle}
             };
-            var request = HttpManager.POST($"{Config.apiAddress}/api/connectapp/favorite-tag/edit", parameter: para);
+            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/favorite-tag/edit",
+                parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var editFavoriteTagResponse = JsonConvert.DeserializeObject<FavoriteTag>(value: responseText);
                 promise.Resolve(value: editFavoriteTagResponse);
@@ -75,7 +76,8 @@ namespace ConnectApp.Api {
             var para = new Dictionary<string, object> {
                 {"id", tagId}
             };
-            var request = HttpManager.POST($"{Config.apiAddress}/api/connectapp/favorite-tag/delete", parameter: para);
+            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/favorite-tag/delete",
+                parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var deleteFavoriteTagResponse = JsonConvert.DeserializeObject<FavoriteTag>(value: responseText);
                 promise.Resolve(value: deleteFavoriteTagResponse);
