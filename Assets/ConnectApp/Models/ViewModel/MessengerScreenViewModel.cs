@@ -7,8 +7,8 @@ using ConnectApp.Utils;
 
 namespace ConnectApp.Models.ViewModel {
     public class MessengerScreenViewModel {
-        public int discoverPage;
         public int currentTabBarIndex;
+        public bool hasUnreadNotifications;
         public Dictionary<string, string> lastMessageMap;
         public List<ChannelView> joinedChannels;
         public List<ChannelView> popularChannels;

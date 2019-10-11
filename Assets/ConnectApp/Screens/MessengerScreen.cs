@@ -45,8 +45,8 @@ namespace ConnectApp.screens {
 
                     return new MessengerScreenViewModel {
                         joinedChannels = joinedChannels,
-                        discoverPage = state.channelState.discoverPage,
                         lastMessageMap = lastMessageMap,
+                        hasUnreadNotifications = state.notificationState.notifications.Any(item => item.read == "false"),
                         popularChannels = state.channelState.publicChannels
                             .Select(channelId => state.channelState.channelDict[key: channelId])
                             .Take(state.channelState.publicChannels.Count > 0
@@ -190,7 +190,16 @@ namespace ConnectApp.screens {
                         child: new Container(
                             width: 28,
                             height: 28,
-                            child: new Icon(icon: Icons.outline_notification, color: CColors.Icon, size: 28)
+                            child: new Stack(
+                                children: new List<Widget> {
+                                    new Icon(icon: Icons.outline_notification, color: CColors.Icon, size: 28),
+                                    Positioned.fill(new Align(
+                                        alignment: Alignment.topRight,
+                                        child: new NotificationDot(
+                                            this.widget.viewModel.hasUnreadNotifications
+                                            ? "" : null)))
+                                }
+                            )
                         )
                     )
                 },
