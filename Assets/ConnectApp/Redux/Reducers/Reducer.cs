@@ -5,8 +5,8 @@ using ConnectApp.Components;
 using ConnectApp.Main;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
-using ConnectApp.Reality;
 using ConnectApp.redux.actions;
+using ConnectApp.Reality;
 using ConnectApp.screens;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
@@ -1666,6 +1666,25 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case MainNavigatorPushToPhotoViewAction action: {
+                    if (action.url.isNotEmpty() && action.urls.isNotEmpty() && action.urls.Contains(action.url)) {
+                        var index = action.urls.IndexOf(action.url);
+                        Router.navigator.push(new PageRouteBuilder(
+                                pageBuilder: (context, animation, secondaryAnimation) =>
+                                    new PhotoView(action.urls, index: index,
+                                        useCachedNetworkImage: action.useCachedNetworkImage),
+                                transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
+                                    new ModalPageTransition(
+                                        routeAnimation: animation,
+                                        child: child
+                                    )
+                            )
+                        );
+                    }
+
+                    break;
+                }
+
                 case FetchReviewUrlSuccessAction action: {
                     state.settingState.reviewUrl = action.url;
                     state.settingState.hasReviewUrl = action.url.isNotEmpty();
@@ -2672,6 +2691,7 @@ namespace ConnectApp.redux.reducers {
                             }
                         };
                     }
+
                     if (!state.channelState.joinedChannels.Contains(item: action.channelId)) {
                         state.channelState.joinedChannels.Add(item: action.channelId);
                     }
@@ -2696,12 +2716,14 @@ namespace ConnectApp.redux.reducers {
                     if (!state.channelState.channelDict.TryGetValue(action.channelId, out var channel)) {
                         break;
                     }
+
                     if (action.before == -1) {
                         for (int i = action.messages.Count - 1; i >= 0; i--) {
                             var message = action.messages[i];
                             if (!channel.messageIds.Contains(message.id)) {
                                 channel.messageIds.Add(message.id);
                             }
+
                             state.channelState.messageDict[message.id] = message;
                         }
                     }
@@ -2712,8 +2734,10 @@ namespace ConnectApp.redux.reducers {
                             if (!channel.messageIds.Contains(message.id)) {
                                 messageIds.Add(message.id);
                             }
+
                             state.channelState.messageDict[message.id] = message;
                         }
+
                         messageIds.AddRange(channel.messageIds);
                         channel.messageIds = messageIds;
                     }
@@ -2822,7 +2846,7 @@ namespace ConnectApp.redux.reducers {
                     if (!state.channelState.channelDict.ContainsKey(message.channelId)) {
                         break;
                     }
-                    
+
                     var channel = state.channelState.channelDict[message.channelId];
                     var messageId = message.id;
                     if (state.channelState.messageDict.ContainsKey(messageId)) {
@@ -2832,7 +2856,7 @@ namespace ConnectApp.redux.reducers {
                             channel.messageIds.Remove(messageId);
                         }
                     }
-                    
+
                     break;
                 }
 
@@ -2843,6 +2867,7 @@ namespace ConnectApp.redux.reducers {
                                 action.presentUpdateData.status;
                         }
                     }
+
                     break;
                 }
 
@@ -2857,12 +2882,13 @@ namespace ConnectApp.redux.reducers {
                             channel.membersDict[action.memberData.id] =
                                 ChannelMember.fromSocketResponseChannelMemberChangeData(action.memberData);
                         }
+
                         if (!channel.memberIds.Contains(action.memberData.id)) {
                             channel.memberIds.Add(action.memberData.id);
                             channel.memberCount++;
                         }
                     }
-                    
+
                     break;
                 }
 
@@ -2872,6 +2898,7 @@ namespace ConnectApp.redux.reducers {
                         channel.memberIds.Remove(action.memberData.id);
                         channel.memberCount--;
                     }
+
                     break;
                 }
 
