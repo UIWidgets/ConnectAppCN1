@@ -300,11 +300,11 @@ namespace ConnectApp.Components.pull_to_refresh {
             this.bottomModeLis.addListener(() => { this._didChangeMode(false, this.bottomModeLis); });
             this.setState(() => {
                 if (this.widget.enablePullDown) {
-                    this._headerHeight = this._headerKey.currentContext.size.height;
+                    this._headerHeight = this._headerKey?.currentContext?.size.height ?? 0;
                 }
 
                 if (this.widget.enablePullUp) {
-                    this._footerHeight = this._footerKey.currentContext.size.height;
+                    this._footerHeight = this._footerKey?.currentContext?.size.height ?? 0;
                 }
             });
         }

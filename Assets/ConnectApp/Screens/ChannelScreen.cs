@@ -219,7 +219,7 @@ namespace ConnectApp.screens {
 
         public override Widget build(BuildContext context) {
             
-            if (this.showKeyboard || this.showEmojiBoard) {
+            if ((this.showKeyboard || this.showEmojiBoard) && this._refreshController.offset > 0) {
                 SchedulerBinding.instance.addPostFrameCallback(_ => this._refreshController.scrollTo(0));
             }
 
@@ -1079,7 +1079,7 @@ namespace ConnectApp.screens {
                 }
             }
 
-            if (this._lastScrollPosition != null && this._lastScrollPosition < this._refreshController.offset) {
+            if (this._lastScrollPosition == null || this._lastScrollPosition < this._refreshController.offset) {
                 if (this.showEmojiBoard || this.showKeyboard) {
                     this.setState(this._dismissKeyboard);
                 }
