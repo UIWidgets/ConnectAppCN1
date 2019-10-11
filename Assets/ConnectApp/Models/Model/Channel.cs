@@ -129,6 +129,7 @@ namespace ConnectApp.Models.Model {
         public int mentioned = 0;
         public bool isTop = false;
         public bool joined = false;
+        public bool joinLoading = false;
         public bool atMe = false;
         public bool atAll = false;
         public bool sendingMessage = false;

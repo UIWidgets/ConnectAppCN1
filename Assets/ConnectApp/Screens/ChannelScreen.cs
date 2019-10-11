@@ -151,7 +151,7 @@ namespace ConnectApp.screens {
         readonly TextEditingController _textController = new TextEditingController();
         readonly RefreshController _refreshController = new RefreshController();
         readonly PageController _viewImageController = new PageController();
-        GlobalKey _smartRefresherKey = GlobalKey<State<SmartRefresher>>.key("SmartRefresher");
+        readonly GlobalKey _smartRefresherKey = GlobalKey<State<SmartRefresher>>.key("SmartRefresher");
         TabController _emojiTabController;
         FocusNode _focusNode;
         GlobalKey _focusNodeKey;
@@ -1130,7 +1130,6 @@ namespace ConnectApp.screens {
 
         public void didPushNext() {
         }
-
 
         public static float calculateMessageHeight(ChannelMessageView message, bool showTime, float width) {
             float height = 20 + 6 + 16 + (showTime ? 36 : 0); // Name + Internal + Bottom padding + time
