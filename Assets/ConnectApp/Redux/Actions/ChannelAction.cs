@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using ConnectApp.Api;
+using ConnectApp.Components;
 using ConnectApp.Models.Api;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
@@ -49,7 +50,7 @@ namespace ConnectApp.redux.actions {
                             userMap[key: channelMessage.author.id] = channelMessage.author;
                         });
                         dispatcher.dispatch(new UserMapAction {userMap = userMap});
-                        dispatcher.dispatch(new ChannelMessagesAction {
+                        dispatcher.dispatch(new FetchChannelMessagesSuccessAction {
                             channelId = channelId,
                             messages = channelMessagesResponse.items ?? new List<ChannelMessage>(),
                             before = before,
@@ -84,7 +85,7 @@ namespace ConnectApp.redux.actions {
                             userMap[key: member.user.id] = member.user;
                         });
                         dispatcher.dispatch(new UserMapAction {userMap = userMap});
-                        dispatcher.dispatch(new ChannelMemberAction {
+                        dispatcher.dispatch(new FetchChannelMemberSuccessAction {
                             channelId = channelId,
                             offset = channelMemberResponse.offset,
                             total = channelMemberResponse.total,
@@ -98,31 +99,45 @@ namespace ConnectApp.redux.actions {
             });
         }
 
-        public static object joinChannel(string channelId, string groupId = null) {
+        public static object joinChannel(string channelId, string groupId = null, bool loading = false) {
+            if (loading) {
+                CustomDialogUtils.showCustomDialog(child: new CustomLoadingDialog(message: "正在加入群聊"));
+            }
+
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ChannelApi.JoinChannel(channelId: channelId, groupId: groupId)
                     .Then(joinChannelResponse => {
+                        if (loading) {
+                            CustomDialogUtils.hiddenCustomDialog();
+                        }
                         dispatcher.dispatch(new JoinChannelSuccessAction {channelId = channelId});
                         dispatcher.dispatch(fetchChannelMessages(channelId: channelId));
                         dispatcher.dispatch(fetchChannelMembers(channelId: channelId));
                     })
                     .Catch(error => {
-                        dispatcher.dispatch(new JoinChannelFailureAction());
+                        if (loading) {
+                            CustomDialogUtils.hiddenCustomDialog();
+                        }
+                        dispatcher.dispatch(new JoinChannelFailureAction {channelId = channelId});
                         Debug.Log(error);
                     });
             });
         }
 
         public static object leaveChannel(string channelId, string groupId = null) {
+            CustomDialogUtils.showCustomDialog(child: new CustomLoadingDialog(message: "正在退出群聊"));
+
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ChannelApi.LeaveChannel(channelId: channelId, groupId: groupId)
                     .Then(leaveChannelResponse => {
                         dispatcher.dispatch(new LeaveChannelSuccessAction {channelId = channelId});
+                        CustomDialogUtils.hiddenCustomDialog();
                         dispatcher.dispatch(new MainNavigatorPopAction());
                         dispatcher.dispatch(new MainNavigatorPopAction());
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new LeaveChannelFailureAction());
+                        CustomDialogUtils.hiddenCustomDialog();
                         Debug.Log(error);
                     });
             });
@@ -217,7 +232,7 @@ namespace ConnectApp.redux.actions {
 
     }
 
-    public class FetchChannelsSuccessAction {
+    public class FetchChannelsSuccessAction : BaseAction {
         public List<string> discoverList;
         public List<string> joinedList;
         public int discoverPage;
@@ -228,7 +243,10 @@ namespace ConnectApp.redux.actions {
     public class FetchChannelsFailureAction : BaseAction {
     }
 
-    public class ChannelMessagesAction {
+    public class StartFetchChannelMessageAction : BaseAction {
+    }
+
+    public class FetchChannelMessagesSuccessAction : BaseAction {
         public string channelId;
         public List<ChannelMessage> messages;
         public string before;
@@ -237,20 +255,21 @@ namespace ConnectApp.redux.actions {
         public bool hasMoreNew;
     }
 
-    public class ChannelMemberAction {
+    public class FetchChannelMessagesFailureAction : BaseAction {
+    }
+
+    public class FetchChannelMemberSuccessAction : BaseAction {
         public string channelId;
         public List<ChannelMember> members;
         public int offset;
         public int total;
     }
 
-    public class StartFetchChannelMessageAction : BaseAction {
-    }
-
-    public class FetchChannelMessagesFailureAction : BaseAction {
-    }
-
     public class FetchChannelMemberFailureAction : BaseAction {
+    }
+
+    public class StartJoinChannelAction : RequestAction {
+        public string channelId;
     }
 
     public class JoinChannelSuccessAction : BaseAction {
@@ -258,6 +277,7 @@ namespace ConnectApp.redux.actions {
     }
 
     public class JoinChannelFailureAction : BaseAction {
+        public string channelId;
     }
 
     public class LeaveChannelSuccessAction : BaseAction {

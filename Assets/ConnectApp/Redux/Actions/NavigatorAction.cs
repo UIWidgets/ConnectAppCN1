@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using ConnectApp.Models.State;
 using ConnectApp.screens;
 using Unity.UIWidgets.widgets;
@@ -16,11 +17,11 @@ namespace ConnectApp.redux.actions {
 
     public class MainNavigatorPushReplaceMainAction : BaseAction {
     }
-    
+
     public class MainNavigatorPushToChannelAction : BaseAction {
         public string channelId;
     }
-    
+
     public class MainNavigatorPushToChannelDetailAction : BaseAction {
         public string channelId;
     }
@@ -28,11 +29,11 @@ namespace ConnectApp.redux.actions {
     public class MainNavigatorPushToChannelMembersAction : BaseAction {
         public string channelId;
     }
-    
+
     public class MainNavigatorPushToChannelIntroductionAction : BaseAction {
         public string channelId;
     }
-    
+
     public class MainNavigatorPushToRouteAction : BaseAction {
         public Route route;
     }
@@ -130,6 +131,12 @@ namespace ConnectApp.redux.actions {
 
     public class MainNavigatorPushToEditFavoriteAction : BaseAction {
         public string tagId = "";
+    }
+
+    public class MainNavigatorPushToPhotoViewAction : BaseAction {
+        public List<string> urls;
+        public string url;
+        public bool useCachedNetworkImage = true;
     }
     
     public class MainNavigatorPushToChannelMentionAction : BaseAction {

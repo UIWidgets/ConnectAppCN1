@@ -5,8 +5,8 @@ using ConnectApp.Components;
 using ConnectApp.Main;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
-using ConnectApp.Reality;
 using ConnectApp.redux.actions;
+using ConnectApp.Reality;
 using ConnectApp.screens;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
@@ -1666,6 +1666,25 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case MainNavigatorPushToPhotoViewAction action: {
+                    if (action.url.isNotEmpty() && action.urls.isNotEmpty() && action.urls.Contains(action.url)) {
+                        var index = action.urls.IndexOf(action.url);
+                        Router.navigator.push(new PageRouteBuilder(
+                                pageBuilder: (context, animation, secondaryAnimation) =>
+                                    new PhotoView(action.urls, index: index,
+                                        useCachedNetworkImage: action.useCachedNetworkImage),
+                                transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
+                                    new ModalPageTransition(
+                                        routeAnimation: animation,
+                                        child: child
+                                    )
+                            )
+                        );
+                    }
+
+                    break;
+                }
+
                 case FetchReviewUrlSuccessAction action: {
                     state.settingState.reviewUrl = action.url;
                     state.settingState.hasReviewUrl = action.url.isNotEmpty();
@@ -2530,13 +2549,13 @@ namespace ConnectApp.redux.reducers {
                     state.channelState.discoverPage = action.discoverPage;
                     state.channelState.joinedChannels = action.joinedList;
                     foreach (var channelId in action.joinedList) {
-                        action.joinedChannelMap[channelId] = true;
+                        action.joinedChannelMap[key: channelId] = true;
                     }
 
                     foreach (var entry in action.channelMap) {
-                        state.channelState.updateChannel(entry.Value);
-                        state.channelState.channelDict[entry.Key].joined =
-                            action.joinedChannelMap.ContainsKey(entry.Key);
+                        state.channelState.updateChannel(channel: entry.Value);
+                        state.channelState.channelDict[key: entry.Key].joined =
+                            action.joinedChannelMap.ContainsKey(key: entry.Key);
                     }
 
                     state.channelState.channelTop = ChannelTopManager.getChannelTop();
@@ -2548,8 +2567,8 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
-                case ChannelMessagesAction action: {
-                    var channel = state.channelState.channelDict[action.channelId];
+                case FetchChannelMessagesSuccessAction action: {
+                    var channel = state.channelState.channelDict[key: action.channelId];
                     if (channel.messageIds == null || (action.after == null && action.before == null)) {
                         channel.messageIds = new List<string>();
                     }
@@ -2589,6 +2608,11 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case FetchChannelMessagesFailureAction _: {
+                    state.channelState.messageLoading = false;
+                    break;
+                }
+
                 case MergeNewChannelMessages action: {
                     var channel = state.channelState.channelDict[action.channelId];
                     channel.messageIds.AddRange(channel.newMessageIds);
@@ -2601,11 +2625,6 @@ namespace ConnectApp.redux.reducers {
                     channel.oldMessageIds.AddRange(channel.messageIds);
                     channel.messageIds = channel.oldMessageIds;
                     channel.oldMessageIds = new List<string>();
-                    break;
-                }
-
-                case FetchChannelMessagesFailureAction _: {
-                    state.channelState.messageLoading = false;
                     break;
                 }
 
@@ -2630,22 +2649,22 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case ClearSentChannelMessage action: {
-                    var channel = state.channelState.channelDict[action.channelId];
+                    var channel = state.channelState.channelDict[key: action.channelId];
                     channel.sentMessageSuccess = false;
                     channel.sentMessageFailed = false;
                     break;
                 }
 
-                case ChannelMemberAction action: {
+                case FetchChannelMemberSuccessAction action: {
                     var channel = state.channelState.channelDict[key: action.channelId];
                     if (channel.messageIds == null) {
                         channel.memberIds = new List<string>();
                     }
 
                     action.members.ForEach(channelMember => {
-                        channel.membersDict[channelMember.id] = channelMember;
-                        if (!channel.memberIds.Contains(channelMember.id)) {
-                            channel.memberIds.Add(channelMember.id);
+                        channel.membersDict[key: channelMember.id] = channelMember;
+                        if (!channel.memberIds.Contains(item: channelMember.id)) {
+                            channel.memberIds.Add(item: channelMember.id);
                         }
 
                         channel.memberCount = action.total;
@@ -2655,11 +2674,18 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case StartJoinChannelAction action: {
+                    var channel = state.channelState.channelDict[key: action.channelId];
+                    channel.joinLoading = true;
+                    break;
+                }
+
                 case JoinChannelSuccessAction action: {
                     var channel = state.channelState.channelDict[key: action.channelId];
                     channel.joined = true;
+                    channel.joinLoading = false;
                     channel.memberCount++;
-                    if (!channel.memberIds.Contains(state.loginState.loginInfo.userId)) {
+                    if (!channel.memberIds.Contains(item: state.loginState.loginInfo.userId)) {
                         channel.memberIds.Add(state.loginState.loginInfo.userId);
                         channel.membersDict[state.loginState.loginInfo.userId] = new ChannelMember {
                             channelId = action.channelId,
@@ -2672,10 +2698,17 @@ namespace ConnectApp.redux.reducers {
                             }
                         };
                     }
+
                     if (!state.channelState.joinedChannels.Contains(item: action.channelId)) {
                         state.channelState.joinedChannels.Add(item: action.channelId);
                     }
 
+                    break;
+                }
+
+                case JoinChannelFailureAction action: {
+                    var channel = state.channelState.channelDict[key: action.channelId];
+                    channel.joinLoading = false;
                     break;
                 }
 
@@ -2696,12 +2729,14 @@ namespace ConnectApp.redux.reducers {
                     if (!state.channelState.channelDict.TryGetValue(action.channelId, out var channel)) {
                         break;
                     }
+
                     if (action.before == -1) {
                         for (int i = action.messages.Count - 1; i >= 0; i--) {
                             var message = action.messages[i];
                             if (!channel.messageIds.Contains(message.id)) {
                                 channel.messageIds.Add(message.id);
                             }
+
                             state.channelState.messageDict[message.id] = message;
                         }
                     }
@@ -2712,8 +2747,10 @@ namespace ConnectApp.redux.reducers {
                             if (!channel.messageIds.Contains(message.id)) {
                                 messageIds.Add(message.id);
                             }
+
                             state.channelState.messageDict[message.id] = message;
                         }
+
                         messageIds.AddRange(channel.messageIds);
                         channel.messageIds = messageIds;
                     }
@@ -2822,7 +2859,7 @@ namespace ConnectApp.redux.reducers {
                     if (!state.channelState.channelDict.ContainsKey(message.channelId)) {
                         break;
                     }
-                    
+
                     var channel = state.channelState.channelDict[message.channelId];
                     var messageId = message.id;
                     if (state.channelState.messageDict.ContainsKey(messageId)) {
@@ -2832,7 +2869,7 @@ namespace ConnectApp.redux.reducers {
                             channel.messageIds.Remove(messageId);
                         }
                     }
-                    
+
                     break;
                 }
 
@@ -2843,6 +2880,7 @@ namespace ConnectApp.redux.reducers {
                                 action.presentUpdateData.status;
                         }
                     }
+
                     break;
                 }
 
@@ -2857,12 +2895,13 @@ namespace ConnectApp.redux.reducers {
                             channel.membersDict[action.memberData.id] =
                                 ChannelMember.fromSocketResponseChannelMemberChangeData(action.memberData);
                         }
+
                         if (!channel.memberIds.Contains(action.memberData.id)) {
                             channel.memberIds.Add(action.memberData.id);
                             channel.memberCount++;
                         }
                     }
-                    
+
                     break;
                 }
 
@@ -2872,6 +2911,7 @@ namespace ConnectApp.redux.reducers {
                         channel.memberIds.Remove(action.memberData.id);
                         channel.memberCount--;
                     }
+
                     break;
                 }
 
