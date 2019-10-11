@@ -25,6 +25,7 @@ using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
 using Config = ConnectApp.Constants.Config;
 using Icons = ConnectApp.Constants.Icons;
 using Image = Unity.UIWidgets.widgets.Image;
@@ -156,10 +157,235 @@ namespace ConnectApp.screens {
         }
     }
 
+    class InputContentManager {
+        readonly List<string> contentSpans = new List<string>();
+        readonly List<string> mentionIds = new List<string>();
+
+        bool addMentionBefore = false;
+
+        const bool debugMode = true;
+
+        void OnChanged() {
+            if (!debugMode) {
+                return;
+            }
+            Debug.Log(this.ToLogString());
+        }
+
+        void CheckValid(string newContent) {
+            if (!debugMode) {
+                return;
+            }
+            Debug.Assert(newContent == this.ToContent());
+        }
+
+        string ToLogString() {
+            var raw = "";
+            for (int i = 0; i < this.contentSpans.Count; i++) {
+                raw += "[" + this.contentSpans[i] + " (" + this.mentionIds[i] + ")]";
+            }
+
+            return raw;
+        }
+
+        public string ToMessage(Dictionary<string, ChannelMember> membersDict) {
+            string message = "";
+            for (int i = 0; i < this.contentSpans.Count; i++) {
+                if (this.mentionIds[i] != null) {
+                    var span = this.contentSpans[i].TrimEnd();
+                    if (span == $"@{membersDict[this.mentionIds[i]].user.fullName}") {
+                        message += $"<@{this.mentionIds[i]}> ";
+                        continue;
+                    }
+                }
+                
+                message += this.contentSpans[i];
+            }
+
+            return message;
+        }
+
+        string ToContent() {
+            var raw = "";
+            for (int i = 0; i < this.contentSpans.Count; i++) {
+                raw += this.contentSpans[i];
+            }
+
+            return raw;
+        }
+        
+        public InputContentManager() {
+            this.contentSpans.Add("");
+            this.mentionIds.Add(null);
+        }
+
+        public void Clear() {
+            this.contentSpans.Clear();
+            this.mentionIds.Clear();
+        }
+
+        public void AddMention(string mentionName, string mentionUserId, string newContent) {
+            this.addMentionBefore = true;
+            
+            var span = this.contentSpans[this.contentSpans.Count - 1];
+            D.assert(span[span.Length - 1] == '@');
+
+            if (span[span.Length - 1] == '@') {
+                this.contentSpans[this.contentSpans.Count - 1] = span.Substring(0, span.Length - 1);
+            }
+            this.contentSpans.Add('@' + mentionName);
+            this.mentionIds.Add(mentionUserId);
+            this.contentSpans.Add("");
+            this.mentionIds.Add(null);
+
+            this.OnChanged();
+            this.CheckValid(newContent);
+        }
+
+        public void AddContent(int selectIndex, string newContent) {
+            if (this.addMentionBefore) {
+                this.addMentionBefore = false;
+                return;
+            }
+            
+            var curLen = 0;
+            for (var i = 0; i < this.contentSpans.Count; i++) {
+                var span = this.contentSpans[i];
+                curLen += span.Length;
+            }
+            var deltaLen = newContent.Length - curLen;
+            D.assert(deltaLen > 0);
+
+            var startIndex = selectIndex - deltaLen;
+
+            var curIndex = 0;
+            var curOffset = 0;
+            curLen = 0;
+            for(var i = 0; i < this.contentSpans.Count; i++) {
+                var span = this.contentSpans[i];
+                curLen += span.Length;
+                if (curLen >= startIndex && (curLen != startIndex || this.mentionIds[i] == null)) {
+                    curIndex = i;
+                    curOffset = span.Length - (curLen - startIndex);
+                    break;
+                }
+            }
+            
+            var deltaContent = newContent.Substring(startIndex, deltaLen);
+            this.contentSpans[curIndex] = this.contentSpans[curIndex].Insert(curOffset, deltaContent);
+            this.OnChanged();
+            this.CheckValid(newContent);
+        }
+
+        public string DeleteContent(int selectIndex, string newContent, ref int jumpForward) {
+            var curLen = 0;
+            for (var i = 0; i < this.contentSpans.Count; i++) {
+                var span = this.contentSpans[i];
+                curLen += span.Length;
+            }
+            var deltaLen = curLen - newContent.Length;
+            D.assert(deltaLen > 0);
+
+            var selectFrom = Mathf.Max(0, selectIndex);
+            var selectTo = selectFrom + deltaLen;
+            
+            var fromIndex = 0;
+            var toIndex = 0;
+            var fromOffset = 0;
+            var toOffset = 0;
+            curLen = 0;
+            var hitFrom = false;
+
+            for (var i = 0; i < this.contentSpans.Count; i++) {
+                var span = this.contentSpans[i];
+                curLen += span.Length;
+                if (!hitFrom && curLen >= selectFrom) {
+                    fromIndex = i;
+                    fromOffset = span.Length - (curLen - selectFrom);
+                    hitFrom = true;
+                }
+
+                if (curLen >= selectTo) {
+                    toIndex = i;
+                    toOffset = span.Length - (curLen - selectTo);
+                    break;
+                }
+            }
+
+            var deletedAllMention = false;
+            
+            if (deltaLen == 1 && fromIndex == toIndex) {
+                if (fromOffset == this.contentSpans[fromIndex].Length - 1 && this.mentionIds[fromIndex] != null && this.contentSpans[fromIndex][fromOffset] == ' ') {
+                    jumpForward = fromOffset;
+                    this.contentSpans.RemoveAt(fromIndex);
+                    this.mentionIds.RemoveAt(fromIndex);
+                    deletedAllMention = true;
+                }
+            }
+
+            if (!deletedAllMention) {
+                if (fromIndex == toIndex) {
+                    this.contentSpans[fromIndex] = this.contentSpans[fromIndex].Substring(0, fromOffset) +
+                                                   this.contentSpans[fromIndex].Substring(toOffset);
+                }
+                else {
+                    this.contentSpans[fromIndex] = this.contentSpans[fromIndex].Substring(0, fromOffset);
+                    this.contentSpans[toIndex] = this.contentSpans[toIndex].Substring(toOffset);
+                    var deltaLens = toIndex - fromIndex - 1;
+                    while (deltaLens > 0) {
+                        this.contentSpans.RemoveAt(fromIndex + 1);
+                        this.mentionIds.RemoveAt(fromIndex + 1);
+                        deltaLens--;
+                    }
+                }
+            }
+            
+            //if a span is a mention but its content doesn't start with @
+            //make it a non mention
+            for (int i = 0; i < this.contentSpans.Count; i++) {
+                var span = this.contentSpans[i];
+                if (this.mentionIds[i] != null && span.Length > 0 && span[0] != '@') {
+                    this.mentionIds[i] = null;
+                }
+            }
+            
+            //remove all zero-length spans except the last span
+            var idx = 0;
+            while (idx < this.contentSpans.Count - 1) {
+                while (this.contentSpans[idx].Length == 0) {
+                    if (idx == this.contentSpans.Count - 1) {
+                        break;
+                    }
+                    this.contentSpans.RemoveAt(idx);
+                    this.mentionIds.RemoveAt(idx);
+                }
+                
+                idx++;
+            }
+            //remove the last zero-length span if its previous span is not mention
+            if (this.contentSpans.Count > 1 && this.contentSpans[this.contentSpans.Count - 1].Length == 0) {
+                if (this.mentionIds[this.contentSpans.Count - 2] == null) {
+                    this.contentSpans.RemoveAt(this.contentSpans.Count - 1);
+                    this.mentionIds.RemoveAt(this.mentionIds.Count - 1);
+                }
+            }
+            
+            //keep the contentSpan.Count >= 1
+            if (this.contentSpans.Count == 0) {
+                this.contentSpans.Add("");
+                this.mentionIds.Add(null);
+            }
+            
+            this.OnChanged();
+            return this.ToContent();
+        }
+    } 
+
     class _ChannelScreenState : TickerProviderStateMixin<ChannelScreen>, RouteAware {
         readonly TextEditingController _textController = new TextEditingController();
         readonly RefreshController _refreshController = new RefreshController();
         readonly PageController _viewImageController = new PageController();
+        readonly InputContentManager _inputContentManager = new InputContentManager();
         GlobalKey _smartRefresherKey = GlobalKey<State<SmartRefresher>>.key("SmartRefresher");
         TabController _emojiTabController;
         FocusNode _focusNode;
@@ -230,11 +456,34 @@ namespace ConnectApp.screens {
         }
 
         string _lastMessageEditingContent = "";
+        bool omitTextChange;
+        
         void _onTextChanged() {
+            if (this.omitTextChange) {
+                this.omitTextChange = false;
+                return;
+            }
+            
             var curTextContent = this._textController.text;
             if (curTextContent != this._lastMessageEditingContent) {
                 var isDelete = curTextContent.Length < this._lastMessageEditingContent.Length;
                 this._lastMessageEditingContent = curTextContent;
+
+                if (!isDelete) {
+                    this._inputContentManager.AddContent(this._textController.selection.start, this._lastMessageEditingContent);
+                }
+                else {
+                    var jumpForward = 0;
+                    this._lastMessageEditingContent = this._inputContentManager.DeleteContent(this._textController.selection.end, this._lastMessageEditingContent, ref jumpForward);
+                    if (this._textController.text != this._lastMessageEditingContent) {
+                        var selection = this._textController.selection;
+                        this.omitTextChange = true;
+                        this._textController.value = new TextEditingValue(
+                            text: this._lastMessageEditingContent,
+                            TextSelection.collapsed(selection.start - jumpForward));
+                        
+                    }
+                }
                 
                 if (!isDelete && 
                     this._lastMessageEditingContent.isNotEmpty() && 
@@ -248,7 +497,9 @@ namespace ConnectApp.screens {
             if (this.widget.viewModel.mentionAutoFocus) {
                 FocusScope.of(this.context).requestFocus(this._focusNode);
                 if (!this.widget.viewModel.mentionUserId.isEmpty()) {
-                    this._textController.text += this.widget.viewModel.mentionUserId;
+                    var userName = this.widget.viewModel.channel.membersDict[this.widget.viewModel.mentionUserId].user.fullName;
+                    this._inputContentManager.AddMention(userName + " ", this.widget.viewModel.mentionUserId, this._textController.text + userName + " ");
+                    this._textController.text += userName + " ";
                     this._textController.selection = TextSelection.collapsed(this._textController.text.Length);
                 }
                 this.widget.actionModel.clearLastChannelMention();
@@ -1032,6 +1283,8 @@ namespace ConnectApp.screens {
         }
 
         void _handleSubmit(string text) {
+            text = this._inputContentManager.ToMessage(this.widget.viewModel.channel.membersDict);
+            
             if (string.IsNullOrWhiteSpace(text)) {
                 CustomDialogUtils.showToast("不能发送空消息", Icons.error_outline);
                 return;
@@ -1142,7 +1395,7 @@ namespace ConnectApp.screens {
         }
 
         public void didPop() {
-            
+            this._inputContentManager.Clear();
         }
 
         public void didPopNext() {
