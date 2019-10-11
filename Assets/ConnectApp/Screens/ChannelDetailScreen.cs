@@ -2,16 +2,19 @@ using System.Collections.Generic;
 using System.Linq;
 using ConnectApp.Components;
 using ConnectApp.Constants;
+using ConnectApp.Main;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
+using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
@@ -51,9 +54,12 @@ namespace ConnectApp.screens {
                         pushToChannelIntroduction = () =>
                             dispatcher.dispatch(new MainNavigatorPushToChannelIntroductionAction {
                                 channelId = this.channelId
-                            }),
+                            }
+                        ),
+                        fetchMembers = () => dispatcher.dispatch<IPromise>(
+                            Actions.fetchChannelMembers(channelId: this.channelId)),
                         joinChannel = () => dispatcher.dispatch<IPromise>(
-                            Actions.joinChannel(channelId: this.channelId, groupId: viewModel.channel.groupId)),
+                            Actions.joinChannel(channelId: this.channelId, groupId: viewModel.channel.groupId, true)),
                         leaveChannel = () => dispatcher.dispatch<IPromise>(
                             Actions.leaveChannel(channelId: this.channelId, groupId: viewModel.channel.groupId)),
                         updateTop = isTop => dispatcher.dispatch(new UpdateChannelTopAction {
@@ -85,8 +91,27 @@ namespace ConnectApp.screens {
         }
     }
     
-    class _ChannelDetailScreenState : State<ChannelDetailScreen> {
+    class _ChannelDetailScreenState : State<ChannelDetailScreen>, RouteAware {
         const int _avatarNumber = 5;
+
+        public override void initState() {
+            base.initState();
+            SchedulerBinding.instance.addPostFrameCallback(_ => {
+                if (!this.widget.viewModel.channel.joined) {
+                    this.widget.actionModel.fetchMembers();
+                }
+            });
+        }
+
+        public override void didChangeDependencies() {
+            base.didChangeDependencies();
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(context: this.context));
+        }
+
+        public override void dispose() {
+            Router.routeObserve.unsubscribe(this);
+            base.dispose();
+        }
 
         float _getAvatarSize() {
             return (MediaQuery.of(context: this.context).size.width - 16 * 2 - 16 * (_avatarNumber - 1)) / _avatarNumber;
@@ -342,6 +367,19 @@ namespace ConnectApp.screens {
                     }
                 )
             );
+        }
+
+        public void didPop() {
+        }
+
+        public void didPopNext() {
+            StatusBarManager.statusBarStyle(false);
+        }
+
+        public void didPush() {
+        }
+
+        public void didPushNext() {
         }
     }
 }
