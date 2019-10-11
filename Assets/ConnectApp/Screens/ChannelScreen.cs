@@ -398,6 +398,18 @@ namespace ConnectApp.screens {
                 child: this._buildMessageContent(message)
             );
 
+            if (message.type == ChannelMessageType.text) {
+                ret = new TipMenu(
+                    new List<TipMenuItem> {
+                        new TipMenuItem(
+                            "复制", 
+                            () => Clipboard.setData(new ClipboardData(text: message.content))
+                        )
+                    },
+                    child: ret
+                );
+            }
+
             ret = new Column(
                 crossAxisAlignment: left ? CrossAxisAlignment.start : CrossAxisAlignment.end,
                 children: new List<Widget> {
