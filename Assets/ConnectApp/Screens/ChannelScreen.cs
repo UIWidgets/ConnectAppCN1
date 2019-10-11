@@ -490,6 +490,7 @@ namespace ConnectApp.screens {
                     child: new Container(
                         width: avatarSize,
                         height: avatarSize,
+                        color: CColors.Disable,
                         child: new Stack(
                             children: new List<Widget> {
                                 user.avatar.isEmpty()
@@ -1272,6 +1273,7 @@ namespace ConnectApp.screens {
                     child: new Container(
                         width: this.size.width,
                         height: this.size.height,
+                        color: CColors.Disable,
                         child: CachedNetworkImageProvider.cachedNetworkImage(
                             CImageUtils.SizeToScreenImageUrl(this.widget.url),
                             headers: this.widget.headers,
