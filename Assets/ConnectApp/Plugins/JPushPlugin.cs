@@ -33,7 +33,8 @@ namespace ConnectApp.Plugins {
                 UIWidgetsMessageManager.instance.AddChannelMessageDelegate("jpush", _handleMethodCall);
                 completed();
                 setJPushChannel(Config.store);
-                setJPushTags(new List<string> {Config.versionCode.ToString()});
+                setJPushTags(
+                    new List<string> {Config.versionCode.ToString(), Config.MessengerTag, Config.versionNumber});
             }
         }
 
@@ -45,12 +46,17 @@ namespace ConnectApp.Plugins {
                             if (args.isEmpty()) {
                                 return;
                             }
+
                             //点击应用通知栏
                             var node = args.first();
                             var dict = JSON.Parse(node);
                             var type = dict["type"];
                             var subType = dict["subtype"];
-                            var id = dict["id"];
+                            string id = dict["id"] ?? "";
+                            if (id.isEmpty()) {
+                                id = dict["channelId"] ?? "";
+                            }
+
                             AnalyticsManager.AnalyticsWakeApp("OnOpenNotification", id, type, subType);
                             AnalyticsManager.ClickNotification(type, subType, id);
                             pushPage(type, subType, id, true);
@@ -87,6 +93,7 @@ namespace ConnectApp.Plugins {
                             if (args.isEmpty()) {
                                 return;
                             }
+
                             var node = args.first();
                             var dict = JSON.Parse(node);
                             var isPush = (bool) dict["push"];
@@ -209,6 +216,12 @@ namespace ConnectApp.Plugins {
             else if (type == "webView") {
                 StoreProvider.store.dispatcher.dispatch(
                     new MainNavigatorPushToWebViewAction {url = id});
+            }
+            else if (type == "messenger") {
+                if (subType == "channelAt") {
+                    StoreProvider.store.dispatcher.dispatch(
+                        new MainNavigatorPushToChannelAction {channelId = id});
+                }
             }
         }
 
