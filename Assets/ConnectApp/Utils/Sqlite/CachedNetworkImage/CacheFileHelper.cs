@@ -1,10 +1,10 @@
+using System;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
-using ConnectApp.Utils;
 using UnityEngine;
 
-namespace System {
+namespace ConnectApp.Utils {
     public static class CacheFileHelper {
 
         static readonly MD5 md5Hasher = MD5.Create();
@@ -52,14 +52,14 @@ namespace System {
         public static void SyncSaveCacheFile(string url, byte[] data, string suffix) {
             var filePath = GetCacheFilePath(url, suffix);
             File.WriteAllBytes(filePath, data);
-            SQLiteDBManager.instance.UpdateCachedFilePath(url, filePath);
+            SQLiteDBManager.instance.UpdateCachedFilePath(url, filePath, data);
         }
         
         
         public static void SyncSaveCacheFile(string url, Texture2D texture2D) {
             var filePath = GetCacheFilePath(url, "png");
             File.WriteAllBytes(filePath, texture2D.EncodeToPNG());
-            SQLiteDBManager.instance.UpdateCachedFilePath(url, filePath);
+            SQLiteDBManager.instance.UpdateCachedFilePath(url, filePath, texture2D.EncodeToPNG());
         }
     }
 }
