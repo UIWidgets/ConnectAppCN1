@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using ConnectApp.Models.Api;
 using ConnectApp.Models.Model;
-using ConnectApp.Models.ViewModel;
 using Newtonsoft.Json;
 
 

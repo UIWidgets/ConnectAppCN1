@@ -131,6 +131,7 @@ namespace ConnectApp.screens {
             return new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(
+                    bottom: false,
                     child: new Container(
                         color: CColors.Background,
                         child: new Column(
@@ -169,7 +170,9 @@ namespace ConnectApp.screens {
                     sectionCount: 2,
                     numOfRowInSection: section => section == 0
                             ? this.widget.viewModel.specialMembers.Count : this.widget.viewModel.normalMembers.Count,
-                    headerInSection: section => section == 0 ? null : new Container(height: 16),
+                    headerInSection: section => section == 0 
+                        ? null 
+                        : this.widget.viewModel.specialMembers.Count == 0 ? null : new Container(height: 16),
                     cellAtIndexPath: this._buildMemberItem,
                     footerWidget: enablePullUp ? null : CustomListViewConstant.defaultFooterWidget
                 )
