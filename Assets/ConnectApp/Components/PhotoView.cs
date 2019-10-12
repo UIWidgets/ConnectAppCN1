@@ -101,7 +101,6 @@ namespace ConnectApp.Components {
             if (imagePath.isEmpty()) {
                 return;
             }
-
             var items = new List<ActionSheetItem> {
                 new ActionSheetItem(
                     "保存图片",

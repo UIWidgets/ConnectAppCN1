@@ -91,11 +91,9 @@ namespace ConnectApp.Plugins {
             if (Application.isEditor) {
                 return;
             }
-
             if (image.isEmpty()) {
                 return;
             }
-
             if (Application.platform == RuntimePlatform.Android) {
                 var imageBase64String = Convert.ToBase64String(image);
                 saveImage(imageBase64String);
