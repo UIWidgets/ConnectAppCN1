@@ -42,10 +42,7 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, ChannelScreenViewModel>(
                 converter: state => {
                     ChannelMessageView getMessage(string messageId) {
-                        var message = state.channelState.messageDict[messageId];
-                        message.content = MessageUtils.AnalyzeMessage(
-                            message.content, message.mentions, message.mentionEveryone);
-                        return message;
+                        return state.channelState.messageDict[messageId];
                     }
 
                     var channel = state.channelState.channelDict[this.channelId];
@@ -624,7 +621,7 @@ namespace ConnectApp.screens {
 
             return new RichText(text: new TextSpan(children: MessageUtils.messageWithMarkdownToTextSpans(
                 message.content, message.mentions, message.mentionEveryone,
-                userId => this.widget.actionModel.pushToUserDetail(obj: userId)).ToList()));
+                onTap: userId => this.widget.actionModel.pushToUserDetail(obj: userId)).ToList()));
         }
 
         Widget _buildImageMessageContent(ChannelMessageView message) {
