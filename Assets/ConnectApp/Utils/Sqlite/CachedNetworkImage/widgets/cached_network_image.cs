@@ -19,9 +19,9 @@ namespace ConnectApp.Utils {
             this.headers = headers;
         }
         
-        string url;
-        float scale;
-        IDictionary<string, string> headers;
+        readonly string url;
+        readonly float scale;
+        readonly IDictionary<string, string> headers;
         
         protected override IPromise<CachedNetworkImage> obtainKey(ImageConfiguration configuration) {
             return Promise<CachedNetworkImage>.Resolved(this);

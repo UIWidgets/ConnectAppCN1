@@ -9,6 +9,7 @@ using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
+using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.Redux;
@@ -108,7 +109,7 @@ namespace ConnectApp.screens {
         }
     }
 
-    class _ChannelMembersScreenState : State<ChannelMembersScreen> {
+    class _ChannelMembersScreenState : State<ChannelMembersScreen>, RouteAware {
         RefreshController _refreshController;
 
         public override void initState() {
@@ -116,10 +117,21 @@ namespace ConnectApp.screens {
             this._refreshController = new RefreshController();
         }
 
+        public override void didChangeDependencies() {
+            base.didChangeDependencies();
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(context: this.context));
+        }
+
+        public override void dispose() {
+            Router.routeObserve.unsubscribe(this);
+            base.dispose();
+        }
+
         public override Widget build(BuildContext context) {
             return new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(
+                    bottom: false,
                     child: new Container(
                         color: CColors.Background,
                         child: new Column(
@@ -158,7 +170,9 @@ namespace ConnectApp.screens {
                     sectionCount: 2,
                     numOfRowInSection: section => section == 0
                             ? this.widget.viewModel.specialMembers.Count : this.widget.viewModel.normalMembers.Count,
-                    headerInSection: section => section == 0 ? null : new Container(height: 16),
+                    headerInSection: section => section == 0 
+                        ? null 
+                        : this.widget.viewModel.specialMembers.Count == 0 ? null : new Container(height: 16),
                     cellAtIndexPath: this._buildMemberItem,
                     footerWidget: enablePullUp ? null : CustomListViewConstant.defaultFooterWidget
                 )
@@ -176,7 +190,7 @@ namespace ConnectApp.screens {
             }
 
             var user = userDict[key: member.user.id];
-            UserType userType = UserType.unFollow;
+            UserType userType;
             if (!this.widget.viewModel.isLoggedIn) {
                 userType = UserType.unFollow;
             }
@@ -190,6 +204,9 @@ namespace ConnectApp.screens {
                 else if (this.widget.viewModel.followed != null
                          &&this.widget.viewModel.followed.ContainsKey(key: user.id)) {
                     userType = UserType.follow;
+                }
+                else {
+                    userType = UserType.unFollow;
                 }
             }
             return new MemberCard(
@@ -228,13 +245,22 @@ namespace ConnectApp.screens {
         }
 
         void _onRefresh(bool up) {
-            if (!up) {
-                this.widget.actionModel.fetchMembers().Then(
-                    () => this._refreshController.sendBack(false, mode: RefreshStatus.idle)
-                ).Catch(
-                    e => this._refreshController.sendBack(false, mode: RefreshStatus.idle)
-                );
-            }
+            this.widget.actionModel.fetchMembers()
+                .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))
+                .Catch(e => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed));
+        }
+
+        public void didPop() {
+        }
+
+        public void didPopNext() {
+            StatusBarManager.statusBarStyle(false);
+        }
+
+        public void didPush() {
+        }
+
+        public void didPushNext() {
         }
     }
 }

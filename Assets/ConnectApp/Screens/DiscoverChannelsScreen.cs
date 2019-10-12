@@ -59,9 +59,12 @@ namespace ConnectApp.screens {
                         pushToChannelDetail = channelId => dispatcher.dispatch(new MainNavigatorPushToChannelDetailAction {
                             channelId = channelId
                         }),
+                        startJoinChannel = channelId => dispatcher.dispatch(new StartJoinChannelAction {
+                            channelId = channelId
+                        }),
                         joinChannel = (channelId, groupId) => dispatcher.dispatch<IPromise>(
                             Actions.joinChannel(channelId: channelId, groupId: groupId)),
-                        fetchChannels = () => dispatcher.dispatch<IPromise>(Actions.fetchChannels(viewModel.page + 1))
+                        fetchChannels = pageNumber => dispatcher.dispatch<IPromise>(Actions.fetchChannels(page: pageNumber))
                     };
                     return new DiscoverChannelsScreen(viewModel: viewModel, actionModel: actionModel);
                 }
@@ -89,10 +92,25 @@ namespace ConnectApp.screens {
 
     class _DiscoverChannelsScreenState : State<DiscoverChannelsScreen> {
         RefreshController _refreshController;
+        int _pageNumber;
 
         public override void initState() {
             base.initState();
             this._refreshController = new RefreshController();
+            this._pageNumber = 1;
+        }
+
+        void _onRefresh(bool up) {
+            if (up) {
+                this._pageNumber = 1;
+            }
+            else {
+                this._pageNumber++;
+            }
+
+            this.widget.actionModel.fetchChannels(arg: this._pageNumber)
+                .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))
+                .Catch(e => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed));
         }
 
         public override Widget build(BuildContext context) {
@@ -158,21 +176,16 @@ namespace ConnectApp.screens {
                                     this.widget.actionModel.pushToChannelDetail(obj: channel.id);
                                 }
                             },
-                            () => this.widget.actionModel.joinChannel(arg1: channel.id, arg2: channel.groupId)
+                            () => {
+                                this.widget.actionModel.startJoinChannel(obj: channel.id);
+                                this.widget.actionModel.joinChannel(arg1: channel.id, arg2: channel.groupId);
+                            }
                         );
                     }, 
                     headerWidget: CustomListViewConstant.defaultHeaderWidget,
                     footerWidget: CustomListViewConstant.defaultFooterWidget
                 )
             );
-        }
-
-        void _onRefresh(bool up) {
-            if (!up) {
-                this.widget.actionModel.fetchChannels()
-                    .Then(() => this._refreshController.sendBack(false, mode: RefreshStatus.idle))
-                    .Catch(e => this._refreshController.sendBack(false, mode: RefreshStatus.idle));
-            }
         }
     }
 }

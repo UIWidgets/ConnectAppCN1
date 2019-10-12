@@ -54,32 +54,6 @@ namespace ConnectApp.Components {
                 )
             );
 
-            Widget joinButton = new CustomButton(
-                padding: EdgeInsets.zero,
-                onPressed: this.channel.joined
-                    ? null
-                    : (GestureTapCallback) (() => this.joinChannel()),
-                child: new Container(
-                    width: 60,
-                    height: 28,
-                    decoration: new BoxDecoration(
-                        border: Border.all(this.channel.joined ? CColors.Disable2 : CColors.PrimaryBlue),
-                        borderRadius: BorderRadius.all(14)
-                    ),
-                    child: new Center(
-                        child: this.channel.joined
-                            ? new Text(
-                                "已加入",
-                                style: CTextStyle.PRegularBody5.copyWith(height: 1)
-                            )
-                            : new Text(
-                                "加入",
-                                style: CTextStyle.PRegularBlue.copyWith(height: 1)
-                            )
-                    )
-                )
-            );
-
             return new GestureDetector(
                 onTap: this.onTap,
                 child: new Container(
@@ -97,8 +71,46 @@ namespace ConnectApp.Components {
                                 true
                             ),
                             new Expanded(child: body),
-                            joinButton
+                            this._buildJoinButton()
                         }
+                    )
+                )
+            );
+        }
+
+        Widget _buildJoinButton() {
+            Widget child;
+            if (this.channel.joinLoading) {
+                child = new CustomActivityIndicator(
+                    size: LoadingSize.xSmall
+                );
+            }
+            else {
+                child = this.channel.joined
+                    ? new Text(
+                        "已加入",
+                        style: CTextStyle.PRegularBody5.copyWith(height: 1)
+                    )
+                    : new Text(
+                        "加入",
+                        style: CTextStyle.PRegularBlue.copyWith(height: 1)
+                    );
+            }
+
+            return new CustomButton(
+                padding: EdgeInsets.zero,
+                onPressed: this.channel.joined || this.channel.joinLoading
+                    ? null
+                    : (GestureTapCallback) (() => this.joinChannel()),
+                child: new Container(
+                    width: 60,
+                    height: 28,
+                    decoration: new BoxDecoration(
+                        border: Border.all(this.channel.joined ? CColors.Disable2 : CColors.PrimaryBlue),
+                        borderRadius: BorderRadius.all(14)
+                    ),
+                    child: new Center(
+                        child: child
                     )
                 )
             );
