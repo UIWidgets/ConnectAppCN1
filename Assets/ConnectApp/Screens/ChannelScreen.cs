@@ -135,9 +135,11 @@ namespace ConnectApp.screens {
                         reportLeaveBottom = () => dispatcher.dispatch(new ChannelScreenLeaveBottom {
                             channelId = this.channelId
                         }),
-                        pushToChannelMention = () => dispatcher.dispatch(new MainNavigatorPushToChannelMentionAction {
-                            channelId = this.channelId
-                        }),
+                        pushToChannelMention = () => {
+                            dispatcher.dispatch(new MainNavigatorPushToChannelMentionAction {
+                                channelId = this.channelId
+                            });
+                        },
                         clearLastChannelMention = () => dispatcher.dispatch(new ChannelClearMentionAction())
                     };
                     return new ChannelScreen(viewModel: viewModel, actionModel: actionModel);

@@ -1,18 +1,21 @@
 using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Constants;
+using ConnectApp.Main;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
+using ConnectApp.Utils;
+using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
 using Avatar = ConnectApp.Components.Avatar;
 
 namespace ConnectApp.screens {
@@ -30,7 +33,9 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, ChannelMentionScreenViewModel>(
                 converter: state => {
                     return new ChannelMentionScreenViewModel {
-                        channel = state.channelState.channelDict[this.channelId]
+                        channel = state.channelState.channelDict[this.channelId],
+                        mentionSuggestions = state.channelState.mentionSuggestions.getOrDefault(this.channelId, null),
+                        mentionLoading = state.channelState.mentionLoading
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -45,6 +50,11 @@ namespace ConnectApp.screens {
                                 mentionUserId = mentionUserId
                             });
                             dispatcher.dispatch(new MainNavigatorPopAction());
+                        },
+                        startLoadingMention = () => {
+                            dispatcher.dispatch(new FetchChannelMentionSuggestionStart());
+                            dispatcher.dispatch<IPromise>(
+                                Actions.fetchChannelMentionSuggestions(channelId: this.channelId));
                         }
                     };
                     return new ChannelMentionScreen(viewModel: viewModel, actionModel: actionModel);
@@ -71,27 +81,49 @@ namespace ConnectApp.screens {
         }
     }
 
-    class _ChannelMentionScreenState : State<ChannelMentionScreen> {
-        
+    class _ChannelMentionScreenState : State<ChannelMentionScreen>, RouteAware {
         readonly TextEditingController _editingController = new TextEditingController();
+        readonly ScrollController _scrollController = new ScrollController();
         readonly List<ChannelMember> mentionList = new List<ChannelMember>();
 
+        string curQuery = "";
+
         public override void initState() {
-            this.updateMentionList("");
+            if (this.widget.viewModel.mentionSuggestions == null) {
+                SchedulerBinding.instance.addPostFrameCallback(_ => {
+                    this.widget.actionModel.startLoadingMention();
+                });
+            }
+            this.updateMentionList();
             base.initState();
         }
+        
+        public override void didChangeDependencies() {
+            base.didChangeDependencies();
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(context: this.context));
+        }
 
-        void updateMentionList(string query) {
+        public override void dispose() {
+            Router.routeObserve.unsubscribe(this);
+            base.dispose();
+        }
+
+        void updateMentionList() {
             this.mentionList.Clear();
-            foreach(var memberKey in this.widget.viewModel.channel.membersDict.Keys) {
-                var member = this.widget.viewModel.channel.membersDict[memberKey];
-                if (query == "" || member.user.fullName.Contains(query)) {
+            var allMentions =
+                this.widget.viewModel.mentionSuggestions ??
+                this.widget.viewModel.channel.membersDict;
+            
+            foreach(var memberKey in allMentions.Keys) {
+                var member = allMentions[memberKey];
+                if (this.curQuery == "" || member.user.fullName.Contains(this.curQuery)) {
                     this.mentionList.Add(member);
                 }
             }
         }
 
         public override Widget build(BuildContext context) {
+            this.updateMentionList();
             return new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(
@@ -102,7 +134,8 @@ namespace ConnectApp.screens {
                                 this._buildNavigationBar(),
                                 this._buildSearchBar(),
                                 new Expanded(
-                                    child: this._buildMentionList()
+                                    child: this.widget.viewModel.mentionLoading ? 
+                                        this._buildLoadingPage() : this._buildMentionList()
                                 )
                             }
                         )
@@ -110,10 +143,23 @@ namespace ConnectApp.screens {
                 )
             );
         }
+        
+        ListView _buildLoadingPage() {
+            return new ListView(
+                children: new List<Widget> {
+                    new Container(
+                        child: new GlobalLoading(),
+                        width: MediaQuery.of(this.context).size.width,
+                        height: MediaQuery.of(this.context).size.height - 100
+                    )
+                });
+        }
 
         void _onSearch(string query) {
+            this.curQuery = query;
             this.setState(() => {
-                this.updateMentionList(query);
+                this._scrollController.jumpTo(0);
+                this.updateMentionList();
             });
         }
 
@@ -121,6 +167,7 @@ namespace ConnectApp.screens {
             Widget ret = new Container(
                 color: CColors.White,
                     child: ListView.builder(
+                        controller: this._scrollController,
                         itemCount: this.mentionList.Count,
                         itemBuilder: this._buildMentionTile
                     )
@@ -215,7 +262,7 @@ namespace ConnectApp.screens {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: new List<Widget> {
-                        new Container(),
+                        new Container(width: 56),
                         new Text(
                             "群聊成员",
                             style: CTextStyle.PXLargeMedium
@@ -231,6 +278,22 @@ namespace ConnectApp.screens {
                     }
                 )
             );
+        }
+
+        public void didPopNext() {
+            StatusBarManager.statusBarStyle(false);
+        }
+
+        public void didPush() {
+            
+        }
+
+        public void didPop() {
+            
+        }
+
+        public void didPushNext() {
+            
         }
     }
 }

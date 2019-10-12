@@ -14,8 +14,11 @@ namespace ConnectApp.Models.State {
         public Dictionary<string, ChannelView> channelDict;
         public Dictionary<string, ChannelMessageView> messageDict;
         public Dictionary<string, bool> channelTop;
+        
         public string mentionUserId;
         public bool mentionAutoFocus;
+        public Dictionary<string, Dictionary<string, ChannelMember>> mentionSuggestions;
+        public bool mentionLoading;
         
 
         public void updateChannel(Channel channel) {
