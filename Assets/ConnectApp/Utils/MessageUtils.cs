@@ -1,9 +1,12 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using ConnectApp.Constants;
 using ConnectApp.Models.Model;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
+using Unity.UIWidgets.ui;
 
 namespace ConnectApp.Utils {
     public static class MessageUtils {
@@ -78,6 +81,140 @@ namespace ConnectApp.Utils {
             }
 
             return textSpans;
+        }
+
+        public static IEnumerable<TextSpan> messageWithMarkdownToTextSpans(string content, List<User> mentions,
+            bool mentionEveryone, MentionTapCallback onTap, string url = null, Action<string> onClickUrl = null) {
+            var textSpans = messageToTextSpans(content, mentions, mentionEveryone, onTap);
+            List<TextSpan> result = new List<TextSpan>();
+            foreach (var textSpan in textSpans) {
+                if (textSpan.style != CTextStyle.PLargeBody) {
+                    result.Add(textSpan);
+                    continue;
+                }
+
+                parseMarkdown(result, textSpan.text, url, onClickUrl);
+            }
+            return result;
+        }
+
+        public static void parseMarkdown(List<TextSpan> result, string text, string url = null, Action<string> onClickUrl = null) {
+            if (string.IsNullOrEmpty(text)) {
+                return;
+            }
+            
+            var markdownStyle = new TextStyle();
+
+            int curr = 0, last = 0;
+            while (curr < text.Length) {
+                if (url != null && text[curr] == url[0] && text.Length - curr >= url.Length &&
+                    text.Substring(curr, url.Length) == url) {
+                    if (curr > last) {
+                        result.Add(new TextSpan(text.Substring(last, curr - last),
+                            style: CTextStyle.PLargeBody.merge(markdownStyle)));
+                    }
+                    result.Add(new TextSpan(url, style: CTextStyle.PLargeBlue.merge(markdownStyle),
+                        recognizer: onClickUrl == null ? null : new TapGestureRecognizer {
+                            onTap = () => onClickUrl(url)
+                        }));
+                    curr += url.Length;
+                    last = curr;
+                }
+                else if (text.Length - curr >= 2 && text[curr] == '*' && text[curr + 1] == '*') {
+                    if (curr > last) {
+                        result.Add(new TextSpan(text.Substring(last, curr - last),
+                            style: CTextStyle.PLargeBody.merge(markdownStyle)));
+                    }
+
+                    markdownStyle = markdownStyle.copyWith(
+                        fontWeight: markdownStyle.fontWeight == FontWeight.bold
+                            ? FontWeight.normal
+                            : FontWeight.bold);
+
+                    curr += 2;
+                    last = curr;
+                }
+                else if (text.Length - curr >= 2 && text[curr] == '~' && text[curr + 1] == '~') {
+                    if (curr > last) {
+                        result.Add(new TextSpan(text.Substring(last, curr - last),
+                            style: CTextStyle.PLargeBody.merge(markdownStyle)));
+                    }
+
+                    markdownStyle = markdownStyle.copyWith(
+                        decoration: markdownStyle.decoration?.contains(TextDecoration.lineThrough) ?? false
+                            ? TextDecoration.none
+                            : TextDecoration.lineThrough);
+
+                    curr += 2;
+                    last = curr;
+                }
+                else if (text.Length - curr >= 1 && text[curr] == '_') {
+                    if (curr > last) {
+                        result.Add(new TextSpan(text.Substring(last, curr - last),
+                            style: CTextStyle.PLargeBody.merge(markdownStyle)));
+                    }
+
+                    markdownStyle = markdownStyle.copyWith(
+                        fontStyle: markdownStyle.fontStyle == FontStyle.italic
+                            ? FontStyle.normal
+                            : FontStyle.italic);
+
+                    curr += 1;
+                    last = curr;
+                }
+                else if (text.Length - curr >= 3 && text[curr] == '`' && text[curr + 1] == '`' && text[curr + 2] == '`') {
+                    int end = text.IndexOf("```", curr + 3, StringComparison.Ordinal);
+                    if (end >= curr + 3) {
+                        if (curr > last) {
+                            result.Add(new TextSpan(text.Substring(last, curr - last),
+                                style: CTextStyle.PLargeBody.merge(markdownStyle)));
+                        }
+
+                        var start = curr + 3;
+                        var length = end - start;
+                        if (text[curr + 3] == '\n') {
+                            start += 1;
+                            length -= 1;
+                        }
+
+                        if (text[end - 1] == '\n') {
+                            length -= 1;
+                        }
+                        result.Add(new TextSpan((curr > 0 && text[curr-1] != '\n' ? "\n" : "") +
+                                                text.Substring(start, length) +
+                                                (end + 3 < text.Length && text[end + 3] != '\n' ? "\n" : ""),
+                            style: CTextStyle.PLargeBody.merge(markdownStyle.copyWith(fontFamily: "Menlo"))));
+
+                        curr = end + 3;
+                        last = curr;
+                    }
+                    else {
+                        curr += 3;
+                    }
+                }
+                else if (text.Length - curr >= 1 && text[curr] == '`') {
+                    if (curr > last) {
+                        result.Add(new TextSpan(text.Substring(last, curr - last),
+                            style: CTextStyle.PLargeBody.merge(markdownStyle)));
+                    }
+
+                    markdownStyle = markdownStyle.copyWith(
+                        fontFamily: markdownStyle.fontFamily?.StartsWith("Roboto") ?? true
+                            ? "Menlo"
+                            : "Roboto-Regular");
+
+                    curr += 1;
+                    last = curr;
+                }
+                else {
+                    curr++;
+                }
+            }
+
+            if (last < curr) {
+                result.Add(new TextSpan(text.Substring(last, curr - last),
+                    style: CTextStyle.PLargeBody.merge(markdownStyle)));
+            }
         }
     }
 }

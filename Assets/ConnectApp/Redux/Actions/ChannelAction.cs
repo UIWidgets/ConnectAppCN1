@@ -98,6 +98,28 @@ namespace ConnectApp.redux.actions {
                     });
             });
         }
+        
+        public static object fetchChannelMentionSuggestions(string channelId) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return ChannelApi.FetchChannelMemberSuggestions(channelId: channelId)
+                    .Then(channelMemberResponse => {
+                        var userMap = new Dictionary<string, ChannelMember>();
+                        (channelMemberResponse.list ?? new List<ChannelMember>()).ForEach(member => {
+                            userMap[key: member.user.id] = member;
+                        });
+                        dispatcher.dispatch(new FetchChannelMentionSuggestionsSuccessAction {
+                            channelId = channelId,
+                            users = userMap
+                        });
+                    })
+                    .Catch(error => {
+                        dispatcher.dispatch(new FetchChannelMentionSuggestionsFailureAction {
+                            channelId = channelId
+                        });
+                        Debug.Log(error);
+                    });
+            });
+        }
 
         public static object joinChannel(string channelId, string groupId = null, bool loading = false) {
             if (loading) {
@@ -379,6 +401,32 @@ namespace ConnectApp.redux.actions {
     }
 
     public class MergeOldChannelMessages : BaseAction {
+        public string channelId;
+    }
+
+    public class SocketConnectStateAction : BaseAction {
+        public bool connected;
+    }
+    
+    public class ChannelChooseMentionConfirmAction : BaseAction {
+        public string mentionUserId;
+    }
+
+    public class ChannelChooseMentionCancelAction : BaseAction {
+    }
+
+    public class ChannelClearMentionAction : BaseAction {
+    }
+
+    public class FetchChannelMentionSuggestionStart : BaseAction {
+    }
+
+    public class FetchChannelMentionSuggestionsSuccessAction : BaseAction {
+        public string channelId;
+        public Dictionary<string, ChannelMember> users;
+    }
+
+    public class FetchChannelMentionSuggestionsFailureAction : BaseAction {
         public string channelId;
     }
 }
