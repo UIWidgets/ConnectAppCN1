@@ -31,12 +31,10 @@ namespace ConnectApp.screens {
 
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ChannelMentionScreenViewModel>(
-                converter: state => {
-                    return new ChannelMentionScreenViewModel {
-                        channel = state.channelState.channelDict[this.channelId],
-                        mentionSuggestions = state.channelState.mentionSuggestions.getOrDefault(this.channelId, null),
-                        mentionLoading = state.channelState.mentionLoading
-                    };
+                converter: state => new ChannelMentionScreenViewModel {
+                    channel = state.channelState.channelDict[key: this.channelId],
+                    mentionSuggestions = state.channelState.mentionSuggestions.getOrDefault(this.channelId, null),
+                    mentionLoading = state.channelState.mentionLoading
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new ChannelMentionScreenActionModel {
@@ -115,9 +113,9 @@ namespace ConnectApp.screens {
                 this.widget.viewModel.channel.membersDict;
             
             foreach(var memberKey in allMentions.Keys) {
-                var member = allMentions[memberKey];
-                if (this.curQuery == "" || member.user.fullName.Contains(this.curQuery)) {
-                    this.mentionList.Add(member);
+                var member = allMentions[key: memberKey];
+                if (this.curQuery == "" || member.user.fullName.ToLower().Contains(this.curQuery.ToLower())) {
+                    this.mentionList.Add(item: member);
                 }
             }
         }
@@ -164,29 +162,22 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildMentionList() {
-            Widget ret = new Container(
-                color: CColors.White,
-                    child: ListView.builder(
+            return new Container(
+                color: CColors.Background,
+                child: new CustomScrollbar(
+                    ListView.builder(
                         controller: this._scrollController,
                         itemCount: this.mentionList.Count,
                         itemBuilder: this._buildMentionTile
                     )
+                )
             );
-
-            return ret;
-        }
-
-
-        void _onChooseMention(ChannelMember member) {
-            this.widget.actionModel.chooseMentionConfirm(member.id);
         }
 
         Widget _buildMentionTile(BuildContext context, int index) {
-            ChannelMember member = this.mentionList[index];
+            ChannelMember member = this.mentionList[index: index];
             return new GestureDetector(
-                onTap: () => {
-                    this._onChooseMention(member);
-                },
+                onTap: () => this.widget.actionModel.chooseMentionConfirm(obj: member.user.id),
                 child: new Container(
                     color: CColors.White,
                     height: 72,

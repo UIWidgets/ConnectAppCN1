@@ -17,8 +17,8 @@ namespace ConnectApp.Components {
             color: CColors.White
         );
         public const float tipMenuRadius = 8;
-        public const float triangleWidth = 8;
-        public const float triangleHeight = 8;
+        public const float triangleWidth = 18;
+        public const float triangleHeight = 9;
     }
 
     public class TipMenuItem {

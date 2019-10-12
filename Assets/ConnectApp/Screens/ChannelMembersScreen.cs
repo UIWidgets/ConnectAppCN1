@@ -12,6 +12,8 @@ using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.painting;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.widgets;
 
@@ -150,9 +152,23 @@ namespace ConnectApp.screens {
         Widget _buildNavigationBar() {
             return new CustomAppBar(
                 () => this.widget.actionModel.mainRouterPop(),
-                new Text(
-                    $"群聊成员({this.widget.viewModel.channel.memberCount})",
-                    style: CTextStyle.PXLargeMedium
+                new Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: new List<Widget> {
+                        new Text(
+                            $"群聊成员({this.widget.viewModel.channel.memberCount})",
+                            style: CTextStyle.PXLargeMedium
+                        ),
+                        new Text(
+                            "按活跃度排序",
+                            style: new TextStyle(
+                                height: 1.1f,
+                                fontSize: 10,
+                                fontFamily: "Roboto-Regular",
+                                color: CColors.Black
+                            )
+                        )
+                    }
                 )
             );
         }
