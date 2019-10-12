@@ -5,22 +5,25 @@ using ConnectApp.Components;
 using ConnectApp.Plugins;
 using Unity.UIWidgets.foundation;
 using UnityEngine;
-
 #if UNITY_IOS
 using System.Runtime.InteropServices;
-
 #endif
 
 namespace ConnectApp.Utils {
+    public enum QRState {
+        click,
+        check,
+        confirm,
+        cancel
+    }
+
+    public enum FavoriteTagType {
+        create,
+        edit,
+        delete
+    }
+
     public static class AnalyticsManager {
-        public enum QRState {
-            click,
-            check,
-            confirm,
-            cancel
-        }
-
-
         public static string foucsTime;
 
         // tab点击统计
@@ -481,12 +484,56 @@ namespace ConnectApp.Utils {
             AnalyticsApi.AnalyticsApp(userId: userId, device: device, "QRScan", appTime: DateTime.UtcNow, data: data);
         }
 
-        public static string deviceId() {
+        public static void AnalyticsHandleFavoriteTag(FavoriteTagType type) {
             if (Application.isEditor) {
-                return "Editor";
+                return;
             }
 
-            return getDeviceID();
+            var userId = UserInfoManager.isLogin() ? UserInfoManager.initUserInfo().userId : null;
+            var device = deviceId() + (SystemInfo.deviceModel ?? "");
+            var data = new List<Dictionary<string, string>> {
+                new Dictionary<string, string> {
+                    {"key", "type"}, {"dataType", "string"}, {"value", type.ToString()}
+                }
+            };
+            AnalyticsApi.AnalyticsApp(userId: userId, device: device, "HandleFavoriteTag", appTime: DateTime.UtcNow, data: data);
+        }
+
+        public static void AnalyticsFavoriteArticle(string articleId, IEnumerable<string> favoriteTagIds) {
+            if (Application.isEditor) {
+                return;
+            }
+
+            var userId = UserInfoManager.isLogin() ? UserInfoManager.initUserInfo().userId : null;
+            var device = deviceId() + (SystemInfo.deviceModel ?? "");
+            var data = new List<Dictionary<string, string>> {
+                new Dictionary<string, string> {
+                    {"key", "articleId"}, {"dataType", "string"}, {"value", articleId}
+                },
+                new Dictionary<string, string> {
+                    {"key", "state"}, {"dataType", "string"}, {"value", string.Join(",", values: favoriteTagIds)}
+                }
+            };
+            AnalyticsApi.AnalyticsApp(userId: userId, device: device, "FavoriteArticle", appTime: DateTime.UtcNow, data: data);
+        }
+
+        public static void AnalyticsUnFavoriteArticle(string favoriteId) {
+            if (Application.isEditor) {
+                return;
+            }
+
+            var userId = UserInfoManager.isLogin() ? UserInfoManager.initUserInfo().userId : null;
+            var device = deviceId() + (SystemInfo.deviceModel ?? "");
+            var data = new List<Dictionary<string, string>> {
+                new Dictionary<string, string> {
+                    {"key", "favoriteId"}, {"dataType", "string"}, {"value", favoriteId}
+                }
+            };
+            AnalyticsApi.AnalyticsApp(userId: userId, device: device, "UnFavoriteArticle", appTime: DateTime.UtcNow, data: data);
+        }
+
+        public static string deviceId() {
+            return Application.isEditor ? "Editor" : getDeviceID();
         }
 
         public static bool enableNotification() {

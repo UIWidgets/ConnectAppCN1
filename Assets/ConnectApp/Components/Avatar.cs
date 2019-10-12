@@ -105,11 +105,8 @@ namespace ConnectApp.Components {
                 )
                 : null;
 
-            var httpsUrl = this.avatarUrl;
             // fix Android 9 http request error 
-            if (httpsUrl.Contains("http://")) {
-                httpsUrl = httpsUrl.Replace("http://", "https://");
-            }
+            var httpsUrl = CStringUtils.httpToHttps(url: this.avatarUrl);
             return new Container(
                 width: this.size,
                 height: this.size,
