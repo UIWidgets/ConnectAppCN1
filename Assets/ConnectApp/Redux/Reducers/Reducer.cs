@@ -2562,6 +2562,11 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case FetchChannelsFailureAction _: {
+                    state.channelState.socketConnected = false;
+                    break;
+                }
+
                 case StartFetchChannelMessageAction _: {
                     state.channelState.messageLoading = true;
                     break;
@@ -2610,6 +2615,7 @@ namespace ConnectApp.redux.reducers {
 
                 case FetchChannelMessagesFailureAction _: {
                     state.channelState.messageLoading = false;
+                    state.channelState.socketConnected = false;
                     break;
                 }
 
@@ -2902,6 +2908,16 @@ namespace ConnectApp.redux.reducers {
                         }
                     }
 
+                    if (state.channelState.mentionSuggestions.ContainsKey(action.memberData.channelId)) {
+                        var suggestionDict = state.channelState.mentionSuggestions[action.memberData.channelId];
+                        if (suggestionDict.ContainsKey(action.memberData.id)) {
+                            suggestionDict[action.memberData.id].updateFromSocketResponseChannelMemberChangeData(action.memberData);
+                        }
+                        else {
+                            suggestionDict[action.memberData.id] = ChannelMember.fromSocketResponseChannelMemberChangeData(action.memberData);
+                        }
+                    }
+
                     break;
                 }
 
@@ -2912,12 +2928,72 @@ namespace ConnectApp.redux.reducers {
                         channel.memberCount--;
                     }
 
+                    if (state.channelState.mentionSuggestions.ContainsKey(action.memberData.channelId)) {
+                        var suggestionDict = state.channelState.mentionSuggestions[action.memberData.channelId];
+                        if (suggestionDict.ContainsKey(action.memberData.id)) {
+                            suggestionDict.Remove(action.memberData.id);
+                        }
+                    }
+
+                    break;
+                }
+
+                case SocketConnectStateAction action: {
+                    state.channelState.socketConnected = action.connected;
                     break;
                 }
 
                 case SwitchTabBarIndexAction action: {
                     state.tabBarState.currentTabIndex = action.index;
 
+                    break;
+                }
+                
+                case MainNavigatorPushToChannelMentionAction action: {
+                    Router.navigator.push(new PageRouteBuilder(
+                            pageBuilder: (context, animation, secondaryAnimation) =>
+                                new ChannelMentionScreenConnector(action.channelId),
+                            transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
+                                new PushPageTransition(
+                                    routeAnimation: animation,
+                                    child: child
+                                )
+                        )
+                    );
+                    break;
+                }
+
+                case ChannelChooseMentionCancelAction action: {
+                    state.channelState.mentionAutoFocus = true;
+                    state.channelState.mentionUserId = "";
+                    break;
+                }
+                
+                case ChannelChooseMentionConfirmAction action: {
+                    state.channelState.mentionAutoFocus = true;
+                    state.channelState.mentionUserId = action.mentionUserId;
+                    break;
+                }
+
+                case ChannelClearMentionAction action: {
+                    state.channelState.mentionAutoFocus = false;
+                    state.channelState.mentionUserId = "";
+                    break;
+                }
+
+                case FetchChannelMentionSuggestionStart action: {
+                    state.channelState.mentionLoading = true;
+                    break;
+                }
+
+                case FetchChannelMentionSuggestionsSuccessAction action: {
+                    state.channelState.mentionLoading = false;
+                    state.channelState.mentionSuggestions[action.channelId] = action.users;
+                    break;
+                }
+
+                case FetchChannelMentionSuggestionsFailureAction action: {
+                    state.channelState.mentionLoading = false;
                     break;
                 }
             }

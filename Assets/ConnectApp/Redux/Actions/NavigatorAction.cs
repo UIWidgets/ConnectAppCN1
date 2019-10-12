@@ -138,4 +138,8 @@ namespace ConnectApp.redux.actions {
         public string url;
         public bool useCachedNetworkImage = true;
     }
+    
+    public class MainNavigatorPushToChannelMentionAction : BaseAction {
+        public string channelId;
+    }
 }
