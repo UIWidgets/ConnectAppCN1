@@ -60,6 +60,9 @@ namespace ConnectApp.screens {
                         messages = channel.messageIds.Select(getMessage).ToList();
                     }
 
+                    messages = messages
+                        .Where(message => message.type != ChannelMessageType.text || message.content != "")
+                        .ToList();
                     
                     return new ChannelScreenViewModel {
                         channel = state.channelState.channelDict[this.channelId],

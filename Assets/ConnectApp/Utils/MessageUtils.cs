@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using ConnectApp.Constants;
 using ConnectApp.Models.Model;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
-using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 
