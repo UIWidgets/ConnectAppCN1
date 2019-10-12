@@ -1,14 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using ConnectApp.Api;
 using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
 using ConnectApp.Main;
 using ConnectApp.Models.ActionModel;
-using ConnectApp.Models.Api;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
@@ -26,7 +23,6 @@ using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
 using Config = ConnectApp.Constants.Config;
 using Icons = ConnectApp.Constants.Icons;
 using Image = Unity.UIWidgets.widgets.Image;
@@ -170,7 +166,6 @@ namespace ConnectApp.screens {
     class _ChannelScreenState : TickerProviderStateMixin<ChannelScreen>, RouteAware {
         readonly TextEditingController _textController = new TextEditingController();
         readonly RefreshController _refreshController = new RefreshController();
-        readonly PageController _viewImageController = new PageController();
         readonly GlobalKey _smartRefresherKey = GlobalKey<State<SmartRefresher>>.key("SmartRefresher");
         readonly ChannelMessageInputManager _inputContentManager = new ChannelMessageInputManager();
         TabController _emojiTabController;
@@ -281,13 +276,20 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             if (this.widget.viewModel.mentionAutoFocus) {
                 FocusScope.of(this.context).requestFocus(this._focusNode);
-                if (!this.widget.viewModel.mentionUserId.isEmpty()) {
-                    var userName = this.widget.viewModel.channel.membersDict[this.widget.viewModel.mentionUserId].user.fullName;
-                    this._inputContentManager.AddMention(userName + " ", this.widget.viewModel.mentionUserId, this._textController.text + userName + " ");
+                if (!this.widget.viewModel.mentionUserId.isEmpty() &&
+                    this.widget.viewModel.channel.membersDict.TryGetValue(
+                        this.widget.viewModel.mentionUserId, out var member)) {
+                    var userName = member.user.fullName;
+                    this._inputContentManager.AddMention(
+                        mentionName: userName + " ",
+                        mentionUserId: this.widget.viewModel.mentionUserId,
+                        newContent: this._textController.text + userName + " ");
                     this._textController.text += userName + " ";
                     this._textController.selection = TextSelection.collapsed(this._textController.text.Length);
                 }
-                this.widget.actionModel.clearLastChannelMention();
+                SchedulerBinding.instance.addPostFrameCallback(_ => {
+                    this.widget.actionModel.clearLastChannelMention();
+                });
             }
             
             if ((this.showKeyboard || this.showEmojiBoard) && this._refreshController.offset > 0) {
