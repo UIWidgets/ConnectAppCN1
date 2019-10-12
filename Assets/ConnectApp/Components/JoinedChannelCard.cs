@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using ConnectApp.Constants;
 using ConnectApp.Models.Model;
 using ConnectApp.Utils;
@@ -50,14 +51,15 @@ namespace ConnectApp.Components {
                         ? "[有人@我] "
                         : this.channel.atAll ? "[@所有人] " : "",
                     style: CTextStyle.PRegularError,
-                    new List<TextSpan> {
-                        new TextSpan(MessageUtils.AnalyzeMessage(
-                                content: text,
-                                mentions: this.channel.lastMessage?.mentions,
-                                this.channel.lastMessage?.mentionEveryone ?? false),
-                            style: CTextStyle.PRegularBody4
-                        )
-                    }
+                    children: MessageUtils.messageWithMarkdownToTextSpans(
+                        content: text,
+                        mentions: this.channel.lastMessage?.mentions,
+                        mentionEveryone: this.channel.lastMessage?.mentionEveryone ?? false,
+                        onTap: null,
+                        bodyStyle: CTextStyle.PRegularBody4,
+                        linkStyle: CTextStyle.PRegularBody4
+                    ).ToList()
+                    
                 ),
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1

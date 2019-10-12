@@ -31,12 +31,10 @@ namespace ConnectApp.screens {
 
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ChannelMentionScreenViewModel>(
-                converter: state => {
-                    return new ChannelMentionScreenViewModel {
-                        channel = state.channelState.channelDict[this.channelId],
-                        mentionSuggestions = state.channelState.mentionSuggestions.getOrDefault(this.channelId, null),
-                        mentionLoading = state.channelState.mentionLoading
-                    };
+                converter: state => new ChannelMentionScreenViewModel {
+                    channel = state.channelState.channelDict[key: this.channelId],
+                    mentionSuggestions = state.channelState.mentionSuggestions.getOrDefault(this.channelId, null),
+                    mentionLoading = state.channelState.mentionLoading
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new ChannelMentionScreenActionModel {
@@ -115,9 +113,9 @@ namespace ConnectApp.screens {
                 this.widget.viewModel.channel.membersDict;
             
             foreach(var memberKey in allMentions.Keys) {
-                var member = allMentions[memberKey];
-                if (this.curQuery == "" || member.user.fullName.Contains(this.curQuery)) {
-                    this.mentionList.Add(member);
+                var member = allMentions[key: memberKey];
+                if (this.curQuery == "" || member.user.fullName.ToLower().Contains(this.curQuery.ToLower())) {
+                    this.mentionList.Add(item: member);
                 }
             }
         }
@@ -164,36 +162,29 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildMentionList() {
-            Widget ret = new Container(
-                color: CColors.White,
-                    child: ListView.builder(
+            return new Container(
+                color: CColors.Background,
+                child: new CustomScrollbar(
+                    ListView.builder(
                         controller: this._scrollController,
                         itemCount: this.mentionList.Count,
                         itemBuilder: this._buildMentionTile
                     )
+                )
             );
-
-            return ret;
-        }
-
-
-        void _onChooseMention(ChannelMember member) {
-            this.widget.actionModel.chooseMentionConfirm(member.id);
         }
 
         Widget _buildMentionTile(BuildContext context, int index) {
-            ChannelMember member = this.mentionList[index];
+            ChannelMember member = this.mentionList[index: index];
             return new GestureDetector(
-                onTap: () => {
-                    this._onChooseMention(member);
-                },
+                onTap: () => this.widget.actionModel.chooseMentionConfirm(obj: member.user.id),
                 child: new Container(
                     color: CColors.White,
                     height: 72,
-                    padding: EdgeInsets.symmetric(12, 16),
+                    padding: EdgeInsets.only(16f),
                     child: new Row(
                         children: new List<Widget> {
-                            Avatar.User(user: member.user, 48),
+                            Avatar.User(user: member.user, 32),
                             new Expanded(
                                 child: new Container(
                                     padding: EdgeInsets.symmetric(0, 16),
@@ -203,7 +194,7 @@ namespace ConnectApp.screens {
                                         children: new List<Widget> {
                                             new Flexible(child: new Text(
                                                 data: member.user.fullName,
-                                                style: CTextStyle.PMediumBody,
+                                                style: CTextStyle.PLargeBody,
                                                 maxLines: 1,
                                                 overflow: TextOverflow.ellipsis
                                             ))
@@ -226,7 +217,7 @@ namespace ConnectApp.screens {
                         color: CColors.Separator2,
                         borderRadius: BorderRadius.all(8)
                     ),
-                    height: 40,
+                    height: 36,
                     controller: this._editingController,
                     style: CTextStyle.PLargeBody2,
                     prefix: new Container(
@@ -250,19 +241,14 @@ namespace ConnectApp.screens {
         Widget _buildNavigationBar() {
             return new Container(
                 decoration: new BoxDecoration(
-                    color: CColors.White,
-                    border: new Border(
-                        bottom: new BorderSide(
-                            color: CColors.Separator2
-                        )
-                    )
+                    color: CColors.White
                 ),
                 height: 44,
                 child: new Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: new List<Widget> {
-                        new Container(width: 56),
+                        new Container(width: 48),
                         new Column(
                             children: new List<Widget> {
                                 new Container(height:6f),
