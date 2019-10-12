@@ -75,6 +75,7 @@ namespace ConnectApp.screens {
                         me = state.loginState.loginInfo.userId,
                         messageLoading = state.channelState.messageLoading,
                         newMessageCount = state.channelState.channelDict[this.channelId].unread,
+                        socketConnected = state.channelState.socketConnected,
                         mentionAutoFocus = state.channelState.mentionAutoFocus,
                         mentionUserId = state.channelState.mentionUserId
                     };
@@ -315,7 +316,10 @@ namespace ConnectApp.screens {
                     this.widget.viewModel.newMessageCount == 0 ||
                     this.widget.viewModel.messageLoading
                         ? new Container()
-                        : this._buildNewMessageNotification()
+                        : this._buildNewMessageNotification(),
+                    this.widget.viewModel.socketConnected
+                        ? new Container()
+                        : this._buildNetworkDisconnectedNote()
                 }
             );
 
@@ -339,6 +343,28 @@ namespace ConnectApp.screens {
                     )
                 )
             );
+        }
+
+        Widget _buildNetworkDisconnectedNote() {
+            Widget ret = new Container(
+                height: 24,
+                color: CColors.Error,
+                child: new Center(
+                    child: new Text(
+                        $"网络未连接",
+                        style: CTextStyle.PRegularWhite.copyWith(height: 1f)
+                    )
+                )
+            );
+
+            ret = Positioned.fill(
+                new Align(
+                    alignment: Alignment.topCenter,
+                    child: ret
+                )
+            );
+
+            return ret;
         }
 
         Widget _buildNewMessageNotification() {
@@ -603,12 +629,12 @@ namespace ConnectApp.screens {
             return new GestureDetector(
                 onTap: () => {
                     this.setState(() => {
-                        var iamgeUrls = this.widget.viewModel.messages
+                        var imageUrls = this.widget.viewModel.messages
                             .Where(msg => msg.type == ChannelMessageType.image)
                             .Select(msg => CImageUtils.SizeToScreenImageUrl(msg.content))
                             .ToList();
                         var url = CImageUtils.SizeToScreenImageUrl(message.content);
-                        this.widget.actionModel.browserImage(url, iamgeUrls);
+                        this.widget.actionModel.browserImage(url, imageUrls);
                     });
                 },
                 child: new _ImageMessage(
