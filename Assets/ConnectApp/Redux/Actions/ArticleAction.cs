@@ -346,16 +346,26 @@ namespace ConnectApp.redux.actions {
                 return null;
             }
 
+            CustomDialogUtils.showCustomDialog(
+                child: new CustomLoadingDialog(
+                    message: "操作中"
+                )
+            );
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ArticleApi.FavoriteArticle(articleId: articleId, tagIds: tagIds)
                     .Then(favoriteArticleResponse => {
+                        CustomDialogUtils.hiddenCustomDialog();
+                        CustomDialogUtils.showToast("操作成功", iconData: Icons.sentiment_satisfied);
                         dispatcher.dispatch(new FavoriteArticleSuccessAction {
                             favorites = favoriteArticleResponse,
                             articleId = articleId
                         });
                         AnalyticsManager.AnalyticsFavoriteArticle(articleId: articleId, favoriteTagIds: tagIds);
                     })
-                    .Catch(onRejected: Debug.Log);
+                    .Catch(error => {
+                        CustomDialogUtils.hiddenCustomDialog();
+                        Debug.Log(error);
+                    });
             });
         }
 

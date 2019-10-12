@@ -477,9 +477,9 @@ namespace ConnectApp.screens {
         Widget _buildArticleTabBar() {
             return new ArticleTabBar(
                 this._article.like && this.widget.viewModel.isLoggedIn,
-                this._article.favorites != null
-                        && this._article.favorites.Count > 0
-                        && this.widget.viewModel.isLoggedIn,
+                this.widget.viewModel.isLoggedIn 
+                        && this._article.favorites != null
+                        && this._article.favorites.Count > 0,
                 () => this._sendComment("Article"),
                 () => this._sendComment("Article"),
                 () => {
