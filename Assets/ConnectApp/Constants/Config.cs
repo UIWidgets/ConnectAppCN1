@@ -22,7 +22,7 @@ namespace ConnectApp.Constants {
 
         public const int versionCode = 61;
 
-        public const string MessengerTag = "messenger";
+        public const string messengerTag = "messenger";
 
         public const string originCodeUrl = "https://github.com/UnityTech/ConnectAppCN";
 

@@ -34,7 +34,7 @@ namespace ConnectApp.Plugins {
                 completed();
                 setJPushChannel(Config.store);
                 setJPushTags(
-                    new List<string> {Config.versionCode.ToString(), Config.MessengerTag, Config.versionNumber});
+                    new List<string> {Config.versionCode.ToString(), Config.messengerTag, Config.versionNumber});
             }
         }
 
