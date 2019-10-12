@@ -42,8 +42,11 @@ namespace ConnectApp.Plugins {
                 using (WindowProvider.of(GlobalContext.context).getScope()) {
                     switch (method) {
                         case "OnOpenNotification": {
+                            if (args.isEmpty()) {
+                                return;
+                            }
                             //点击应用通知栏
-                            var node = args[0];
+                            var node = args.first();
                             var dict = JSON.Parse(node);
                             var type = dict["type"];
                             var subType = dict["subtype"];
@@ -81,7 +84,10 @@ namespace ConnectApp.Plugins {
                             break;
                         }
                         case "CompletedCallback": {
-                            var node = args[0];
+                            if (args.isEmpty()) {
+                                return;
+                            }
+                            var node = args.first();
                             var dict = JSON.Parse(node);
                             var isPush = (bool) dict["push"];
                             if (isPush) {
