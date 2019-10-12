@@ -14,6 +14,7 @@ namespace ConnectApp.Components {
     public class NotificationCard : StatelessWidget {
         public NotificationCard(
             Notification notification,
+            string currentUserId,
             User user = null,
             Team team = null,
             List<User> mentions = null,
@@ -24,6 +25,7 @@ namespace ConnectApp.Components {
             Key key = null
         ) : base(key: key) {
             this.notification = notification;
+            this.currentUserId = currentUserId;
             this.user = user;
             this.team = team;
             this.mentions = mentions;
@@ -34,6 +36,7 @@ namespace ConnectApp.Components {
         }
 
         readonly Notification notification;
+        readonly string currentUserId;
         readonly User user;
         readonly Team team;
         readonly List<User> mentions;
@@ -127,28 +130,24 @@ namespace ConnectApp.Components {
             }
 
             if (type == "project_message_commented") {
-                if (data.parentComment.isNotEmpty()) {
-                    content = $" “{MessageUtils.AnalyzeMessage(data.parentComment, this.mentions, false)}”";
-                    subTitle = new TextSpan(
-                        " 回复了你的评论" + content,
-                        style: CTextStyle.PLargeBody2
-                    );
+                if (data.upperMessageUserId.isNotEmpty()) {
+                    subTitle = this._buildSubTitle(id: data.upperMessageUserId, comment: data.upperComment);
+                }
+                else if (data.parentMessageUserId.isNotEmpty()) {
+                    subTitle = this._buildSubTitle(id: data.parentMessageUserId, comment: data.parentComment);
                 }
                 else {
-                    subTitle = new TextSpan(
-                        " 评论了你的文章",
-                        style: CTextStyle.PLargeBody2
-                    );
+                    subTitle = this._buildSubTitle("", comment: data.comment);
                 }
             }
 
             if (type == "project_participate_comment") {
-                if (data.parentComment.isNotEmpty()) {
-                    content = $" “{MessageUtils.AnalyzeMessage(data.parentComment, this.mentions, false)}”";
+                if (data.comment.isNotEmpty()) {
+                    content = $" “{MessageUtils.AnalyzeMessage(data.comment, this.mentions, false)}”";
                 }
 
                 subTitle = new TextSpan(
-                    " 回复了你的评论" + content,
+                    " 回复了你关注的评论" + content,
                     style: CTextStyle.PLargeBody2
                 );
             }
@@ -209,7 +208,7 @@ namespace ConnectApp.Components {
                     children: new List<TextSpan> {
                         new TextSpan(text: name, recognizer: new TapGestureRecognizer {
                             onTap = onTap
-                        }, style: CTextStyle.PLargeBlue),
+                        }, style: CTextStyle.PLargeMedium),
                         new TextSpan(" 发布了新文章")
                     },
                     style: CTextStyle.PLargeBody2
@@ -264,6 +263,56 @@ namespace ConnectApp.Components {
                     style: CTextStyle.PSmallBody4
                 )
             );
+        }
+
+        TextSpan _buildSubTitle(string id, string comment) {
+            TextSpan subTitle;
+            if (id.isEmpty()) {
+                if (comment.isNotEmpty()) {
+                    var content = $" “{MessageUtils.AnalyzeMessage(content: comment, mentions: this.mentions, false)}”";
+                    subTitle = new TextSpan(
+                        " 回复了你的评论" + content,
+                        style: CTextStyle.PLargeBody2
+                    );
+                }
+                else {
+                    subTitle = new TextSpan(
+                        " 评论了你的文章",
+                        style: CTextStyle.PLargeBody2
+                    );
+                }
+            } else if (id.Equals(value: this.currentUserId)) {
+                if (comment.isNotEmpty()) {
+                    var content = $" “{MessageUtils.AnalyzeMessage(content: comment, mentions: this.mentions, false)}”";
+                    subTitle = new TextSpan(
+                        " 回复了你的评论" + content,
+                        style: CTextStyle.PLargeBody2
+                    );
+                }
+                else {
+                    subTitle = new TextSpan(
+                        " 评论了你的文章",
+                        style: CTextStyle.PLargeBody2
+                    );
+                }
+            }
+            else {
+                if (comment.isNotEmpty()) {
+                    var content = $" “{MessageUtils.AnalyzeMessage(content: comment, mentions: this.mentions, false)}”";
+                    subTitle = new TextSpan(
+                        " 回复了你关注的评论" + content,
+                        style: CTextStyle.PLargeBody2
+                    );
+                }
+                else {
+                    subTitle = new TextSpan(
+                        " 评论了你的文章",
+                        style: CTextStyle.PLargeBody2
+                    );
+                }
+            }
+
+            return subTitle;
         }
     }
 }

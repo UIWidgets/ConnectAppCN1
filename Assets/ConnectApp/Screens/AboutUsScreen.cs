@@ -8,11 +8,15 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
-using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
     public class AboutUsScreenConnector : StatelessWidget {
+        public AboutUsScreenConnector(
+            Key key = null
+        ) : base(key: key) {
+        }
+
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, object>(
                 converter: state => null,
@@ -23,7 +27,7 @@ namespace ConnectApp.screens {
                         toWidgetOriginCode = () =>
                             dispatcher.dispatch(new OpenUrlAction {url = Config.widgetOriginCodeUrl})
                     };
-                    return new AboutUsScreen(actionModel);
+                    return new AboutUsScreen(actionModel: actionModel);
                 }
             );
         }
@@ -44,7 +48,7 @@ namespace ConnectApp.screens {
                 color: CColors.White,
                 child: new CustomSafeArea(
                     child: new Container(
-                        color: new Color(0xFFFAFAFA),
+                        color: CColors.Background,
                         child: new Column(
                             children: new List<Widget> {
                                 this._buildNavigationBar(),
@@ -76,7 +80,7 @@ namespace ConnectApp.screens {
                             margin: EdgeInsets.only(bottom: 16),
                             alignment: Alignment.center,
                             child: new Icon(
-                                Icons.UnityLogo,
+                                icon: Icons.UnityLogo,
                                 size: 64
                             )
                         ),
@@ -91,31 +95,26 @@ namespace ConnectApp.screens {
                         ),
                         new Container(
                             padding: EdgeInsets.only(32, 24, 32, 32),
-                            child: new Text("Unity Connect 是使用 UIWidgets 开发的移动端项目，是一个开放而友好的社区，每个开发者都能在这里学习或者分享自己的作品。",
-                                style: CTextStyle.PRegularBody)),
-                        new Container(color: new Color(0xFFFAFAFA), height: 16),
+                            child: new Text(
+                                "Unity Connect 是使用 UIWidgets 开发的移动端项目，是一个开放而友好的社区，每个开发者都能在这里学习或者分享自己的作品。",
+                                style: CTextStyle.PRegularBody
+                            )
+                        ),
+                        new Container(color: CColors.Background, height: 16),
                         new GestureDetector(
-                            child: this._tapRow("关注本项目源代码"),
-                            onTap: this.pushOriginCode
+                            child: _buildTapRow("关注本项目源代码"),
+                            onTap: () => this.actionModel.toOriginCode()
                         ),
                         new GestureDetector(
-                            child: this._tapRow("关注 UIWidgets 项目源代码"),
-                            onTap: this.pushWidgetOriginCode
+                            child: _buildTapRow("关注 UIWidgets 项目源代码"),
+                            onTap: () => this.actionModel.toWidgetOriginCode()
                         )
                     }
                 )
             );
         }
 
-        void pushOriginCode() {
-            this.actionModel.toOriginCode();
-        }
-
-        void pushWidgetOriginCode() {
-            this.actionModel.toWidgetOriginCode();
-        }
-
-        Widget _tapRow(string content) {
+        static Widget _buildTapRow(string content) {
             return new Container(
                 height: 60,
                 color: CColors.Transparent,
@@ -123,13 +122,15 @@ namespace ConnectApp.screens {
                 child: new Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: new List<Widget> {
-                        new Text(content, style: CTextStyle.PLargeBody),
+                        new Text(data: content, style: CTextStyle.PLargeBody),
                         new Icon(
                             icon: Icons.arrow_forward,
                             size: 16,
                             color: CColors.Icon
                         )
-                    }));
+                    }
+                )
+            );
         }
     }
 }
