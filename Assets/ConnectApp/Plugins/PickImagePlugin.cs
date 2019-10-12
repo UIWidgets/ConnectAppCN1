@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using ConnectApp.Components;
 using ConnectApp.Utils;
 using Unity.UIWidgets.engine;
 using Unity.UIWidgets.external.simplejson;
+using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
+#if UNITY_IOS
+using System.Runtime.InteropServices;
+#endif
 
 namespace ConnectApp.Plugins {
     public enum ImageSource {
@@ -44,6 +46,7 @@ namespace ConnectApp.Plugins {
                             if (image != null) {
                                 _imageCallBack?.Invoke(obj: image);
                             }
+
                             removeListener();
                             StatusBarManager.hideStatusBar(false);
                             break;
@@ -84,12 +87,32 @@ namespace ConnectApp.Plugins {
             pickVideo(sourceInt.ToString());
         }
 
+        public static void SaveImage(string imagePath, byte[] image) {
+            if (Application.isEditor) {
+                return;
+            }
+            if (image.isEmpty()) {
+                return;
+            }
+            if (Application.platform == RuntimePlatform.Android) {
+                var imageBase64String = Convert.ToBase64String(image);
+                saveImage(imageBase64String);
+                return;
+            }
+
+            saveImage(imagePath);
+        }
+
+
 #if UNITY_IOS
         [DllImport("__Internal")]
         static extern void pickImage(string source, bool cropped = true, int maxSize = 0);
 
         [DllImport("__Internal")]
         static extern void pickVideo(string source);
+        
+        [DllImport("__Internal")]
+        static extern void saveImage(string image);
 #elif UNITY_ANDROID
         static AndroidJavaClass _plugin;
 
@@ -108,9 +131,15 @@ namespace ConnectApp.Plugins {
         static void pickVideo(string source) {
             Plugin().CallStatic("pickVideo", source);
         }
+
+        static void saveImage(string image) {
+            Plugin().CallStatic("saveImage", image);
+        }
 #else
         static void pickImage(string source, bool cropped = true, int maxSize = 0) { }
         static void pickVideo(string source) { }
+        static void saveImage(string image) {}
+
 #endif
     }
 }
