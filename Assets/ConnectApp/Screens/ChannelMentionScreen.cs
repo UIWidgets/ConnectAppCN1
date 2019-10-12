@@ -263,10 +263,23 @@ namespace ConnectApp.screens {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: new List<Widget> {
                         new Container(width: 56),
-                        new Text(
-                            "群聊成员",
-                            style: CTextStyle.PXLargeMedium
-                        ),
+                        new Column(
+                            children: new List<Widget> {
+                                new Container(height:6f),
+                                new Text(
+                                    "选择提醒的人",
+                                    style: CTextStyle.PXLargeMedium
+                                ),
+                                new Text(
+                                    "按活跃度排序",
+                                    style: new TextStyle(
+                                        height: 1.1f,
+                                        fontSize: 10,
+                                        fontFamily: "Roboto-Regular",
+                                        color: CColors.Black
+                                    ))
+                        }),
+                        
                         new CustomButton(
                             padding: EdgeInsets.only(8, 8, 8, 8),
                             onPressed: () => this.widget.actionModel.chooseMentionCancel(),
