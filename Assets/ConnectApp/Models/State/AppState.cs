@@ -173,7 +173,8 @@ namespace ConnectApp.Models.State {
                     channelDict = new Dictionary<string, ChannelView>(),
                     messageDict = new Dictionary<string, ChannelMessageView>(),
                     channelTop = new Dictionary<string, bool>(),
-                    socketConnected = true
+                    socketConnected = true,
+                    mentionSuggestions = new Dictionary<string, Dictionary<string, ChannelMember>>()
                 },
                 tabBarState = new TabBarState {
                     currentTabIndex = 0

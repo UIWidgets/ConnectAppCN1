@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using ConnectApp.Api;
 using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
 using ConnectApp.Main;
 using ConnectApp.Models.ActionModel;
+using ConnectApp.Models.Api;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
@@ -23,6 +26,7 @@ using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
 using Config = ConnectApp.Constants.Config;
 using Icons = ConnectApp.Constants.Icons;
 using Image = Unity.UIWidgets.widgets.Image;
@@ -63,6 +67,7 @@ namespace ConnectApp.screens {
                         messages = channel.messageIds.Select(getMessage).ToList();
                     }
 
+                    
                     return new ChannelScreenViewModel {
                         channel = state.channelState.channelDict[this.channelId],
                         messages = messages,
@@ -70,7 +75,9 @@ namespace ConnectApp.screens {
                         me = state.loginState.loginInfo.userId,
                         messageLoading = state.channelState.messageLoading,
                         newMessageCount = state.channelState.channelDict[this.channelId].unread,
-                        socketConnected = state.channelState.socketConnected
+                        socketConnected = state.channelState.socketConnected,
+                        mentionAutoFocus = state.channelState.mentionAutoFocus,
+                        mentionUserId = state.channelState.mentionUserId
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -128,7 +135,13 @@ namespace ConnectApp.screens {
                         },
                         reportLeaveBottom = () => dispatcher.dispatch(new ChannelScreenLeaveBottom {
                             channelId = this.channelId
-                        })
+                        }),
+                        pushToChannelMention = () => {
+                            dispatcher.dispatch(new MainNavigatorPushToChannelMentionAction {
+                                channelId = this.channelId
+                            });
+                        },
+                        clearLastChannelMention = () => dispatcher.dispatch(new ChannelClearMentionAction())
                     };
                     return new ChannelScreen(viewModel: viewModel, actionModel: actionModel);
                 }
@@ -159,6 +172,7 @@ namespace ConnectApp.screens {
         readonly RefreshController _refreshController = new RefreshController();
         readonly PageController _viewImageController = new PageController();
         readonly GlobalKey _smartRefresherKey = GlobalKey<State<SmartRefresher>>.key("SmartRefresher");
+        readonly ChannelMessageInputManager _inputContentManager = new ChannelMessageInputManager();
         TabController _emojiTabController;
         FocusNode _focusNode;
         GlobalKey _focusNodeKey;
@@ -212,10 +226,13 @@ namespace ConnectApp.screens {
                 {"ConnectAppVersion", Config.versionNumber},
                 {"X-Requested-With", "XmlHttpRequest"}
             };
+            
+            this._textController.addListener(this._onTextChanged);
         }
 
         public override void dispose() {
             Router.routeObserve.unsubscribe(this);
+            this._textController.removeListener(this._onTextChanged);
             this._textController.dispose();
             this._emojiTabController.dispose();
             SchedulerBinding.instance.addPostFrameCallback(_ => { this.widget.actionModel.clearUnread(); });
@@ -223,7 +240,56 @@ namespace ConnectApp.screens {
             base.dispose();
         }
 
+        string _lastMessageEditingContent = "";
+        bool omitTextChange;
+        
+        void _onTextChanged() {
+            if (this.omitTextChange) {
+                this.omitTextChange = false;
+                return;
+            }
+            
+            var curTextContent = this._textController.text;
+            if (curTextContent != this._lastMessageEditingContent) {
+                var isDelete = curTextContent.Length < this._lastMessageEditingContent.Length;
+                this._lastMessageEditingContent = curTextContent;
+
+                if (!isDelete) {
+                    this._inputContentManager.AddContent(this._textController.selection.start, this._lastMessageEditingContent);
+                }
+                else {
+                    var jumpForward = 0;
+                    this._lastMessageEditingContent = this._inputContentManager.DeleteContent(this._textController.selection.end, this._lastMessageEditingContent, ref jumpForward);
+                    if (this._textController.text != this._lastMessageEditingContent) {
+                        var selection = this._textController.selection;
+                        this.omitTextChange = true;
+                        this._textController.value = new TextEditingValue(
+                            text: this._lastMessageEditingContent,
+                            TextSelection.collapsed(selection.start - jumpForward));
+                        
+                    }
+                }
+                
+                if (!isDelete && 
+                    this._lastMessageEditingContent.isNotEmpty() && 
+                    this._lastMessageEditingContent[this._lastMessageEditingContent.Length - 1] == '@') {
+                    this.widget.actionModel.pushToChannelMention();
+                }
+            }
+        }
+
         public override Widget build(BuildContext context) {
+            if (this.widget.viewModel.mentionAutoFocus) {
+                FocusScope.of(this.context).requestFocus(this._focusNode);
+                if (!this.widget.viewModel.mentionUserId.isEmpty()) {
+                    var userName = this.widget.viewModel.channel.membersDict[this.widget.viewModel.mentionUserId].user.fullName;
+                    this._inputContentManager.AddMention(userName + " ", this.widget.viewModel.mentionUserId, this._textController.text + userName + " ");
+                    this._textController.text += userName + " ";
+                    this._textController.selection = TextSelection.collapsed(this._textController.text.Length);
+                }
+                this.widget.actionModel.clearLastChannelMention();
+            }
+            
             if ((this.showKeyboard || this.showEmojiBoard) && this._refreshController.offset > 0) {
                 SchedulerBinding.instance.addPostFrameCallback(_ => this._refreshController.scrollTo(0));
             }
@@ -1023,6 +1089,8 @@ namespace ConnectApp.screens {
                 return;
             }
             
+            text = this._inputContentManager.ToMessage(this.widget.viewModel.channel.membersDict, text);
+            
             if (string.IsNullOrWhiteSpace(text)) {
                 CustomDialogUtils.showToast("不能发送空消息", Icons.error_outline);
                 return;
@@ -1133,6 +1201,7 @@ namespace ConnectApp.screens {
         }
 
         public void didPop() {
+            this._inputContentManager.Clear();
         }
 
         public void didPopNext() {

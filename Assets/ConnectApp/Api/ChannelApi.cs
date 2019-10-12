@@ -111,5 +111,18 @@ namespace ConnectApp.Api {
             }).Catch(exception => { promise.Reject(exception); });
             return promise;
         }
+        
+        public static Promise<FetchChannelMembersResponse> FetchChannelMemberSuggestions(string channelId) {
+            var promise = new Promise<FetchChannelMembersResponse>();
+            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/members",
+                parameter: new Dictionary<string, object> {
+                    {"get", "active"}
+                });
+            HttpManager.resume(request).Then(responseText => {
+                var members = JsonConvert.DeserializeObject<FetchChannelMembersResponse>(responseText);
+                promise.Resolve(members);
+            }).Catch(exception => { promise.Reject(exception); });
+            return promise;
+        }
     }
 }
