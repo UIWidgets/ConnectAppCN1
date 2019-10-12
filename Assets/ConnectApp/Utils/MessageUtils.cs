@@ -121,7 +121,7 @@ namespace ConnectApp.Utils {
             string url = null,
             Action<string> onClickUrl = null) {
             if (string.IsNullOrWhiteSpace(url) || string.IsNullOrEmpty(text)) {
-                result.Add(new TextSpan(stripPairs(text), style: CTextStyle.PLargeBody));
+                result.Add(new TextSpan(stripPairs(text), style: bodyStyle));
                 return;
             }
             var index = text.IndexOf(url, StringComparison.Ordinal);
