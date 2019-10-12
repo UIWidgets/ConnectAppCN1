@@ -275,9 +275,4 @@ namespace ConnectApp.Models.Api {
         public List<Favorite> favorites;
         public bool hasMore;
     }
-
-    [Serializable]
-    public class FetchSuggestUserDetailResponse {
-        public List<User> items;
-    }
 }

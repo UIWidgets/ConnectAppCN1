@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using ConnectApp.Api;
 using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
@@ -168,56 +169,77 @@ namespace ConnectApp.screens {
         readonly List<string> mentionIds = new List<string>();
 
         bool addMentionBefore = false;
-
         const bool debugMode = true;
 
-        void OnChanged() {
-            if (!debugMode) {
-                return;
+        bool tryFallback(string originalContent) {
+            if (!this.isValid(originalContent)) {
+                this.doFallback(originalContent);
+                return true;
             }
-            Debug.Log(this.ToLogString());
+
+            return false;
         }
 
-        void CheckValid(string newContent) {
-            if (!debugMode) {
-                return;
+        void doFallback(string originalContent) {
+            this.Clear();
+            this.contentSpans.Add(originalContent);
+            this.mentionIds.Add(null);
+        }
+
+        void OnChanged(string originalContent, bool enableFallback = true) {
+            //fallback
+            if (enableFallback) {
+                this.tryFallback(originalContent);
             }
-            Debug.Assert(newContent == this.ToContent());
+
+            if (debugMode) {
+                Debug.Log(this.ToLogString());
+            }
+        }
+
+        bool isValid(string originalContent) {
+            return originalContent == this.ToContent();
         }
 
         string ToLogString() {
-            var raw = "";
+            var raw = new StringBuilder();
             for (int i = 0; i < this.contentSpans.Count; i++) {
-                raw += "[" + this.contentSpans[i] + " (" + this.mentionIds[i] + ")]";
+                raw.Append("[");
+                raw.Append(this.contentSpans[i]);
+                raw.Append("(");
+                raw.Append(this.mentionIds[i]);
+                raw.Append(")]");
             }
-
-            return raw;
+            return raw.ToString();
         }
 
-        public string ToMessage(Dictionary<string, ChannelMember> membersDict) {
-            string message = "";
+        public string ToMessage(Dictionary<string, ChannelMember> membersDict, string originalContent) {
+            if(this.tryFallback(originalContent)) {
+                return originalContent;
+            }
+            
+            var message = new StringBuilder();
             for (int i = 0; i < this.contentSpans.Count; i++) {
                 if (this.mentionIds[i] != null) {
                     var span = this.contentSpans[i].TrimEnd();
                     if (span == $"@{membersDict[this.mentionIds[i]].user.fullName}") {
-                        message += $"<@{this.mentionIds[i]}> ";
+                        message.Append($"<@{this.mentionIds[i]}> ");
                         continue;
                     }
                 }
                 
-                message += this.contentSpans[i];
+                message.Append(this.contentSpans[i]);
             }
 
-            return message;
+            return message.ToString();
         }
 
         string ToContent() {
-            var raw = "";
+            var raw = new StringBuilder();
             for (int i = 0; i < this.contentSpans.Count; i++) {
-                raw += this.contentSpans[i];
+                raw.Append(this.contentSpans[i]);
             }
-
-            return raw;
+            return raw.ToString();
         }
         
         public InputContentManager() {
@@ -232,20 +254,28 @@ namespace ConnectApp.screens {
 
         public void AddMention(string mentionName, string mentionUserId, string newContent) {
             this.addMentionBefore = true;
+
+            if (this.contentSpans.Count == 0) {
+                this.doFallback(newContent);
+                return;
+            }
             
             var span = this.contentSpans[this.contentSpans.Count - 1];
-            D.assert(span[span.Length - 1] == '@');
 
             if (span[span.Length - 1] == '@') {
                 this.contentSpans[this.contentSpans.Count - 1] = span.Substring(0, span.Length - 1);
             }
+            else {
+                this.doFallback(newContent);
+                return;
+            }
+            
             this.contentSpans.Add('@' + mentionName);
             this.mentionIds.Add(mentionUserId);
             this.contentSpans.Add("");
             this.mentionIds.Add(null);
 
-            this.OnChanged();
-            this.CheckValid(newContent);
+            this.OnChanged(newContent);
         }
 
         public void AddContent(int selectIndex, string newContent) {
@@ -276,11 +306,18 @@ namespace ConnectApp.screens {
                     break;
                 }
             }
+
+            //protection
+            if (startIndex < 0 || startIndex >= newContent.Length || startIndex + deltaLen > newContent.Length
+                || curOffset < 0 || curOffset > this.contentSpans[curIndex].Length) {
+                this.doFallback(newContent);
+                return;
+            }
             
             var deltaContent = newContent.Substring(startIndex, deltaLen);
             this.contentSpans[curIndex] = this.contentSpans[curIndex].Insert(curOffset, deltaContent);
-            this.OnChanged();
-            this.CheckValid(newContent);
+            
+            this.OnChanged(newContent);
         }
 
         public string DeleteContent(int selectIndex, string newContent, ref int jumpForward) {
@@ -295,10 +332,10 @@ namespace ConnectApp.screens {
             var selectFrom = Mathf.Max(0, selectIndex);
             var selectTo = selectFrom + deltaLen;
             
-            var fromIndex = 0;
-            var toIndex = 0;
-            var fromOffset = 0;
-            var toOffset = 0;
+            var fromIndex = -1;
+            var toIndex = -1;
+            var fromOffset = -1;
+            var toOffset = -1;
             curLen = 0;
             var hitFrom = false;
 
@@ -318,14 +355,24 @@ namespace ConnectApp.screens {
                 }
             }
 
+            if (fromIndex == -1 || fromOffset == -1 || toIndex == -1 || toOffset == -1) {
+                this.doFallback(newContent);
+                jumpForward = 0;
+                return newContent;
+            }
+
             var deletedAllMention = false;
-            
             if (deltaLen == 1 && fromIndex == toIndex) {
                 if (fromOffset == this.contentSpans[fromIndex].Length - 1 && this.mentionIds[fromIndex] != null && this.contentSpans[fromIndex][fromOffset] == ' ') {
-                    jumpForward = fromOffset;
-                    this.contentSpans.RemoveAt(fromIndex);
-                    this.mentionIds.RemoveAt(fromIndex);
-                    deletedAllMention = true;
+                    this.contentSpans[fromIndex] = this.contentSpans[fromIndex]
+                        .Substring(0, this.contentSpans[fromIndex].Length - 1);
+
+                    if (!this.tryFallback(newContent)) {
+                        jumpForward = fromOffset;
+                        this.contentSpans.RemoveAt(fromIndex);
+                        this.mentionIds.RemoveAt(fromIndex);
+                        deletedAllMention = true;
+                    }
                 }
             }
 
@@ -365,9 +412,9 @@ namespace ConnectApp.screens {
                     this.contentSpans.RemoveAt(idx);
                     this.mentionIds.RemoveAt(idx);
                 }
-                
                 idx++;
             }
+            
             //remove the last zero-length span if its previous span is not mention
             if (this.contentSpans.Count > 1 && this.contentSpans[this.contentSpans.Count - 1].Length == 0) {
                 if (this.mentionIds[this.contentSpans.Count - 2] == null) {
@@ -382,7 +429,7 @@ namespace ConnectApp.screens {
                 this.mentionIds.Add(null);
             }
             
-            this.OnChanged();
+            this.OnChanged(newContent, !deletedAllMention);
             return this.ToContent();
         }
     } 
@@ -1279,7 +1326,7 @@ namespace ConnectApp.screens {
         }
 
         void _handleSubmit(string text) {
-            text = this._inputContentManager.ToMessage(this.widget.viewModel.channel.membersDict);
+            text = this._inputContentManager.ToMessage(this.widget.viewModel.channel.membersDict, text);
             
             if (string.IsNullOrWhiteSpace(text)) {
                 CustomDialogUtils.showToast("不能发送空消息", Icons.error_outline);
