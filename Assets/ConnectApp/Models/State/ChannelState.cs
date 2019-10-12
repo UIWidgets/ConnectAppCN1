@@ -14,6 +14,7 @@ namespace ConnectApp.Models.State {
         public Dictionary<string, ChannelView> channelDict;
         public Dictionary<string, ChannelMessageView> messageDict;
         public Dictionary<string, bool> channelTop;
+        public bool socketConnected;
 
         public void updateChannel(Channel channel) {
             if (!this.channelDict.TryGetValue(channel.id, out var channelView)) {

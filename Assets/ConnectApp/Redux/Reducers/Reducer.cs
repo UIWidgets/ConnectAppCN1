@@ -2562,6 +2562,11 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case FetchChannelsFailureAction _: {
+                    state.channelState.socketConnected = false;
+                    break;
+                }
+
                 case StartFetchChannelMessageAction _: {
                     state.channelState.messageLoading = true;
                     break;
@@ -2610,6 +2615,7 @@ namespace ConnectApp.redux.reducers {
 
                 case FetchChannelMessagesFailureAction _: {
                     state.channelState.messageLoading = false;
+                    state.channelState.socketConnected = false;
                     break;
                 }
 
@@ -2912,6 +2918,11 @@ namespace ConnectApp.redux.reducers {
                         channel.memberCount--;
                     }
 
+                    break;
+                }
+
+                case SocketConnectStateAction action: {
+                    state.channelState.socketConnected = action.connected;
                     break;
                 }
 

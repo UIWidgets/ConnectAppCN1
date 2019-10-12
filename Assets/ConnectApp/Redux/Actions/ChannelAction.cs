@@ -381,4 +381,8 @@ namespace ConnectApp.redux.actions {
     public class MergeOldChannelMessages : BaseAction {
         public string channelId;
     }
+
+    public class SocketConnectStateAction : BaseAction {
+        public bool connected;
+    }
 }
