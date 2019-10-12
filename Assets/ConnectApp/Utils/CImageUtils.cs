@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -37,7 +38,7 @@ namespace ConnectApp.Utils {
 
         public static string SizeToScreenImageUrl(string imageUrl) {
             var data = MediaQuery.of(GlobalContext.context);
-            return $"{imageUrl}.{(int)(data.size.width * data.devicePixelRatio)}x0x1.jpg";
+            return $"{imageUrl}.{(int) (data.size.width * data.devicePixelRatio)}x0x1.jpg";
         }
 
         public static string SplashImageUrl(string imageUrl) {
@@ -48,10 +49,9 @@ namespace ConnectApp.Utils {
         public static bool isNationalDay = false;
 
         public static Widget GenBadgeImage(List<string> badges, string license, EdgeInsets padding) {
-            
-            var badgeList  = new List<Widget>();
+            var badgeList = new List<Widget>();
             Widget badgeWidget = null;
-            
+
             if (license.isNotEmpty()) {
                 if (license == "UnityPro") {
                     badgeWidget = Image.asset(
@@ -88,13 +88,14 @@ namespace ConnectApp.Utils {
                 if (badgeList.Count >= 1) {
                     badgeList.Add(new SizedBox(width: 4));
                 }
+
                 badgeList.Add(Image.asset(
                     "image/china-flag-badge",
                     height: 14,
                     width: 16
                 ));
             }
-            
+
             if (badgeList.Count > 0) {
                 return new Container(
                     padding: padding,
@@ -103,7 +104,7 @@ namespace ConnectApp.Utils {
                     )
                 );
             }
-            
+
             return new Container();
         }
 
@@ -147,5 +148,16 @@ namespace ConnectApp.Utils {
             "favor-idea",
             "favor-map"
         };
+
+
+        public static byte[] readImage(string path) {
+            FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read);
+            fs.Seek(0, SeekOrigin.Begin);
+            byte[] bytes = new byte[fs.Length];
+            fs.Read(bytes, 0, (int) fs.Length);
+            fs.Close();
+            fs.Dispose();
+            return bytes;
+        }
     }
 }
