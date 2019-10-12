@@ -178,7 +178,7 @@ namespace ConnectApp.screens {
 
 
         void _onChooseMention(ChannelMember member) {
-            this.widget.actionModel.chooseMentionConfirm(member.id);
+            this.widget.actionModel.chooseMentionConfirm(member.user.id);
         }
 
         Widget _buildMentionTile(BuildContext context, int index) {
