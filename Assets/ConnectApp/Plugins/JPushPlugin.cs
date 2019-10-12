@@ -13,9 +13,9 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using EventType = ConnectApp.Models.State.EventType;
-
 #if UNITY_IOS
 using System.Runtime.InteropServices;
+
 #endif
 
 namespace ConnectApp.Plugins {
@@ -184,6 +184,10 @@ namespace ConnectApp.Plugins {
         }
 
         static void pushPage(string type, string subType, string id, bool isPush = false) {
+            if (id.isEmpty()) {
+                return;
+            }
+
             if (type == "project") {
                 if (subType == "article") {
                     AnalyticsManager.ClickEnterArticleDetail("Push_Article", id, $"PushArticle_{id}");
