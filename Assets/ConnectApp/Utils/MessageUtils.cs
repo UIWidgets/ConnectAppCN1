@@ -113,7 +113,7 @@ namespace ConnectApp.Utils {
                         result.Add(new TextSpan(text.Substring(last, curr - last),
                             style: CTextStyle.PLargeBody.merge(markdownStyle)));
                     }
-                    result.Add(new TextSpan(url, style: CTextStyle.PLargeBlue,
+                    result.Add(new TextSpan(url, style: CTextStyle.PLargeBlue.merge(markdownStyle),
                         recognizer: onClickUrl == null ? null : new TapGestureRecognizer {
                             onTap = () => onClickUrl(url)
                         }));
@@ -163,18 +163,34 @@ namespace ConnectApp.Utils {
                     last = curr;
                 }
                 else if (text.Length - curr >= 3 && text[curr] == '`' && text[curr + 1] == '`' && text[curr + 2] == '`') {
-                    if (curr > last) {
-                        result.Add(new TextSpan(text.Substring(last, curr - last),
-                            style: CTextStyle.PLargeBody.merge(markdownStyle)));
+                    int end = text.IndexOf("```", curr + 3, StringComparison.Ordinal);
+                    if (end >= curr + 3) {
+                        if (curr > last) {
+                            result.Add(new TextSpan(text.Substring(last, curr - last),
+                                style: CTextStyle.PLargeBody.merge(markdownStyle)));
+                        }
+
+                        var start = curr + 3;
+                        var length = end - start;
+                        if (text[curr + 3] == '\n') {
+                            start += 1;
+                            length -= 1;
+                        }
+
+                        if (text[end - 1] == '\n') {
+                            length -= 1;
+                        }
+                        result.Add(new TextSpan((curr > 0 && text[curr-1] != '\n' ? "\n" : "") +
+                                                text.Substring(start, length) +
+                                                (end + 3 < text.Length && text[end + 3] != '\n' ? "\n" : ""),
+                            style: CTextStyle.PLargeBody.merge(markdownStyle.copyWith(fontFamily: "Menlo"))));
+
+                        curr = end + 3;
+                        last = curr;
                     }
-
-                    markdownStyle = markdownStyle.copyWith(
-                        fontFamily: markdownStyle.fontFamily?.StartsWith("Roboto") ?? true
-                            ? "Courier"
-                            : "Roboto-Regular");
-
-                    curr += 3;
-                    last = curr;
+                    else {
+                        curr += 3;
+                    }
                 }
                 else if (text.Length - curr >= 1 && text[curr] == '`') {
                     if (curr > last) {
@@ -184,7 +200,7 @@ namespace ConnectApp.Utils {
 
                     markdownStyle = markdownStyle.copyWith(
                         fontFamily: markdownStyle.fontFamily?.StartsWith("Roboto") ?? true
-                            ? "Courier"
+                            ? "Menlo"
                             : "Roboto-Regular");
 
                     curr += 1;
