@@ -156,10 +156,10 @@ public class PickImageActivity extends TakePhotoActivity {
 
     private CompressConfig compressConfig() {
         int maxSize = this.getIntent().getIntExtra("maxSize", 0);
-        int imageMaxSize = maxSize == 0 ? 100 * 1024 : maxSize;
+        int imageMaxSize = maxSize == 0 ? 700 * 1024 : maxSize;
         CompressConfig config = new CompressConfig.Builder()
                 .setMaxSize(imageMaxSize)
-                .setMaxPixel(400)
+                .setMaxPixel(800)
                 .enableReserveRaw(true)
                 .create();
         return config;

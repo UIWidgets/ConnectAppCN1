@@ -137,7 +137,8 @@ namespace ConnectApp.screens {
                         pickImage => {
                             this._pickedImage = pickImage;
                             this.setState(() => { });
-                        }
+                        },
+                        maxSize: 100 * 1024
                     )
                 ),
                 new ActionSheetItem(
@@ -147,7 +148,8 @@ namespace ConnectApp.screens {
                         pickImage => {
                             this._pickedImage = pickImage;
                             this.setState(() => { });
-                        }
+                        },
+                        maxSize: 100 * 1024
                     )
                 ),
                 new ActionSheetItem("取消", type: ActionType.cancel)

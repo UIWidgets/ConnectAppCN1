@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using SQLite4Unity3d;
+using Unity.UIWidgets.foundation;
 using UnityEngine;
 
 namespace ConnectApp.Utils {
@@ -67,7 +68,6 @@ namespace ConnectApp.Utils {
             this.m_Connection.CreateTable<DBReadyStateLite>();
         }
 
-
         public string GetCachedFilePath(string url) {
             var ret = this.m_Connection.Table<FileRecordLite>().Where(record => record.url == url);
 
@@ -83,10 +83,29 @@ namespace ConnectApp.Utils {
             return null;
         }
 
-        public void UpdateCachedFilePath(string url, string filePath) {
-            this.m_Connection.Insert(new FileRecordLite {url = url, filepath = filePath}, extra: "OR REPLACE");
+        public string GetCachedData(string url) {
+            if (url.isEmpty()) {
+                return null;
+            }
+
+            var ret = this.m_Connection.Table<FileRecordLite>().Where(record => record.url == url);
+
+            if (!ret.Any()) {
+                return null;
+            }
+
+            if (ret.Count() == 1) {
+                return ret.First().data;
+            }
+
+            Debug.Assert(false, "fatal error: duplicated data are mapping to one url.");
+            return null;
         }
-        
+
+        public void UpdateCachedFilePath(string url, string filePath, byte[] data) {
+            var encodeBytes = Convert.ToBase64String(data);
+            this.m_Connection.Insert(new FileRecordLite {url = url, filepath = filePath, data = encodeBytes}, extra: "OR REPLACE");
+        }
 
         public void SaveMessages(List<DBMessageLite> data) {
             this.m_Connection.InsertAll(data, extra: "OR REPLACE");
