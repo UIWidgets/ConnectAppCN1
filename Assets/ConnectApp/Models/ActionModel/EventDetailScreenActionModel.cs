@@ -7,6 +7,7 @@ namespace ConnectApp.Models.ActionModel {
     public class EventDetailScreenActionModel : BaseActionModel {
         public Action<string> pushToUserDetail;
         public Action<string> openUrl;
+        public Action<string> browserImage;
         public Action<string> copyText;
         public Action startFetchEventDetail;
         public Func<string, EventType, IPromise> fetchEventDetail;
