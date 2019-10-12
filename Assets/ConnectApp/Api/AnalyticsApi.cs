@@ -19,9 +19,9 @@ namespace ConnectApp.Api {
                 appTime = appTime,
                 extraData = data
             };
-            var request = HttpManager.POST($"{Config.apiAddress}/api/connectapp/statistic", para);
-            HttpManager.resume(request).Then(responseText => { promise.Resolve(); })
-                .Catch(exception => { promise.Reject(exception); });
+            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/statistic", parameter: para);
+            HttpManager.resume(request: request).Then(responseText => { promise.Resolve(); })
+                .Catch(exception => promise.Reject(ex: exception));
             return promise;
         }
     }

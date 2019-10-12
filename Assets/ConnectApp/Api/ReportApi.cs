@@ -15,9 +15,9 @@ namespace ConnectApp.Api {
                 itemId = itemId,
                 reasons = new List<string> {"other:" + reportContext}
             };
-            var request = HttpManager.POST($"{Config.apiAddress}/api/report", para);
-            HttpManager.resume(request).Then(responseText => { promise.Resolve(); })
-                .Catch(exception => { promise.Reject(exception); });
+            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/report", parameter: para);
+            HttpManager.resume(request: request).Then(responseText => { promise.Resolve(); })
+                .Catch(exception => promise.Reject(ex: exception));
             return promise;
         }
 
@@ -27,7 +27,7 @@ namespace ConnectApp.Api {
             var dict = new Dictionary<string, string> {
                 {"userId", userId}, {"device", device}
             };
-            var data = JsonConvert.SerializeObject(dict);
+            var data = JsonConvert.SerializeObject(value: dict);
             var promise = new Promise();
             var para = new FeedbackParameter {
                 type = type.Value,
@@ -36,9 +36,9 @@ namespace ConnectApp.Api {
                 content = content,
                 data = data
             };
-            var request = HttpManager.POST($"{Config.apiAddress}/api/connectapp/feedback", para);
-            HttpManager.resume(request).Then(responseText => { promise.Resolve(); })
-                .Catch(exception => { promise.Reject(exception); });
+            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/feedback", parameter: para);
+            HttpManager.resume(request: request).Then(responseText => { promise.Resolve(); })
+                .Catch(exception => promise.Reject(ex: exception));
             return promise;
         }
     }

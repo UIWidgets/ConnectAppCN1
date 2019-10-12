@@ -144,7 +144,7 @@ namespace ConnectApp.Plugins {
             if (!Application.isEditor) {
                 this.addListener();
                 toMiNiProgram(title: title, description: description, url: url, imageBytes: imageBytes,
-                    ysId: Config.MINIID, path: path, miniProgramType: Config.miniProgramType);
+                    ysId: Config.miniId, path: path, miniProgramType: Config.miniProgramType);
             }
         }
 
@@ -161,7 +161,7 @@ namespace ConnectApp.Plugins {
         public void toOpenMiNi(string path) {
             if (!Application.isEditor) {
                 this.addListener();
-                openMiNi(ysId: Config.MINIID, path: path, miniProgramType: Config.miniProgramType);
+                openMiNi(ysId: Config.miniId, path: path, miniProgramType: Config.miniProgramType);
             }
         }
 #if UNITY_IOS
