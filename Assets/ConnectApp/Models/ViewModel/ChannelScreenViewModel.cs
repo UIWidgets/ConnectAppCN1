@@ -12,5 +12,6 @@ namespace ConnectApp.Models.ViewModel {
         public bool socketConnected;
         public bool mentionAutoFocus;
         public string mentionUserId;
+        public Dictionary<string, ChannelMember> mentionSuggestion;
     }
 }
