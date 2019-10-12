@@ -436,15 +436,21 @@ namespace ConnectApp.screens {
                 );
             }
 
-            ret = new Column(
-                crossAxisAlignment: left ? CrossAxisAlignment.start : CrossAxisAlignment.end,
-                children: new List<Widget> {
-                    new Container(
-                        padding: EdgeInsets.only(bottom: 6),
-                        child: new Text(message.author.fullName, style: CTextStyle.PSmallBody4)
-                    ),
-                    ret
-                }
+            ret = new Expanded(
+                child: new Column(
+                    crossAxisAlignment: left ? CrossAxisAlignment.start : CrossAxisAlignment.end,
+                    children: new List<Widget> {
+                        new Container(
+                            padding: EdgeInsets.only(bottom: 6),
+                            child: new Text(
+                                data: message.author.fullName,
+                                style: CTextStyle.PSmallBody4,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis)
+                        ),
+                        ret
+                    }
+                )
             );
 
             ret = new Container(
