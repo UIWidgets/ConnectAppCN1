@@ -523,12 +523,14 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildTextMessageContent(string content) {
-            if (string.IsNullOrEmpty(content)) {
+        Widget _buildTextMessageContent(ChannelMessageView message) {
+            if (string.IsNullOrEmpty(message.content)) {
                 return new Container();
             }
 
-            return new Text(content, style: CTextStyle.PLargeBody);
+            return new RichText(text: new TextSpan(children: MessageUtils.messageWithMarkdownToTextSpans(
+                message.content, message.mentions, message.mentionEveryone,
+                userId => this.widget.actionModel.pushToUserDetail(obj: userId)).ToList()));
         }
 
         Widget _buildImageMessageContent(ChannelMessageView message) {
@@ -563,22 +565,14 @@ namespace ConnectApp.screens {
 
         Widget _buildEmbedContent(ChannelMessageView message) {
             if (message.embeds[0].embedData.url != null && message.content.Contains(message.embeds[0].embedData.url)) {
-                int startIndex = message.content.IndexOf(message.embeds[0].embedData.url, StringComparison.Ordinal);
-                return new RichText(text: new TextSpan(
-                    message.content.Substring(0, startIndex),
-                    style: CTextStyle.PLargeBody,
-                    children: new List<TextSpan> {
-                        new TextSpan(message.embeds[0].embedData.url, style: CTextStyle.PLargeBlue,
-                            recognizer: new TapGestureRecognizer {
-                                onTap = () => this.widget.actionModel.openUrl(message.embeds[0].embedData.url)
-                            }),
-                        new TextSpan(message.content.Substring(startIndex + message.embeds[0].embedData.url.Length),
-                            style: CTextStyle.PLargeBody),
-                    }
-                ));
+                return new RichText(text: new TextSpan(children: MessageUtils.messageWithMarkdownToTextSpans(
+                    message.content, message.mentions, message.mentionEveryone,
+                    onTap: userId => this.widget.actionModel.pushToUserDetail(obj: userId),
+                    url: message.embeds[0].embedData.url,
+                    onClickUrl: url => this.widget.actionModel.openUrl(message.embeds[0].embedData.url)).ToList()));
             }
 
-            return new Text(message.content, style: CTextStyle.PLargeBody);
+            return this._buildMessageContent(message);
         }
 
         Widget _buildEmbeddedRect(EmbedData embedData) {
@@ -651,7 +645,7 @@ namespace ConnectApp.screens {
         Widget _buildMessageContent(ChannelMessageView message) {
             switch (message.type) {
                 case ChannelMessageType.text:
-                    return this._buildTextMessageContent(message.content);
+                    return this._buildTextMessageContent(message);
                 case ChannelMessageType.image:
                     return this._buildImageMessageContent(message);
                 case ChannelMessageType.file:
