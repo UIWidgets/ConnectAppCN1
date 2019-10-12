@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using System.Web;
+using ConnectApp.Components;
 using ConnectApp.Constants;
 using ConnectApp.Main;
 using ConnectApp.redux;
@@ -15,6 +15,7 @@ using UnityEngine;
 using EventType = ConnectApp.Models.State.EventType;
 
 #if UNITY_IOS
+using System.Runtime.InteropServices;
 #endif
 
 namespace ConnectApp.Plugins {
@@ -50,17 +51,17 @@ namespace ConnectApp.Plugins {
                             AnalyticsManager.AnalyticsWakeApp("OnOpenNotification", id, type, subType);
                             AnalyticsManager.ClickNotification(type, subType, id);
                             pushPage(type, subType, id, true);
-                        }
                             break;
+                        }
                         case "OnReceiveNotification": {
                             //接收到推送
                             EventBus.publish(EventBusConstant.refreshNotifications, new List<object>());
-                        }
                             break;
+                        }
                         case "OnReceiveMessage": {
                             //接收到应用内消息
-                        }
                             break;
+                        }
                         case "OnOpenUrl": {
                             if (args.isEmpty()) {
                                 return;
@@ -68,8 +69,8 @@ namespace ConnectApp.Plugins {
 
                             AnalyticsManager.AnalyticsWakeApp("OnOpenUrl", args.first());
                             openUrl(args.first());
-                        }
                             break;
+                        }
                         case "OnOpenUniversalLinks": {
                             if (args.isEmpty()) {
                                 return;
@@ -77,8 +78,8 @@ namespace ConnectApp.Plugins {
 
                             AnalyticsManager.AnalyticsWakeApp("OnOpenUniversalLinks", args.first());
                             openUniversalLink(args.first());
-                        }
                             break;
+                        }
                         case "CompletedCallback": {
                             var node = args[0];
                             var dict = JSON.Parse(node);
@@ -96,8 +97,17 @@ namespace ConnectApp.Plugins {
                                     StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushReplaceMainAction());
                                 }
                             }
-                        }
+
                             break;
+                        }
+                        case "SaveImageSuccess": {
+                            CustomDialogUtils.showToast("保存成功", iconData: Icons.sentiment_satisfied);
+                            break;
+                        }
+                        case "SaveImageError": {
+                            CustomDialogUtils.showToast("保存失败，请检查权限", iconData: Icons.sentiment_dissatisfied);
+                            break;
+                        }
                     }
                 }
             }
