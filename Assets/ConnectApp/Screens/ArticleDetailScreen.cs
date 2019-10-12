@@ -106,9 +106,6 @@ namespace ConnectApp.screens {
                             AnalyticsManager.ClickLike("Article", articleId: this.articleId);
                             return dispatcher.dispatch<IPromise>(Actions.likeArticle(articleId: id));
                         },
-                        unFavoriteArticle = favoriteId =>
-                            dispatcher.dispatch<IPromise>(Actions.unFavoriteArticle(articleId: this.articleId,
-                                favoriteId: favoriteId)),
                         likeComment = message => {
                             AnalyticsManager.ClickLike("Article_Comment", articleId: this.articleId,
                                 commentId: message.id);
@@ -480,7 +477,9 @@ namespace ConnectApp.screens {
         Widget _buildArticleTabBar() {
             return new ArticleTabBar(
                 this._article.like && this.widget.viewModel.isLoggedIn,
-                this._article.favorite != null && this.widget.viewModel.isLoggedIn,
+                this.widget.viewModel.isLoggedIn 
+                        && this._article.favorites != null
+                        && this._article.favorites.Count > 0,
                 () => this._sendComment("Article"),
                 () => this._sendComment("Article"),
                 () => {
@@ -498,26 +497,7 @@ namespace ConnectApp.screens {
                         this.widget.actionModel.pushToLogin();
                     }
                     else {
-                        if (this._article.favorite == null) {
-                            ActionSheetUtils.showModalActionSheet(new FavoriteSheetConnector(articleId: this._article.id));
-                        }
-                        else {
-                            ActionSheetUtils.showModalActionSheet(
-                                new ActionSheet(
-                                    title: "确定不再收藏？",
-                                    items: new List<ActionSheetItem> {
-                                        new ActionSheetItem(
-                                            "确定",
-                                            type: ActionType.normal,
-                                            () => {
-                                                this.widget.actionModel.unFavoriteArticle(arg: this._article.favorite.id);
-                                            }
-                                        ),
-                                        new ActionSheetItem("取消", type: ActionType.cancel)
-                                    }
-                                )
-                            );
-                        }
+                        ActionSheetUtils.showModalActionSheet(new FavoriteSheetConnector(articleId: this._article.id));
                     }
                 },
                 shareCallback: this.share

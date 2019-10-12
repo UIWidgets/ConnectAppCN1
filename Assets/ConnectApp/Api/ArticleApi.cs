@@ -101,16 +101,16 @@ namespace ConnectApp.Api {
             return promise;
         }
 
-        public static Promise<Favorite> FavoriteArticle(string articleId, string tagId) {
-            var promise = new Promise<Favorite>();
+        public static Promise<List<Favorite>> FavoriteArticle(string articleId, List<string> tagIds) {
+            var promise = new Promise<List<Favorite>>();
             var para = new HandleArticleParameter {
                 type = "article",
                 itemId = articleId,
-                tagId = tagId
+                tagIds = tagIds
             };
-            var request = HttpManager.POST($"{Config.apiAddress}/api/connectapp/favorite", parameter: para);
+            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/favorites", parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
-                var favoriteArticleResponse = JsonConvert.DeserializeObject<Favorite>(value: responseText);
+                var favoriteArticleResponse = JsonConvert.DeserializeObject<List<Favorite>>(value: responseText);
                 promise.Resolve(value: favoriteArticleResponse);
             }).Catch(exception => promise.Reject(ex: exception));
             return promise;
@@ -121,7 +121,7 @@ namespace ConnectApp.Api {
             var para = new Dictionary<string, object> {
                 {"id", favoriteId}
             };
-            var request = HttpManager.POST($"{Config.apiAddress}/api/connectapp/unfavorite", parameter: para);
+            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/unfavorite", parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var unFavoriteArticleResponse = JsonConvert.DeserializeObject<Favorite>(value: responseText);
                 promise.Resolve(value: unFavoriteArticleResponse);

@@ -35,7 +35,8 @@ namespace ConnectApp.screens {
                     mentions = state.notificationState.mentions,
                     userDict = state.userState.userDict,
                     teamDict = state.teamState.teamDict,
-                    currentTabBarIndex = state.tabBarState.currentTabIndex
+                    currentTabBarIndex = state.tabBarState.currentTabIndex,
+                    currentUserId = state.loginState.loginInfo.userId ?? ""
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new NotificationScreenActionModel {
@@ -264,6 +265,7 @@ namespace ConnectApp.screens {
 
             return new NotificationCard(
                 notification: notification,
+                currentUserId: this.widget.viewModel.currentUserId,
                 user: user,
                 team: team,
                 mentions: this.widget.viewModel.mentions,

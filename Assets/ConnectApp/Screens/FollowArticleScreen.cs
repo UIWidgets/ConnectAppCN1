@@ -538,11 +538,8 @@ namespace ConnectApp.screens {
                 }
 
                 var user = this.widget.viewModel.userDict[key: article.userId];
-                UserType userType = UserType.unFollow;
-                if (isFollow) {
-                    userType = UserType.me;
-                }
-                else if (!this.widget.viewModel.isLoggedIn) {
+                UserType userType;
+                if (!this.widget.viewModel.isLoggedIn) {
                     userType = UserType.unFollow;
                 }
                 else {
@@ -554,6 +551,9 @@ namespace ConnectApp.screens {
                     }
                     else if (this.widget.viewModel.followMap.ContainsKey(key: article.userId)) {
                         userType = UserType.follow;
+                    }
+                    else {
+                        userType = UserType.unFollow;
                     }
                 }
 
@@ -575,11 +575,8 @@ namespace ConnectApp.screens {
 
             if (article.ownerType == OwnerType.team.ToString()) {
                 var team = this.widget.viewModel.teamDict[key: article.teamId];
-                UserType userType = UserType.unFollow;
-                if (isFollow) {
-                    userType = UserType.me;
-                }
-                else if (!this.widget.viewModel.isLoggedIn) {
+                UserType userType;
+                if (!this.widget.viewModel.isLoggedIn) {
                     userType = UserType.unFollow;
                 }
                 else {
@@ -591,6 +588,9 @@ namespace ConnectApp.screens {
                     }
                     else if (this.widget.viewModel.followMap.ContainsKey(key: article.teamId)) {
                         userType = UserType.follow;
+                    }
+                    else {
+                        userType = UserType.unFollow;
                     }
                 }
 

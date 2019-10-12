@@ -23,7 +23,7 @@ namespace ConnectApp.Models.Api {
     public class HandleArticleParameter {
         public string type;
         public string itemId;
-        public string tagId;
+        public List<string> tagIds;
     }
 
     [Serializable]

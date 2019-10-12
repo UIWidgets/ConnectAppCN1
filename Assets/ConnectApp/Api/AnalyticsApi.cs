@@ -10,11 +10,10 @@ namespace ConnectApp.Api {
         public static Promise AnalyticsApp(string userId, string device, string eventType, DateTime appTime,
             List<Dictionary<string, string>> data) {
             var promise = new Promise();
-            var store = Config.store;
             var para = new OpenAppParameter {
                 userId = userId,
                 device = device,
-                store = store,
+                store = Config.store,
                 eventType = eventType,
                 appTime = appTime,
                 extraData = data

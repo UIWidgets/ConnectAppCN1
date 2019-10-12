@@ -148,7 +148,7 @@ namespace ConnectApp.screens {
                 child: new CustomSafeArea(
                     bottom: false,
                     child: new Container(
-                        color: CColors.BgGrey,
+                        color: CColors.Background,
                         child: new Column(
                             children: new List<Widget> {
                                 this._buildNavigationBar(),
@@ -339,12 +339,15 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildSubmitButton() {
-            Widget right = new Container();
+            Widget right;
             if (this.widget.viewModel.loading) {
                 right = new CustomActivityIndicator(
                     loadingColor: LoadingColor.white,
                     size: LoadingSize.small
                 );
+            }
+            else {
+                right = new Container();
             }
 
             return new Container(
