@@ -178,7 +178,7 @@ namespace ConnectApp.screens {
 
 
         void _onChooseMention(ChannelMember member) {
-            this.widget.actionModel.chooseMentionConfirm(member.id);
+            this.widget.actionModel.chooseMentionConfirm(member.user.id);
         }
 
         Widget _buildMentionTile(BuildContext context, int index) {
@@ -190,10 +190,10 @@ namespace ConnectApp.screens {
                 child: new Container(
                     color: CColors.White,
                     height: 72,
-                    padding: EdgeInsets.symmetric(12, 16),
+                    padding: EdgeInsets.only(left: 16f),
                     child: new Row(
                         children: new List<Widget> {
-                            Avatar.User(user: member.user, 48),
+                            Avatar.User(user: member.user, 32),
                             new Expanded(
                                 child: new Container(
                                     padding: EdgeInsets.symmetric(0, 16),
@@ -203,7 +203,7 @@ namespace ConnectApp.screens {
                                         children: new List<Widget> {
                                             new Flexible(child: new Text(
                                                 data: member.user.fullName,
-                                                style: CTextStyle.PMediumBody,
+                                                style: CTextStyle.PLargeBody,
                                                 maxLines: 1,
                                                 overflow: TextOverflow.ellipsis
                                             ))
@@ -226,7 +226,7 @@ namespace ConnectApp.screens {
                         color: CColors.Separator2,
                         borderRadius: BorderRadius.all(8)
                     ),
-                    height: 40,
+                    height: 36,
                     controller: this._editingController,
                     style: CTextStyle.PLargeBody2,
                     prefix: new Container(
@@ -250,19 +250,14 @@ namespace ConnectApp.screens {
         Widget _buildNavigationBar() {
             return new Container(
                 decoration: new BoxDecoration(
-                    color: CColors.White,
-                    border: new Border(
-                        bottom: new BorderSide(
-                            color: CColors.Separator2
-                        )
-                    )
+                    color: CColors.White
                 ),
                 height: 44,
                 child: new Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: new List<Widget> {
-                        new Container(width: 56),
+                        new Container(width: 48),
                         new Column(
                             children: new List<Widget> {
                                 new Container(height:6f),

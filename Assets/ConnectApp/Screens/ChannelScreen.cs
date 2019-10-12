@@ -42,10 +42,7 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, ChannelScreenViewModel>(
                 converter: state => {
                     ChannelMessageView getMessage(string messageId) {
-                        var message = state.channelState.messageDict[messageId];
-                        message.content = MessageUtils.AnalyzeMessage(
-                            message.content, message.mentions, message.mentionEveryone);
-                        return message;
+                        return state.channelState.messageDict[messageId];
                     }
 
                     var channel = state.channelState.channelDict[this.channelId];
@@ -63,6 +60,9 @@ namespace ConnectApp.screens {
                         messages = channel.messageIds.Select(getMessage).ToList();
                     }
 
+                    messages = messages
+                        .Where(message => message.type != ChannelMessageType.text || message.content != "")
+                        .ToList();
                     
                     return new ChannelScreenViewModel {
                         channel = state.channelState.channelDict[this.channelId],
@@ -73,7 +73,8 @@ namespace ConnectApp.screens {
                         newMessageCount = state.channelState.channelDict[this.channelId].unread,
                         socketConnected = state.channelState.socketConnected,
                         mentionAutoFocus = state.channelState.mentionAutoFocus,
-                        mentionUserId = state.channelState.mentionUserId
+                        mentionUserId = state.channelState.mentionUserId,
+                        mentionSuggestion = state.channelState.mentionSuggestions.getOrDefault(this.channelId, null)
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -275,19 +276,15 @@ namespace ConnectApp.screens {
 
         public override Widget build(BuildContext context) {
             if (this.widget.viewModel.mentionAutoFocus) {
-                FocusScope.of(this.context).requestFocus(this._focusNode);
-                if (!this.widget.viewModel.mentionUserId.isEmpty() &&
-                    this.widget.viewModel.channel.membersDict.TryGetValue(
-                        this.widget.viewModel.mentionUserId, out var member)) {
-                    var userName = member.user.fullName;
-                    this._inputContentManager.AddMention(
-                        mentionName: userName + " ",
-                        mentionUserId: this.widget.viewModel.mentionUserId,
-                        newContent: this._textController.text + userName + " ");
-                    this._textController.text += userName + " ";
-                    this._textController.selection = TextSelection.collapsed(this._textController.text.Length);
-                }
                 SchedulerBinding.instance.addPostFrameCallback(_ => {
+                    FocusScope.of(this.context)?.requestFocus(this._focusNode);
+                    if (!this.widget.viewModel.mentionUserId.isEmpty()) {
+                        var userDict = this.widget.viewModel.mentionSuggestion ?? this.widget.viewModel.channel.membersDict;
+                        var userName = userDict[this.widget.viewModel.mentionUserId].user.fullName;
+                        this._inputContentManager.AddMention(userName + " ", this.widget.viewModel.mentionUserId, this._textController.text + userName + " ");
+                        this._textController.text += userName + " ";
+                        this._textController.selection = TextSelection.collapsed(this._textController.text.Length);
+                    }
                     this.widget.actionModel.clearLastChannelMention();
                 });
             }
@@ -624,7 +621,7 @@ namespace ConnectApp.screens {
 
             return new RichText(text: new TextSpan(children: MessageUtils.messageWithMarkdownToTextSpans(
                 message.content, message.mentions, message.mentionEveryone,
-                userId => this.widget.actionModel.pushToUserDetail(obj: userId)).ToList()));
+                onTap: userId => this.widget.actionModel.pushToUserDetail(obj: userId)).ToList()));
         }
 
         Widget _buildImageMessageContent(ChannelMessageView message) {
@@ -1091,7 +1088,8 @@ namespace ConnectApp.screens {
                 return;
             }
             
-            text = this._inputContentManager.ToMessage(this.widget.viewModel.channel.membersDict, text);
+            text = this._inputContentManager.ToMessage(
+                this.widget.viewModel.mentionSuggestion ?? this.widget.viewModel.channel.membersDict, text);
             
             if (string.IsNullOrWhiteSpace(text)) {
                 CustomDialogUtils.showToast("不能发送空消息", Icons.error_outline);

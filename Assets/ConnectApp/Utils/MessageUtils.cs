@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using ConnectApp.Constants;
 using ConnectApp.Models.Model;
 using Unity.UIWidgets.foundation;
@@ -62,7 +61,7 @@ namespace ConnectApp.Utils {
                     textSpans.Add(new TextSpan(
                         parsingContent.Substring(startIndex: index, length: length),
                         style: CTextStyle.PLargeBlue,
-                        recognizer: new TapGestureRecognizer {
+                        recognizer: onTap == null ? null : new TapGestureRecognizer {
                             onTap = () => onTap(userId: mentionId)
                         }
                     ));
@@ -83,19 +82,87 @@ namespace ConnectApp.Utils {
             return textSpans;
         }
 
-        public static IEnumerable<TextSpan> messageWithMarkdownToTextSpans(string content, List<User> mentions,
-            bool mentionEveryone, MentionTapCallback onTap, string url = null, Action<string> onClickUrl = null) {
+        public static IEnumerable<TextSpan> messageWithMarkdownToTextSpans(
+            string content,
+            List<User> mentions,
+            bool mentionEveryone,
+            MentionTapCallback onTap,
+            TextStyle bodyStyle = null,
+            TextStyle linkStyle = null,
+            string url = null,
+            Action<string> onClickUrl = null) {
+            bodyStyle = bodyStyle ?? CTextStyle.PLargeBody;
+            linkStyle = linkStyle ?? CTextStyle.PLargeBlue;
             var textSpans = messageToTextSpans(content, mentions, mentionEveryone, onTap);
             List<TextSpan> result = new List<TextSpan>();
             foreach (var textSpan in textSpans) {
-                if (textSpan.style != CTextStyle.PLargeBody) {
-                    result.Add(textSpan);
+                if (textSpan.recognizer != null) {
+                    result.Add(new TextSpan(
+                        text: textSpan.text,
+                        style: textSpan.style.copyWith(
+                            fontSize: bodyStyle.fontSize,
+                            color: bodyStyle.color),
+                        recognizer: textSpan.recognizer));
                     continue;
                 }
 
-                parseMarkdown(result, textSpan.text, url, onClickUrl);
+                stripMarkdown(result, textSpan.text, bodyStyle, linkStyle, url, onClickUrl);
             }
             return result;
+        }
+
+        public static void stripMarkdown(
+            List<TextSpan> result,
+            string text,
+            TextStyle bodyStyle,
+            TextStyle linkStyle,
+            string url = null,
+            Action<string> onClickUrl = null) {
+            if (string.IsNullOrWhiteSpace(url) || string.IsNullOrEmpty(text)) {
+                result.Add(new TextSpan(stripPairs(text), style: bodyStyle));
+                return;
+            }
+            var index = text.IndexOf(url, StringComparison.Ordinal);
+            if (index >= 0) {
+                if (index > 0) {
+                    result.Add(new TextSpan(
+                        stripPairs(text.Substring(0, index)),
+                        style: bodyStyle));
+                    result.Add(new TextSpan(url, style: linkStyle,
+                        recognizer: onClickUrl == null ? null : new TapGestureRecognizer {
+                            onTap = () => onClickUrl(url)
+                        }));
+                    result.Add(new TextSpan(
+                        stripPairs(text.Substring(index + url.Length)),
+                        style: bodyStyle));
+                }
+            }
+        }
+
+        public static string stripPairs(string text) {
+            text = stripPair(text, "**");
+            text = stripPair(text, "~~");
+            text = stripPair(text, "_");
+            text = stripPair(text, "```");
+            text = stripPair(text, "`");
+            return text;
+        }
+
+        public static string stripPair(string text, string symbol) {
+            while (true) {
+                var first = text.IndexOf(symbol, StringComparison.Ordinal);
+                var last = text.LastIndexOf(symbol, StringComparison.Ordinal);
+                if (first >= 0 && last >= 0 && first <= last + symbol.Length) {
+                    text = (first > 0 ? text.Substring(0, first) : "") +
+                           (first + symbol.Length < last
+                                ? text.Substring(first + symbol.Length, last - first - symbol.Length)
+                                : "") +
+                           (last + symbol.Length < text.Length ? text.Substring(last + symbol.Length) : "");
+                    continue;
+                }
+
+                return text;
+            }
         }
 
         public static void parseMarkdown(List<TextSpan> result, string text, string url = null, Action<string> onClickUrl = null) {
