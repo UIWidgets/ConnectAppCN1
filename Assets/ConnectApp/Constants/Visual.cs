@@ -149,7 +149,6 @@ namespace ConnectApp.Constants {
             color: CColors.TextTitle
         );
 
-
         public static readonly TextStyle PXLarge = new TextStyle(
             height: 1.68f,
             fontSize: 18,

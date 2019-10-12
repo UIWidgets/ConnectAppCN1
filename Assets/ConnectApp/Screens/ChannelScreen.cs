@@ -627,14 +627,12 @@ namespace ConnectApp.screens {
         Widget _buildImageMessageContent(ChannelMessageView message) {
             return new GestureDetector(
                 onTap: () => {
-                    this.setState(() => {
-                        var imageUrls = this.widget.viewModel.messages
-                            .Where(msg => msg.type == ChannelMessageType.image)
-                            .Select(msg => CImageUtils.SizeToScreenImageUrl(msg.content))
-                            .ToList();
-                        var url = CImageUtils.SizeToScreenImageUrl(message.content);
-                        this.widget.actionModel.browserImage(url, imageUrls);
-                    });
+                    var imageUrls = this.widget.viewModel.messages
+                        .Where(msg => msg.type == ChannelMessageType.image)
+                        .Select(msg => CImageUtils.SizeToScreenImageUrl(msg.content))
+                        .ToList();
+                    var url = CImageUtils.SizeToScreenImageUrl(message.content);
+                    this.widget.actionModel.browserImage(url, imageUrls);
                 },
                 child: new _ImageMessage(
                     url: message.content,

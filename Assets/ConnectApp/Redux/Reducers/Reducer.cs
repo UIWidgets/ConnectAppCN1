@@ -2954,7 +2954,7 @@ namespace ConnectApp.redux.reducers {
                             pageBuilder: (context, animation, secondaryAnimation) =>
                                 new ChannelMentionScreenConnector(action.channelId),
                             transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
-                                new PushPageTransition(
+                                new ModalPageTransition(
                                     routeAnimation: animation,
                                     child: child
                                 )
