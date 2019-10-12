@@ -7,7 +7,5 @@ namespace ConnectApp.Utils {
         public string url { get; set; }
         [Preserve]
         public string filepath { get; set; }
-        [Preserve]
-        public string data { get; set; }
     }
 }
