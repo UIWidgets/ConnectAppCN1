@@ -1,14 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using ConnectApp.Api;
 using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
 using ConnectApp.Main;
 using ConnectApp.Models.ActionModel;
-using ConnectApp.Models.Api;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
@@ -26,7 +23,6 @@ using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
 using Config = ConnectApp.Constants.Config;
 using Icons = ConnectApp.Constants.Icons;
 using Image = Unity.UIWidgets.widgets.Image;
@@ -46,10 +42,7 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, ChannelScreenViewModel>(
                 converter: state => {
                     ChannelMessageView getMessage(string messageId) {
-                        var message = state.channelState.messageDict[messageId];
-                        message.content = MessageUtils.AnalyzeMessage(
-                            message.content, message.mentions, message.mentionEveryone);
-                        return message;
+                        return state.channelState.messageDict[messageId];
                     }
 
                     var channel = state.channelState.channelDict[this.channelId];
@@ -171,7 +164,6 @@ namespace ConnectApp.screens {
     class _ChannelScreenState : TickerProviderStateMixin<ChannelScreen>, RouteAware {
         readonly TextEditingController _textController = new TextEditingController();
         readonly RefreshController _refreshController = new RefreshController();
-        readonly PageController _viewImageController = new PageController();
         readonly GlobalKey _smartRefresherKey = GlobalKey<State<SmartRefresher>>.key("SmartRefresher");
         readonly ChannelMessageInputManager _inputContentManager = new ChannelMessageInputManager();
         TabController _emojiTabController;
@@ -626,7 +618,7 @@ namespace ConnectApp.screens {
 
             return new RichText(text: new TextSpan(children: MessageUtils.messageWithMarkdownToTextSpans(
                 message.content, message.mentions, message.mentionEveryone,
-                userId => this.widget.actionModel.pushToUserDetail(obj: userId)).ToList()));
+                onTap: userId => this.widget.actionModel.pushToUserDetail(obj: userId)).ToList()));
         }
 
         Widget _buildImageMessageContent(ChannelMessageView message) {
