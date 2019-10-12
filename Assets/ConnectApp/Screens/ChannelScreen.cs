@@ -287,7 +287,7 @@ namespace ConnectApp.screens {
                 this.widget.actionModel.clearLastChannelMention();
             }
             
-            if (this.showKeyboard || this.showEmojiBoard) {
+            if ((this.showKeyboard || this.showEmojiBoard) && this._refreshController.offset > 0) {
                 SchedulerBinding.instance.addPostFrameCallback(_ => this._refreshController.scrollTo(0));
             }
 
@@ -500,15 +500,21 @@ namespace ConnectApp.screens {
                 );
             }
 
-            ret = new Column(
-                crossAxisAlignment: left ? CrossAxisAlignment.start : CrossAxisAlignment.end,
-                children: new List<Widget> {
-                    new Container(
-                        padding: EdgeInsets.only(bottom: 6),
-                        child: new Text(message.author.fullName, style: CTextStyle.PSmallBody4)
-                    ),
-                    ret
-                }
+            ret = new Expanded(
+                child: new Column(
+                    crossAxisAlignment: left ? CrossAxisAlignment.start : CrossAxisAlignment.end,
+                    children: new List<Widget> {
+                        new Container(
+                            padding: EdgeInsets.only(bottom: 6),
+                            child: new Text(
+                                data: message.author.fullName,
+                                style: CTextStyle.PSmallBody4,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis)
+                        ),
+                        ret
+                    }
+                )
             );
 
             ret = new Container(
@@ -550,6 +556,7 @@ namespace ConnectApp.screens {
                     child: new Container(
                         width: avatarSize,
                         height: avatarSize,
+                        color: CColors.Disable,
                         child: new Stack(
                             children: new List<Widget> {
                                 user.avatar.isEmpty()
@@ -1056,6 +1063,10 @@ namespace ConnectApp.screens {
         }
 
         void _handleSubmit(string text) {
+            if (this.widget.viewModel.channel.sendingMessage) {
+                return;
+            }
+            
             text = this._inputContentManager.ToMessage(this.widget.viewModel.channel.membersDict, text);
             
             if (string.IsNullOrWhiteSpace(text)) {
@@ -1123,7 +1134,7 @@ namespace ConnectApp.screens {
                 }
             }
 
-            if (this._lastScrollPosition != null && this._lastScrollPosition < this._refreshController.offset) {
+            if (this._lastScrollPosition == null || this._lastScrollPosition < this._refreshController.offset) {
                 if (this.showEmojiBoard || this.showKeyboard) {
                     this.setState(this._dismissKeyboard);
                 }
@@ -1333,6 +1344,7 @@ namespace ConnectApp.screens {
                     child: new Container(
                         width: this.size.width,
                         height: this.size.height,
+                        color: CColors.Disable,
                         child: CachedNetworkImageProvider.cachedNetworkImage(
                             CImageUtils.SizeToScreenImageUrl(this.widget.url),
                             headers: this.widget.headers,

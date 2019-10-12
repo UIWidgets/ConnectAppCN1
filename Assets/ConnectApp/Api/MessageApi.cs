@@ -14,14 +14,15 @@ namespace ConnectApp.Api {
             var promise = new Promise<FetchCommentsResponse>();
             var para = new Dictionary<string, object> ();
             if (currOldestMessageId.isNotEmpty()) {
-                para.Add("before", currOldestMessageId);
+                para.Add("before", value: currOldestMessageId);
             }
 
-            var request = HttpManager.GET($"{Config.apiAddress}/api/channels/{channelId}/messages", para);
-            HttpManager.resume(request).Then(responseText => {
-                var messagesResponse = JsonConvert.DeserializeObject<FetchCommentsResponse>(responseText);
-                promise.Resolve(messagesResponse);
-            }).Catch(exception => { promise.Reject(exception); });
+            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/messages",
+                parameter: para);
+            HttpManager.resume(request: request).Then(responseText => {
+                var messagesResponse = JsonConvert.DeserializeObject<FetchCommentsResponse>(value: responseText);
+                promise.Resolve(value: messagesResponse);
+            }).Catch(exception => promise.Reject(ex: exception));
             return promise;
         }
 
@@ -33,15 +34,16 @@ namespace ConnectApp.Api {
                 parentMessageId = parentMessageId,
                 nonce = nonce
             };
-            var request = HttpManager.POST($"{Config.apiAddress}/api/channels/{channelId}/messages", para);
-            HttpManager.resume(request).Then(responseText => {
+            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/messages",
+                parameter: para);
+            HttpManager.resume(request: request).Then(responseText => {
                 var sendMessageResponse = new FetchSendMessageResponse {
                     channelId = channelId,
                     content = content,
                     nonce = nonce
                 };
-                promise.Resolve(sendMessageResponse);
-            }).Catch(exception => { promise.Reject(exception); });
+                promise.Resolve(value: sendMessageResponse);
+            }).Catch(exception => promise.Reject(ex: exception));
             return promise;
         }
     }
