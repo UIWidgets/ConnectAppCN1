@@ -83,9 +83,11 @@ namespace ConnectApp.screens {
         }
 
         public void didPopNext() {
+            AVPlayerPlugin.showPlayer();
         }
 
         public void didPush() {
+            StatusBarManager.hideStatusBar(true);
             var width = MediaQuery.of(this.context).size.width;
             var height = width * 9 / 16;
             var originY = (MediaQuery.of(this.context).size.height - height) / 2;
@@ -101,6 +103,7 @@ namespace ConnectApp.screens {
         }
 
         public void didPushNext() {
+            AVPlayerPlugin.hiddenPlayer();
         }
     }
 }
