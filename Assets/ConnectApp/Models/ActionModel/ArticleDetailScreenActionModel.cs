@@ -7,7 +7,7 @@ using RSG;
 namespace ConnectApp.Models.ActionModel {
     public class ArticleDetailScreenActionModel : BaseActionModel {
         public Action<string> openUrl;
-        public Action<string> playVideo;
+        public Action<string, bool, int> playVideo;
         public Action browserImage;
         public Action<string> pushToArticleDetail;
         public Action<string> pushToUserDetail;
@@ -18,7 +18,6 @@ namespace ConnectApp.Models.ActionModel {
         public Func<string, IPromise> fetchArticleDetail;
         public Func<string, string, IPromise> fetchArticleComments;
         public Func<string, IPromise> likeArticle;
-        public Func<string, IPromise> unFavoriteArticle;
         public Func<Message, IPromise> likeComment;
         public Func<Message, IPromise> removeLikeComment;
         public Func<string, string, string, string, string, IPromise> sendComment;

@@ -7,19 +7,23 @@ using Unity.UIWidgets.foundation;
 using UnityEngine;
 #if UNITY_IOS
 using System.Runtime.InteropServices;
-
 #endif
 
 namespace ConnectApp.Utils {
+    public enum QRState {
+        click,
+        check,
+        confirm,
+        cancel
+    }
+
+    public enum FavoriteTagType {
+        create,
+        edit,
+        delete
+    }
+
     public static class AnalyticsManager {
-        public enum QRState {
-            click,
-            check,
-            confirm,
-            cancel
-        }
-
-
         public static string foucsTime;
 
         // tab点击统计
@@ -34,11 +38,11 @@ namespace ConnectApp.Utils {
             List<string> entries = new List<string> {
                 "Article_EnterArticle", "Event_EnterEvent", "Notification_EnterNotification", "Mine_EnterMine"
             };
-            var mEventId = $"Click_Tab_{entries[toIndex]}";
+            var mEventId = $"Click_Tab_{entries[index: toIndex]}";
             var extras = new Dictionary<string, string>();
-            extras.Add("from", tabs[fromIndex]);
-            extras.Add("to", tabs[toIndex]);
-            JAnalyticsPlugin.CountEvent(mEventId, extras);
+            extras.Add("from", tabs[index: fromIndex]);
+            extras.Add("to", tabs[index: toIndex]);
+            JAnalyticsPlugin.CountEvent(eventId: mEventId, extras: extras);
         }
 
         // tab点击统计
@@ -49,9 +53,9 @@ namespace ConnectApp.Utils {
 
             var mEventId = "Click_Event_Segment";
             var extras = new Dictionary<string, string>();
-            extras.Add("type", type);
-            extras.Add("from", from);
-            JAnalyticsPlugin.CountEvent(mEventId, extras);
+            extras.Add("type", value: type);
+            extras.Add("from", value: from);
+            JAnalyticsPlugin.CountEvent(eventId: mEventId, extras: extras);
         }
 
         //search点击事件统计
@@ -62,8 +66,8 @@ namespace ConnectApp.Utils {
 
             var mEventId = "Click_Enter_Search";
             var extras = new Dictionary<string, string>();
-            extras.Add("from", from);
-            JAnalyticsPlugin.CountEvent(mEventId, extras);
+            extras.Add("from", value: from);
+            JAnalyticsPlugin.CountEvent(eventId: mEventId, extras: extras);
         }
 
         //进入文章详情
@@ -74,10 +78,10 @@ namespace ConnectApp.Utils {
 
             var mEventId = "Click_Enter_ArticleDetail";
             var extras = new Dictionary<string, string>();
-            extras.Add("from", from);
-            extras.Add("id", articleId);
-            extras.Add("title", articleTitle);
-            JAnalyticsPlugin.CountEvent(mEventId, extras);
+            extras.Add("from", value: from);
+            extras.Add("id", value: articleId);
+            extras.Add("title", value: articleTitle);
+            JAnalyticsPlugin.CountEvent(eventId: mEventId, extras: extras);
         }
 
         public static void ClickReturnArticleDetail(string articleId, string articleTitle) {
@@ -87,9 +91,9 @@ namespace ConnectApp.Utils {
 
             var mEventId = "Click_Return_ArticleDetail";
             var extras = new Dictionary<string, string>();
-            extras.Add("id", articleId);
-            extras.Add("title", articleTitle);
-            JAnalyticsPlugin.CountEvent(mEventId, extras);
+            extras.Add("id", value: articleId);
+            extras.Add("title", value: articleTitle);
+            JAnalyticsPlugin.CountEvent(eventId: mEventId, extras: extras);
         }
 
         //进入活动详情
@@ -100,11 +104,11 @@ namespace ConnectApp.Utils {
 
             var mEventId = "Click_Enter_EventDetail";
             var extras = new Dictionary<string, string>();
-            extras.Add("from", from);
-            extras.Add("id", eventId);
-            extras.Add("title", eventTitle);
-            extras.Add("type", type);
-            JAnalyticsPlugin.CountEvent(mEventId, extras);
+            extras.Add("from", value: from);
+            extras.Add("id", value: eventId);
+            extras.Add("title", value: eventTitle);
+            extras.Add("type", value: type);
+            JAnalyticsPlugin.CountEvent(eventId: mEventId, extras: extras);
         }
 
         //eventClick
@@ -116,10 +120,10 @@ namespace ConnectApp.Utils {
             var mEventId = "Click_Event_Share";
             var extras = new Dictionary<string, string>();
             extras.Add("shareType", shareType.ToString());
-            extras.Add("type", type);
-            extras.Add("id", objectId);
-            extras.Add("title", title);
-            JAnalyticsPlugin.CountEvent(mEventId, extras);
+            extras.Add("type", value: type);
+            extras.Add("id", value: objectId);
+            extras.Add("title", value: title);
+            JAnalyticsPlugin.CountEvent(eventId: mEventId, extras: extras);
         }
 
 
@@ -130,13 +134,13 @@ namespace ConnectApp.Utils {
 
             var mEventId = "Click_Event_Like";
             var extras = new Dictionary<string, string>();
-            extras.Add("type", type);
-            extras.Add("id", articleId);
+            extras.Add("type", value: type);
+            extras.Add("id", value: articleId);
             if (commentId != null) {
-                extras.Add("commentId", commentId);
+                extras.Add("commentId", value: commentId);
             }
 
-            JAnalyticsPlugin.CountEvent(mEventId, extras);
+            JAnalyticsPlugin.CountEvent(eventId: mEventId, extras: extras);
         }
 
         public static void ClickComment(string type, string channelId, string title, string commentId = null) {
@@ -164,13 +168,13 @@ namespace ConnectApp.Utils {
 
             var mEventId = "Click_Event_PublishComment";
             var extras = new Dictionary<string, string>();
-            extras.Add("type", type);
-            extras.Add("channelId", channelId);
+            extras.Add("type", value: type);
+            extras.Add("channelId", value: channelId);
             if (commentId != null) {
-                extras.Add("commentId", commentId);
+                extras.Add("commentId", value: commentId);
             }
 
-            JAnalyticsPlugin.CountEvent(mEventId, extras);
+            JAnalyticsPlugin.CountEvent(eventId: mEventId, extras: extras);
         }
 
         public static void ClickNotification(string type, string subtype, string id) {
@@ -180,10 +184,10 @@ namespace ConnectApp.Utils {
 
             var mEventId = "Click_Notification";
             var extras = new Dictionary<string, string>();
-            extras.Add("type", type);
-            extras.Add("subtype", subtype);
-            extras.Add("id", id);
-            JAnalyticsPlugin.CountEvent(mEventId, extras);
+            extras.Add("type", value: type);
+            extras.Add("subtype", value: subtype);
+            extras.Add("id", value: id);
+            JAnalyticsPlugin.CountEvent(eventId: mEventId, extras: extras);
         }
 
         public static void ClickSplashPage(string id, string name, string url) {
@@ -193,10 +197,10 @@ namespace ConnectApp.Utils {
 
             var mEventId = "Click_Splash_Page";
             var extras = new Dictionary<string, string>();
-            extras.Add("id", id);
-            extras.Add("name", name);
-            extras.Add("url", url);
-            JAnalyticsPlugin.CountEvent(mEventId, extras);
+            extras.Add("id", value: id);
+            extras.Add("name", value: name);
+            extras.Add("url", value: url);
+            JAnalyticsPlugin.CountEvent(eventId: mEventId, extras: extras);
         }
 
         public static void ClickSkipSplashPage(string id, string name, string url) {
@@ -206,10 +210,10 @@ namespace ConnectApp.Utils {
 
             var mEventId = "Click_Skip_Splash_Page";
             var extras = new Dictionary<string, string>();
-            extras.Add("id", id);
-            extras.Add("name", name);
-            extras.Add("url", url);
-            JAnalyticsPlugin.CountEvent(mEventId, extras);
+            extras.Add("id", value: id);
+            extras.Add("name", value: name);
+            extras.Add("url", value: url);
+            JAnalyticsPlugin.CountEvent(eventId: mEventId, extras: extras);
         }
 
 
@@ -220,8 +224,8 @@ namespace ConnectApp.Utils {
 
             var mEventId = "Click_Search_Hottest_Search";
             var extras = new Dictionary<string, string>();
-            extras.Add("keyWord", keyWord);
-            JAnalyticsPlugin.CountEvent(mEventId, extras);
+            extras.Add("keyWord", value: keyWord);
+            JAnalyticsPlugin.CountEvent(eventId: mEventId, extras: extras);
         }
 
         public static void ClickHistorySearch(string keyWord) {
@@ -231,8 +235,8 @@ namespace ConnectApp.Utils {
 
             var mEventId = "Click_Search_History_Search";
             var extras = new Dictionary<string, string>();
-            extras.Add("keyWord", keyWord);
-            JAnalyticsPlugin.CountEvent(mEventId, extras);
+            extras.Add("keyWord", value: keyWord);
+            JAnalyticsPlugin.CountEvent(eventId: mEventId, extras: extras);
         }
 
         public static void SignUpOnlineEvent(string eventId, string title) {
@@ -242,9 +246,9 @@ namespace ConnectApp.Utils {
 
             var mEventId = "Sign_Up_Online_Event";
             var extras = new Dictionary<string, string>();
-            extras.Add("id", eventId);
-            extras.Add("title", title);
-            JAnalyticsPlugin.CountEvent(mEventId, extras);
+            extras.Add("id", value: eventId);
+            extras.Add("title", value: title);
+            JAnalyticsPlugin.CountEvent(eventId: mEventId, extras: extras);
         }
 
         public enum MineType {
@@ -259,10 +263,10 @@ namespace ConnectApp.Utils {
                 return;
             }
 
-            var mEventId = $"Click_Enter_Mine";
+            var mEventId = "Click_Enter_Mine";
             var extras = new Dictionary<string, string>();
             extras.Add("type", type.ToString());
-            JAnalyticsPlugin.CountEvent(mEventId, extras);
+            JAnalyticsPlugin.CountEvent(eventId: mEventId, extras: extras);
         }
 
         public static void ClickSetGrade() {
@@ -273,7 +277,7 @@ namespace ConnectApp.Utils {
 
             var mEventId = "Click_Set_Grade";
             var extras = new Dictionary<string, string>();
-            JAnalyticsPlugin.CountEvent(mEventId, extras);
+            JAnalyticsPlugin.CountEvent(eventId: mEventId, extras: extras);
         }
 
         public static void ClickEnterAboutUs() {
@@ -283,7 +287,7 @@ namespace ConnectApp.Utils {
 
             var mEventId = "Click_Enter_AboutUs";
             var extras = new Dictionary<string, string>();
-            JAnalyticsPlugin.CountEvent(mEventId, extras);
+            JAnalyticsPlugin.CountEvent(eventId: mEventId, extras: extras);
         }
 
         public static void ClickCheckUpdate() {
@@ -293,7 +297,7 @@ namespace ConnectApp.Utils {
 
             var mEventId = "Click_Check_Update";
             var extras = new Dictionary<string, string>();
-            JAnalyticsPlugin.CountEvent(mEventId, extras);
+            JAnalyticsPlugin.CountEvent(eventId: mEventId, extras: extras);
         }
 
         public static void ClickClearCache() {
@@ -303,7 +307,7 @@ namespace ConnectApp.Utils {
 
             var mEventId = "Click_Clear_Cache";
             var extras = new Dictionary<string, string>();
-            JAnalyticsPlugin.CountEvent(mEventId, extras);
+            JAnalyticsPlugin.CountEvent(eventId: mEventId, extras: extras);
         }
 
         public static void EnterOnOpenUrl(string url) {
@@ -314,8 +318,8 @@ namespace ConnectApp.Utils {
 
             var mEventId = "Enter_On_OpenUrl";
             var extras = new Dictionary<string, string>();
-            extras.Add("url", url);
-            JAnalyticsPlugin.CountEvent(mEventId, extras);
+            extras.Add("url", value: url);
+            JAnalyticsPlugin.CountEvent(eventId: mEventId, extras: extras);
         }
 
         public static void EnterApp() {
@@ -328,7 +332,7 @@ namespace ConnectApp.Utils {
             var mEventId = "Enter_App";
             var extras = new Dictionary<string, string>();
             extras.Add("app", "unity connect");
-            JAnalyticsPlugin.CountEvent(mEventId, extras);
+            JAnalyticsPlugin.CountEvent(eventId: mEventId, extras: extras);
         }
 
 
@@ -337,7 +341,7 @@ namespace ConnectApp.Utils {
                 return;
             }
 
-            JAnalyticsPlugin.Login(loginType);
+            JAnalyticsPlugin.Login(loginType: loginType);
         }
 
         public static void ClickLogout() {
@@ -347,7 +351,7 @@ namespace ConnectApp.Utils {
 
             var mEventId = "Click_Logout";
             var extras = new Dictionary<string, string>();
-            JAnalyticsPlugin.CountEvent(mEventId, extras);
+            JAnalyticsPlugin.CountEvent(eventId: mEventId, extras: extras);
         }
 
         public static void BrowseArtileDetail(string id, string name, DateTime startTime, DateTime endTime) {
@@ -356,7 +360,7 @@ namespace ConnectApp.Utils {
             }
 
             string duration = (endTime - startTime).TotalSeconds.ToString("0.0");
-            JAnalyticsPlugin.BrowseEvent(id, name, "ArticleDetail", duration, null);
+            JAnalyticsPlugin.BrowseEvent(eventId: id, name: name, "ArticleDetail", duration: duration, null);
         }
 
         public static void BrowseEventDetail(string id, string name, DateTime startTime, DateTime endTime) {
@@ -365,7 +369,7 @@ namespace ConnectApp.Utils {
             }
 
             string duration = (endTime - startTime).TotalSeconds.ToString("0.0");
-            JAnalyticsPlugin.BrowseEvent(id, name, "EventDetail", duration, null);
+            JAnalyticsPlugin.BrowseEvent(eventId: id, name: name, "EventDetail", duration: duration, null);
         }
 
         public static void AnalyticsOpenApp() {
@@ -381,7 +385,8 @@ namespace ConnectApp.Utils {
                     {"key", "enableNotification"}, {"dataType", "bool"}, {"value", enableNotification().ToString()}
                 }
             };
-            AnalyticsApi.AnalyticsApp(userId, device, type, DateTime.UtcNow, data);
+            AnalyticsApi.AnalyticsApp(userId: userId, device: device, eventType: type, appTime: DateTime.UtcNow,
+                data: data);
         }
 
         public static void AnalyticsWakeApp(string mode, string id = null, string type = null, string subtype = null) {
@@ -410,7 +415,8 @@ namespace ConnectApp.Utils {
                 });
             }
 
-            AnalyticsApi.AnalyticsApp(userId, device, mode, DateTime.UtcNow, data);
+            AnalyticsApi.AnalyticsApp(userId: userId, device: device, eventType: mode, appTime: DateTime.UtcNow,
+                data: data);
         }
 
 
@@ -425,7 +431,8 @@ namespace ConnectApp.Utils {
                     {"key", "type"}, {"dataType", "string"}, {"value", type}
                 }
             };
-            AnalyticsApi.AnalyticsApp(userId, device, "UserLogin", DateTime.UtcNow, data);
+            AnalyticsApi.AnalyticsApp(userId: userId, device: device, "UserLogin", appTime: DateTime.UtcNow,
+                data: data);
         }
 
         public static void AnalyticsActiveTime(int timespan) {
@@ -440,7 +447,8 @@ namespace ConnectApp.Utils {
                     {"key", "duration"}, {"dataType", "int"}, {"value", timespan.ToString()}
                 }
             };
-            AnalyticsApi.AnalyticsApp(userId, device, "ActiveTime", DateTime.UtcNow, data);
+            AnalyticsApi.AnalyticsApp(userId: userId, device: device, "ActiveTime", appTime: DateTime.UtcNow,
+                data: data);
         }
 
         public static void AnalyticsClickEgg(int index) {
@@ -455,7 +463,7 @@ namespace ConnectApp.Utils {
                     {"key", "index"}, {"dataType", "int"}, {"value", index.ToString()}
                 }
             };
-            AnalyticsApi.AnalyticsApp(userId, device, "ClickEgg", DateTime.UtcNow, data);
+            AnalyticsApi.AnalyticsApp(userId: userId, device: device, "ClickEgg", appTime: DateTime.UtcNow, data: data);
         }
 
         public static void AnalyticsQRScan(QRState state, bool success = true) {
@@ -473,15 +481,59 @@ namespace ConnectApp.Utils {
                     {"key", "success"}, {"dataType", "bool"}, {"value", success.ToString()}
                 }
             };
-            AnalyticsApi.AnalyticsApp(userId, device, "QRScan", DateTime.UtcNow, data);
+            AnalyticsApi.AnalyticsApp(userId: userId, device: device, "QRScan", appTime: DateTime.UtcNow, data: data);
+        }
+
+        public static void AnalyticsHandleFavoriteTag(FavoriteTagType type) {
+            if (Application.isEditor) {
+                return;
+            }
+
+            var userId = UserInfoManager.isLogin() ? UserInfoManager.initUserInfo().userId : null;
+            var device = deviceId() + (SystemInfo.deviceModel ?? "");
+            var data = new List<Dictionary<string, string>> {
+                new Dictionary<string, string> {
+                    {"key", "type"}, {"dataType", "string"}, {"value", type.ToString()}
+                }
+            };
+            AnalyticsApi.AnalyticsApp(userId: userId, device: device, "HandleFavoriteTag", appTime: DateTime.UtcNow, data: data);
+        }
+
+        public static void AnalyticsFavoriteArticle(string articleId, IEnumerable<string> favoriteTagIds) {
+            if (Application.isEditor) {
+                return;
+            }
+
+            var userId = UserInfoManager.isLogin() ? UserInfoManager.initUserInfo().userId : null;
+            var device = deviceId() + (SystemInfo.deviceModel ?? "");
+            var data = new List<Dictionary<string, string>> {
+                new Dictionary<string, string> {
+                    {"key", "articleId"}, {"dataType", "string"}, {"value", articleId}
+                },
+                new Dictionary<string, string> {
+                    {"key", "state"}, {"dataType", "string"}, {"value", string.Join(",", values: favoriteTagIds)}
+                }
+            };
+            AnalyticsApi.AnalyticsApp(userId: userId, device: device, "FavoriteArticle", appTime: DateTime.UtcNow, data: data);
+        }
+
+        public static void AnalyticsUnFavoriteArticle(string favoriteId) {
+            if (Application.isEditor) {
+                return;
+            }
+
+            var userId = UserInfoManager.isLogin() ? UserInfoManager.initUserInfo().userId : null;
+            var device = deviceId() + (SystemInfo.deviceModel ?? "");
+            var data = new List<Dictionary<string, string>> {
+                new Dictionary<string, string> {
+                    {"key", "favoriteId"}, {"dataType", "string"}, {"value", favoriteId}
+                }
+            };
+            AnalyticsApi.AnalyticsApp(userId: userId, device: device, "UnFavoriteArticle", appTime: DateTime.UtcNow, data: data);
         }
 
         public static string deviceId() {
-            if (Application.isEditor) {
-                return "Editor";
-            }
-
-            return getDeviceID();
+            return Application.isEditor ? "Editor" : getDeviceID();
         }
 
         public static bool enableNotification() {
@@ -513,8 +565,13 @@ namespace ConnectApp.Utils {
             return Plugin().CallStatic<bool>("isEnableNotification");
         }
 #else
-        static string getDeviceID() {}
-        static bool isEnableNotification() {}
+        static string getDeviceID() {
+            return "Unity Editor";
+        }
+
+        static bool isEnableNotification() {
+            return false;
+        }
 #endif
     }
 }

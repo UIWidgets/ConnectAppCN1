@@ -67,12 +67,12 @@ namespace ConnectApp.Plugins {
                     }
                 );
                 CustomDialogUtils.showToast("验证成功", iconData: Icons.sentiment_satisfied);
-                AnalyticsManager.AnalyticsQRScan(state: AnalyticsManager.QRState.check);
+                AnalyticsManager.AnalyticsQRScan(state: QRState.check);
             }).Catch(error => {
                 CustomDialogUtils.hiddenCustomDialog();
                 PushToQRScan();
                 CustomDialogUtils.showToast("验证失败", iconData: Icons.sentiment_dissatisfied);
-                AnalyticsManager.AnalyticsQRScan(state: AnalyticsManager.QRState.check, false);
+                AnalyticsManager.AnalyticsQRScan(state: QRState.check, false);
             });
         }
 
@@ -125,7 +125,7 @@ namespace ConnectApp.Plugins {
             addListener();
             if (!Application.isEditor) {
                 pushToQRScan();
-                AnalyticsManager.AnalyticsQRScan(state: AnalyticsManager.QRState.click);
+                AnalyticsManager.AnalyticsQRScan(state: QRState.click);
             }
         }
 

@@ -40,26 +40,28 @@ namespace ConnectApp.screens {
                     loading = state.reportState.loading
                 },
                 builder: (context1, viewModel, dispatcher) => {
-                    var itemType = "";
-                    if (this.reportType == ReportType.article) {
-                        itemType = "project";
-                    }
-
-                    if (this.reportType == ReportType.comment) {
-                        itemType = "comment";
-                    }
-
                     var actionModel = new ReportScreenActionModel {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
                         startReportItem = () => dispatcher.dispatch(new StartReportItemAction()),
-                        reportItem = reportContext => dispatcher.dispatch<IPromise>(
-                            Actions.reportItem(this.reportId,
-                                itemType,
-                                reportContext
-                            )
-                        )
+                        reportItem = reportContext => {
+                            string itemType;
+                            switch (this.reportType) {
+                                case ReportType.article:
+                                    itemType = "project";
+                                    break;
+                                case ReportType.comment:
+                                    itemType = "comment";
+                                    break;
+                                default:
+                                    itemType = "";
+                                    break;
+                            }
+                            return dispatcher.dispatch<IPromise>(Actions.reportItem(itemId: this.reportId,
+                                itemType: itemType, reportContext: reportContext)
+                            );
+                        }
                     };
-                    return new ReportScreen(viewModel, actionModel, this.key);
+                    return new ReportScreen(viewModel: viewModel, actionModel: actionModel, key: this.key);
                 }
             );
         }
@@ -127,9 +129,9 @@ namespace ConnectApp.screens {
         Widget _buildContent() {
             var widgets = new List<Widget>();
             this._reportItems.ForEach(item => {
-                var index = this._reportItems.IndexOf(item);
-                var widget = this._buildReportItem(item, index);
-                widgets.Add(widget);
+                var index = this._reportItems.IndexOf(item: item);
+                var widget = this._buildReportItem(title: item, index: index);
+                widgets.Add(item: widget);
             });
             widgets.Add(this._buildReportButton());
             return new Container(
@@ -144,7 +146,7 @@ namespace ConnectApp.screens {
             return new GestureDetector(
                 onTap: () => {
                     if (this._selectedIndex != index) {
-                        this.setState(() => { this._selectedIndex = index; });
+                        this.setState(() => this._selectedIndex = index);
                     }
                 },
                 child: new Container(
@@ -157,7 +159,7 @@ namespace ConnectApp.screens {
                             new Container(
                                 margin: EdgeInsets.only(12),
                                 child: new Text(
-                                    title,
+                                    data: title,
                                     style: CTextStyle.PLargeBody
                                 )
                             )
@@ -183,7 +185,7 @@ namespace ConnectApp.screens {
                 width: 20,
                 height: 20,
                 decoration: new BoxDecoration(
-                    CColors.PrimaryBlue,
+                    color: CColors.PrimaryBlue,
                     borderRadius: BorderRadius.circular(10)
                 ),
                 alignment: Alignment.center,
@@ -191,7 +193,7 @@ namespace ConnectApp.screens {
                     width: 10,
                     height: 10,
                     decoration: new BoxDecoration(
-                        CColors.White,
+                        color: CColors.White,
                         borderRadius: BorderRadius.circular(5)
                     )
                 )
@@ -199,12 +201,15 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildReportButton() {
-            Widget right = new Container();
+            Widget right;
             if (this.widget.viewModel.loading) {
                 right = new CustomActivityIndicator(
                     loadingColor: LoadingColor.white,
                     size: LoadingSize.small
                 );
+            }
+            else {
+                right = new Container();
             }
 
             return new Container(

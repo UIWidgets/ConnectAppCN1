@@ -10,25 +10,25 @@ namespace ConnectApp.Api {
     public static class SplashApi {
         public static Promise<Splash> FetchSplash() {
             var promise = new Promise<Splash>();
-            var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/ads");
-            HttpManager.resume(request).Then(responseText => {
-                var splashResponse = JsonConvert.DeserializeObject<Splash>(responseText);
-                promise.Resolve(splashResponse);
-            }).Catch(exception => { promise.Reject(exception); });
+            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/ads");
+            HttpManager.resume(request: request).Then(responseText => {
+                var splashResponse = JsonConvert.DeserializeObject<Splash>(value: responseText);
+                promise.Resolve(value: splashResponse);
+            }).Catch(exception => promise.Reject(ex: exception));
             return promise;
         }
 
         public static Promise<byte[]> FetchSplashImage(string url) {
             var promise = new Promise<byte[]>();
-            HttpManager.DownloadImage(url).Then(responseText => {
+            HttpManager.DownloadImage(url: url).Then(responseText => {
                 var pngData = responseText.EncodeToPNG();
                 if (pngData != null) {
-                    promise.Resolve(pngData);
+                    promise.Resolve(value: pngData);
                 }
                 else {
                     promise.Reject(new Exception("No user under this username found!"));
                 }
-            }).Catch(exception => promise.Reject(exception));
+            }).Catch(exception => promise.Reject(ex: exception));
             return promise;
         }
     }

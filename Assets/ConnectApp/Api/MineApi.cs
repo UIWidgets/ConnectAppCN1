@@ -14,11 +14,11 @@ namespace ConnectApp.Api {
                 {"status", "ongoing"},
                 {"page", pageNumber}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/events", para);
-            HttpManager.resume(request).Then(responseText => {
-                var eventsResponse = JsonConvert.DeserializeObject<FetchEventsResponse>(responseText);
-                promise.Resolve(eventsResponse);
-            }).Catch(exception => { promise.Reject(exception); });
+            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/events", parameter: para);
+            HttpManager.resume(request: request).Then(responseText => {
+                var eventsResponse = JsonConvert.DeserializeObject<FetchEventsResponse>(value: responseText);
+                promise.Resolve(value: eventsResponse);
+            }).Catch(exception => promise.Reject(ex: exception));
             return promise;
         }
 
@@ -29,11 +29,11 @@ namespace ConnectApp.Api {
                 {"status", "completed"},
                 {"page", pageNumber}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/events", para);
-            HttpManager.resume(request).Then(responseText => {
-                var eventsResponse = JsonConvert.DeserializeObject<FetchEventsResponse>(responseText);
-                promise.Resolve(eventsResponse);
-            }).Catch(exception => { promise.Reject(exception); });
+            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/events", parameter: para);
+            HttpManager.resume(request: request).Then(responseText => {
+                var eventsResponse = JsonConvert.DeserializeObject<FetchEventsResponse>(value: responseText);
+                promise.Resolve(value: eventsResponse);
+            }).Catch(exception => promise.Reject(ex: exception));
             return promise;
         }
     }

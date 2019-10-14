@@ -126,7 +126,7 @@ namespace ConnectApp.redux.actions {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return LoginApi.LoginByQr(token: token, action: action).Then(success => {
                     if (action == "cancel") {
-                        AnalyticsManager.AnalyticsQRScan(state: AnalyticsManager.QRState.cancel);
+                        AnalyticsManager.AnalyticsQRScan(state: QRState.cancel);
                         return;
                     }
 
@@ -137,22 +137,22 @@ namespace ConnectApp.redux.actions {
                         success ? Icons.sentiment_satisfied : Icons.sentiment_dissatisfied
                     );
                     if (success) {
-                        AnalyticsManager.AnalyticsQRScan(state: AnalyticsManager.QRState.confirm);
+                        AnalyticsManager.AnalyticsQRScan(state: QRState.confirm);
                     }
                     else {
-                        AnalyticsManager.AnalyticsQRScan(state: AnalyticsManager.QRState.confirm, false);
+                        AnalyticsManager.AnalyticsQRScan(state: QRState.confirm, false);
                     }
                 }).Catch(error => {
                         Debug.Log($"confirm api error: {error}, action: {action}");
                         if (action == "cancel") {
-                            AnalyticsManager.AnalyticsQRScan(state: AnalyticsManager.QRState.cancel, false);
+                            AnalyticsManager.AnalyticsQRScan(state: QRState.cancel, false);
                             return;
                         }
 
                         CustomDialogUtils.hiddenCustomDialog();
                         dispatcher.dispatch(new MainNavigatorPopAction());
                         CustomDialogUtils.showToast("登录失败", iconData: Icons.sentiment_dissatisfied);
-                        AnalyticsManager.AnalyticsQRScan(state: AnalyticsManager.QRState.confirm, false);
+                        AnalyticsManager.AnalyticsQRScan(state: QRState.confirm, false);
                     }
                 );
             });

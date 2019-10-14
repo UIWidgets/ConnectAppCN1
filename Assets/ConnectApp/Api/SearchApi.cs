@@ -13,11 +13,12 @@ namespace ConnectApp.Api {
             var para = new Dictionary<string, object> {
                 {"searchType", "project"}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}/api/search/popularSearch", para);
-            HttpManager.resume(request).Then(responseText => {
-                var popularSearch = JsonConvert.DeserializeObject<List<PopularSearch>>(responseText);
-                promise.Resolve(popularSearch);
-            }).Catch(exception => promise.Reject(exception));
+            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/search/popularSearch",
+                parameter: para);
+            HttpManager.resume(request: request).Then(responseText => {
+                var popularSearch = JsonConvert.DeserializeObject<List<PopularSearch>>(value: responseText);
+                promise.Resolve(value: popularSearch);
+            }).Catch(exception => promise.Reject(ex: exception));
             return promise;
         }
 
@@ -26,11 +27,12 @@ namespace ConnectApp.Api {
             var para = new Dictionary<string, object> {
                 {"searchType", "user"}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}/api/search/popularSearch", para);
-            HttpManager.resume(request).Then(responseText => {
-                var popularSearch = JsonConvert.DeserializeObject<List<PopularSearch>>(responseText);
-                promise.Resolve(popularSearch);
-            }).Catch(exception => promise.Reject(exception));
+            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/search/popularSearch",
+                parameter: para);
+            HttpManager.resume(request: request).Then(responseText => {
+                var popularSearch = JsonConvert.DeserializeObject<List<PopularSearch>>(value: responseText);
+                promise.Resolve(value: popularSearch);
+            }).Catch(exception => promise.Reject(ex: exception));
             return promise;
         }
 
@@ -43,11 +45,11 @@ namespace ConnectApp.Api {
                 {"searchAllLoadMore", "false"},
                 {"page", pageNumber}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}/api/search", para);
-            HttpManager.resume(request).Then(responseText => {
-                var searchResponse = JsonConvert.DeserializeObject<FetchSearchArticleResponse>(responseText);
-                promise.Resolve(searchResponse);
-            }).Catch(exception => promise.Reject(exception));
+            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/search", parameter: para);
+            HttpManager.resume(request: request).Then(responseText => {
+                var searchResponse = JsonConvert.DeserializeObject<FetchSearchArticleResponse>(value: responseText);
+                promise.Resolve(value: searchResponse);
+            }).Catch(exception => promise.Reject(ex: exception));
             return promise;
         }
         
@@ -57,11 +59,11 @@ namespace ConnectApp.Api {
                 {"q", keyword},
                 {"page", pageNumber}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/search/users", para);
-            HttpManager.resume(request).Then(responseText => {
-                var searchUserResponse = JsonConvert.DeserializeObject<FetchSearchUserResponse>(responseText);
-                promise.Resolve(searchUserResponse);
-            }).Catch(exception => promise.Reject(exception));
+            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/search/users", parameter: para);
+            HttpManager.resume(request: request).Then(responseText => {
+                var searchUserResponse = JsonConvert.DeserializeObject<FetchSearchUserResponse>(value: responseText);
+                promise.Resolve(value: searchUserResponse);
+            }).Catch(exception => promise.Reject(ex: exception));
             return promise;
         }
 
@@ -71,11 +73,11 @@ namespace ConnectApp.Api {
                 {"q", keyword},
                 {"page", pageNumber}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/search/teams", para);
-            HttpManager.resume(request).Then(responseText => {
-                var searchTeamResponse = JsonConvert.DeserializeObject<FetchSearchTeamResponse>(responseText);
-                promise.Resolve(searchTeamResponse);
-            }).Catch(exception => promise.Reject(exception));
+            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/search/teams", parameter: para);
+            HttpManager.resume(request: request).Then(responseText => {
+                var searchTeamResponse = JsonConvert.DeserializeObject<FetchSearchTeamResponse>(value: responseText);
+                promise.Resolve(value: searchTeamResponse);
+            }).Catch(exception => promise.Reject(ex: exception));
             return promise;
         }
     }

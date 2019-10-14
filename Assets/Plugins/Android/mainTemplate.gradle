@@ -25,11 +25,21 @@ apply plugin: 'com.android.application'
 
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation(name:'zxing-lib', ext:'aar')  
+
+
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation(name: 'zxing-lib', ext: 'aar')
+    implementation(name:'dkplayer-java', ext:'aar')
+    implementation(name:'dkplayer-ui', ext:'aar')
     implementation 'com.tencent.mm.opensdk:wechat-sdk-android-without-mta:+'
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'com.jph.takephoto:takephoto_library:4.0.3'
+    implementation 'com.github.dueeeke.dkplayer:player-ijk:3.0.4'
+    implementation 'com.github.dueeeke.dkplayer:ijk-armv7a:3.0.4'
+    implementation 'com.github.dueeeke.dkplayer:ijk-armv5:3.0.4'
+    implementation 'com.github.dueeeke.dkplayer:ijk-arm64:3.0.4'
+    implementation 'com.github.dueeeke.dkplayer:ijk-x86:3.0.4'
+    implementation 'com.github.dueeeke.dkplayer:ijk-x86_64:3.0.4'
 }
 
 android {
@@ -48,8 +58,8 @@ android {
         ndk {
             abiFilters 'armeabi-v7a', 'x86'
         }
-        versionCode 61
-        versionName '1.1.4'
+        versionCode 69
+        versionName '1.1.6'
     }
 
     lintOptions {

@@ -93,6 +93,7 @@ namespace ConnectApp.Models.Api {
     public class FetchCommentsResponse {
         public List<Message> items;
         public List<Message> parents;
+        public List<Message> uppers;
         public Dictionary<string, UserLicense> userLicenseMap;
         public string currOldestMessageId;
         public bool hasMore;
