@@ -823,7 +823,6 @@ namespace ConnectApp.screens {
         Widget _buildInputBar() {
             Widget ret = new Container(
                 padding: EdgeInsets.symmetric(0, 16),
-                height: 32,
                 decoration: new BoxDecoration(
                     CColors.Separator2,
                     borderRadius: BorderRadius.all(16)
@@ -833,12 +832,12 @@ namespace ConnectApp.screens {
                     key: this._focusNodeKey,
                     controller: this._textController,
                     focusNode: this._focusNode,
-                    height: 32,
                     style: CTextStyle.PRegularBody,
                     hintText: "说点想法…",
                     hintStyle: CTextStyle.PRegularBody4,
                     keyboardType: TextInputType.multiline,
-                    maxLines: 1,
+                    maxLines: 4,
+                    minLines: 1,
                     cursorColor: CColors.PrimaryBlue,
                     textInputAction: TextInputAction.send,
                     onSubmitted: this._handleSubmit
@@ -867,10 +866,16 @@ namespace ConnectApp.screens {
                 ),
                 child: new Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: new List<Widget> {
                         new Container(width: 16),
-                        new Expanded(child: ret),
+                        new Expanded(
+                            child: new Column(
+                                children: new List<Widget> {
+                                    new Container(height:8f),
+                                    ret,
+                                    new Container(height:16f)
+                                })),
                         this._buildShowEmojiBoardButton(),
                         this._buildPickImageButton(),
                         new Container(width: 10)
