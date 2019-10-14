@@ -85,11 +85,27 @@ namespace ConnectApp.redux.actions {
                             userMap[key: member.user.id] = member.user;
                         });
                         dispatcher.dispatch(new UserMapAction {userMap = userMap});
-                        dispatcher.dispatch(new FetchChannelMemberSuccessAction {
+                        dispatcher.dispatch(new FetchChannelMembersSuccessAction {
                             channelId = channelId,
                             offset = channelMemberResponse.offset,
                             total = channelMemberResponse.total,
                             members = channelMemberResponse.list
+                        });
+                    })
+                    .Catch(error => {
+                        dispatcher.dispatch(new FetchChannelMembersFailureAction());
+                        Debug.Log(error);
+                    });
+            });
+        }
+
+        public static object fetchChannelMember(string channelId, string userId) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return ChannelApi.FetchChannelMember(channelId: channelId, userId: userId)
+                    .Then(channelMemberResponse => {
+                        dispatcher.dispatch(new FetchChannelMemberSuccessAction {
+                            channelId = channelId,
+                            member = channelMemberResponse.member
                         });
                     })
                     .Catch(error => {
@@ -98,7 +114,7 @@ namespace ConnectApp.redux.actions {
                     });
             });
         }
-        
+
         public static object fetchChannelMentionSuggestions(string channelId) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ChannelApi.FetchChannelMemberSuggestions(channelId: channelId)
@@ -113,9 +129,7 @@ namespace ConnectApp.redux.actions {
                         });
                     })
                     .Catch(error => {
-                        dispatcher.dispatch(new FetchChannelMentionSuggestionsFailureAction {
-                            channelId = channelId
-                        });
+                        dispatcher.dispatch(new FetchChannelMentionSuggestionsFailureAction());
                         Debug.Log(error);
                     });
             });
@@ -132,9 +146,12 @@ namespace ConnectApp.redux.actions {
                         if (loading) {
                             CustomDialogUtils.hiddenCustomDialog();
                         }
+
+                        var userId = getState().loginState.loginInfo.userId;
                         dispatcher.dispatch(new JoinChannelSuccessAction {channelId = channelId});
                         dispatcher.dispatch(fetchChannelMessages(channelId: channelId));
                         dispatcher.dispatch(fetchChannelMembers(channelId: channelId));
+                        dispatcher.dispatch(fetchChannelMember(channelId: channelId, userId: userId));
                     })
                     .Catch(error => {
                         if (loading) {
@@ -280,11 +297,19 @@ namespace ConnectApp.redux.actions {
     public class FetchChannelMessagesFailureAction : BaseAction {
     }
 
-    public class FetchChannelMemberSuccessAction : BaseAction {
+    public class FetchChannelMembersSuccessAction : BaseAction {
         public string channelId;
         public List<ChannelMember> members;
         public int offset;
         public int total;
+    }
+
+    public class FetchChannelMembersFailureAction : BaseAction {
+    }
+
+    public class FetchChannelMemberSuccessAction : BaseAction {
+        public string channelId;
+        public ChannelMember member;
     }
 
     public class FetchChannelMemberFailureAction : BaseAction {
@@ -418,7 +443,7 @@ namespace ConnectApp.redux.actions {
     public class ChannelClearMentionAction : BaseAction {
     }
 
-    public class FetchChannelMentionSuggestionStart : BaseAction {
+    public class StartFetchChannelMentionSuggestionAction : BaseAction {
     }
 
     public class FetchChannelMentionSuggestionsSuccessAction : BaseAction {
@@ -427,6 +452,5 @@ namespace ConnectApp.redux.actions {
     }
 
     public class FetchChannelMentionSuggestionsFailureAction : BaseAction {
-        public string channelId;
     }
 }

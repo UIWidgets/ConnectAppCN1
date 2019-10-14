@@ -17,13 +17,13 @@ namespace ConnectApp.Api {
                 {"joined", "true"}
             };
             var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/channels", parameter: para);
-            HttpManager.resume(request).Then(responseText => {
-                var publicChannelsResponse = JsonConvert.DeserializeObject<FetchChannelsResponse>(responseText);
-                promise.Resolve(publicChannelsResponse);
-            }).Catch(exception => { promise.Reject(exception); });
+            HttpManager.resume(request: request).Then(responseText => {
+                var publicChannelsResponse = JsonConvert.DeserializeObject<FetchChannelsResponse>(value: responseText);
+                promise.Resolve(value: publicChannelsResponse);
+            }).Catch(exception => promise.Reject(ex: exception));
             return promise;
         }
-        
+
         public static Promise<FetchChannelMessagesResponse> FetchChannelMessages(
             string channelId, string before = null, string after = null) {
             D.assert(before == null || after == null);
@@ -34,18 +34,18 @@ namespace ConnectApp.Api {
                 : after != null
                     ? new Dictionary<string, object> {{"after", after}}
                     : null);
-            HttpManager.resume(request).Then(responseText => {
-                promise.Resolve(JsonConvert.DeserializeObject<FetchChannelMessagesResponse>(responseText));
-            }).Catch(exception => { promise.Reject(exception); });
+            HttpManager.resume(request: request).Then(responseText => {
+                promise.Resolve(JsonConvert.DeserializeObject<FetchChannelMessagesResponse>(value: responseText));
+            }).Catch(exception => promise.Reject(ex: exception));
             return promise;
         }
-        
+
         public static Promise<AckChannelMessagesResponse> AckChannelMessage(string messageId) {
             var promise = new Promise<AckChannelMessagesResponse>();
             var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/messages/{messageId}/ack");
-            HttpManager.resume(request).Then(responseText => {
-                promise.Resolve(JsonConvert.DeserializeObject<AckChannelMessagesResponse>(responseText));
-            }).Catch(exception => { promise.Reject(exception); });
+            HttpManager.resume(request: request).Then(responseText => {
+                promise.Resolve(JsonConvert.DeserializeObject<AckChannelMessagesResponse>(value: responseText));
+            }).Catch(exception => promise.Reject(ex: exception));
             return promise;
         }
 
@@ -55,39 +55,48 @@ namespace ConnectApp.Api {
                 parameter: new Dictionary<string, object> {
                     {"offset", offset}
                 });
-            HttpManager.resume(request).Then(responseText => {
-                promise.Resolve(JsonConvert.DeserializeObject<FetchChannelMembersResponse>(responseText));
-            }).Catch(exception => { promise.Reject(exception); });
+            HttpManager.resume(request: request).Then(responseText => {
+                promise.Resolve(JsonConvert.DeserializeObject<FetchChannelMembersResponse>(value: responseText));
+            }).Catch(exception => promise.Reject(ex: exception));
             return promise;
         }
-        
+
+        public static Promise<FetchChannelMemberResponse> FetchChannelMember(string channelId, string userId) {
+            var promise = new Promise<FetchChannelMemberResponse>();
+            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/members/{userId}");
+            HttpManager.resume(request: request).Then(responseText => {
+                promise.Resolve(JsonConvert.DeserializeObject<FetchChannelMemberResponse>(value: responseText));
+            }).Catch(exception => promise.Reject(ex: exception));
+            return promise;
+        }
+
         public static Promise<List<JoinChannelResponse>> JoinChannel(string channelId, string groupId = null) {
             var promise = new Promise<List<JoinChannelResponse>>();
             var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/join",
                 parameter: new Dictionary<string, string> {
                     {"channelId", channelId}
             });
-            HttpManager.resume(request).Then(responseText => {
-                promise.Resolve(JsonConvert.DeserializeObject<List<JoinChannelResponse>>(responseText));
-            }).Catch(exception => { promise.Reject(exception); });
+            HttpManager.resume(request: request).Then(responseText => {
+                promise.Resolve(JsonConvert.DeserializeObject<List<JoinChannelResponse>>(value: responseText));
+            }).Catch(exception => promise.Reject(ex: exception));
             return promise;
         }
-        
+
         public static Promise<LeaveChannelResponse> LeaveChannel(string channelId, string groupId = null) {
             var promise = new Promise<LeaveChannelResponse>();
             var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/leave",
                 parameter: new Dictionary<string, string> {
                     {"channelId", channelId}
             });
-            HttpManager.resume(request).Then(responseText => {
-                promise.Resolve(JsonConvert.DeserializeObject<LeaveChannelResponse>(responseText));
-            }).Catch(exception => { promise.Reject(exception); });
+            HttpManager.resume(request: request).Then(responseText => {
+                promise.Resolve(JsonConvert.DeserializeObject<LeaveChannelResponse>(value: responseText));
+            }).Catch(exception => promise.Reject(ex: exception));
             return promise;
         }
-        
+
         public static Promise<FetchSendMessageResponse> SendImage(string channelId, string content, string nonce,
             string imageData, string parentMessageId = "") {
-            var data = Convert.FromBase64String(imageData);
+            var data = Convert.FromBase64String(s: imageData);
             var promise = new Promise<FetchSendMessageResponse>();
             var request = HttpManager.POST(
                 $"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/messages/attachments",
@@ -102,26 +111,26 @@ namespace ConnectApp.Api {
                 multipart: true, 
                 filename: "image.png", 
                 fileType: "image/png");
-            HttpManager.resume(request).Then(responseText => {
+            HttpManager.resume(request: request).Then(responseText => {
                 promise.Resolve(new FetchSendMessageResponse {
                     channelId = channelId,
                     content = content,
                     nonce = nonce
                 });
-            }).Catch(exception => { promise.Reject(exception); });
+            }).Catch(exception => promise.Reject(ex: exception));
             return promise;
         }
-        
+
         public static Promise<FetchChannelMembersResponse> FetchChannelMemberSuggestions(string channelId) {
             var promise = new Promise<FetchChannelMembersResponse>();
             var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/members",
                 parameter: new Dictionary<string, object> {
                     {"get", "active"}
                 });
-            HttpManager.resume(request).Then(responseText => {
-                var members = JsonConvert.DeserializeObject<FetchChannelMembersResponse>(responseText);
-                promise.Resolve(members);
-            }).Catch(exception => { promise.Reject(exception); });
+            HttpManager.resume(request: request).Then(responseText => {
+                var members = JsonConvert.DeserializeObject<FetchChannelMembersResponse>(value: responseText);
+                promise.Resolve(value: members);
+            }).Catch(exception => promise.Reject(ex: exception));
             return promise;
         }
     }

@@ -246,10 +246,15 @@ namespace ConnectApp.Models.Api {
     }
 
     [Serializable]
+    public class FetchChannelMemberResponse {
+        public ChannelMember member;
+    }
+
+    [Serializable]
     public class JoinChannelResponse {
         
     }
-    
+
     [Serializable]
     public class LeaveChannelResponse {
         

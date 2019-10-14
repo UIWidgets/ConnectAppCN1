@@ -97,24 +97,22 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch(new ChannelScreenLeaveBottom {channelId = this.channelId});
                         },
                         openUrl = url => OpenUrlUtil.OpenUrl(url: url, dispatcher: dispatcher),
-                        browserImage = (url, imageUrls) => {
-                            dispatcher.dispatch(new MainNavigatorPushToPhotoViewAction {
-                                url = url,
-                                urls = imageUrls
-                            });
-                        },
+                        browserImage = (url, imageUrls) => dispatcher.dispatch(new MainNavigatorPushToPhotoViewAction {
+                            url = url,
+                            urls = imageUrls
+                        }),
                         fetchMessages = (before, after) => dispatcher.dispatch<IPromise>(
                             Actions.fetchChannelMessages(channelId: this.channelId, before: before, after: after)),
                         fetchMembers = () => dispatcher.dispatch<IPromise>(
-                            Actions.fetchChannelMembers(this.channelId, 0)),
+                            Actions.fetchChannelMembers(channelId: this.channelId)),
+                        fetchMember = () => dispatcher.dispatch<IPromise>(
+                            Actions.fetchChannelMember(channelId: this.channelId, userId: viewModel.me)),
                         pushToChannelDetail = () => dispatcher.dispatch(new MainNavigatorPushToChannelDetailAction {
                             channelId = this.channelId
                         }),
-                        pushToUserDetail = userId => dispatcher.dispatch(
-                            new MainNavigatorPushToUserDetailAction {
-                                userId = userId
-                            }
-                        ),
+                        pushToUserDetail = userId => dispatcher.dispatch(new MainNavigatorPushToUserDetailAction {
+                            userId = userId
+                        }),
                         sendMessage = (channelId, content, nonce, parentMessageId) => dispatcher.dispatch<IPromise>(
                             Actions.sendChannelMessage(channelId, content, nonce, parentMessageId)),
                         startSendMessage = () => dispatcher.dispatch(new StartSendChannelMessageAction {
@@ -213,6 +211,7 @@ namespace ConnectApp.screens {
                 this._refreshController.scrollController.addListener(this._handleScrollListener);
                 this.widget.actionModel.fetchMessages(null, null);
                 this.widget.actionModel.fetchMembers();
+                this.widget.actionModel.fetchMember();
                 this.widget.actionModel.reportHitBottom();
             });
             this._focusNode = new FocusNode();

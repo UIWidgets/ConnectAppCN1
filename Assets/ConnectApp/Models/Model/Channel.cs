@@ -74,7 +74,7 @@ namespace ConnectApp.Models.Model {
         public string channelId;
         public User user;
         public string role;
-        public string presenceStatus = null;
+        public string presenceStatus;
         public bool isBanned;
         public bool kicked;
         public bool left;
@@ -141,6 +141,7 @@ namespace ConnectApp.Models.Model {
         public Dictionary<string, ChannelMember> membersDict;
         public int memberOffset;
         public bool atBottom = true;
+        public ChannelMember currentMember;
 
         public static ChannelView fromChannel(Channel channel) {
             return new ChannelView {
@@ -228,11 +229,7 @@ namespace ConnectApp.Models.Model {
         }
 
         public ChannelMember getMember(string userId) {
-            if (this.membersDict.TryGetValue(userId, out var member)) {
-                return member;
-            }
-
-            return null;
+            return this.membersDict.TryGetValue(key: userId, out var member) ? member : null;
         }
 
         public void updateMessageUser(MessageUser user, bool addUserIfNotExist = true) {

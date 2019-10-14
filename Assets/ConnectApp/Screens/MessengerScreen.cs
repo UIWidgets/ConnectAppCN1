@@ -213,6 +213,10 @@ namespace ConnectApp.screens {
                 return null;
             }
 
+            if (this.widget.viewModel.publicChannels.isEmpty()) {
+                return null;
+            }
+
             Widget rightWidget;
             if (!this._hasJoinedChannel()) {
                 rightWidget = new Container();

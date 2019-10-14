@@ -2661,9 +2661,9 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
-                case FetchChannelMemberSuccessAction action: {
+                case FetchChannelMembersSuccessAction action: {
                     var channel = state.channelState.channelDict[key: action.channelId];
-                    if (channel.messageIds == null) {
+                    if (channel.memberIds == null) {
                         channel.memberIds = new List<string>();
                     }
 
@@ -2680,6 +2680,16 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case FetchChannelMemberSuccessAction action: {
+                    if (state.channelState.channelDict.ContainsKey(key: action.channelId)) {
+                        var channel = state.channelState.channelDict[key: action.channelId];
+                        channel.currentMember = action.member;
+                        state.channelState.channelDict[key: action.channelId] = channel;
+                    }
+
+                    break;
+                }
+
                 case StartJoinChannelAction action: {
                     var channel = state.channelState.channelDict[key: action.channelId];
                     channel.joinLoading = true;
@@ -2691,19 +2701,6 @@ namespace ConnectApp.redux.reducers {
                     channel.joined = true;
                     channel.joinLoading = false;
                     channel.memberCount++;
-                    if (!channel.memberIds.Contains(item: state.loginState.loginInfo.userId)) {
-                        channel.memberIds.Add(state.loginState.loginInfo.userId);
-                        channel.membersDict[state.loginState.loginInfo.userId] = new ChannelMember {
-                            channelId = action.channelId,
-                            id = state.loginState.loginInfo.userId,
-                            role = "member",
-                            user = new User {
-                                fullName = state.loginState.loginInfo.userFullName,
-                                avatar = state.loginState.loginInfo.userAvatar,
-                                id = state.loginState.loginInfo.userId
-                            }
-                        };
-                    }
 
                     if (!state.channelState.joinedChannels.Contains(item: action.channelId)) {
                         state.channelState.joinedChannels.Add(item: action.channelId);
@@ -2721,7 +2718,10 @@ namespace ConnectApp.redux.reducers {
                 case LeaveChannelSuccessAction action: {
                     var channel = state.channelState.channelDict[key: action.channelId];
                     channel.joined = false;
-                    channel.memberIds.Remove(state.loginState.loginInfo.userId);
+                    var currentMemberId = channel.currentMember.id;
+                    if (channel.memberIds.Contains(item: currentMemberId)) {
+                        channel.memberIds.Remove(item: currentMemberId);
+                    }
                     channel.memberCount -= 1;
                     state.channelState.joinedChannels.Remove(item: action.channelId);
                     break;
@@ -2981,18 +2981,18 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
-                case FetchChannelMentionSuggestionStart action: {
+                case StartFetchChannelMentionSuggestionAction _: {
                     state.channelState.mentionLoading = true;
                     break;
                 }
 
                 case FetchChannelMentionSuggestionsSuccessAction action: {
                     state.channelState.mentionLoading = false;
-                    state.channelState.mentionSuggestions[action.channelId] = action.users;
+                    state.channelState.mentionSuggestions[key: action.channelId] = action.users;
                     break;
                 }
 
-                case FetchChannelMentionSuggestionsFailureAction action: {
+                case FetchChannelMentionSuggestionsFailureAction _: {
                     state.channelState.mentionLoading = false;
                     break;
                 }
