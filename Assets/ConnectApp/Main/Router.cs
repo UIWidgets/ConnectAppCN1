@@ -39,7 +39,11 @@ namespace ConnectApp.Main {
         public const string QRScanLogin = "/qr-login";
         public const string Feedback = "/feedback";
         public const string FeedbackType = "/feedback-type";
-        public const string DiscoverChannel = "discover-channel";
+        public const string DiscoverChannel = "/discover-channel";
+        public const string ChannelScreen = "/channel-screen";
+        public const string ChannelDetail = "/channel-detail";
+        public const string ChannelMembers = "/channel-members";
+        public const string ChannelIntroduction = "/channel-introduction";
     }
 
     class Router : StatelessWidget {
@@ -82,7 +86,11 @@ namespace ConnectApp.Main {
                     {MainNavigatorRoutes.QRScanLogin, context => new QRScanLoginScreenConnector("")},
                     {MainNavigatorRoutes.Feedback, context => new FeedbackScreenConnector()},
                     {MainNavigatorRoutes.FeedbackType, context => new FeedbackTypeScreenConnector()},
-                    {MainNavigatorRoutes.DiscoverChannel, context => new DiscoverChannelsScreenConnector()}
+                    {MainNavigatorRoutes.DiscoverChannel, context => new DiscoverChannelsScreenConnector()},
+                    {MainNavigatorRoutes.ChannelScreen, context => new ChannelScreenConnector("")},
+                    {MainNavigatorRoutes.ChannelDetail, context => new ChannelDetailScreenConnector("")},
+                    {MainNavigatorRoutes.ChannelMembers, context => new ChannelMembersScreenConnector("")},
+                    {MainNavigatorRoutes.ChannelIntroduction, context => new ChannelIntroductionScreenConnector("")},
                 };
                 if (Application.isEditor) {
                     var isExistSplash = SplashManager.isExistSplash();
