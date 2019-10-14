@@ -84,7 +84,9 @@ namespace ConnectApp.screens {
                         });
                     }
 
-                    if (viewModel.channel.sentMessageFailed || viewModel.channel.sentMessageSuccess) {
+                    if (viewModel.channel.sentMessageFailed ||
+                        viewModel.channel.sentMessageSuccess ||
+                        viewModel.channel.sentImageSuccess) {
                         SchedulerBinding.instance.addPostFrameCallback(_ => {
                             dispatcher.dispatch(new ClearSentChannelMessage {channelId = this.channelId});
                         });
