@@ -5,6 +5,7 @@ using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
 using ConnectApp.Main;
 using ConnectApp.Models.ActionModel;
+using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
@@ -46,16 +47,18 @@ namespace ConnectApp.screens {
                         ? favoriteDetailArticleIdDict[key: this.tagId]
                         : null;
                     return new FavoriteDetailScreenViewModel {
+                        userId = this.userId,
                         tagId = this.tagId,
                         favoriteDetailLoading = state.favoriteState.favoriteDetailLoading,
                         favoriteDetailArticleIds = favoriteDetailArticleIds,
-                        favoriteArticleOffset = favoriteDetailArticleIds == null ? 0 : favoriteDetailArticleIds.Count,
+                        favoriteArticleOffset = favoriteDetailArticleIds?.Count ?? 0,
                         favoriteArticleHasMore = state.favoriteState.favoriteDetailHasMore,
                         isLoggedIn = state.loginState.isLoggedIn,
                         favoriteTag = favoriteTag,
                         articleDict = state.articleState.articleDict,
                         userDict = state.userState.userDict,
-                        teamDict = state.teamState.teamDict
+                        teamDict = state.teamState.teamDict,
+                        currentUserId = state.loginState.loginInfo.userId ?? ""
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -131,6 +134,7 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
+            StatusBarManager.statusBarStyle(false);
             this._favoriteInfoHeight = 0;
             this._favoriteArticleOffset = 0;
             this._isHaveTitle = false;
@@ -249,14 +253,21 @@ namespace ConnectApp.screens {
                 }
                 else {
                     title = favoriteTag.name;
-                    rightWidget = new CustomButton(
-                        padding: EdgeInsets.symmetric(8, 16),
-                        onPressed: () => this.widget.actionModel.pushToEditFavorite(obj: tagId),
-                        child: new Text(
-                            "编辑",
-                            style: CTextStyle.PLargeMediumBlue.merge(new TextStyle(height: 1))
-                        )
-                    );
+                    if (!this.widget.viewModel.isLoggedIn) {
+                        rightWidget = new Container(width: 56);
+                    } else if (!this.widget.viewModel.userId.Equals(value: this.widget.viewModel.currentUserId)) {
+                        rightWidget = new Container(width: 56);
+                    }
+                    else {
+                        rightWidget = new CustomButton(
+                            padding: EdgeInsets.symmetric(8, 16),
+                            onPressed: () => this.widget.actionModel.pushToEditFavorite(obj: tagId),
+                            child: new Text(
+                                "编辑",
+                                style: CTextStyle.PLargeMediumBlue.merge(new TextStyle(height: 1))
+                            )
+                        );
+                    }
                 }
             }
 
@@ -469,34 +480,48 @@ namespace ConnectApp.screens {
                         }
                     ),
                     fullName: fullName,
-                    key: new ObjectKey(value: article.id)
+                    new ObjectKey(value: article.id)
                 ),
                 new CustomDismissibleDrawerDelegate(),
-                secondaryActions: new List<Widget> {
-                    new DeleteActionButton(
-                        80,
-                        onTap: () => {
-                            ActionSheetUtils.showModalActionSheet(
-                                new ActionSheet(
-                                    title: "确定不再收藏？",
-                                    items: new List<ActionSheetItem> {
-                                        new ActionSheetItem(
-                                            "确定",
-                                            type: ActionType.normal,
-                                            () => {
-                                                this.widget.actionModel.unFavoriteArticle(arg1: article.id,
-                                                    arg2: article.favorite.id);
-                                            }
-                                        ),
-                                        new ActionSheetItem("取消", type: ActionType.cancel)
-                                    }
-                                )
-                            );
-                        }
-                    )
-                },
+                secondaryActions: this._buildSecondaryActions(article: article),
                 controller: this._dismissibleController
             );
+        }
+
+        List<Widget> _buildSecondaryActions(Article article) {
+            if (!this.widget.viewModel.isLoggedIn) {
+                return new List<Widget>();
+            }
+
+            if (!this.widget.viewModel.userId.Equals(value: this.widget.viewModel.currentUserId)) {
+                return new List<Widget>();
+            }
+
+            return new List<Widget> {
+                new DeleteActionButton(
+                    80,
+                    onTap: () => {
+                        ActionSheetUtils.showModalActionSheet(
+                            new ActionSheet(
+                                title: "确定不再收藏？",
+                                items: new List<ActionSheetItem> {
+                                    new ActionSheetItem(
+                                        "确定",
+                                        type: ActionType.normal,
+                                        () => {
+                                            var currentFavorite = article.favorites.Find(
+                                                favorite => favorite.tagId == this.widget.viewModel.tagId);
+                                            this.widget.actionModel.unFavoriteArticle(arg1: article.id,
+                                                arg2: currentFavorite.id);
+                                        }
+                                    ),
+                                    new ActionSheetItem("取消", type: ActionType.cancel)
+                                }
+                            )
+                        );
+                    }
+                )
+            };
         }
     }
 }

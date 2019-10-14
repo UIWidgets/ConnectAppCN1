@@ -35,7 +35,18 @@ namespace ConnectApp.screens {
                                             isTop;
                             return channel;
                         }).ToList();
-                    joinedChannels.Sort((c1, c2) => c1.isTop == c2.isTop ? 0 : (c1.isTop ? -1 : 1));
+                    joinedChannels.Sort(
+                        (c1, c2) => {
+                            if (c1.isTop && !c2.isTop) {
+                                return -1;
+                            }
+
+                            if (!c1.isTop && c2.isTop) {
+                                return 1;
+                            }
+
+                            return (c2.lastMessage.time - c1.lastMessage.time).Milliseconds;
+                        });
                     var lastMessageMap = new Dictionary<string, string>();
                     foreach (var channel in joinedChannels) {
                         if (!string.IsNullOrEmpty(value: channel.lastMessageId)) {

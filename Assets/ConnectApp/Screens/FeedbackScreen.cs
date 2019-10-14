@@ -12,8 +12,8 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
@@ -68,9 +68,9 @@ namespace ConnectApp.screens {
     }
 
     class _FeedbackScreenState : State<FeedbackScreen>, RouteAware {
-        readonly FocusNode _contentFocusNode = new FocusNode();
-        readonly FocusNode _nameFocusNode = new FocusNode();
-        readonly FocusNode _contactFocusNode = new FocusNode();
+        FocusNode _contentFocusNode = new FocusNode();
+        FocusNode _nameFocusNode = new FocusNode();
+        FocusNode _contactFocusNode = new FocusNode();
 
         readonly TextEditingController _contentController = new TextEditingController();
         readonly TextEditingController _nameController = new TextEditingController();
@@ -148,7 +148,7 @@ namespace ConnectApp.screens {
                 child: new CustomSafeArea(
                     bottom: false,
                     child: new Container(
-                        color: CColors.BgGrey,
+                        color: CColors.Background,
                         child: new Column(
                             children: new List<Widget> {
                                 this._buildNavigationBar(),
@@ -339,12 +339,15 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildSubmitButton() {
-            Widget right = new Container();
+            Widget right;
             if (this.widget.viewModel.loading) {
                 right = new CustomActivityIndicator(
                     loadingColor: LoadingColor.white,
                     size: LoadingSize.small
                 );
+            }
+            else {
+                right = new Container();
             }
 
             return new Container(
