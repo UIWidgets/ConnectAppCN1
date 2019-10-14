@@ -385,7 +385,7 @@ namespace ConnectApp.screens {
                 padding: EdgeInsets.symmetric(9, 16),
                 child: new Text(
                     $"{CStringUtils.CountToString(this.widget.viewModel.newMessageCount)}条新消息未读",
-                    style: CTextStyle.PRegularWhite.copyWith(height: 1.2f)
+                    style: CTextStyle.PRegularWhite.copyWith(height: 1f)
                 )
             );
 
@@ -396,7 +396,15 @@ namespace ConnectApp.screens {
                 height: 40,
                 child: new Align(
                     alignment: Alignment.center,
-                    child: ret
+                    child: new GestureDetector(
+                        onTap: () => {
+                            this.widget.actionModel.reportHitBottom();
+                            SchedulerBinding.instance.addPostFrameCallback(_ => {
+                                this._refreshController.scrollTo(0);
+                            });
+                        },
+                        child: ret
+                    )
                 )
             );
 
