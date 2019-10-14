@@ -582,6 +582,14 @@ namespace ConnectApp.screens {
                 padding: EdgeInsets.symmetric(0, 10),
                 child: new GestureDetector(
                     onTap: () => this.widget.actionModel.pushToUserDetail(user.id),
+                    onLongPress: () => {
+                        var userName = user.fullName;
+                        var userId = user.id;
+                        var mentionName = "@" + userName + " ";
+                        this._inputContentManager.AddMention(userName + " ", userId, this._textController.text + mentionName);
+                        this._textController.text += mentionName;
+                        this._textController.selection = TextSelection.collapsed(this._textController.text.Length);
+                    },
                     child: new Container(
                         width: avatarSize,
                         height: avatarSize,
@@ -1089,7 +1097,7 @@ namespace ConnectApp.screens {
             }
             
             text = this._inputContentManager.ToMessage(
-                this.widget.viewModel.mentionSuggestion ?? this.widget.viewModel.channel.membersDict, text);
+                this.widget.viewModel.mentionSuggestion, this.widget.viewModel.channel.membersDict, text);
             
             if (string.IsNullOrWhiteSpace(text)) {
                 CustomDialogUtils.showToast("不能发送空消息", Icons.error_outline);
