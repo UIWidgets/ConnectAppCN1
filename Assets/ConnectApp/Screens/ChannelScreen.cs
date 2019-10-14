@@ -349,7 +349,6 @@ namespace ConnectApp.screens {
 
         Widget _buildNetworkDisconnectedNote() {
             Widget ret = new Container(
-                height: 24,
                 color: CColors.Error,
                 child: new Center(
                     child: new Text(
@@ -359,11 +358,12 @@ namespace ConnectApp.screens {
                 )
             );
 
-            ret = Positioned.fill(
-                new Align(
-                    alignment: Alignment.topCenter,
-                    child: ret
-                )
+            ret = new Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                height: 24,
+                child: ret
             );
 
             return ret;
@@ -371,7 +371,6 @@ namespace ConnectApp.screens {
 
         Widget _buildNewMessageNotification() {
             Widget ret = new Container(
-                height: 40,
                 decoration: new BoxDecoration(
                     color: CColors.Error,
                     borderRadius: BorderRadius.all(20),
@@ -390,24 +389,14 @@ namespace ConnectApp.screens {
                 )
             );
 
-            ret = Positioned.fill(
+            ret = new Positioned(
+                bottom: this.inputBarHeight + 16,
+                left: 0,
+                right: 0,
+                height: 40,
                 child: new Align(
-                    alignment: Alignment.bottomCenter,
-                    child: new Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: new List<Widget> {
-                            new GestureDetector(
-                                onTap: () => {
-                                    this.widget.actionModel.reportHitBottom();
-                                    Promise.Delayed(TimeSpan.FromMilliseconds(200)).Then(
-                                        () => this._refreshController.scrollTo(0)
-                                    );
-                                },
-                                child: ret
-                            ),
-                            new Container(height: this.inputBarHeight + 16)
-                        }
-                    )
+                    alignment: Alignment.center,
+                    child: ret
                 )
             );
 
