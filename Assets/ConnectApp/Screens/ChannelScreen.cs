@@ -838,13 +838,15 @@ namespace ConnectApp.screens {
                 ret = new Stack(
                     children: new List<Widget> {
                         ret,
-                        Positioned.fill(
-                            child: new Row(
-                                children: new List<Widget> {
-                                    new Expanded(child: new Container()),
-                                    new CustomActivityIndicator(),
-                                    new Container(width: 8)
-                                }))
+                        new Positioned(
+                            right: 8,
+                            top: 0,
+                            bottom: 0,
+                            child: new Align(
+                                alignment: Alignment.center,
+                                child: new CustomActivityIndicator()
+                            )
+                        )
                     });
             }
 
