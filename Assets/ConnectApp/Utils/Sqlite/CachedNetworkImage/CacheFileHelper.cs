@@ -52,14 +52,14 @@ namespace ConnectApp.Utils {
         public static void SyncSaveCacheFile(string url, byte[] data, string suffix) {
             var filePath = GetCacheFilePath(url, suffix);
             File.WriteAllBytes(filePath, data);
-            SQLiteDBManager.instance.UpdateCachedFilePath(url, filePath, data);
+            SQLiteDBManager.instance.UpdateCachedFilePath(url, filePath);
         }
         
         
         public static void SyncSaveCacheFile(string url, Texture2D texture2D) {
             var filePath = GetCacheFilePath(url, "png");
             File.WriteAllBytes(filePath, texture2D.EncodeToPNG());
-            SQLiteDBManager.instance.UpdateCachedFilePath(url, filePath, texture2D.EncodeToPNG());
+            SQLiteDBManager.instance.UpdateCachedFilePath(url, filePath);
         }
     }
 }
