@@ -23,7 +23,6 @@ using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
 using Config = ConnectApp.Constants.Config;
 using Icons = ConnectApp.Constants.Icons;
 using Image = Unity.UIWidgets.widgets.Image;
@@ -177,6 +176,7 @@ namespace ConnectApp.screens {
         float messageBubbleWidth = 0;
         bool _showEmojiBoard = false;
         Dictionary<string, string> headers;
+        float mPaddingBottom = 0;
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
@@ -277,14 +277,17 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
+            this.mPaddingBottom = MediaQuery.of(context).padding.bottom;
             if (this.widget.viewModel.mentionAutoFocus) {
                 SchedulerBinding.instance.addPostFrameCallback(_ => {
                     FocusScope.of(this.context)?.requestFocus(this._focusNode);
                     if (!this.widget.viewModel.mentionUserId.isEmpty()) {
-                        var userDict = this.widget.viewModel.mentionSuggestion ?? this.widget.viewModel.channel.membersDict;
+                        var userDict = this.widget.viewModel.mentionSuggestion ??
+                                       this.widget.viewModel.channel.membersDict;
                         if (userDict.ContainsKey(this.widget.viewModel.mentionUserId)) {
                             var userName = userDict[this.widget.viewModel.mentionUserId].user.fullName;
-                            this._inputContentManager.AddMention(userName + " ", this.widget.viewModel.mentionUserId, this._textController.text + userName + " ");
+                            this._inputContentManager.AddMention(userName + " ", this.widget.viewModel.mentionUserId,
+                                this._textController.text + userName + " ");
                             this._textController.value = new TextEditingValue(
                                 text: this._textController.text + userName + " ",
                                 TextSelection.collapsed(this._textController.text.Length));
@@ -317,7 +320,7 @@ namespace ConnectApp.screens {
             Widget ret = new Stack(
                 children: new List<Widget> {
                     this._buildContent(),
-                    this._buildInputBar(context),
+                    this._buildInputBar(),
                     this.widget.viewModel.newMessageCount == 0 ||
                     this.widget.viewModel.messageLoading
                         ? new Container()
@@ -333,7 +336,7 @@ namespace ConnectApp.screens {
                     this._buildNavigationBar(),
                     new Flexible(child: ret),
                     this.showEmojiBoard
-                        ? this._buildEmojiBoard(context)
+                        ? this._buildEmojiBoard()
                         : new Container(height: MediaQuery.of(this.context).viewInsets.bottom)
                 }
             );
@@ -590,7 +593,8 @@ namespace ConnectApp.screens {
                         var userName = user.fullName;
                         var userId = user.id;
                         var mentionName = "@" + userName + " ";
-                        this._inputContentManager.AddMention(userName + " ", userId, this._textController.text + mentionName);
+                        this._inputContentManager.AddMention(userName + " ", userId,
+                            this._textController.text + mentionName);
                         this._textController.value = new TextEditingValue(
                             text: this._textController.text + mentionName,
                             TextSelection.collapsed(this._textController.text.Length)
@@ -823,8 +827,8 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildInputBar(BuildContext context) {
-            var padding = this.showKeyboard || this.showEmojiBoard ? 0 : MediaQuery.of(context).padding.bottom;
+        Widget _buildInputBar() {
+            var padding = this.showKeyboard || this.showEmojiBoard ? 0 : this.mPaddingBottom;
             Widget ret = new Container(
                 padding: EdgeInsets.symmetric(0, 16),
                 height: 32,
@@ -960,7 +964,7 @@ namespace ConnectApp.screens {
             return emojiPages;
         }
 
-        Widget _buildEmojiBoard(BuildContext context) {
+        Widget _buildEmojiBoard() {
             return new Column(
                 children: new List<Widget> {
                     new Container(
@@ -991,7 +995,6 @@ namespace ConnectApp.screens {
                     new Container(
                         color: CColors.EmojiBottomBar,
                         height: 36,
-                        margin: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
                         child: new Row(
                             children: new List<Widget> {
                                 new Container(width: 16),
@@ -1018,6 +1021,10 @@ namespace ConnectApp.screens {
                                 )
                             }
                         )
+                    ),
+                    new Container(
+                        color: CColors.EmojiBottomBar,
+                        height: this.mPaddingBottom
                     )
                 }
             );
