@@ -280,10 +280,12 @@ namespace ConnectApp.screens {
                     FocusScope.of(this.context)?.requestFocus(this._focusNode);
                     if (!this.widget.viewModel.mentionUserId.isEmpty()) {
                         var userDict = this.widget.viewModel.mentionSuggestion ?? this.widget.viewModel.channel.membersDict;
-                        var userName = userDict[this.widget.viewModel.mentionUserId].user.fullName;
-                        this._inputContentManager.AddMention(userName + " ", this.widget.viewModel.mentionUserId, this._textController.text + userName + " ");
-                        this._textController.text += userName + " ";
-                        this._textController.selection = TextSelection.collapsed(this._textController.text.Length);
+                        if (userDict.ContainsKey(this.widget.viewModel.mentionUserId)) {
+                            var userName = userDict[this.widget.viewModel.mentionUserId].user.fullName;
+                            this._inputContentManager.AddMention(userName + " ", this.widget.viewModel.mentionUserId, this._textController.text + userName + " ");
+                            this._textController.text += userName + " ";
+                            this._textController.selection = TextSelection.collapsed(this._textController.text.Length);
+                        }
                     }
                     this.widget.actionModel.clearLastChannelMention();
                 });

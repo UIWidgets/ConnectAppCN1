@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Text;
 using ConnectApp.Models.Model;
-using Unity.UIWidgets.foundation;
 using UnityEngine;
 
 namespace ConnectApp.Utils {
@@ -68,7 +67,7 @@ namespace ConnectApp.Utils {
             
             var message = new StringBuilder();
             for (int i = 0; i < this.contentSpans.Count; i++) {
-                if (this.mentionIds[i] != null) {
+                if (this.mentionIds[i] != null && membersDict.ContainsKey(this.mentionIds[i])) {
                     var span = this.contentSpans[i].TrimEnd();
                     if (span == $"@{membersDict[this.mentionIds[i]].user.fullName}") {
                         message.Append($"<@{this.mentionIds[i]}> ");
@@ -133,7 +132,10 @@ namespace ConnectApp.Utils {
                 curLen += span.Length;
             }
             var deltaLen = newContent.Length - curLen;
-            D.assert(deltaLen > 0);
+            if (deltaLen <= 0) {
+                this.doFallback(newContent);
+                return;
+            }
 
             var startIndex = selectIndex - deltaLen;
 
@@ -170,7 +172,11 @@ namespace ConnectApp.Utils {
                 curLen += span.Length;
             }
             var deltaLen = curLen - newContent.Length;
-            D.assert(deltaLen > 0);
+            if (deltaLen <= 0) {
+                this.doFallback(newContent);
+                jumpForward = 0;
+                return newContent;
+            }
 
             var selectFrom = Mathf.Max(0, selectIndex);
             var selectTo = selectFrom + deltaLen;
