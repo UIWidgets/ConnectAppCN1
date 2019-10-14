@@ -26,12 +26,19 @@ namespace ConnectApp.Components {
 
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, MyFavoriteScreenViewModel>(
-                converter: state => new MyFavoriteScreenViewModel {
-                    myFavoriteLoading = state.favoriteState.favoriteTagLoading,
-                    myFavoriteIds = state.favoriteState.favoriteTagIds,
-                    myFavoriteHasMore = state.favoriteState.favoriteTagHasMore,
-                    currentUserId = state.loginState.loginInfo.userId ?? "",
-                    favoriteTagDict = state.favoriteState.favoriteTagDict
+                converter: state => {
+                    var currentUserId = state.loginState.loginInfo.userId ?? "";
+                    var myFavoriteIds = state.favoriteState.favoriteTagIdDict.ContainsKey(key: currentUserId)
+                        ? state.favoriteState.favoriteTagIdDict[key: currentUserId]
+                        : new List<string>();
+                    return new MyFavoriteScreenViewModel {
+                        myFavoriteLoading = state.favoriteState.favoriteTagLoading,
+                        myFavoriteIds = myFavoriteIds,
+                        myFavoriteHasMore = state.favoriteState.favoriteTagHasMore,
+                        currentUserId = currentUserId,
+                        article = state.articleState.articleDict[key: this.articleId],
+                        favoriteTagDict = state.favoriteState.favoriteTagDict
+                    };
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new MyFavoriteScreenActionModel {
@@ -40,9 +47,9 @@ namespace ConnectApp.Components {
                         fetchMyFavorite = offset =>
                             dispatcher.dispatch<IPromise>(Actions.fetchFavoriteTags(userId: viewModel.currentUserId,
                                 offset: offset)),
-                        favoriteArticle = tagId =>
+                        favoriteArticle = tagIds =>
                             dispatcher.dispatch<IPromise>(Actions.favoriteArticle(articleId: this.articleId,
-                                tagId: tagId)),
+                                tagIds: tagIds)),
                         pushToCreateFavorite = tagId => dispatcher.dispatch(
                             new MainNavigatorPushToEditFavoriteAction {
                                 tagId = tagId
@@ -75,12 +82,15 @@ namespace ConnectApp.Components {
     class _FavoriteSheetState : State<FavoriteSheet> {
         readonly RefreshController _refreshController = new RefreshController();
         int _favoriteOffset;
-        int _checkIndex;
+        readonly List<string> _checkTagIds = new List<string>();
 
         public override void initState() {
             base.initState();
             this._favoriteOffset = 0;
-            this._checkIndex = 0;
+            this.widget.viewModel.article.favorites?.ForEach(favorite => {
+                this._checkTagIds.Add(item: favorite.tagId);
+            });
+
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this.widget.actionModel.startFetchMyFavorite();
                 this.widget.actionModel.fetchMyFavorite(0);
@@ -141,11 +151,7 @@ namespace ConnectApp.Components {
                             padding: EdgeInsets.all(16),
                             onPressed: () => {
                                 ActionSheetUtils.hiddenModalPopup();
-                                var myFavoriteIds = this.widget.viewModel.myFavoriteIds;
-                                if (myFavoriteIds.Count > this._checkIndex) {
-                                    var tagId = myFavoriteIds[index: this._checkIndex];
-                                    this.widget.actionModel.favoriteArticle(arg: tagId);
-                                }
+                                this.widget.actionModel.favoriteArticle(arg: this._checkTagIds);
                             },
                             child: new Text("完成", style: CTextStyle.PLargeBlue)
                         )
@@ -220,11 +226,15 @@ namespace ConnectApp.Components {
                                     favoriteTag: favoriteTag,
                                     true,
                                     () => {
-                                        if (this._checkIndex != index) {
-                                            this.setState(() => this._checkIndex = index);
+                                        if (this._checkTagIds.Contains(item: favoriteTag.id)) {
+                                            this._checkTagIds.Remove(item: favoriteTag.id);
                                         }
+                                        else {
+                                            this._checkTagIds.Add(item: favoriteTag.id);
+                                        }
+                                        this.setState(() => { });
                                     },
-                                    this._checkIndex == index
+                                    this._checkTagIds.Contains(item: favoriteTag.id)
                                 );
                             }
                         )

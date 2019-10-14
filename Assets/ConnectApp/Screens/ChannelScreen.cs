@@ -279,10 +279,13 @@ namespace ConnectApp.screens {
                     FocusScope.of(this.context)?.requestFocus(this._focusNode);
                     if (!this.widget.viewModel.mentionUserId.isEmpty()) {
                         var userDict = this.widget.viewModel.mentionSuggestion ?? this.widget.viewModel.channel.membersDict;
-                        var userName = userDict[this.widget.viewModel.mentionUserId].user.fullName;
-                        this._inputContentManager.AddMention(userName + " ", this.widget.viewModel.mentionUserId, this._textController.text + userName + " ");
-                        this._textController.text += userName + " ";
-                        this._textController.selection = TextSelection.collapsed(this._textController.text.Length);
+                        if (userDict.ContainsKey(this.widget.viewModel.mentionUserId)) {
+                            var userName = userDict[this.widget.viewModel.mentionUserId].user.fullName;
+                            this._inputContentManager.AddMention(userName + " ", this.widget.viewModel.mentionUserId, this._textController.text + userName + " ");
+                            this._textController.value = new TextEditingValue(
+                                text: this._textController.text + userName + " ",
+                                TextSelection.collapsed(this._textController.text.Length));
+                        }
                     }
                     this.widget.actionModel.clearLastChannelMention();
                 });
@@ -579,6 +582,16 @@ namespace ConnectApp.screens {
                 padding: EdgeInsets.symmetric(0, 10),
                 child: new GestureDetector(
                     onTap: () => this.widget.actionModel.pushToUserDetail(user.id),
+                    onLongPress: () => {
+                        var userName = user.fullName;
+                        var userId = user.id;
+                        var mentionName = "@" + userName + " ";
+                        this._inputContentManager.AddMention(userName + " ", userId, this._textController.text + mentionName);
+                        this._textController.value = new TextEditingValue(
+                            text: this._textController.text + mentionName,
+                            TextSelection.collapsed(this._textController.text.Length)
+                        );
+                    },
                     child: new Container(
                         width: avatarSize,
                         height: avatarSize,
@@ -1086,7 +1099,7 @@ namespace ConnectApp.screens {
             }
             
             text = this._inputContentManager.ToMessage(
-                this.widget.viewModel.mentionSuggestion ?? this.widget.viewModel.channel.membersDict, text);
+                this.widget.viewModel.mentionSuggestion, this.widget.viewModel.channel.membersDict, text);
             
             if (string.IsNullOrWhiteSpace(text)) {
                 CustomDialogUtils.showToast("不能发送空消息", Icons.error_outline);

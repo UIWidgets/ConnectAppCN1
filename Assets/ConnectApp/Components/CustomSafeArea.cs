@@ -16,11 +16,9 @@ namespace ConnectApp.Components {
             this.bottom = bottom;
         }
 
-
         readonly Widget child;
         readonly bool top;
         readonly bool bottom;
-
 
         public override Widget build(BuildContext context) {
             bool topValue = Application.platform != RuntimePlatform.Android;

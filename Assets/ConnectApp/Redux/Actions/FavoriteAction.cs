@@ -15,6 +15,7 @@ namespace ConnectApp.redux.actions {
 
     public class FetchFavoriteTagSuccessAction : BaseAction {
         public List<FavoriteTag> favoriteTags;
+        public string userId;
         public bool hasMore;
         public int offset;
     }
@@ -53,7 +54,10 @@ namespace ConnectApp.redux.actions {
     public static partial class Actions {
         public static object fetchFavoriteTags(string userId, int offset) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                var favoriteTagIdCount = getState().favoriteState.favoriteTagIds.Count;
+                var favoriteTagIds = getState().favoriteState.favoriteTagIdDict.ContainsKey(key: userId)
+                    ? getState().favoriteState.favoriteTagIdDict[key: userId]
+                    : new List<string>();
+                var favoriteTagIdCount = favoriteTagIds.Count;
                 if (offset != 0 && offset != favoriteTagIdCount) {
                     offset = favoriteTagIdCount;
                 }
@@ -61,6 +65,7 @@ namespace ConnectApp.redux.actions {
                 return FavoriteApi.FetchFavoriteTags(userId: userId, offset: offset)
                     .Then(favoritesResponse => {
                         dispatcher.dispatch(new FetchFavoriteTagSuccessAction {
+                            userId = userId,
                             offset = offset,
                             hasMore = favoritesResponse.hasMore,
                             favoriteTags = favoritesResponse.favoriteTags
@@ -124,6 +129,7 @@ namespace ConnectApp.redux.actions {
                             favoriteTag = createFavoriteTagResponse
                         });
                         dispatcher.dispatch(new MainNavigatorPopAction());
+                        AnalyticsManager.AnalyticsHandleFavoriteTag(type: FavoriteTagType.create);
                     })
                     .Catch(error => {
                         CustomDialogUtils.hiddenCustomDialog();
@@ -151,6 +157,7 @@ namespace ConnectApp.redux.actions {
                             favoriteTag = editFavoriteTagResponse
                         });
                         dispatcher.dispatch(new MainNavigatorPopAction());
+                        AnalyticsManager.AnalyticsHandleFavoriteTag(type: FavoriteTagType.edit);
                     })
                     .Catch(error => {
                         CustomDialogUtils.hiddenCustomDialog();
@@ -177,6 +184,7 @@ namespace ConnectApp.redux.actions {
                         dispatcher.dispatch(new DeleteFavoriteTagSuccessAction {
                             favoriteTag = deleteFavoriteTagResponse
                         });
+                        AnalyticsManager.AnalyticsHandleFavoriteTag(type: FavoriteTagType.delete);
                     })
                     .Catch(error => {
                         CustomDialogUtils.hiddenCustomDialog();

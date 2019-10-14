@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Text;
 using ConnectApp.Models.Model;
-using Unity.UIWidgets.foundation;
 using UnityEngine;
 
 namespace ConnectApp.Utils {
@@ -61,7 +60,7 @@ namespace ConnectApp.Utils {
             return raw.ToString();
         }
 
-        public string ToMessage(Dictionary<string, ChannelMember> membersDict, string originalContent) {
+        public string ToMessage(Dictionary<string, ChannelMember> suggestionDict, Dictionary<string, ChannelMember> membersDict, string originalContent) {
             if(this.tryFallback(originalContent)) {
                 return originalContent;
             }
@@ -69,10 +68,20 @@ namespace ConnectApp.Utils {
             var message = new StringBuilder();
             for (int i = 0; i < this.contentSpans.Count; i++) {
                 if (this.mentionIds[i] != null) {
-                    var span = this.contentSpans[i].TrimEnd();
-                    if (span == $"@{membersDict[this.mentionIds[i]].user.fullName}") {
-                        message.Append($"<@{this.mentionIds[i]}> ");
-                        continue;
+                    Dictionary<string, ChannelMember> userDict = null;
+                    if (suggestionDict.ContainsKey(this.mentionIds[i])) {
+                        userDict = suggestionDict;
+                    }
+                    else if (membersDict.ContainsKey(this.mentionIds[i])) {
+                        userDict = membersDict;
+                    }
+
+                    if (userDict != null) {
+                        var span = this.contentSpans[i].TrimEnd();
+                        if (span == $"@{userDict[this.mentionIds[i]].user.fullName}") {
+                            message.Append($"<@{this.mentionIds[i]}> ");
+                            continue;
+                        }
                     }
                 }
                 
@@ -105,7 +114,10 @@ namespace ConnectApp.Utils {
             
             var span = this.contentSpans[this.contentSpans.Count - 1];
 
-            if (span[span.Length - 1] == '@') {
+            if (span.Length == 0) {
+                //do nothing
+            }
+            else if (span[span.Length - 1] == '@') {
                 this.contentSpans[this.contentSpans.Count - 1] = span.Substring(0, span.Length - 1);
             }
             else {
@@ -133,7 +145,10 @@ namespace ConnectApp.Utils {
                 curLen += span.Length;
             }
             var deltaLen = newContent.Length - curLen;
-            D.assert(deltaLen > 0);
+            if (deltaLen <= 0) {
+                this.doFallback(newContent);
+                return;
+            }
 
             var startIndex = selectIndex - deltaLen;
 
@@ -170,7 +185,11 @@ namespace ConnectApp.Utils {
                 curLen += span.Length;
             }
             var deltaLen = curLen - newContent.Length;
-            D.assert(deltaLen > 0);
+            if (deltaLen <= 0) {
+                this.doFallback(newContent);
+                jumpForward = 0;
+                return newContent;
+            }
 
             var selectFrom = Mathf.Max(0, selectIndex);
             var selectTo = selectFrom + deltaLen;
