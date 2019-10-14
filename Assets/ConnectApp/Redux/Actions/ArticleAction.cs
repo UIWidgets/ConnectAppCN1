@@ -87,7 +87,7 @@ namespace ConnectApp.redux.actions {
     }
 
     public class FavoriteArticleSuccessAction : BaseAction {
-        public Favorite favorite;
+        public List<Favorite> favorites;
         public string articleId;
     }
 
@@ -241,8 +241,7 @@ namespace ConnectApp.redux.actions {
             });
         }
 
-        public static object
-            FetchArticleDetail(string articleId, bool isPush = false) {
+        public static object FetchArticleDetail(string articleId, bool isPush = false) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ArticleApi.FetchArticleDetail(articleId: articleId, isPush: isPush)
                     .Then(articleDetailResponse => {
@@ -274,9 +273,22 @@ namespace ConnectApp.redux.actions {
                                 userMap.Add(key: message.author.id, value: message.author);
                             }
                         });
-                        dispatcher.dispatch(new UserMapAction {
-                            userMap = userMap
+                        articleDetailResponse.project.comments.uppers.ForEach(message => {
+                            if (messageItems.ContainsKey(key: message.id)) {
+                                messageItems[key: message.id] = message;
+                            }
+                            else {
+                                messageItems.Add(key: message.id, value: message);
+                            }
+
+                            if (userMap.ContainsKey(key: message.author.id)) {
+                                userMap[key: message.author.id] = message.author;
+                            }
+                            else {
+                                userMap.Add(key: message.author.id, value: message.author);
+                            }
                         });
+                        dispatcher.dispatch(new UserMapAction {userMap = userMap});
                         dispatcher.dispatch(new UserLicenseMapAction
                             {userLicenseMap = articleDetailResponse.project.userLicenseMap});
                         dispatcher.dispatch(new FetchArticleCommentsSuccessAction {
@@ -328,7 +340,7 @@ namespace ConnectApp.redux.actions {
             });
         }
 
-        public static object favoriteArticle(string articleId, string tagId) {
+        public static object favoriteArticle(string articleId, List<string> tagIds) {
             if (HttpManager.isNetWorkError()) {
                 CustomDialogUtils.showToast("请检查网络", iconData: Icons.sentiment_dissatisfied);
                 return null;
@@ -336,18 +348,19 @@ namespace ConnectApp.redux.actions {
 
             CustomDialogUtils.showCustomDialog(
                 child: new CustomLoadingDialog(
-                    message: "收藏中"
+                    message: "操作中"
                 )
             );
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return ArticleApi.FavoriteArticle(articleId: articleId, tagId: tagId)
+                return ArticleApi.FavoriteArticle(articleId: articleId, tagIds: tagIds)
                     .Then(favoriteArticleResponse => {
                         CustomDialogUtils.hiddenCustomDialog();
-                        CustomDialogUtils.showToast("收藏成功", iconData: Icons.sentiment_satisfied);
+                        CustomDialogUtils.showToast("操作成功", iconData: Icons.sentiment_satisfied);
                         dispatcher.dispatch(new FavoriteArticleSuccessAction {
-                            favorite = favoriteArticleResponse,
+                            favorites = favoriteArticleResponse,
                             articleId = articleId
                         });
+                        AnalyticsManager.AnalyticsFavoriteArticle(articleId: articleId, favoriteTagIds: tagIds);
                     })
                     .Catch(error => {
                         CustomDialogUtils.hiddenCustomDialog();
@@ -376,6 +389,7 @@ namespace ConnectApp.redux.actions {
                             favorite = unFavoriteArticleResponse,
                             articleId = articleId
                         });
+                        AnalyticsManager.AnalyticsUnFavoriteArticle(favoriteId: favoriteId);
                     })
                     .Catch(error => {
                         CustomDialogUtils.hiddenCustomDialog();
@@ -394,7 +408,7 @@ namespace ConnectApp.redux.actions {
                 CustomDialogUtils.showToast("点赞成功", iconData: Icons.sentiment_satisfied);
                 dispatcher.dispatch(new LikeCommentSuccessAction {message = message});
 
-                return ArticleApi.LikeComment(message.id)
+                return ArticleApi.LikeComment(commentId: message.id)
                     .Then(mess => { })
                     .Catch(error => { });
             });
@@ -409,7 +423,7 @@ namespace ConnectApp.redux.actions {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 CustomDialogUtils.showToast("已取消点赞", iconData: Icons.sentiment_satisfied);
                 dispatcher.dispatch(new RemoveLikeCommentSuccessAction {message = message});
-                return ArticleApi.RemoveLikeComment(message.id)
+                return ArticleApi.RemoveLikeComment(commentId: message.id)
                     .Then(mess => { })
                     .Catch(error => { });
             });

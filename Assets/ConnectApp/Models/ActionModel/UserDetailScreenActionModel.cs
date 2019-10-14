@@ -6,6 +6,7 @@ using RSG;
 namespace ConnectApp.Models.ActionModel {
     public class UserDetailScreenActionModel : BaseActionModel {
         public Action<string> pushToArticleDetail;
+        public Action<string, string> pushToFavoriteDetail;
         public Action<string, ReportType> pushToReport;
         public Action<string> pushToBlock;
         public Action<string, int> pushToUserFollowing;
@@ -22,5 +23,7 @@ namespace ConnectApp.Models.ActionModel {
         public Func<string, IPromise> followUser;
         public Action<string> startUnFollowUser;
         public Func<string, IPromise> unFollowUser;
+        public Func<string, IPromise> deleteFavoriteTag;
+        public Action<string> pushToCreateFavorite;
     }
 }

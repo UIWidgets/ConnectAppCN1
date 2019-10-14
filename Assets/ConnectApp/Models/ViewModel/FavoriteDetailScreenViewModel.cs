@@ -3,6 +3,7 @@ using ConnectApp.Models.Model;
 
 namespace ConnectApp.Models.ViewModel {
     public class FavoriteDetailScreenViewModel {
+        public string userId;
         public string tagId;
         public bool favoriteDetailLoading;
         public List<string> favoriteDetailArticleIds;
@@ -13,5 +14,6 @@ namespace ConnectApp.Models.ViewModel {
         public Dictionary<string, Article> articleDict;
         public Dictionary<string, User> userDict;
         public Dictionary<string, Team> teamDict;
+        public string currentUserId;
     }
 }

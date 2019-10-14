@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using ConnectApp.Constants;
+using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -15,7 +16,7 @@ namespace ConnectApp.Components {
             string replyUserName = null,
             InputDone doneCallBack = null,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.replyUserName = replyUserName;
             this.doneCallBack = doneCallBack;
         }
@@ -55,34 +56,20 @@ namespace ConnectApp.Components {
             }
 
             var inputFieldWidth = this._inputFieldKey.currentContext.size.width;
-            var inputFieldHeight = this._calculateTextHeight(text, inputFieldWidth);
+            var inputFieldHeight = CTextUtils.CalculateTextHeight(
+                text: text, textStyle: this._inputFieldStyle, textWidth: inputFieldWidth, 2);
 
             if (this._inputFieldHeight != inputFieldHeight) {
-                this.setState(() => { this._inputFieldHeight = inputFieldHeight; });
+                this.setState(() => this._inputFieldHeight = inputFieldHeight);
             }
-        }
-
-        float _calculateTextHeight(string text, float textWidth) {
-            var textPainter = new TextPainter(
-                textDirection: TextDirection.ltr,
-                text: new TextSpan(
-                    text, this._inputFieldStyle
-                ),
-                maxLines: 2
-            );
-            textPainter.layout(maxWidth: textWidth);
-
-            return textPainter.height;
         }
 
         void _onSubmitted(string text) {
-            if (this.widget.doneCallBack != null) {
-                this.widget.doneCallBack(text);
-            }
+            this.widget.doneCallBack?.Invoke(text: text);
         }
 
         public override Widget build(BuildContext context) {
-            var reply = new Container();
+            Widget reply;
             if (!this.widget.replyUserName.isEmpty()) {
                 reply = new Container(
                     height: 40,
@@ -107,6 +94,9 @@ namespace ConnectApp.Components {
                         )
                     )
                 );
+            }
+            else {
+                reply = new Container();
             }
 
             return new Container(

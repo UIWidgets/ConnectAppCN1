@@ -182,7 +182,7 @@ namespace ConnectApp.Models.State {
                 favoriteState = new FavoriteState {
                     favoriteTagLoading = false,
                     favoriteDetailLoading = false,
-                    favoriteTagIds = new List<string>(),
+                    favoriteTagIdDict = new Dictionary<string, List<string>>(),
                     favoriteDetailArticleIdDict = new Dictionary<string, List<string>>(),
                     favoriteTagHasMore = false,
                     favoriteDetailHasMore = false,

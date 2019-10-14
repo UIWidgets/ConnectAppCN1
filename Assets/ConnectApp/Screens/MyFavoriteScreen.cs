@@ -25,12 +25,18 @@ namespace ConnectApp.screens {
 
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, MyFavoriteScreenViewModel>(
-                converter: state => new MyFavoriteScreenViewModel {
-                    myFavoriteLoading = state.favoriteState.favoriteTagLoading,
-                    myFavoriteIds = state.favoriteState.favoriteTagIds,
-                    myFavoriteHasMore = state.favoriteState.favoriteTagHasMore,
-                    currentUserId = state.loginState.loginInfo.userId ?? "",
-                    favoriteTagDict = state.favoriteState.favoriteTagDict
+                converter: state => {
+                    var currentUserId = state.loginState.loginInfo.userId ?? "";
+                    var myFavoriteIds = state.favoriteState.favoriteTagIdDict.ContainsKey(key: currentUserId)
+                        ? state.favoriteState.favoriteTagIdDict[key: currentUserId]
+                        : new List<string>();
+                    return new MyFavoriteScreenViewModel {
+                        myFavoriteLoading = state.favoriteState.favoriteTagLoading,
+                        myFavoriteIds = myFavoriteIds,
+                        myFavoriteHasMore = state.favoriteState.favoriteTagHasMore,
+                        currentUserId = currentUserId,
+                        favoriteTagDict = state.favoriteState.favoriteTagDict
+                    };
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new MyFavoriteScreenActionModel {
@@ -239,7 +245,7 @@ namespace ConnectApp.screens {
                                     new ActionSheetItem(
                                         "确定",
                                         type: ActionType.normal,
-                                        () => { this.widget.actionModel.deleteFavoriteTag(arg: favoriteTag.id); }
+                                        () => this.widget.actionModel.deleteFavoriteTag(arg: favoriteTag.id)
                                     ),
                                     new ActionSheetItem("取消", type: ActionType.cancel)
                                 }

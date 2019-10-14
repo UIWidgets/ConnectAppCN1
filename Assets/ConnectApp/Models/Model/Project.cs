@@ -18,7 +18,7 @@ namespace ConnectApp.Models.Model {
         public FetchCommentsResponse comments;
         public string channelId;
         public bool like;
-        public Favorite favorite;
+        public List<Favorite> favoriteList;
         public bool edit;
     }
 }

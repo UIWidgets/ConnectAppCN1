@@ -31,10 +31,7 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch(new MainNavigatorPopAction());
                         }
                     };
-                    return new FeedbackTypeScreen(
-                        viewModel,
-                        actionModel
-                    );
+                    return new FeedbackTypeScreen(viewModel: viewModel, actionModel: actionModel);
                 }
             );
         }
@@ -101,13 +98,16 @@ namespace ConnectApp.screens {
 
         Widget _buildTypeItem(FeedbackType type) {
             var isCheck = this.viewModel.feedbackType.Value.Equals(value: type.Value);
-            Widget checkWidget = new Container();
+            Widget checkWidget;
             if (isCheck) {
                 checkWidget = new Icon(
                     icon: Icons.check,
                     size: 24,
                     color: CColors.PrimaryBlue
                 );
+            }
+            else {
+                checkWidget = new Container();
             }
 
             return new GestureDetector(
@@ -120,7 +120,7 @@ namespace ConnectApp.screens {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: new List<Widget> {
                             new Text(
-                                type.Description,
+                                data: type.Description,
                                 style: isCheck ? CTextStyle.PLargeBlue : CTextStyle.PLargeBody
                             ),
                             checkWidget

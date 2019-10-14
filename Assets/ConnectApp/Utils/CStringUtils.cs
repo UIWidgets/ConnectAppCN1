@@ -11,22 +11,20 @@ namespace ConnectApp.Utils {
         }
 
         public static string CountToString(int count, string placeholder = "") {
-            var countString = "";
-            if (count == 0) {
-                countString = placeholder;
-            }
 
             if (count > 0 && count < 1000) {
-                countString = count.ToString();
-            }
-            else if (count >= 1000 && count <= 10000) {
-                countString = $"{count / 1000f:f1}k";
-            }
-            else if (count > 10000) {
-                countString = "10k+";
+                return count.ToString();
             }
 
-            return countString;
+            if (count >= 1000 && count <= 10000) {
+                return $"{count / 1000f:f1}k";
+            }
+
+            if (count > 10000) {
+                return "10k+";
+            }
+
+            return placeholder;
         }
 
         public static string genAvatarName(string name) {
@@ -111,6 +109,18 @@ namespace ConnectApp.Utils {
                 Debug.LogError($"Error in converting {number}: {e}");
                 return defaultValue;
             }
+        }
+
+        public static string httpToHttps(string url) {
+            if (url.isEmpty()) {
+                return "";
+            }
+
+            if (url.Contains("http://")) {
+                return url.Replace("http://", "https://");
+            }
+
+            return url;
         }
     }
 }
