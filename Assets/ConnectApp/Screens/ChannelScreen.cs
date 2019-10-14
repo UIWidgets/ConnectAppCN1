@@ -23,6 +23,7 @@ using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
 using Config = ConnectApp.Constants.Config;
 using Icons = ConnectApp.Constants.Icons;
 using Image = Unity.UIWidgets.widgets.Image;
@@ -63,7 +64,7 @@ namespace ConnectApp.screens {
                     messages = messages
                         .Where(message => message.type != ChannelMessageType.text || message.content != "")
                         .ToList();
-                    
+
                     return new ChannelScreenViewModel {
                         channel = state.channelState.channelDict[this.channelId],
                         messages = messages,
@@ -222,7 +223,7 @@ namespace ConnectApp.screens {
                 {"ConnectAppVersion", Config.versionNumber},
                 {"X-Requested-With", "XmlHttpRequest"}
             };
-            
+
             this._textController.addListener(this._onTextChanged);
         }
 
@@ -238,36 +239,37 @@ namespace ConnectApp.screens {
 
         string _lastMessageEditingContent = "";
         bool omitTextChange;
-        
+
         void _onTextChanged() {
             if (this.omitTextChange) {
                 this.omitTextChange = false;
                 return;
             }
-            
+
             var curTextContent = this._textController.text;
             if (curTextContent != this._lastMessageEditingContent) {
                 var isDelete = curTextContent.Length < this._lastMessageEditingContent.Length;
                 this._lastMessageEditingContent = curTextContent;
 
                 if (!isDelete) {
-                    this._inputContentManager.AddContent(this._textController.selection.start, this._lastMessageEditingContent);
+                    this._inputContentManager.AddContent(this._textController.selection.start,
+                        this._lastMessageEditingContent);
                 }
                 else {
                     var jumpForward = 0;
-                    this._lastMessageEditingContent = this._inputContentManager.DeleteContent(this._textController.selection.end, this._lastMessageEditingContent, ref jumpForward);
+                    this._lastMessageEditingContent = this._inputContentManager.DeleteContent(
+                        this._textController.selection.end, this._lastMessageEditingContent, ref jumpForward);
                     if (this._textController.text != this._lastMessageEditingContent) {
                         var selection = this._textController.selection;
                         this.omitTextChange = true;
                         this._textController.value = new TextEditingValue(
                             text: this._lastMessageEditingContent,
                             TextSelection.collapsed(selection.start - jumpForward));
-                        
                     }
                 }
-                
-                if (!isDelete && 
-                    this._lastMessageEditingContent.isNotEmpty() && 
+
+                if (!isDelete &&
+                    this._lastMessageEditingContent.isNotEmpty() &&
                     this._lastMessageEditingContent[this._lastMessageEditingContent.Length - 1] == '@') {
                     this.widget.actionModel.pushToChannelMention();
                 }
@@ -279,16 +281,19 @@ namespace ConnectApp.screens {
                 SchedulerBinding.instance.addPostFrameCallback(_ => {
                     FocusScope.of(this.context)?.requestFocus(this._focusNode);
                     if (!this.widget.viewModel.mentionUserId.isEmpty()) {
-                        var userDict = this.widget.viewModel.mentionSuggestion ?? this.widget.viewModel.channel.membersDict;
+                        var userDict = this.widget.viewModel.mentionSuggestion ??
+                                       this.widget.viewModel.channel.membersDict;
                         var userName = userDict[this.widget.viewModel.mentionUserId].user.fullName;
-                        this._inputContentManager.AddMention(userName + " ", this.widget.viewModel.mentionUserId, this._textController.text + userName + " ");
+                        this._inputContentManager.AddMention(userName + " ", this.widget.viewModel.mentionUserId,
+                            this._textController.text + userName + " ");
                         this._textController.text += userName + " ";
                         this._textController.selection = TextSelection.collapsed(this._textController.text.Length);
                     }
+
                     this.widget.actionModel.clearLastChannelMention();
                 });
             }
-            
+
             if ((this.showKeyboard || this.showEmojiBoard) && this._refreshController.offset > 0) {
                 SchedulerBinding.instance.addPostFrameCallback(_ => this._refreshController.scrollTo(0));
             }
@@ -311,7 +316,7 @@ namespace ConnectApp.screens {
             Widget ret = new Stack(
                 children: new List<Widget> {
                     this._buildContent(),
-                    this._buildInputBar(),
+                    this._buildInputBar(context),
                     this.widget.viewModel.newMessageCount == 0 ||
                     this.widget.viewModel.messageLoading
                         ? new Container()
@@ -327,7 +332,7 @@ namespace ConnectApp.screens {
                     this._buildNavigationBar(),
                     new Flexible(child: ret),
                     this.showEmojiBoard
-                        ? this._buildEmojiBoard()
+                        ? this._buildEmojiBoard(context)
                         : new Container(height: MediaQuery.of(this.context).viewInsets.bottom)
                 }
             );
@@ -519,7 +524,7 @@ namespace ConnectApp.screens {
                 ret = new TipMenu(
                     new List<TipMenuItem> {
                         new TipMenuItem(
-                            "复制", 
+                            "复制",
                             () => Clipboard.setData(new ClipboardData(text: message.content))
                         )
                     },
@@ -807,7 +812,8 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildInputBar() {
+        Widget _buildInputBar(BuildContext context) {
+            var padding = this.showKeyboard || this.showEmojiBoard ? 0 : MediaQuery.of(context).padding.bottom;
             Widget ret = new Container(
                 padding: EdgeInsets.symmetric(0, 16),
                 height: 32,
@@ -848,6 +854,7 @@ namespace ConnectApp.screens {
 
 
             ret = new Container(
+                padding: EdgeInsets.only(bottom: padding),
                 decoration: new BoxDecoration(
                     border: new Border(new BorderSide(CColors.Separator)),
                     color: this.showEmojiBoard ? CColors.White : CColors.TabBarBg
@@ -942,7 +949,7 @@ namespace ConnectApp.screens {
             return emojiPages;
         }
 
-        Widget _buildEmojiBoard() {
+        Widget _buildEmojiBoard(BuildContext context) {
             return new Column(
                 children: new List<Widget> {
                     new Container(
@@ -973,6 +980,7 @@ namespace ConnectApp.screens {
                     new Container(
                         color: CColors.EmojiBottomBar,
                         height: 36,
+                        margin: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
                         child: new Row(
                             children: new List<Widget> {
                                 new Container(width: 16),
@@ -1085,10 +1093,10 @@ namespace ConnectApp.screens {
             if (this.widget.viewModel.channel.sendingMessage) {
                 return;
             }
-            
+
             text = this._inputContentManager.ToMessage(
                 this.widget.viewModel.mentionSuggestion ?? this.widget.viewModel.channel.membersDict, text);
-            
+
             if (string.IsNullOrWhiteSpace(text)) {
                 CustomDialogUtils.showToast("不能发送空消息", Icons.error_outline);
                 return;
