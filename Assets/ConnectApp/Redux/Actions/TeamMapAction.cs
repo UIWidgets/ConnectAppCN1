@@ -52,7 +52,7 @@ namespace ConnectApp.redux.actions {
     }
 
     public class FetchTeamMemberSuccessAction : BaseAction {
-        public List<Member> members;
+        public List<TeamMember> members;
         public bool membersHasMore;
         public int pageNumber;
         public string teamId;

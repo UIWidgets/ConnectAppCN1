@@ -191,7 +191,7 @@ namespace ConnectApp.Models.Api {
 
     [Serializable]
     public class FetchTeamMemberResponse {
-        public List<Member> members;
+        public List<TeamMember> members;
         public Dictionary<string, User> userMap;
         public Dictionary<string, bool> followMap;
         public bool hasMore;
