@@ -18,7 +18,7 @@ namespace ConnectApp.Main {
         public const string Main = "/main";
         public const string Search = "/search";
         public const string ArticleDetail = "/article-detail";
-        public const string Notification = "notification";
+        public const string Notification = "/notification";
         public const string Setting = "/setting";
         public const string MyEvent = "/my-event";
         public const string MyFavorite = "/my-favorite";
