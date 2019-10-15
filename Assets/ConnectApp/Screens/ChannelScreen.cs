@@ -483,7 +483,7 @@ namespace ConnectApp.screens {
 
         ListView _buildMessageListView() {
             return ListView.builder(
-                padding: EdgeInsets.only(top: 16, bottom: this.inputBarHeight + 16),
+                padding: EdgeInsets.only(top: 16, bottom: this.inputBarHeight),
                 itemCount: this.widget.viewModel.messages.Count,
                 itemBuilder: (context, index) => {
                     index = this.widget.viewModel.messages.Count - 1 - index;
