@@ -149,6 +149,11 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildMentionList() {
+            if (this.mentionList.Count == 0) {
+                return new Container(
+                    color: CColors.Background
+                );
+            }
             return new Container(
                 color: CColors.Background,
                 child: new CustomScrollbar(

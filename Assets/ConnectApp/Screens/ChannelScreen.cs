@@ -496,6 +496,13 @@ namespace ConnectApp.screens {
         }
 
         ListView _buildMessageListView() {
+            if (this.widget.viewModel.messages.Count == 0) {
+                return new ListView(
+                    children: new List<Widget> {
+                        new Container()
+                    });
+            }
+            
             return ListView.builder(
                 padding: EdgeInsets.only(top: 16, bottom: this.inputBarHeight),
                 itemCount: this.widget.viewModel.messages.Count,
