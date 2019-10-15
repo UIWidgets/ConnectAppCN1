@@ -22,18 +22,33 @@ namespace ConnectApp.screens {
         public ChannelMembersScreenConnector(
             string channelId,
             Key key = null
-        ) : base(key : key) {
+        ) : base(key: key) {
             this.channelId = channelId;
         }
 
         readonly string channelId;
 
         static int _compareMember(ChannelMember m1, ChannelMember m2) {
-            if (m1.role == m2.role) return 0;
-            if (m1.role == "admin") return 1;
-            if (m2.role == "admin") return -1;
-            if (m1.role == "moderator") return -1;
-            if (m2.role == "moderator") return 1;
+            if (m1.role == m2.role) {
+                return 0;
+            }
+
+            if (m1.role == "admin") {
+                return 1;
+            }
+
+            if (m2.role == "admin") {
+                return -1;
+            }
+
+            if (m1.role == "moderator") {
+                return -1;
+            }
+
+            if (m2.role == "moderator") {
+                return 1;
+            }
+
             return 0;
         }
 
@@ -156,7 +171,7 @@ namespace ConnectApp.screens {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: new List<Widget> {
                         new Text(
-                            $"群聊成员({this.widget.viewModel.channel.memberCount})",
+                            "群聊成员",
                             style: CTextStyle.PXLargeMedium
                         ),
                         new Text(
@@ -185,10 +200,13 @@ namespace ConnectApp.screens {
                     onRefresh: this._onRefresh,
                     sectionCount: 2,
                     numOfRowInSection: section => section == 0
-                            ? this.widget.viewModel.specialMembers.Count : this.widget.viewModel.normalMembers.Count,
-                    headerInSection: section => section == 0 
-                        ? null 
-                        : this.widget.viewModel.specialMembers.Count == 0 ? null : new Container(height: 16),
+                        ? this.widget.viewModel.specialMembers.Count
+                        : this.widget.viewModel.normalMembers.Count,
+                    headerInSection: section => section == 0
+                        ? null
+                        : this.widget.viewModel.specialMembers.Count == 0
+                            ? null
+                            : new Container(height: 16),
                     cellAtIndexPath: this._buildMemberItem,
                     footerWidget: enablePullUp ? null : CustomListViewConstant.defaultFooterWidget
                 )
@@ -218,13 +236,14 @@ namespace ConnectApp.screens {
                     userType = UserType.loading;
                 }
                 else if (this.widget.viewModel.followed != null
-                         &&this.widget.viewModel.followed.ContainsKey(key: user.id)) {
+                         && this.widget.viewModel.followed.ContainsKey(key: user.id)) {
                     userType = UserType.follow;
                 }
                 else {
                     userType = UserType.unFollow;
                 }
             }
+
             return new MemberCard(
                 member: member,
                 () => this.widget.actionModel.pushToUserDetail(obj: user.id),
@@ -232,7 +251,7 @@ namespace ConnectApp.screens {
                 () => this._onFollow(userType: userType, userId: user.id)
             );
         }
-        
+
         void _onFollow(UserType userType, string userId) {
             if (this.widget.viewModel.isLoggedIn) {
                 if (userType == UserType.follow) {
@@ -250,6 +269,7 @@ namespace ConnectApp.screens {
                         )
                     );
                 }
+
                 if (userType == UserType.unFollow) {
                     this.widget.actionModel.startFollowUser(obj: userId);
                     this.widget.actionModel.followUser(arg: userId);
