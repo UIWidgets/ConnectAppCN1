@@ -739,7 +739,7 @@ namespace ConnectApp.redux.reducers {
                     }
 
                     state.notificationState.loading = false;
-                    state.channelState.newNotifications = "";
+                    state.channelState.newNotifications = null;
                     break;
                 }
 
