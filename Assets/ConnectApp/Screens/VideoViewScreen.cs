@@ -99,7 +99,6 @@ namespace ConnectApp.screens {
         public void didPop() {
             AVPlayerPlugin.removePlayer();
             StatusBarManager.hideStatusBar(false);
-            StatusBarManager.statusBarStyle(false);
         }
 
         public void didPushNext() {
