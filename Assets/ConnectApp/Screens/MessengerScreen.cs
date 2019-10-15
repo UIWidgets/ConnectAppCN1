@@ -134,7 +134,7 @@ namespace ConnectApp.screens {
     public class _MessageScreenState : AutomaticKeepAliveClientMixin<MessengerScreen>, RouteAware {
         RefreshController _refreshController;
         int _pageNumber;
-        string _refreshSubId;
+        string _newNotificationSubId;
 
         protected override bool wantKeepAlive {
             get { return true; }
@@ -144,7 +144,7 @@ namespace ConnectApp.screens {
             base.initState();
             this._refreshController = new RefreshController();
             this._pageNumber = 1;
-            this._refreshSubId = EventBus.subscribe(sName: EventBusConstant.newNotifications, args => {
+            this._newNotificationSubId = EventBus.subscribe(sName: EventBusConstant.newNotifications, args => {
                 this.widget.actionModel.updateNewNotification();
             });
         }
@@ -156,7 +156,7 @@ namespace ConnectApp.screens {
 
         public override void dispose() {
             Router.routeObserve.unsubscribe(this);
-            EventBus.unSubscribe(sName: EventBusConstant.newNotifications, id: this._refreshSubId);
+            EventBus.unSubscribe(sName: EventBusConstant.newNotifications, id: this._newNotificationSubId);
             base.dispose();
         }
 
