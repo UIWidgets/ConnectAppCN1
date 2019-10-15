@@ -429,4 +429,8 @@ namespace ConnectApp.redux.actions {
     public class FetchChannelMentionSuggestionsFailureAction : BaseAction {
         public string channelId;
     }
+
+    public class UpdateNewNotificationAction : BaseAction {
+        public string notification;
+    }
 }
