@@ -7,8 +7,8 @@ using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
@@ -16,11 +16,12 @@ namespace ConnectApp.screens {
         public ChannelIntroductionScreenConnector(
             string channelId,
             Key key = null
-        ) : base(key : key) {
+        ) : base(key: key) {
             this.channelId = channelId;
         }
 
         readonly string channelId;
+
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ChannelIntroductionScreenViewModel>(
                 converter: state => new ChannelIntroductionScreenViewModel {
@@ -108,6 +109,7 @@ namespace ConnectApp.screens {
                                                         maxLines: 1,
                                                         overflow: TextOverflow.ellipsis
                                                     ),
+                                                    new Container(height: 4),
                                                     new Text(
                                                         $"{this.viewModel.channel.memberCount}名群成员",
                                                         style: CTextStyle.PSmallBody4,
@@ -128,7 +130,8 @@ namespace ConnectApp.screens {
                                     data: this.viewModel.channel.topic,
                                     style: CTextStyle.PLargeBody2
                                 )
-                            ) : new Container()
+                            )
+                            : new Container()
                     }
                 )
             );
