@@ -870,7 +870,7 @@ namespace ConnectApp.screens {
                             bottom: 0,
                             child: new Align(
                                 alignment: Alignment.center,
-                                child: new CustomActivityIndicator()
+                                child: new CustomActivityIndicator(size: LoadingSize.small)
                             )
                         )
                     });
