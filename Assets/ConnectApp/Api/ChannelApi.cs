@@ -24,6 +24,26 @@ namespace ConnectApp.Api {
             return promise;
         }
 
+        public static Promise<FetchStickChannelResponse> FetchStickChannel(string channelId) {
+            var promise = new Promise<FetchStickChannelResponse>();
+            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/stick");
+            HttpManager.resume(request: request).Then(responseText => {
+                var stickChannel = JsonConvert.DeserializeObject<FetchStickChannelResponse>(value: responseText);
+                promise.Resolve(value: stickChannel);
+            }).Catch(exception => promise.Reject(ex: exception));
+            return promise;
+        }
+
+        public static Promise<FetchUnStickChannelResponse> FetchUnStickChannel(string channelId) {
+            var promise = new Promise<FetchUnStickChannelResponse>();
+            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/unStick");
+            HttpManager.resume(request: request).Then(responseText => {
+                var unStickChannel = JsonConvert.DeserializeObject<FetchUnStickChannelResponse>(value: responseText);
+                promise.Resolve(value: unStickChannel);
+            }).Catch(exception => promise.Reject(ex: exception));
+            return promise;
+        }
+
         public static Promise<FetchChannelMessagesResponse> FetchChannelMessages(
             string channelId, string before = null, string after = null) {
             D.assert(before == null || after == null);
@@ -70,14 +90,14 @@ namespace ConnectApp.Api {
             return promise;
         }
 
-        public static Promise<List<JoinChannelResponse>> JoinChannel(string channelId, string groupId = null) {
-            var promise = new Promise<List<JoinChannelResponse>>();
+        public static Promise<JoinChannelResponse> JoinChannel(string channelId, string groupId = null) {
+            var promise = new Promise<JoinChannelResponse>();
             var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/join",
                 parameter: new Dictionary<string, string> {
                     {"channelId", channelId}
             });
             HttpManager.resume(request: request).Then(responseText => {
-                promise.Resolve(JsonConvert.DeserializeObject<List<JoinChannelResponse>>(value: responseText));
+                promise.Resolve(JsonConvert.DeserializeObject<JoinChannelResponse>(value: responseText));
             }).Catch(exception => promise.Reject(ex: exception));
             return promise;
         }

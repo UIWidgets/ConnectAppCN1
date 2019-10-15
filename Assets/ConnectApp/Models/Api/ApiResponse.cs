@@ -223,7 +223,16 @@ namespace ConnectApp.Models.Api {
         public List<string> joinedList;
         public int discoverPage;
         public Dictionary<string, Channel> channelMap;
+        public Dictionary<string, ChannelMember> joinedMemberMap;
         public Dictionary<string, bool> joinedChannelMap;
+    }
+
+    [Serializable]
+    public class FetchStickChannelResponse {
+    }
+
+    [Serializable]
+    public class FetchUnStickChannelResponse {
     }
 
     [Serializable]
@@ -253,12 +262,11 @@ namespace ConnectApp.Models.Api {
 
     [Serializable]
     public class JoinChannelResponse {
-        
+        public ChannelMember member;
     }
 
     [Serializable]
     public class LeaveChannelResponse {
-        
     }
 
     [Serializable]

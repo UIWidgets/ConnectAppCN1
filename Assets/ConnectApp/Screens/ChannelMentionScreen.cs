@@ -263,7 +263,7 @@ namespace ConnectApp.screens {
                                 "取消",
                                 style: CTextStyle.PLargeBlue
                             )
-                        ),
+                        )
                     }
                 )
             );

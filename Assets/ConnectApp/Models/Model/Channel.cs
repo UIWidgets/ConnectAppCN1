@@ -74,6 +74,7 @@ namespace ConnectApp.Models.Model {
         public string channelId;
         public User user;
         public string role;
+        public string stickTime;
         public string presenceStatus;
         public bool isBanned;
         public bool kicked;
@@ -88,6 +89,7 @@ namespace ConnectApp.Models.Model {
                 channelId = data.channelId,
                 user = data.user,
                 role = data.role,
+                stickTime = data.stickTime,
                 presenceStatus = null,
                 isBanned = data.isBanned,
                 kicked = data.kicked,
@@ -103,6 +105,7 @@ namespace ConnectApp.Models.Model {
             this.channelId = data.channelId ?? this.channelId;
             this.user = data.user ?? this.user;
             this.role = data.role ?? this.role;
+            this.stickTime = data.stickTime ?? this.stickTime;
             this.isBanned = data.isBanned;
             this.kicked = data.kicked;
             this.left = data.left;

@@ -708,6 +708,10 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildEmbeddedName(string image, string name) {
+            if (image.isEmpty() && name.isEmpty()) {
+                return new Container();
+            }
+
             return new Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: new List<Widget> {
