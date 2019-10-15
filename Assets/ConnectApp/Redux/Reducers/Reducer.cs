@@ -739,6 +739,7 @@ namespace ConnectApp.redux.reducers {
                     }
 
                     state.notificationState.loading = false;
+                    state.channelState.newNotifications = "";
                     break;
                 }
 
@@ -2839,6 +2840,11 @@ namespace ConnectApp.redux.reducers {
                 case UpdateChannelTopAction action: {
                     state.channelState.channelTop[action.channelId] = action.value;
                     ChannelTopManager.saveChannelTop(state.channelState.channelTop);
+                    break;
+                }
+
+                case UpdateNewNotificationAction action: {
+                    state.channelState.newNotifications = action.notification;
                     break;
                 }
 

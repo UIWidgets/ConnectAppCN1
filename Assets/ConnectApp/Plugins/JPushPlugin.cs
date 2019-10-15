@@ -64,7 +64,7 @@ namespace ConnectApp.Plugins {
                         }
                         case "OnReceiveNotification": {
                             //接收到推送
-                            EventBus.publish(EventBusConstant.refreshNotifications, new List<object>());
+                            EventBus.publish(EventBusConstant.newNotifications, new List<object>());
                             break;
                         }
                         case "OnReceiveMessage": {
