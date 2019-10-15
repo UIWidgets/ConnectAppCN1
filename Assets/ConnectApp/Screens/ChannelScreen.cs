@@ -286,11 +286,12 @@ namespace ConnectApp.screens {
                                        this.widget.viewModel.channel.membersDict;
                         if (userDict.ContainsKey(this.widget.viewModel.mentionUserId)) {
                             var userName = userDict[this.widget.viewModel.mentionUserId].user.fullName;
+                            var newContent = this._textController.text + userName + " ";
                             this._inputContentManager.AddMention(userName + " ", this.widget.viewModel.mentionUserId,
-                                this._textController.text + userName + " ");
+                                newContent);
                             this._textController.value = new TextEditingValue(
-                                text: this._textController.text + userName + " ",
-                                TextSelection.collapsed(this._textController.text.Length));
+                                text: newContent,
+                                TextSelection.collapsed(newContent.Length));
                         }
                     }
 
@@ -592,12 +593,12 @@ namespace ConnectApp.screens {
                     onLongPress: () => {
                         var userName = user.fullName;
                         var userId = user.id;
-                        var mentionName = "@" + userName + " ";
+                        var newContent = this._textController.text + "@" + userName + " ";
                         this._inputContentManager.AddMention(userName + " ", userId,
-                            this._textController.text + mentionName);
+                            newContent);
                         this._textController.value = new TextEditingValue(
-                            text: this._textController.text + mentionName,
-                            TextSelection.collapsed(this._textController.text.Length)
+                            text: newContent,
+                            TextSelection.collapsed(newContent.Length)
                         );
                     },
                     child: new Container(
