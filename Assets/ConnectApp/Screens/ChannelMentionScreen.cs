@@ -49,7 +49,7 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch(new MainNavigatorPopAction());
                         },
                         startLoadingMention = () => {
-                            dispatcher.dispatch(new FetchChannelMentionSuggestionStart());
+                            dispatcher.dispatch(new StartFetchChannelMentionSuggestionAction());
                             dispatcher.dispatch<IPromise>(
                                 Actions.fetchChannelMentionSuggestions(channelId: this.channelId));
                         }
@@ -130,26 +130,14 @@ namespace ConnectApp.screens {
                                 this._buildNavigationBar(),
                                 this._buildSearchBar(),
                                 new Expanded(
-                                    child: this.widget.viewModel.mentionLoading
-                                        ? this._buildLoadingPage()
-                                        : this._buildMentionList()
+                                    child: this.widget.viewModel.mentionLoading ? 
+                                        new GlobalLoading() : this._buildMentionList()
                                 )
                             }
                         )
                     )
                 )
             );
-        }
-
-        ListView _buildLoadingPage() {
-            return new ListView(
-                children: new List<Widget> {
-                    new Container(
-                        child: new GlobalLoading(),
-                        width: MediaQuery.of(this.context).size.width,
-                        height: MediaQuery.of(this.context).size.height - 100
-                    )
-                });
         }
 
         void _onSearch(string query) {
@@ -165,6 +153,7 @@ namespace ConnectApp.screens {
                 color: CColors.Background,
                 child: new CustomScrollbar(
                     ListView.builder(
+                        physics: new AlwaysScrollableScrollPhysics(),
                         controller: this._scrollController,
                         itemCount: this.mentionList.Count,
                         itemBuilder: this._buildMentionTile
@@ -273,7 +262,7 @@ namespace ConnectApp.screens {
                                 "取消",
                                 style: CTextStyle.PLargeBlue
                             )
-                        ),
+                        )
                     }
                 )
             );

@@ -57,8 +57,7 @@ namespace ConnectApp.screens {
                     return new MessengerScreenViewModel {
                         joinedChannels = joinedChannels,
                         lastMessageMap = lastMessageMap,
-                        hasUnreadNotifications =
-                            state.notificationState.notifications.Any(item => item.read == "false"),
+                        hasUnreadNotifications = state.channelState.newNotifications != null,
                         popularChannels = state.channelState.publicChannels
                             .Select(channelId => state.channelState.channelDict[key: channelId])
                             .Take(state.channelState.publicChannels.Count > 0
@@ -76,11 +75,19 @@ namespace ConnectApp.screens {
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new MessengerScreenActionModel {
-                        pushToNotifications = () => dispatcher.dispatch(new MainNavigatorPushToAction {
-                            routeName = MainNavigatorRoutes.Notification
-                        }),
+                        pushToNotifications = () => {
+                            dispatcher.dispatch(new MainNavigatorPushToAction {
+                                routeName = MainNavigatorRoutes.Notification
+                            });
+                            dispatcher.dispatch(new UpdateNewNotificationAction {
+                                notification = null
+                            });
+                        },
                         pushToDiscoverChannels = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.DiscoverChannel
+                        }),
+                        updateNewNotification = () => dispatcher.dispatch(new UpdateNewNotificationAction {
+                            notification = ""
                         }),
                         pushToChannel = channelId => {
                             dispatcher.dispatch(new MainNavigatorPushToChannelAction {
@@ -129,6 +136,7 @@ namespace ConnectApp.screens {
     public class _MessageScreenState : AutomaticKeepAliveClientMixin<MessengerScreen>, RouteAware {
         RefreshController _refreshController;
         int _pageNumber;
+        string _newNotificationSubId;
 
         protected override bool wantKeepAlive {
             get { return true; }
@@ -138,6 +146,9 @@ namespace ConnectApp.screens {
             base.initState();
             this._refreshController = new RefreshController();
             this._pageNumber = 1;
+            this._newNotificationSubId = EventBus.subscribe(sName: EventBusConstant.newNotifications, args => {
+                this.widget.actionModel.updateNewNotification();
+            });
         }
 
         public override void didChangeDependencies() {
@@ -147,6 +158,7 @@ namespace ConnectApp.screens {
 
         public override void dispose() {
             Router.routeObserve.unsubscribe(this);
+            EventBus.unSubscribe(sName: EventBusConstant.newNotifications, id: this._newNotificationSubId);
             base.dispose();
         }
 
@@ -234,6 +246,10 @@ namespace ConnectApp.screens {
 
         Widget _headerInSection(int section) {
             if (section == 0) {
+                return null;
+            }
+
+            if (this.widget.viewModel.publicChannels.isEmpty()) {
                 return null;
             }
 

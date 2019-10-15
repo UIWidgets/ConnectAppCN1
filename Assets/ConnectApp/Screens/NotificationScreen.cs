@@ -87,17 +87,12 @@ namespace ConnectApp.screens {
         const int firstPageNumber = 1;
         int _pageNumber = firstPageNumber;
         RefreshController _refreshController;
-        string _refreshSubId;
 
         public override void initState() {
             base.initState();
             StatusBarManager.statusBarStyle(false);
             this._refreshController = new RefreshController();
             SchedulerBinding.instance.addPostFrameCallback(_ => {
-                this.widget.actionModel.startFetchNotifications();
-                this.widget.actionModel.fetchNotifications(arg: firstPageNumber);
-            });
-            this._refreshSubId = EventBus.subscribe(sName: EventBusConstant.refreshNotifications, args => {
                 this.widget.actionModel.startFetchNotifications();
                 this.widget.actionModel.fetchNotifications(arg: firstPageNumber);
             });
@@ -109,7 +104,6 @@ namespace ConnectApp.screens {
         }
 
         public override void dispose() {
-            EventBus.unSubscribe(sName: EventBusConstant.refreshNotifications, id: this._refreshSubId);
             Router.routeObserve.unsubscribe(this);
             base.dispose();
         }

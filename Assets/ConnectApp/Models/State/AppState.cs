@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using ConnectApp.Constants;
 using ConnectApp.Models.Model;
-using ConnectApp.Models.ViewModel;
 using ConnectApp.Utils;
 
 namespace ConnectApp.Models.State {

@@ -281,6 +281,7 @@ namespace ConnectApp.Models.Api {
         public string workspaceId;
         public User user;
         public string role;
+        public string stickTime;
         public bool isBanned;
         public bool kicked;
         public bool left;
