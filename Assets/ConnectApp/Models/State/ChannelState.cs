@@ -23,33 +23,30 @@ namespace ConnectApp.Models.State {
         public string newNotifications;
 
         public void updateChannel(Channel channel) {
-            if (!this.channelDict.TryGetValue(channel.id, out var channelView)) {
-                this.channelDict[channel.id] = ChannelView.fromChannel(channel);
+            if (!this.channelDict.TryGetValue(key: channel.id, out var channelView)) {
+                this.channelDict[key: channel.id] = ChannelView.fromChannel(channel: channel);
                 return;
             }
 
-            channelView.updateFromChannel(channel);
+            channelView.updateFromChannel(channel: channel);
         }
 
         public void updateNormalChannelLite(NormalChannelLite channel) {
-            if (!this.channelDict.TryGetValue(channel.id, out var channelView)) {
-                this.channelDict[channel.id] = ChannelView.fromNormalChannelLite(channel);
+            if (!this.channelDict.TryGetValue(key: channel.id, out var channelView)) {
+                this.channelDict[key: channel.id] = ChannelView.fromNormalChannelLite(channel: channel);
                 return;
             }
 
-            channelView.updateFromNormalChannelLite(channel);
+            channelView.updateFromNormalChannelLite(channel: channel);
         }
 
         public void updateTotalMention() {
             this.totalUnread = 0;
-            for (int i = 0; i < this.joinedChannels.Count; i++) {
-                this.totalUnread += this.getJoinedChannel(i).unread;
-            }
-
             this.totalMention = 0;
-            for (int i = 0; i < this.joinedChannels.Count; i++) {
-                this.totalMention += this.getJoinedChannel(i).mentioned;
-            }
+            this.joinedChannels.ForEach(channelId => {
+                this.totalUnread += this.channelDict[key: channelId].unread;
+                this.totalMention += this.channelDict[key: channelId].mentioned;
+            });
         }
 
         public string totalNotification() {
@@ -60,55 +57,47 @@ namespace ConnectApp.Models.State {
                 : null;
         }
 
-        public ChannelView getJoinedChannel(int i) {
-            return this.channelDict[this.joinedChannels[i]];
-        }
-
         public void updateSessionReadyData(SocketResponseSessionData sessionReadyData) {
-            for (int i = 0; i < sessionReadyData.lobbyChannels.Count; i++) {
-                var channel = sessionReadyData.lobbyChannels[i];
-                this.updateNormalChannelLite(channel);
-                if (!this.joinedChannels.Contains(channel.id)) {
-                    this.joinedChannels.Add(channel.id);
+            sessionReadyData.lobbyChannels.ForEach(channel => {
+                this.updateNormalChannelLite(channel: channel);
+                if (!this.joinedChannels.Contains(item: channel.id)) {
+                    this.joinedChannels.Add(item: channel.id);
                 }
-            }
+            });
 
-            for (int i = 0; i < sessionReadyData.publicChannels.Count; i++) {
-                var channel = sessionReadyData.publicChannels[i];
-                this.updateNormalChannelLite(channel);
-                if (!this.joinedChannels.Contains(channel.id)) {
-                    this.joinedChannels.Add(channel.id);
+            sessionReadyData.publicChannels.ForEach(channel => {
+                this.updateNormalChannelLite(channel: channel);
+                if (!this.joinedChannels.Contains(item: channel.id)) {
+                    this.joinedChannels.Add(item: channel.id);
                 }
-            }
-            
-            for (int i = 0; i < sessionReadyData.users.Count; i++) {
-                for (int j = 0; j < this.joinedChannels.Count; j++) {
-                    this.channelDict[this.joinedChannels[j]].updateMessageUser(sessionReadyData.users[i]);
-                }
-            }
+            });
 
-            for (int i = 0; i < sessionReadyData.lastMessages.Count; i++) {
-                var message = sessionReadyData.lastMessages[i];
+            sessionReadyData.users.ForEach(user => {
+                this.joinedChannels.ForEach(channelId => {
+                    this.channelDict[key: channelId].updateMessageUser(user: user);
+                });
+            });
+
+            sessionReadyData.lastMessages.ForEach(message => {
                 var channelId = message.channelId;
-                if (this.channelDict.TryGetValue(channelId, out var channel)) {
+                if (this.channelDict.TryGetValue(key: channelId, out var channel)) {
                     channel.lastMessageId = message.id;
-                    channel.lastMessage = ChannelMessageView.fromChannelMessageLite(message);
-                    channel.lastMessage.author = channel.getMember(channel.lastMessage.author.id)?.user;
+                    channel.lastMessage = ChannelMessageView.fromChannelMessageLite(message: message);
+                    channel.lastMessage.author = channel.getMember(userId: channel.lastMessage.author.id)?.user;
                     channel.lastMessage.mentions = channel.lastMessage.mentions?.Select(
-                        user => channel.getMember(user.id).user)?.ToList();
+                        user => channel.getMember(userId: user.id).user)?.ToList();
                 }
-            }
+            });
 
-            for (int i = 0; i < sessionReadyData.readState.Count; i++) {
-                var readState = sessionReadyData.readState[i];
+            sessionReadyData.readState.ForEach(readState => {
                 var channelId = readState.channelId;
-                if (this.channelDict.TryGetValue(channelId, out var channel)) {
+                if (this.channelDict.TryGetValue(key: channelId, out var channel)) {
                     channel.mentioned = readState.mentionCount;
                     channel.unread = readState.lastMessageId != channel.lastMessageId &&
                                      channel.lastMessageId != null ? 1 : 0;
                     channel.atMe = channel.mentioned > 0 && channel.unread > 0;
                 }
-            }
+            });
         }
     }
 }

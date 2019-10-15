@@ -167,6 +167,10 @@ namespace ConnectApp.Components {
         }
 
         public override Widget build(BuildContext context) {
+            if (this.tipMenuItems == null || this.tipMenuItems.Count == 0) {
+                return this.child;
+            }
+
             return new GestureDetector(
                 onLongPress: () => {
                     var renderBox = (RenderBox) this._tipMenuKey.currentContext.findRenderObject();
