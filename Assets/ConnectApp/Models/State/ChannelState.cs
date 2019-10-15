@@ -20,6 +20,7 @@ namespace ConnectApp.Models.State {
         public bool mentionAutoFocus;
         public Dictionary<string, Dictionary<string, ChannelMember>> mentionSuggestions;
         public bool mentionLoading;
+        public string newNotifications;
 
         public void updateChannel(Channel channel) {
             if (!this.channelDict.TryGetValue(key: channel.id, out var channelView)) {
@@ -49,7 +50,7 @@ namespace ConnectApp.Models.State {
         }
 
         public string totalNotification() {
-            return this.totalUnread > 0
+            return this.totalUnread > 0 || this.newNotifications != null
                 ? this.totalMention > 0
                     ? $"{this.totalMention}"
                     : ""

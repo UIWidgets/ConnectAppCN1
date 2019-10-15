@@ -250,7 +250,8 @@ namespace ConnectApp.redux.actions {
                         dispatcher.dispatch(new SendChannelMessageSuccessAction {
                             channelId = channelId,
                             content = content,
-                            nonce = nonce
+                            nonce = nonce,
+                            isImage = false
                         });
                     })
                     .Catch(error => {
@@ -282,7 +283,8 @@ namespace ConnectApp.redux.actions {
                         dispatcher.dispatch(new SendChannelMessageSuccessAction {
                             channelId = channelId,
                             content = "",
-                            nonce = nonce
+                            nonce = nonce,
+                            isImage = false
                         });
                     })
                     .Catch(error => {
@@ -412,6 +414,7 @@ namespace ConnectApp.redux.actions {
         public string channelId;
         public string content;
         public string nonce;
+        public bool isImage;
     }
 
     public class SendChannelMessageFailureAction : BaseAction {
@@ -517,5 +520,9 @@ namespace ConnectApp.redux.actions {
     }
 
     public class FetchChannelMentionSuggestionsFailureAction : BaseAction {
+    }
+
+    public class UpdateNewNotificationAction : BaseAction {
+        public string notification;
     }
 }

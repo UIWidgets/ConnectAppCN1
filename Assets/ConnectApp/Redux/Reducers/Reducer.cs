@@ -739,6 +739,7 @@ namespace ConnectApp.redux.reducers {
                     }
 
                     state.notificationState.loading = false;
+                    state.channelState.newNotifications = null;
                     break;
                 }
 
@@ -2688,7 +2689,14 @@ namespace ConnectApp.redux.reducers {
                 case SendChannelMessageSuccessAction action: {
                     var channel = state.channelState.channelDict[action.channelId];
                     channel.sendingMessage = false;
-                    channel.sentMessageSuccess = true;
+                    if (action.isImage) {
+                        channel.sentImageSuccess = true;
+                    }
+                    else {
+                        channel.sentMessageSuccess = true;
+                    }
+
+                    
                     break;
                 }
 
@@ -2702,6 +2710,7 @@ namespace ConnectApp.redux.reducers {
                 case ClearSentChannelMessage action: {
                     var channel = state.channelState.channelDict[key: action.channelId];
                     channel.sentMessageSuccess = false;
+                    channel.sentImageSuccess = false;
                     channel.sentMessageFailed = false;
                     break;
                 }
@@ -2861,6 +2870,11 @@ namespace ConnectApp.redux.reducers {
                 case ChannelScreenLeaveBottom action: {
                     var channel = state.channelState.channelDict[key: action.channelId];
                     channel.atBottom = false;
+                    break;
+                }
+
+                case UpdateNewNotificationAction action: {
+                    state.channelState.newNotifications = action.notification;
                     break;
                 }
 
