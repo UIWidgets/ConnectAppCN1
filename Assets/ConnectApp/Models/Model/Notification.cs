@@ -29,7 +29,7 @@ namespace ConnectApp.Models.Model {
         public string upperComment;
         public string teamName;
         public string teamId;
-        public string upperMessageUserId;
-        public string parentMessageUserId;
+        public string upperMessageId;
+        public string parentMessageId;
     }
 }
