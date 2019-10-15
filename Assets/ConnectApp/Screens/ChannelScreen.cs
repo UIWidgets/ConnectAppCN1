@@ -84,7 +84,9 @@ namespace ConnectApp.screens {
                         });
                     }
 
-                    if (viewModel.channel.sentMessageFailed || viewModel.channel.sentMessageSuccess) {
+                    if (viewModel.channel.sentMessageFailed ||
+                        viewModel.channel.sentMessageSuccess ||
+                        viewModel.channel.sentImageSuccess) {
                         SchedulerBinding.instance.addPostFrameCallback(_ => {
                             dispatcher.dispatch(new ClearSentChannelMessage {channelId = this.channelId});
                         });
@@ -286,11 +288,12 @@ namespace ConnectApp.screens {
                                        this.widget.viewModel.channel.membersDict;
                         if (userDict.ContainsKey(this.widget.viewModel.mentionUserId)) {
                             var userName = userDict[this.widget.viewModel.mentionUserId].user.fullName;
+                            var newContent = this._textController.text + userName + " ";
                             this._inputContentManager.AddMention(userName + " ", this.widget.viewModel.mentionUserId,
-                                this._textController.text + userName + " ");
+                                newContent);
                             this._textController.value = new TextEditingValue(
-                                text: this._textController.text + userName + " ",
-                                TextSelection.collapsed(this._textController.text.Length));
+                                text: newContent,
+                                TextSelection.collapsed(newContent.Length));
                         }
                     }
 
@@ -355,7 +358,6 @@ namespace ConnectApp.screens {
 
         Widget _buildNetworkDisconnectedNote() {
             Widget ret = new Container(
-                height: 24,
                 color: CColors.Error,
                 child: new Center(
                     child: new Text(
@@ -365,11 +367,12 @@ namespace ConnectApp.screens {
                 )
             );
 
-            ret = Positioned.fill(
-                new Align(
-                    alignment: Alignment.topCenter,
-                    child: ret
-                )
+            ret = new Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                height: 24,
+                child: ret
             );
 
             return ret;
@@ -377,7 +380,6 @@ namespace ConnectApp.screens {
 
         Widget _buildNewMessageNotification() {
             Widget ret = new Container(
-                height: 40,
                 decoration: new BoxDecoration(
                     color: CColors.Error,
                     borderRadius: BorderRadius.all(20),
@@ -392,27 +394,25 @@ namespace ConnectApp.screens {
                 padding: EdgeInsets.symmetric(9, 16),
                 child: new Text(
                     $"{CStringUtils.CountToString(this.widget.viewModel.newMessageCount)}条新消息未读",
-                    style: CTextStyle.PRegularWhite.copyWith(height: 1.2f)
+                    style: CTextStyle.PRegularWhite.copyWith(height: 1f)
                 )
             );
 
-            ret = Positioned.fill(
+            ret = new Positioned(
+                bottom: this.inputBarHeight + 16,
+                left: 0,
+                right: 0,
+                height: 40,
                 child: new Align(
-                    alignment: Alignment.bottomCenter,
-                    child: new Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: new List<Widget> {
-                            new GestureDetector(
-                                onTap: () => {
-                                    this.widget.actionModel.reportHitBottom();
-                                    Promise.Delayed(TimeSpan.FromMilliseconds(200)).Then(
-                                        () => this._refreshController.scrollTo(0)
-                                    );
-                                },
-                                child: ret
-                            ),
-                            new Container(height: this.inputBarHeight + 16)
-                        }
+                    alignment: Alignment.center,
+                    child: new GestureDetector(
+                        onTap: () => {
+                            this.widget.actionModel.reportHitBottom();
+                            SchedulerBinding.instance.addPostFrameCallback(_ => {
+                                this._refreshController.scrollTo(0);
+                            });
+                        },
+                        child: ret
                     )
                 )
             );
@@ -592,12 +592,12 @@ namespace ConnectApp.screens {
                     onLongPress: () => {
                         var userName = user.fullName;
                         var userId = user.id;
-                        var mentionName = "@" + userName + " ";
+                        var newContent = this._textController.text + "@" + userName + " ";
                         this._inputContentManager.AddMention(userName + " ", userId,
-                            this._textController.text + mentionName);
+                            newContent);
                         this._textController.value = new TextEditingValue(
-                            text: this._textController.text + mentionName,
-                            TextSelection.collapsed(this._textController.text.Length)
+                            text: newContent,
+                            TextSelection.collapsed(newContent.Length)
                         );
                     },
                     child: new Container(
@@ -857,13 +857,15 @@ namespace ConnectApp.screens {
                 ret = new Stack(
                     children: new List<Widget> {
                         ret,
-                        Positioned.fill(
-                            child: new Row(
-                                children: new List<Widget> {
-                                    new Expanded(child: new Container()),
-                                    new CustomActivityIndicator(),
-                                    new Container(width: 8)
-                                }))
+                        new Positioned(
+                            right: 8,
+                            top: 0,
+                            bottom: 0,
+                            child: new Align(
+                                alignment: Alignment.center,
+                                child: new CustomActivityIndicator()
+                            )
+                        )
                     });
             }
 

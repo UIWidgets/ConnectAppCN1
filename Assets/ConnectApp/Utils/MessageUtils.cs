@@ -128,10 +128,12 @@ namespace ConnectApp.Utils {
                     result.Add(new TextSpan(
                         stripPairs(text.Substring(0, index)),
                         style: bodyStyle));
-                    result.Add(new TextSpan(url, style: linkStyle,
-                        recognizer: onClickUrl == null ? null : new TapGestureRecognizer {
-                            onTap = () => onClickUrl(url)
-                        }));
+                }
+                result.Add(new TextSpan(url, style: linkStyle,
+                    recognizer: onClickUrl == null ? null : new TapGestureRecognizer {
+                        onTap = () => onClickUrl(url)
+                    }));
+                if (index + url.Length < text.Length) {
                     result.Add(new TextSpan(
                         stripPairs(text.Substring(index + url.Length)),
                         style: bodyStyle));
