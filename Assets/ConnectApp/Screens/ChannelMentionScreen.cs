@@ -143,7 +143,9 @@ namespace ConnectApp.screens {
         void _onSearch(string query) {
             this.curQuery = query;
             this.setState(() => {
-                this._scrollController.jumpTo(0);
+                if (this._scrollController.hasClients) {
+                    this._scrollController.jumpTo(0);
+                }
                 this.updateMentionList();
             });
         }
