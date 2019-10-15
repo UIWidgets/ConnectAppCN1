@@ -7,7 +7,6 @@ using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.widgets;
 
@@ -81,7 +80,7 @@ namespace ConnectApp.Components {
                 onTap: () => { StoreProvider.store.dispatcher.dispatch(new MainNavigatorPopAction()); },
                 onLongPress: this._pickImage,
                 child: new Container(
-                    color: Colors.black,
+                    color: CColors.Black,
                     child: new Stack(
                         children: new List<Widget> {
                             pageView,
@@ -101,6 +100,7 @@ namespace ConnectApp.Components {
             if (imagePath.isEmpty()) {
                 return;
             }
+
             var items = new List<ActionSheetItem> {
                 new ActionSheetItem(
                     "保存图片",

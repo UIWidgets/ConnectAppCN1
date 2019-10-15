@@ -492,7 +492,7 @@ namespace ConnectApp.screens {
                     new Container(
                         child: new GlobalLoading(),
                         width: MediaQuery.of(this.context).size.width,
-                        height: MediaQuery.of(this.context).size.height - 100
+                        height: MediaQuery.of(this.context).size.height
                     )
                 });
         }
@@ -1225,6 +1225,9 @@ namespace ConnectApp.screens {
 
         public void didPop() {
             this._inputContentManager.Clear();
+            if (this._focusNode.hasFocus) {
+                this._focusNode.unfocus();
+            }
         }
 
         public void didPopNext() {
@@ -1235,6 +1238,9 @@ namespace ConnectApp.screens {
         }
 
         public void didPushNext() {
+            if (this._focusNode.hasFocus) {
+                this._focusNode.unfocus();
+            }
         }
 
         public static float calculateMessageHeight(ChannelMessageView message, bool showTime, float width) {
