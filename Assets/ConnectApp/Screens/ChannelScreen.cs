@@ -17,8 +17,8 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -323,6 +323,10 @@ namespace ConnectApp.screens {
             Widget ret = new Stack(
                 children: new List<Widget> {
                     this._buildContent(),
+                    this.widget.viewModel.messageLoading &&
+                    this.widget.viewModel.messages.isEmpty()
+                        ? (Widget) new GlobalLoading()
+                        : new Container(),
                     this._buildInputBar(),
                     this.widget.viewModel.newMessageCount == 0 ||
                     this.widget.viewModel.messageLoading
@@ -447,21 +451,22 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildContent() {
-            Widget ret = new Container(
-                color: CColors.White,
-                child: new CustomScrollbar(
-                    child: new SmartRefresher(
-                        key: this._smartRefresherKey,
-                        controller: this._refreshController,
-                        enablePullDown: false,
-                        enablePullUp: this.widget.viewModel.channel.hasMore,
-                        onRefresh: this._onRefresh,
-                        reverse: true,
-                        headerBuilder: (context, mode) => new SmartRefreshHeader(mode: mode),
-                        child: this.widget.viewModel.messageLoading &&
-                               this.widget.viewModel.messages.isEmpty()
-                            ? this._buildLoadingPage()
-                            : this._buildMessageListView()
+            Widget ret = new Opacity(
+                opacity: this.widget.viewModel.messageLoading &&
+                         this.widget.viewModel.messages.isEmpty() ? 0 : 1,
+                child: new Container(
+                    color: CColors.White,
+                    child: new CustomScrollbar(
+                        child: new SmartRefresher(
+                            key: this._smartRefresherKey,
+                            controller: this._refreshController,
+                            enablePullDown: false,
+                            enablePullUp: this.widget.viewModel.channel.hasMore,
+                            onRefresh: this._onRefresh,
+                            reverse: true,
+                            headerBuilder: (context, mode) => new SmartRefreshHeader(mode: mode),
+                            child: this._buildMessageListView()
+                        )
                     )
                 )
             );
@@ -491,17 +496,6 @@ namespace ConnectApp.screens {
                     );
                 }
             );
-        }
-
-        ListView _buildLoadingPage() {
-            return new ListView(
-                children: new List<Widget> {
-                    new Container(
-                        child: new GlobalLoading(),
-                        width: MediaQuery.of(this.context).size.width,
-                        height: MediaQuery.of(this.context).size.height
-                    )
-                });
         }
 
         BoxDecoration _messageDecoration(ChannelMessageType type, bool left) {
