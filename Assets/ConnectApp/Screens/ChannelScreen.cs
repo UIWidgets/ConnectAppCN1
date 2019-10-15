@@ -380,6 +380,7 @@ namespace ConnectApp.screens {
 
         Widget _buildNewMessageNotification() {
             Widget ret = new Container(
+                height: 40,
                 decoration: new BoxDecoration(
                     color: CColors.Error,
                     borderRadius: BorderRadius.all(20),
@@ -392,10 +393,16 @@ namespace ConnectApp.screens {
                     }
                 ),
                 padding: EdgeInsets.symmetric(9, 16),
-                child: new Text(
-                    $"{CStringUtils.CountToString(this.widget.viewModel.newMessageCount)}条新消息未读",
-                    style: CTextStyle.PRegularWhite.copyWith(height: 1f)
-                )
+                child: new Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: new List<Widget> {
+                        new Text(
+                            $"{CStringUtils.CountToString(this.widget.viewModel.newMessageCount)}条新消息未读",
+                            style: CTextStyle.PRegularWhite.copyWith(height: 1f)
+                        )
+                    })
             );
 
             ret = new Positioned(
