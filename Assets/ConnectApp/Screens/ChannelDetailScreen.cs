@@ -214,7 +214,7 @@ namespace ConnectApp.screens {
                     new Container(height: 16),
                     new Container(
                         color: CColors.White,
-                        padding: EdgeInsets.only(16, 16, 8),
+                        padding: EdgeInsets.only(16, 16, 12),
                         child: new Row(
                             children: new List<Widget> {
                                 new Text("群聊成员", style: CTextStyle.PLargeBody),
@@ -225,12 +225,15 @@ namespace ConnectApp.screens {
                                         color: CColors.Transparent,
                                         child: new Row(
                                             children: new List<Widget> {
-                                                new Text(
-                                                    $"查看{this.widget.viewModel.channel?.memberCount ?? 0}名群成员",
-                                                    style: new TextStyle(
-                                                        fontSize: 14,
-                                                        fontFamily: "Roboto-Regular",
-                                                        color: CColors.TextBody4
+                                                new Padding(
+                                                    padding: EdgeInsets.only(top: 2, right:4),
+                                                    child: new Text(
+                                                        $"查看{this.widget.viewModel.channel?.memberCount ?? 0}名群成员",
+                                                        style: new TextStyle(
+                                                            fontSize: 14,
+                                                            fontFamily: "Roboto-Regular",
+                                                            color: CColors.TextBody4
+                                                        )
                                                     )
                                                 ),
                                                 new Icon(
@@ -333,7 +336,7 @@ namespace ConnectApp.screens {
                             onTap: () => this.widget.actionModel.pushToChannelIntroduction(),
                             child: new Container(
                                 color: CColors.White,
-                                padding: EdgeInsets.only(16, 16, 16, 21),
+                                padding: EdgeInsets.only(16, 16, 12, 21),
                                 child: new Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: new List<Widget> {
@@ -345,6 +348,7 @@ namespace ConnectApp.screens {
                                                 maxLines: 2
                                             )
                                         ),
+                                        new SizedBox(width: 4),
                                         new Icon(
                                             icon: Icons.chevron_right,
                                             size: 20,
