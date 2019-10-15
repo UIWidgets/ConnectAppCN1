@@ -851,7 +851,7 @@ namespace ConnectApp.screens {
                     height: 32,
                     style: CTextStyle.PRegularBody,
                     hintText: "说点想法…",
-                    hintStyle: CTextStyle.PRegularBody4,
+                    hintStyle: CTextStyle.PRegularBody4.copyWith(height: 1),
                     keyboardType: TextInputType.multiline,
                     maxLines: 1,
                     cursorColor: CColors.PrimaryBlue,
