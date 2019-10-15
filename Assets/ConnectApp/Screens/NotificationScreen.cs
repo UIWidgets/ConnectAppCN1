@@ -34,8 +34,7 @@ namespace ConnectApp.screens {
                     mentions = state.notificationState.mentions,
                     userDict = state.userState.userDict,
                     teamDict = state.teamState.teamDict,
-                    currentTabBarIndex = state.tabBarState.currentTabIndex,
-                    currentUserId = state.loginState.loginInfo.userId ?? ""
+                    currentTabBarIndex = state.tabBarState.currentTabIndex
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new NotificationScreenActionModel {
@@ -44,21 +43,15 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch<IPromise>(Actions.fetchNotifications(pageNumber: pageNumber)),
                         fetchMakeAllSeen = () => dispatcher.dispatch<IPromise>(Actions.fetchMakeAllSeen()),
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
-                        pushToArticleDetail = id => dispatcher.dispatch(
-                            new MainNavigatorPushToArticleDetailAction {
-                                articleId = id
-                            }
-                        ),
-                        pushToUserDetail = userId => dispatcher.dispatch(
-                            new MainNavigatorPushToUserDetailAction {
-                                userId = userId
-                            }
-                        ),
-                        pushToTeamDetail = teamId => dispatcher.dispatch(
-                            new MainNavigatorPushToTeamDetailAction {
-                                teamId = teamId
-                            }
-                        )
+                        pushToArticleDetail = id => dispatcher.dispatch(new MainNavigatorPushToArticleDetailAction {
+                            articleId = id
+                        }),
+                        pushToUserDetail = userId => dispatcher.dispatch(new MainNavigatorPushToUserDetailAction {
+                            userId = userId
+                        }),
+                        pushToTeamDetail = teamId => dispatcher.dispatch(new MainNavigatorPushToTeamDetailAction {
+                            teamId = teamId
+                        })
                     };
                     return new NotificationScreen(viewModel: viewModel, actionModel: actionModel);
                 }
@@ -214,7 +207,6 @@ namespace ConnectApp.screens {
 
             return new NotificationCard(
                 notification: notification,
-                currentUserId: this.widget.viewModel.currentUserId,
                 user: user,
                 team: team,
                 mentions: this.widget.viewModel.mentions,
