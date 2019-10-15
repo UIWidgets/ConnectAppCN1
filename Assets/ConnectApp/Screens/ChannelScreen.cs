@@ -109,6 +109,8 @@ namespace ConnectApp.screens {
                             Actions.fetchChannelMembers(channelId: this.channelId)),
                         fetchMember = () => dispatcher.dispatch<IPromise>(
                             Actions.fetchChannelMember(channelId: this.channelId, userId: viewModel.me)),
+                        deleteChannelMessage = messageId => dispatcher.dispatch<IPromise>(
+                            Actions.deleteChannelMessage(messageId: messageId)),
                         pushToChannelDetail = () => dispatcher.dispatch(new MainNavigatorPushToChannelDetailAction {
                             channelId = this.channelId
                         }),
@@ -277,6 +279,20 @@ namespace ConnectApp.screens {
             }
         }
 
+        void _deleteMessage(ChannelMessageView message) {
+            ActionSheetUtils.showModalActionSheet(new ActionSheet(
+                title: "是否删除这条消息？",
+                items: new List<ActionSheetItem> {
+                    new ActionSheetItem(
+                        "删除",
+                        type: ActionType.destructive,
+                        () => this.widget.actionModel.deleteChannelMessage(message.id)
+                    ),
+                    new ActionSheetItem("取消", type: ActionType.cancel)
+                }
+            ));
+        }
+
         public override Widget build(BuildContext context) {
             this.mPaddingBottom = MediaQuery.of(context).padding.bottom;
             if (this.widget.viewModel.mentionAutoFocus) {
@@ -360,7 +376,7 @@ namespace ConnectApp.screens {
                 color: CColors.Error,
                 child: new Center(
                     child: new Text(
-                        $"网络未连接",
+                        "网络未连接",
                         style: CTextStyle.PRegularWhite.copyWith(height: 1f)
                     )
                 )
@@ -523,17 +539,24 @@ namespace ConnectApp.screens {
                 child: this._buildMessageContent(message)
             );
 
-            if (message.type == ChannelMessageType.text) {
-                ret = new TipMenu(
-                    new List<TipMenuItem> {
-                        new TipMenuItem(
-                            "复制",
-                            () => Clipboard.setData(new ClipboardData(text: message.content))
-                        )
-                    },
-                    child: ret
-                );
+            var tipMenuItems = new List<TipMenuItem>();
+            if (message.type == ChannelMessageType.text || message.type == ChannelMessageType.embed) {
+                tipMenuItems.Add(new TipMenuItem(
+                    "复制",
+                    () => Clipboard.setData(new ClipboardData(text: message.content))
+                ));
             }
+
+            if (message.author.id == this.widget.viewModel.me) {
+                tipMenuItems.Add(new TipMenuItem(
+                    "删除",
+                    () => this._deleteMessage(message: message)
+                ));
+            }
+            ret = new TipMenu(
+                tipMenuItems: tipMenuItems,
+                child: ret
+            );
 
             ret = new Expanded(
                 child: new Column(

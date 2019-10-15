@@ -17,6 +17,7 @@ namespace ConnectApp.Models.ActionModel {
         public Func<string, string, IPromise> fetchMessages;
         public Func<IPromise> fetchMembers;
         public Func<IPromise> fetchMember;
+        public Func<string, IPromise> deleteChannelMessage;
         public Action pushToChannelMention;
         public Action clearLastChannelMention;
     }

@@ -176,17 +176,23 @@ namespace ConnectApp.Components {
         }
 
         Widget _buildMemberName() {
-            Widget memberNameWidget = new Text(
-                data: this.member.user.fullName,
-                style: CTextStyle.PMediumBody,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis
+            Widget memberNameWidget = new Container(
+                height: 22,
+                alignment: Alignment.centerLeft,
+                child: new Text(
+                    data: this.member.user.fullName,
+                    style: CTextStyle.PMediumBody.copyWith(height: 1),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis
+                )
             );
             if (this.member.role != "member") {
                 return new Row(
                     children: new List<Widget> {
                         new Flexible(child: memberNameWidget),
                         new Container(
+                            height: 16,
+                            alignment: Alignment.center,
                             decoration: new BoxDecoration(
                                 this.member.role != "admin" ? CColors.Tan : CColors.Portage,
                                 borderRadius: BorderRadius.all(2)
@@ -195,7 +201,7 @@ namespace ConnectApp.Components {
                             margin: EdgeInsets.only(4),
                             child: new Text(
                                 this.member.role == "admin" ? "管理员" : "群主",
-                                style: CTextStyle.PSmallWhite.copyWith(height: 1.2f)
+                                style: CTextStyle.PSmallWhite.copyWith(height: 1.0f)
                             )
                         )
                     }

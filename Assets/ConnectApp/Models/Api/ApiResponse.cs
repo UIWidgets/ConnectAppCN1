@@ -244,6 +244,10 @@ namespace ConnectApp.Models.Api {
     }
 
     [Serializable]
+    public class DeleteChannelMessageResponse {
+    }
+
+    [Serializable]
     public class AckChannelMessagesResponse {
     }
 

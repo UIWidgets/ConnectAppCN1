@@ -12,8 +12,8 @@ using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
@@ -23,16 +23,18 @@ namespace ConnectApp.screens {
         public ChannelDetailScreenConnector(
             string channelId,
             Key key = null
-        ) : base(key : key) {
+        ) : base(key: key) {
             this.channelId = channelId;
         }
 
         readonly string channelId;
+
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ChannelDetailScreenViewModel>(
                 converter: state => {
                     ChannelView channel = state.channelState.channelDict[key: this.channelId];
-                    channel.isTop = state.channelState.channelTop.TryGetValue(key: this.channelId, out var isTop) && isTop;
+                    channel.isTop = state.channelState.channelTop.TryGetValue(key: this.channelId, out var isTop) &&
+                                    isTop;
                     return new ChannelDetailScreenViewModel {
                         channel = channel,
                         members = state.channelState.channelDict[key: this.channelId].memberIds.Select(
@@ -51,9 +53,9 @@ namespace ConnectApp.screens {
                         }),
                         pushToChannelIntroduction = () =>
                             dispatcher.dispatch(new MainNavigatorPushToChannelIntroductionAction {
-                                channelId = this.channelId
-                            }
-                        ),
+                                    channelId = this.channelId
+                                }
+                            ),
                         fetchMembers = () => dispatcher.dispatch<IPromise>(
                             Actions.fetchChannelMembers(channelId: this.channelId)),
                         joinChannel = () => dispatcher.dispatch<IPromise>(
@@ -87,7 +89,7 @@ namespace ConnectApp.screens {
             return new _ChannelDetailScreenState();
         }
     }
-    
+
     class _ChannelDetailScreenState : State<ChannelDetailScreen>, RouteAware {
         const int _avatarNumber = 5;
 
@@ -111,7 +113,8 @@ namespace ConnectApp.screens {
         }
 
         float _getAvatarSize() {
-            return (MediaQuery.of(context: this.context).size.width - 16 * 2 - 16 * (_avatarNumber - 1)) / _avatarNumber;
+            return (MediaQuery.of(context: this.context).size.width - 16 * 2 - 16 * (_avatarNumber - 1)) /
+                   _avatarNumber;
         }
 
         void _leaveChannel() {
@@ -183,6 +186,7 @@ namespace ConnectApp.screens {
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis
                                         ),
+                                        new Container(height: 4),
                                         new Text(
                                             $"{this.widget.viewModel.channel?.memberCount ?? 0}名群成员",
                                             style: CTextStyle.PSmallBody4
@@ -204,6 +208,7 @@ namespace ConnectApp.screens {
                     : new Container(width: 56, height: 56)
                 );
             }
+
             return new Column(
                 children: new List<Widget> {
                     new Container(height: 16),
@@ -341,9 +346,9 @@ namespace ConnectApp.screens {
                                             )
                                         ),
                                         new Icon(
-                                            icon: Icons.arrow_forward,
-                                            size: 16,
-                                            color: CColors.Icon
+                                            icon: Icons.chevron_right,
+                                            size: 20,
+                                            color: Color.fromRGBO(199, 203, 207, 1)
                                         )
                                     }
                                 )

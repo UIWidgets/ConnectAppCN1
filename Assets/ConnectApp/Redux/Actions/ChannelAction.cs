@@ -263,6 +263,19 @@ namespace ConnectApp.redux.actions {
             });
         }
 
+        public static object deleteChannelMessage(string messageId) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return ChannelApi.DeleteChannelMessage(messageId: messageId)
+                    .Then(ackMessageResponse => {
+                        dispatcher.dispatch(new DeleteChannelMessageSuccessAction());
+                    })
+                    .Catch(error => {
+                        dispatcher.dispatch(new DeleteChannelMessageFailureAction());
+                        Debug.Log(error);
+                    });
+            });
+        }
+
         public static object ackChannelMessage(string messageId) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ChannelApi.AckChannelMessage(messageId: messageId)
@@ -420,7 +433,13 @@ namespace ConnectApp.redux.actions {
     public class SendChannelMessageFailureAction : BaseAction {
         public string channelId;
     }
+
+    public class DeleteChannelMessageSuccessAction : BaseAction {
+    }
     
+    public class DeleteChannelMessageFailureAction : BaseAction {
+    }
+
     public class AckChannelMessageSuccessAction : BaseAction {
     }
     

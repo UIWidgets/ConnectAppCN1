@@ -60,6 +60,15 @@ namespace ConnectApp.Api {
             return promise;
         }
 
+        public static Promise<DeleteChannelMessageResponse> DeleteChannelMessage(string messageId = null) {
+            var promise = new Promise<DeleteChannelMessageResponse>();
+            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/messages/{messageId}/delete");
+            HttpManager.resume(request: request).Then(responseText => {
+                promise.Resolve(JsonConvert.DeserializeObject<DeleteChannelMessageResponse>(value: responseText));
+            }).Catch(exception => promise.Reject(ex: exception));
+            return promise;
+        }
+
         public static Promise<AckChannelMessagesResponse> AckChannelMessage(string messageId) {
             var promise = new Promise<AckChannelMessagesResponse>();
             var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/messages/{messageId}/ack");
