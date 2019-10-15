@@ -11,7 +11,6 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
-using Transform = Unity.UIWidgets.widgets.Transform;
 
 namespace ConnectApp.Components {
     public delegate bool SelectTabCallBack(int fromIndex, int toIndex);
@@ -160,6 +159,7 @@ namespace ConnectApp.Components {
 
         List<Widget> _buildItems() {
             var children = new List<Widget>();
+            var screenWidth = MediaQuery.of(context: this.context).size.width;
             this.widget.items.ForEach(item => {
                 Widget buildItem = new Flexible(
                     child: new Stack(
@@ -182,7 +182,7 @@ namespace ConnectApp.Components {
                                 },
                                 child: new Container(
                                     decoration: new BoxDecoration(
-                                        CColors.Transparent
+                                        color: CColors.Transparent
                                     ),
                                     child: new Column(
                                         mainAxisAlignment: MainAxisAlignment.center,
@@ -212,17 +212,12 @@ namespace ConnectApp.Components {
                                     )
                                 )
                             ),
-                            Positioned.fill(
-                                child: new Align(
-                                    alignment: Alignment.center,
-                                    child: new Transform(
-                                        transform: Matrix3.makeTrans(new Offset(12, -8)),
-                                        child: new NotificationDot(
-                                            this.widget.notifications[item.index],
-                                            borderSide: new BorderSide(
-                                                color: CColors.White, width: 2)
-                                        )
-                                    )
+                            new Positioned(
+                                left: (float) Math.Ceiling(screenWidth / 8) + 2,
+                                top: 4,
+                                child: new NotificationDot(
+                                    this.widget.notifications[index: item.index],
+                                    new BorderSide(color: CColors.White, 2)
                                 )
                             )
                         }
