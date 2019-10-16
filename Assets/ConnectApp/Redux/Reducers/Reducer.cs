@@ -3065,7 +3065,7 @@ namespace ConnectApp.redux.reducers {
 
                 case FetchChannelMentionSuggestionsSuccessAction action: {
                     state.channelState.mentionLoading = false;
-                    state.channelState.mentionSuggestions[key: action.channelId] = action.users;
+                    state.channelState.mentionSuggestions[key: action.channelId] = action.channelMemberMap;
                     break;
                 }
 
