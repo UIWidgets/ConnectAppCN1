@@ -281,7 +281,7 @@ namespace ConnectApp.screens {
             }
 
             Widget leaveContainer;
-            if (!channel.currentMember.role.Equals("owner")) {
+            if (channel.currentMember.role != "owner") {
                 leaveContainer = new GestureDetector(
                     onTap: this._leaveChannel,
                     child: new Container(

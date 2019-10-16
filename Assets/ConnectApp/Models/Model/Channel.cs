@@ -164,7 +164,8 @@ namespace ConnectApp.Models.Model {
                 lastMessage = ChannelMessageView.fromChannelMessage(channel?.lastMessage),
                 messageIds = new List<string>(),
                 oldMessageIds = new List<string>(),
-                newMessageIds = new List<string>()
+                newMessageIds = new List<string>(),
+                currentMember = new ChannelMember()
             };
         }
 
@@ -200,7 +201,8 @@ namespace ConnectApp.Models.Model {
                 lastMessageId = channel?.lastMessageId,
                 messageIds = new List<string>(),
                 oldMessageIds = new List<string>(),
-                newMessageIds = new List<string>()
+                newMessageIds = new List<string>(),
+                currentMember = new ChannelMember()
             };
         }
 
