@@ -346,16 +346,16 @@ namespace ConnectApp.screens {
                     this.widget.viewModel.newMessageCount == 0 ||
                     this.widget.viewModel.messageLoading
                         ? new Container()
-                        : this._buildNewMessageNotification(),
-                    this.widget.viewModel.socketConnected
-                        ? new Container()
-                        : this._buildNetworkDisconnectedNote()
+                        : this._buildNewMessageNotification()
                 }
             );
 
             ret = new Column(
                 children: new List<Widget> {
                     this._buildNavigationBar(),
+                    this.widget.viewModel.socketConnected
+                        ? new Container()
+                        : this._buildNetworkDisconnectedNote(),
                     new Flexible(child: ret),
                     this.showEmojiBoard
                         ? this._buildEmojiBoard()
@@ -376,25 +376,16 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildNetworkDisconnectedNote() {
-            Widget ret = new Container(
-                color: CColors.Error,
+            return new Container(
+                height: 48,
+                color: CColors.Error.withAlpha((int) (255 * 0.16)),
                 child: new Center(
                     child: new Text(
                         "网络未连接",
-                        style: CTextStyle.PRegularWhite.copyWith(height: 1f)
+                        style: CTextStyle.PRegularError.copyWith(height: 1f)
                     )
                 )
             );
-
-            ret = new Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                height: 24,
-                child: ret
-            );
-
-            return ret;
         }
 
         Widget _buildNewMessageNotification() {
