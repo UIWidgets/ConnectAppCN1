@@ -41,23 +41,33 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ChannelScreenViewModel>(
                 converter: state => {
-                    ChannelMessageView getMessage(string messageId) {
-                        return state.channelState.messageDict[messageId];
+                    List<ChannelMessageView> getMessages(List<string> messageIds) {
+                        if (messageIds == null || messageIds.Count == 0) {
+                            return new List<ChannelMessageView>();
+                        }
+
+                        var channelMessageViews = new List<ChannelMessageView>();
+                        messageIds.ForEach(messageId => {
+                            if (state.channelState.messageDict.ContainsKey(key: messageId)) {
+                                channelMessageViews.Add(state.channelState.messageDict[key: messageId]);
+                            }
+                        });
+                        return channelMessageViews;
                     }
 
                     var channel = state.channelState.channelDict[this.channelId];
                     List<ChannelMessageView> newMessages = null;
                     List<ChannelMessageView> messages;
                     if (channel.newMessageIds.isNotEmpty()) {
-                        messages = channel.messageIds.Select(getMessage).ToList();
-                        newMessages = channel.newMessageIds.Select(getMessage).ToList();
+                        messages = getMessages(messageIds: channel.messageIds);
+                        newMessages = getMessages(messageIds:channel.newMessageIds);
                     }
                     else if (channel.oldMessageIds.isNotEmpty()) {
-                        messages = channel.oldMessageIds.Select(getMessage).ToList();
-                        messages.AddRange(channel.messageIds.Select(getMessage));
+                        messages = getMessages(messageIds: channel.oldMessageIds);
+                        messages.AddRange(getMessages(messageIds: channel.messageIds));
                     }
                     else {
-                        messages = channel.messageIds.Select(getMessage).ToList();
+                        messages = getMessages(messageIds: channel.messageIds);
                     }
 
                     messages = messages

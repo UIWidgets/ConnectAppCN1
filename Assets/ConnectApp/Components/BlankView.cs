@@ -54,7 +54,7 @@ namespace ConnectApp.Components {
                                 style: new TextStyle(
                                     height: 1.33f,
                                     fontSize: 16,
-                                    fontFamily: "Roboto-Medium",
+                                    fontFamily: "Roboto-Regular",
                                     color: new Color(0xFF959595)
                                 )
                             )

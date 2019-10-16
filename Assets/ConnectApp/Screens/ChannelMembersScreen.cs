@@ -164,10 +164,10 @@ namespace ConnectApp.screens {
                             "群聊成员",
                             style: CTextStyle.PXLargeMedium
                         ),
+                        new SizedBox(height: 5),
                         new Text(
                             "按活跃度排序",
                             style: new TextStyle(
-                                height: 1.1f,
                                 fontSize: 10,
                                 fontFamily: "Roboto-Regular",
                                 color: CColors.Black
