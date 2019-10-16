@@ -2990,11 +2990,11 @@ namespace ConnectApp.redux.reducers {
 
                     if (state.channelState.mentionSuggestions.ContainsKey(action.memberData.channelId)) {
                         var suggestionDict = state.channelState.mentionSuggestions[action.memberData.channelId];
-                        if (suggestionDict.ContainsKey(action.memberData.id)) {
-                            suggestionDict[action.memberData.id].updateFromSocketResponseChannelMemberChangeData(action.memberData);
+                        if (suggestionDict.ContainsKey(action.memberData.user.id)) {
+                            suggestionDict[action.memberData.user.id].updateFromSocketResponseChannelMemberChangeData(action.memberData);
                         }
                         else {
-                            suggestionDict[action.memberData.id] = ChannelMember.fromSocketResponseChannelMemberChangeData(action.memberData);
+                            suggestionDict[action.memberData.user.id] = ChannelMember.fromSocketResponseChannelMemberChangeData(action.memberData);
                         }
                     }
 
@@ -3010,8 +3010,8 @@ namespace ConnectApp.redux.reducers {
 
                     if (state.channelState.mentionSuggestions.ContainsKey(action.memberData.channelId)) {
                         var suggestionDict = state.channelState.mentionSuggestions[action.memberData.channelId];
-                        if (suggestionDict.ContainsKey(action.memberData.id)) {
-                            suggestionDict.Remove(action.memberData.id);
+                        if (suggestionDict.ContainsKey(action.memberData.user.id)) {
+                            suggestionDict.Remove(action.memberData.user.id);
                         }
                     }
 
