@@ -22,6 +22,15 @@ namespace ConnectApp.Models.State {
         public bool mentionLoading;
         public string newNotifications;
 
+        public void updateMentionSuggestion(string channelId, User userInfo) {
+            if (this.mentionSuggestions.ContainsKey(channelId)) {
+                var suggestions = this.mentionSuggestions[channelId];
+                if (suggestions.ContainsKey(userInfo.id)) {
+                    suggestions[userInfo.id].user = userInfo;
+                }
+            }
+        }
+
         public void updateChannel(Channel channel) {
             if (!this.channelDict.TryGetValue(key: channel.id, out var channelView)) {
                 this.channelDict[key: channel.id] = ChannelView.fromChannel(channel: channel);

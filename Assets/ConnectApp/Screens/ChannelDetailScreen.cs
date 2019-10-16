@@ -226,7 +226,7 @@ namespace ConnectApp.screens {
                                         child: new Row(
                                             children: new List<Widget> {
                                                 new Padding(
-                                                    padding: EdgeInsets.only(top: 2, right:4),
+                                                    padding: EdgeInsets.only(top: 2, right: 4),
                                                     child: new Text(
                                                         $"查看{this.widget.viewModel.channel?.memberCount ?? 0}名群成员",
                                                         style: new TextStyle(
@@ -281,7 +281,7 @@ namespace ConnectApp.screens {
             }
 
             Widget leaveContainer;
-            if (!channel.currentMember.role.Equals("owner")) {
+            if (channel.currentMember != null && !channel.currentMember.role.Equals("owner")) {
                 leaveContainer = new GestureDetector(
                     onTap: this._leaveChannel,
                     child: new Container(

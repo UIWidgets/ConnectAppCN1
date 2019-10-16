@@ -30,13 +30,34 @@ namespace ConnectApp.screens {
         readonly string channelId;
 
         static int _compareMember(ChannelMember m1, ChannelMember m2) {
-            if (m1.role == m2.role) return 0;
-            if (m1.role == "admin") return 1;
-            if (m2.role == "admin") return -1;
-            if (m1.role == "moderator") return -1;
-            if (m2.role == "moderator") return 1;
-            if (m1.role == "owner") return -1;
-            if (m2.role == "owner") return 1;
+            if (m1.role == m2.role) {
+                return 0;
+            }
+
+            if (m1.role == "admin") {
+                return 1;
+            }
+
+            if (m2.role == "admin") {
+                return -1;
+            }
+
+            if (m1.role == "moderator") {
+                return -1;
+            }
+
+            if (m2.role == "moderator") {
+                return 1;
+            }
+
+            if (m1.role == "owner") {
+                return -1;
+            }
+
+            if (m2.role == "owner") {
+                return 1;
+            }
+
             return 0;
         }
 
@@ -119,9 +140,7 @@ namespace ConnectApp.screens {
             base.initState();
             this._refreshController = new RefreshController();
             this._memberOffset = 0;
-            SchedulerBinding.instance.addPostFrameCallback(_ => {
-                this.widget.actionModel.fetchMembers(0);
-            });
+            SchedulerBinding.instance.addPostFrameCallback(_ => { this.widget.actionModel.fetchMembers(0); });
         }
 
         public override void didChangeDependencies() {
@@ -271,7 +290,7 @@ namespace ConnectApp.screens {
         }
 
         void _onRefresh(bool up) {
-            this._memberOffset = up 
+            this._memberOffset = up
                 ? 0
                 : this.widget.viewModel.normalMembers.Count + this.widget.viewModel.specialMembers.Count;
 
