@@ -144,7 +144,7 @@ namespace ConnectApp.Models.Model {
         public List<string> memberIds;
         public Dictionary<string, ChannelMember> membersDict;
         public int memberOffset;
-        public bool atBottom = true;
+        public bool atBottom = false;
         public ChannelMember currentMember;
 
         public static ChannelView fromChannel(Channel channel) {
