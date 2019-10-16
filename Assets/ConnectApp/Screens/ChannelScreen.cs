@@ -356,16 +356,16 @@ namespace ConnectApp.screens {
                     this.widget.viewModel.newMessageCount == 0 ||
                     this.widget.viewModel.messageLoading
                         ? new Container()
-                        : this._buildNewMessageNotification(),
-                    this.widget.viewModel.socketConnected
-                        ? new Container()
-                        : this._buildNetworkDisconnectedNote()
+                        : this._buildNewMessageNotification()
                 }
             );
 
             ret = new Column(
                 children: new List<Widget> {
                     this._buildNavigationBar(),
+                    this.widget.viewModel.socketConnected
+                        ? new Container()
+                        : this._buildNetworkDisconnectedNote(),
                     new Flexible(child: ret),
                     this.showEmojiBoard
                         ? this._buildEmojiBoard()
@@ -386,25 +386,16 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildNetworkDisconnectedNote() {
-            Widget ret = new Container(
-                color: CColors.Error,
+            return new Container(
+                height: 48,
+                color: CColors.Error.withAlpha((int) (255 * 0.16)),
                 child: new Center(
                     child: new Text(
                         "网络未连接",
-                        style: CTextStyle.PRegularWhite.copyWith(height: 1f)
+                        style: CTextStyle.PRegularError.copyWith(height: 1f)
                     )
                 )
             );
-
-            ret = new Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                height: 24,
-                child: ret
-            );
-
-            return ret;
         }
 
         Widget _buildNewMessageNotification() {
@@ -974,10 +965,10 @@ namespace ConnectApp.screens {
         };
 
         static readonly int emojiBoardRowSize = 8;
-        static readonly int emojiBoardColumSize = 3;
+        static readonly int emojiBoardColumnSize = 3;
 
         static int emojiBoardPageSize {
-            get { return emojiBoardRowSize * emojiBoardColumSize - 1; }
+            get { return emojiBoardRowSize * emojiBoardColumnSize - 1; }
         }
 
         float emojiSize {
@@ -990,28 +981,31 @@ namespace ConnectApp.screens {
             List<Widget> emojiPages = new List<Widget>();
             for (int i = 0; i < emojiList.Count; i += emojiBoardPageSize) {
                 List<Widget> rows = new List<Widget>();
-                for (int j = 0; j < emojiBoardColumSize; j++) {
+                for (int j = 0; j < emojiBoardColumnSize; j++) {
                     List<Widget> emojis = new List<Widget>();
-                    emojis.Add(new Container(width: 21));
                     for (int k = 0; k < emojiBoardRowSize; k++) {
-                        emojis.Add(j == emojiBoardColumSize - 1 && k == emojiBoardRowSize - 1
+                        emojis.Add(j == emojiBoardColumnSize - 1 && k == emojiBoardRowSize - 1
                             ? this._buildDeleteKey(EdgeInsets.only(left: 2))
                             : this._buildEmojiButton(i, j, k));
                     }
-
-                    emojis.Add(new Container(width: 21));
                     if (j > 0) {
                         rows.Add(new Container(height: 8));
                     }
 
-                    rows.Add(new Row(
-                        children: emojis
+                    rows.Add(new Container(
+                        height: this.emojiSize,
+                        padding: EdgeInsets.symmetric(0, 20),
+                        child: new Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: emojis
+                        )
                     ));
                 }
 
                 emojiPages.Add(new Container(
                     width: MediaQuery.of(this.context).size.width,
                     child: new Column(
+                        mainAxisSize: MainAxisSize.min,
                         children: rows
                     )
                 ));
@@ -1032,7 +1026,7 @@ namespace ConnectApp.screens {
                         child: new Column(
                             children: new List<Widget> {
                                 new Container(
-                                    height: 136,
+                                    height: (this.emojiSize + 8) * (emojiBoardColumnSize - 1) + this.emojiSize,
                                     child: new TabBarView(
                                         controller: this._emojiTabController,
                                         children: this._buildEmojiBoardPages()
@@ -1090,13 +1084,13 @@ namespace ConnectApp.screens {
             return new GestureDetector(
                 onTap: this._handleDelete,
                 child: new Container(
-                    width: 40,
-                    height: 40,
+                    width: this.emojiSize,
+                    height: this.emojiSize,
                     padding: padding,
                     child: new Center(
                         child: new Icon(
                             Icons.outline_delete_keyboard,
-                            size: 24,
+                            size: this.emojiSize * 0.7f,
                             color: CColors.Icon
                         )
                     )
@@ -1129,11 +1123,12 @@ namespace ConnectApp.screens {
                 child: new Container(
                     width: this.emojiSize,
                     height: this.emojiSize,
+                    color: CColors.Transparent,
                     padding: k == 0 ? EdgeInsets.zero : EdgeInsets.only(left: 2),
                     child: new Center(
                         child: new Text(
                             this.getEmojiText(index),
-                            style: new TextStyle(fontSize: 24, height: 1)
+                            style: new TextStyle(fontSize: this.emojiSize * 0.7f, height: 1)
                         )
                     )
                 )

@@ -9,6 +9,7 @@ namespace ConnectApp.Models.ViewModel {
     public class MessengerScreenViewModel {
         public int currentTabBarIndex;
         public bool hasUnreadNotifications;
+        public bool socketConnected;
         public Dictionary<string, string> lastMessageMap;
         public List<ChannelView> joinedChannels;
         public List<ChannelView> popularChannels;
