@@ -66,8 +66,8 @@ namespace ConnectApp.Utils {
         public static UnityWebRequest POST(string uri, object parameter = null, bool multipart = false,
             string filename = "", string fileType = "") {
             var request = initRequest(url: uri, method: Method.POST);
-            var boundary = $"----WebKitFormBoundary{Snowflake.CreateNonce()}";
             if (parameter != null) {
+                var boundary = $"----WebKitFormBoundary{Snowflake.CreateNonce()}";
                 if (multipart) {
                     List<byte[]> results = new List<byte[]>();
                     int size = 0;

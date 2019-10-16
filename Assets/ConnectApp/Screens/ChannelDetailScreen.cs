@@ -45,11 +45,9 @@ namespace ConnectApp.screens {
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new ChannelDetailScreenActionModel {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
-                        pushToUserDetail = userId => dispatcher.dispatch(
-                            new MainNavigatorPushToUserDetailAction {
-                                userId = userId
-                            }
-                        ),
+                        pushToUserDetail = userId => dispatcher.dispatch(new MainNavigatorPushToUserDetailAction {
+                            userId = userId
+                        }),
                         pushToChannelMembers = () => dispatcher.dispatch(new MainNavigatorPushToChannelMembersAction {
                             channelId = this.channelId
                         }),
@@ -64,10 +62,9 @@ namespace ConnectApp.screens {
                             Actions.joinChannel(channelId: this.channelId, groupId: viewModel.channel.groupId, true)),
                         leaveChannel = () => dispatcher.dispatch<IPromise>(
                             Actions.leaveChannel(channelId: this.channelId, groupId: viewModel.channel.groupId)),
-                        updateTop = isTop => dispatcher.dispatch(new UpdateChannelTopAction {
-                            channelId = this.channelId,
-                            value = isTop
-                        })
+                        updateTop = isTop => dispatcher.dispatch<IPromise>(isTop
+                            ? Actions.fetchStickChannel(channelId: this.channelId)
+                            : Actions.fetchUnStickChannel(channelId: this.channelId))
                     };
                     return new ChannelDetailScreen(actionModel: actionModel, viewModel: viewModel);
                 }
@@ -217,7 +214,7 @@ namespace ConnectApp.screens {
                     new Container(height: 16),
                     new Container(
                         color: CColors.White,
-                        padding: EdgeInsets.only(16, 16, 8),
+                        padding: EdgeInsets.only(16, 16, 12),
                         child: new Row(
                             children: new List<Widget> {
                                 new Text("群聊成员", style: CTextStyle.PLargeBody),
@@ -228,12 +225,15 @@ namespace ConnectApp.screens {
                                         color: CColors.Transparent,
                                         child: new Row(
                                             children: new List<Widget> {
-                                                new Text(
-                                                    $"查看{this.widget.viewModel.channel?.memberCount ?? 0}名群成员",
-                                                    style: new TextStyle(
-                                                        fontSize: 14,
-                                                        fontFamily: "Roboto-Regular",
-                                                        color: CColors.TextBody4
+                                                new Padding(
+                                                    padding: EdgeInsets.only(top: 2, right:4),
+                                                    child: new Text(
+                                                        $"查看{this.widget.viewModel.channel?.memberCount ?? 0}名群成员",
+                                                        style: new TextStyle(
+                                                            fontSize: 14,
+                                                            fontFamily: "Roboto-Regular",
+                                                            color: CColors.TextBody4
+                                                        )
                                                     )
                                                 ),
                                                 new Icon(
@@ -261,7 +261,8 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildChannelSetting() {
-            if (!this.widget.viewModel.channel.joined) {
+            var channel = this.widget.viewModel.channel;
+            if (!channel.joined) {
                 return new Column(
                     children: new List<Widget> {
                         new Container(height: 16),
@@ -277,6 +278,23 @@ namespace ConnectApp.screens {
                         )
                     }
                 );
+            }
+
+            Widget leaveContainer;
+            if (!channel.currentMember.role.Equals("owner")) {
+                leaveContainer = new GestureDetector(
+                    onTap: this._leaveChannel,
+                    child: new Container(
+                        color: CColors.White,
+                        height: 60,
+                        child: new Center(
+                            child: new Text("退出群聊", style: CTextStyle.PLargeError)
+                        )
+                    )
+                );
+            }
+            else {
+                leaveContainer = new Container();
             }
 
             return new Column(
@@ -295,16 +313,7 @@ namespace ConnectApp.screens {
                     ),
 #endif
                     new Container(height: 16),
-                    new GestureDetector(
-                        onTap: this._leaveChannel,
-                        child: new Container(
-                            color: CColors.White,
-                            height: 60,
-                            child: new Center(
-                                child: new Text("退出群聊", style: CTextStyle.PLargeError)
-                            )
-                        )
-                    )
+                    leaveContainer
                 }
             );
         }
@@ -327,7 +336,7 @@ namespace ConnectApp.screens {
                             onTap: () => this.widget.actionModel.pushToChannelIntroduction(),
                             child: new Container(
                                 color: CColors.White,
-                                padding: EdgeInsets.only(16, 16, 16, 21),
+                                padding: EdgeInsets.only(16, 16, 12, 21),
                                 child: new Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: new List<Widget> {
@@ -339,6 +348,7 @@ namespace ConnectApp.screens {
                                                 maxLines: 2
                                             )
                                         ),
+                                        new SizedBox(width: 4),
                                         new Icon(
                                             icon: Icons.chevron_right,
                                             size: 20,

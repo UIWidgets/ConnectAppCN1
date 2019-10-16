@@ -15,6 +15,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
@@ -29,26 +30,13 @@ namespace ConnectApp.screens {
         readonly string channelId;
 
         static int _compareMember(ChannelMember m1, ChannelMember m2) {
-            if (m1.role == m2.role) {
-                return 0;
-            }
-
-            if (m1.role == "admin") {
-                return 1;
-            }
-
-            if (m2.role == "admin") {
-                return -1;
-            }
-
-            if (m1.role == "moderator") {
-                return -1;
-            }
-
-            if (m2.role == "moderator") {
-                return 1;
-            }
-
+            if (m1.role == m2.role) return 0;
+            if (m1.role == "admin") return 1;
+            if (m2.role == "admin") return -1;
+            if (m1.role == "moderator") return -1;
+            if (m2.role == "moderator") return 1;
+            if (m1.role == "owner") return -1;
+            if (m2.role == "owner") return 1;
             return 0;
         }
 
@@ -83,14 +71,11 @@ namespace ConnectApp.screens {
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Login
                         }),
-                        pushToUserDetail = userId => dispatcher.dispatch(
-                            new MainNavigatorPushToUserDetailAction {
-                                userId = userId
-                            }
-                        ),
-                        fetchMembers = () => dispatcher.dispatch<IPromise>(
-                            Actions.fetchChannelMembers(channelId: this.channelId,
-                                viewModel.normalMembers.Count + viewModel.specialMembers.Count)),
+                        pushToUserDetail = userId => dispatcher.dispatch(new MainNavigatorPushToUserDetailAction {
+                            userId = userId
+                        }),
+                        fetchMembers = offset => dispatcher.dispatch<IPromise>(
+                            Actions.fetchChannelMembers(channelId: this.channelId, offset: offset)),
                         startFollowUser = followUserId => dispatcher.dispatch(new StartFollowUserAction {
                             followUserId = followUserId
                         }),
@@ -128,10 +113,15 @@ namespace ConnectApp.screens {
 
     class _ChannelMembersScreenState : State<ChannelMembersScreen>, RouteAware {
         RefreshController _refreshController;
+        int _memberOffset;
 
         public override void initState() {
             base.initState();
             this._refreshController = new RefreshController();
+            this._memberOffset = 0;
+            SchedulerBinding.instance.addPostFrameCallback(_ => {
+                this.widget.actionModel.fetchMembers(0);
+            });
         }
 
         public override void didChangeDependencies() {
@@ -281,7 +271,11 @@ namespace ConnectApp.screens {
         }
 
         void _onRefresh(bool up) {
-            this.widget.actionModel.fetchMembers()
+            this._memberOffset = up 
+                ? 0
+                : this.widget.viewModel.normalMembers.Count + this.widget.viewModel.specialMembers.Count;
+
+            this.widget.actionModel.fetchMembers(arg: this._memberOffset)
                 .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(e => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed));
         }

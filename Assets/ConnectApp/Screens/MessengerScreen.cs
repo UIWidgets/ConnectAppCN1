@@ -13,8 +13,8 @@ using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
@@ -23,8 +23,8 @@ namespace ConnectApp.screens {
         public MessengerScreenConnector(
             Key key = null
         ) : base(key: key) {
-            
         }
+
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, MessengerScreenViewModel>(
                 converter: state => {
@@ -97,10 +97,12 @@ namespace ConnectApp.screens {
                                 dispatcher.dispatch(Actions.ackChannelMessage(messageId: messageId));
                             }
                         },
-                        pushToChannelDetail = channelId => dispatcher.dispatch(new MainNavigatorPushToChannelDetailAction {
-                            channelId = channelId
-                        }),
-                        fetchChannels = pageNumber => dispatcher.dispatch<IPromise>(Actions.fetchChannels(page: pageNumber)),
+                        pushToChannelDetail = channelId => dispatcher.dispatch(
+                            new MainNavigatorPushToChannelDetailAction {
+                                channelId = channelId
+                            }),
+                        fetchChannels = pageNumber =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchChannels(page: pageNumber)),
                         startJoinChannel = channelId => dispatcher.dispatch(new StartJoinChannelAction {
                             channelId = channelId
                         }),
@@ -211,29 +213,43 @@ namespace ConnectApp.screens {
                 new List<Widget> {
                     new CustomButton(
                         onPressed: () => this.widget.actionModel.pushToNotifications(),
+                        padding: EdgeInsets.symmetric(8, 16),
                         child: new Container(
                             width: 28,
                             height: 28,
                             child: new Stack(
                                 children: new List<Widget> {
-                                    new Icon(icon: Icons.outline_notification, color: CColors.Icon, size: 28),
-                                    Positioned.fill(new Align(
-                                        alignment: Alignment.topRight,
-                                        child: new NotificationDot(
-                                            this.widget.viewModel.hasUnreadNotifications
-                                            ? "" : null)))
+                                    new Icon(
+                                        icon: Icons.outline_notification,
+                                        color: CColors.Icon,
+                                        size: 28
+                                    ),
+                                    Positioned.fill(
+                                        new Align(
+                                            alignment: Alignment.topRight,
+                                            child: new NotificationDot(
+                                                this.widget.viewModel.hasUnreadNotifications ? "" : null,
+                                                new BorderSide(color: CColors.White, 2)
+                                            )
+                                        )
+                                    )
                                 }
                             )
                         )
                     )
                 },
                 backgroundColor: CColors.White,
-                0
+                0,
+                EdgeInsets.only(16, bottom: 8)
             );
         }
 
         Widget _headerInSection(int section) {
             if (section == 0) {
+                return null;
+            }
+
+            if (this.widget.viewModel.publicChannels.isEmpty()) {
                 return null;
             }
 
@@ -248,12 +264,15 @@ namespace ConnectApp.screens {
                         color: CColors.Transparent,
                         child: new Row(
                             children: new List<Widget> {
-                                new Text(
-                                    "查看全部",
-                                    style: new TextStyle(
-                                        fontSize: 12,
-                                        fontFamily: "Roboto-Regular",
-                                        color: CColors.TextBody4
+                                new Padding(
+                                    padding: EdgeInsets.only(top: 2),
+                                    child: new Text(
+                                        "查看全部",
+                                        style: new TextStyle(
+                                            fontSize: 12,
+                                            fontFamily: "Roboto-Regular",
+                                            color: CColors.TextBody4
+                                        )
                                     )
                                 ),
                                 new Icon(

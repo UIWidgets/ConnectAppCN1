@@ -189,7 +189,7 @@ namespace ConnectApp.Components {
             if (this.member.role != "member") {
                 return new Row(
                     children: new List<Widget> {
-                        memberNameWidget,
+                        new Flexible(child: memberNameWidget),
                         new Container(
                             height: 16,
                             alignment: Alignment.center,

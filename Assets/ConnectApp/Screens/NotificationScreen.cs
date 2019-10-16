@@ -43,15 +43,21 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch<IPromise>(Actions.fetchNotifications(pageNumber: pageNumber)),
                         fetchMakeAllSeen = () => dispatcher.dispatch<IPromise>(Actions.fetchMakeAllSeen()),
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
-                        pushToArticleDetail = id => dispatcher.dispatch(new MainNavigatorPushToArticleDetailAction {
-                            articleId = id
-                        }),
-                        pushToUserDetail = userId => dispatcher.dispatch(new MainNavigatorPushToUserDetailAction {
-                            userId = userId
-                        }),
-                        pushToTeamDetail = teamId => dispatcher.dispatch(new MainNavigatorPushToTeamDetailAction {
-                            teamId = teamId
-                        })
+                        pushToArticleDetail = id => dispatcher.dispatch(
+                            new MainNavigatorPushToArticleDetailAction {
+                                articleId = id
+                            }
+                        ),
+                        pushToUserDetail = userId => dispatcher.dispatch(
+                            new MainNavigatorPushToUserDetailAction {
+                                userId = userId
+                            }
+                        ),
+                        pushToTeamDetail = teamId => dispatcher.dispatch(
+                            new MainNavigatorPushToTeamDetailAction {
+                                teamId = teamId
+                            }
+                        )
                     };
                     return new NotificationScreen(viewModel: viewModel, actionModel: actionModel);
                 }

@@ -11,12 +11,11 @@ using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;
-using Avatar = ConnectApp.Components.Avatar;
 
 namespace ConnectApp.screens {
     public class ChannelMentionScreenConnector : StatelessWidget {
@@ -50,7 +49,7 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch(new MainNavigatorPopAction());
                         },
                         startLoadingMention = () => {
-                            dispatcher.dispatch(new FetchChannelMentionSuggestionStart());
+                            dispatcher.dispatch(new StartFetchChannelMentionSuggestionAction());
                             dispatcher.dispatch<IPromise>(
                                 Actions.fetchChannelMentionSuggestions(channelId: this.channelId));
                         }
@@ -60,7 +59,7 @@ namespace ConnectApp.screens {
             );
         }
     }
-    
+
     public class ChannelMentionScreen : StatefulWidget {
         public ChannelMentionScreen(
             ChannelMentionScreenViewModel viewModel = null,
@@ -70,7 +69,7 @@ namespace ConnectApp.screens {
             this.viewModel = viewModel;
             this.actionModel = actionModel;
         }
-        
+
         public readonly ChannelMentionScreenViewModel viewModel;
         public readonly ChannelMentionScreenActionModel actionModel;
 
@@ -88,14 +87,13 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             if (this.widget.viewModel.mentionSuggestions == null) {
-                SchedulerBinding.instance.addPostFrameCallback(_ => {
-                    this.widget.actionModel.startLoadingMention();
-                });
+                SchedulerBinding.instance.addPostFrameCallback(_ => { this.widget.actionModel.startLoadingMention(); });
             }
+
             this.updateMentionList();
             base.initState();
         }
-        
+
         public override void didChangeDependencies() {
             base.didChangeDependencies();
             Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(context: this.context));
@@ -111,8 +109,8 @@ namespace ConnectApp.screens {
             var allMentions =
                 this.widget.viewModel.mentionSuggestions ??
                 this.widget.viewModel.channel.membersDict;
-            
-            foreach(var memberKey in allMentions.Keys) {
+
+            foreach (var memberKey in allMentions.Keys) {
                 var member = allMentions[key: memberKey];
                 if (this.curQuery == "" || member.user.fullName.ToLower().Contains(this.curQuery.ToLower())) {
                     this.mentionList.Add(item: member);
@@ -133,7 +131,7 @@ namespace ConnectApp.screens {
                                 this._buildSearchBar(),
                                 new Expanded(
                                     child: this.widget.viewModel.mentionLoading ? 
-                                        this._buildLoadingPage() : this._buildMentionList()
+                                        new GlobalLoading() : this._buildMentionList()
                                 )
                             }
                         )
@@ -141,31 +139,28 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
-        ListView _buildLoadingPage() {
-            return new ListView(
-                children: new List<Widget> {
-                    new Container(
-                        child: new GlobalLoading(),
-                        width: MediaQuery.of(this.context).size.width,
-                        height: MediaQuery.of(this.context).size.height - 100
-                    )
-                });
-        }
 
         void _onSearch(string query) {
             this.curQuery = query;
             this.setState(() => {
-                this._scrollController.jumpTo(0);
+                if (this._scrollController.hasClients) {
+                    this._scrollController.jumpTo(0);
+                }
                 this.updateMentionList();
             });
         }
 
         Widget _buildMentionList() {
+            if (this.mentionList.Count == 0) {
+                return new Container(
+                    color: CColors.Background
+                );
+            }
             return new Container(
                 color: CColors.Background,
                 child: new CustomScrollbar(
                     ListView.builder(
+                        physics: new AlwaysScrollableScrollPhysics(),
                         controller: this._scrollController,
                         itemCount: this.mentionList.Count,
                         itemBuilder: this._buildMentionTile
@@ -180,10 +175,10 @@ namespace ConnectApp.screens {
                 onTap: () => this.widget.actionModel.chooseMentionConfirm(obj: member.user.id),
                 child: new Container(
                     color: CColors.White,
-                    height: 72,
-                    padding: EdgeInsets.only(16f),
+                    height: 60,
                     child: new Row(
                         children: new List<Widget> {
+                            new SizedBox(width: 16),
                             Avatar.User(user: member.user, 32),
                             new Expanded(
                                 child: new Container(
@@ -207,7 +202,7 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
+
         Widget _buildSearchBar() {
             return new Container(
                 color: CColors.White,
@@ -221,14 +216,15 @@ namespace ConnectApp.screens {
                     controller: this._editingController,
                     style: CTextStyle.PLargeBody2,
                     prefix: new Container(
-                        padding: EdgeInsets.only(11, 9, 7, 9),
+                        padding: EdgeInsets.only(8, right: 4),
                         child: new Icon(
                             icon: Icons.search,
+                            size: 24,
                             color: CColors.BrownGrey
                         )
                     ),
                     hintText: "搜索",
-                    hintStyle: CTextStyle.PLargeBody4,
+                    hintStyle: CTextStyle.PLargeBody4.merge(new TextStyle(height: 1)),
                     cursorColor: CColors.PrimaryBlue,
                     textInputAction: TextInputAction.search,
                     clearButtonMode: InputFieldClearButtonMode.whileEditing,
@@ -237,7 +233,7 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
+
         Widget _buildNavigationBar() {
             return new Container(
                 decoration: new BoxDecoration(
@@ -248,32 +244,32 @@ namespace ConnectApp.screens {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: new List<Widget> {
-                        new Container(width: 48),
+                        new Container(width: 64),
                         new Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: new List<Widget> {
-                                new Container(height:6f),
                                 new Text(
                                     "选择提醒的人",
                                     style: CTextStyle.PXLargeMedium
                                 ),
+                                new SizedBox(height: 5),
                                 new Text(
                                     "按活跃度排序",
                                     style: new TextStyle(
-                                        height: 1.1f,
                                         fontSize: 10,
                                         fontFamily: "Roboto-Regular",
                                         color: CColors.Black
-                                    ))
-                        }),
-                        
+                                    )
+                                )
+                            }),
                         new CustomButton(
-                            padding: EdgeInsets.only(8, 8, 8, 8),
+                            padding: EdgeInsets.symmetric(10, 16),
                             onPressed: () => this.widget.actionModel.chooseMentionCancel(),
                             child: new Text(
                                 "取消",
                                 style: CTextStyle.PLargeBlue
                             )
-                        ),
+                        )
                     }
                 )
             );
@@ -284,15 +280,12 @@ namespace ConnectApp.screens {
         }
 
         public void didPush() {
-            
         }
 
         public void didPop() {
-            
         }
 
         public void didPushNext() {
-            
         }
     }
 }

@@ -17,8 +17,8 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -99,24 +99,24 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch(new ChannelScreenLeaveBottom {channelId = this.channelId});
                         },
                         openUrl = url => OpenUrlUtil.OpenUrl(url: url, dispatcher: dispatcher),
-                        browserImage = (url, imageUrls) => {
-                            dispatcher.dispatch(new MainNavigatorPushToPhotoViewAction {
-                                url = url,
-                                urls = imageUrls
-                            });
-                        },
+                        browserImage = (url, imageUrls) => dispatcher.dispatch(new MainNavigatorPushToPhotoViewAction {
+                            url = url,
+                            urls = imageUrls
+                        }),
                         fetchMessages = (before, after) => dispatcher.dispatch<IPromise>(
                             Actions.fetchChannelMessages(channelId: this.channelId, before: before, after: after)),
                         fetchMembers = () => dispatcher.dispatch<IPromise>(
-                            Actions.fetchChannelMembers(this.channelId, 0)),
+                            Actions.fetchChannelMembers(channelId: this.channelId)),
+                        fetchMember = () => dispatcher.dispatch<IPromise>(
+                            Actions.fetchChannelMember(channelId: this.channelId, userId: viewModel.me)),
+                        deleteChannelMessage = messageId => dispatcher.dispatch<IPromise>(
+                            Actions.deleteChannelMessage(messageId: messageId)),
                         pushToChannelDetail = () => dispatcher.dispatch(new MainNavigatorPushToChannelDetailAction {
                             channelId = this.channelId
                         }),
-                        pushToUserDetail = userId => dispatcher.dispatch(
-                            new MainNavigatorPushToUserDetailAction {
-                                userId = userId
-                            }
-                        ),
+                        pushToUserDetail = userId => dispatcher.dispatch(new MainNavigatorPushToUserDetailAction {
+                            userId = userId
+                        }),
                         sendMessage = (channelId, content, nonce, parentMessageId) => dispatcher.dispatch<IPromise>(
                             Actions.sendChannelMessage(channelId, content, nonce, parentMessageId)),
                         startSendMessage = () => dispatcher.dispatch(new StartSendChannelMessageAction {
@@ -216,6 +216,7 @@ namespace ConnectApp.screens {
                 this._refreshController.scrollController.addListener(this._handleScrollListener);
                 this.widget.actionModel.fetchMessages(null, null);
                 this.widget.actionModel.fetchMembers();
+                this.widget.actionModel.fetchMember();
                 this.widget.actionModel.reportHitBottom();
             });
             this._focusNode = new FocusNode();
@@ -276,6 +277,20 @@ namespace ConnectApp.screens {
                     this.widget.actionModel.pushToChannelMention();
                 }
             }
+        }
+
+        void _deleteMessage(ChannelMessageView message) {
+            ActionSheetUtils.showModalActionSheet(new ActionSheet(
+                title: "是否删除这条消息？",
+                items: new List<ActionSheetItem> {
+                    new ActionSheetItem(
+                        "删除",
+                        type: ActionType.destructive,
+                        () => this.widget.actionModel.deleteChannelMessage(message.id)
+                    ),
+                    new ActionSheetItem("取消", type: ActionType.cancel)
+                }
+            ));
         }
 
         public override Widget build(BuildContext context) {
@@ -365,7 +380,7 @@ namespace ConnectApp.screens {
                 color: CColors.Error,
                 child: new Center(
                     child: new Text(
-                        $"网络未连接",
+                        "网络未连接",
                         style: CTextStyle.PRegularWhite.copyWith(height: 1f)
                     )
                 )
@@ -451,22 +466,21 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildContent() {
-            Widget ret = new Opacity(
-                opacity: this.widget.viewModel.messageLoading &&
-                         this.widget.viewModel.messages.isEmpty() ? 0 : 1,
-                child: new Container(
-                    color: CColors.White,
-                    child: new CustomScrollbar(
-                        child: new SmartRefresher(
-                            key: this._smartRefresherKey,
-                            controller: this._refreshController,
-                            enablePullDown: false,
-                            enablePullUp: this.widget.viewModel.channel.hasMore,
-                            onRefresh: this._onRefresh,
-                            reverse: true,
-                            headerBuilder: (context, mode) => new SmartRefreshHeader(mode: mode),
-                            child: this._buildMessageListView()
-                        )
+            Widget ret = new Container(
+                color: CColors.White,
+                child: new CustomScrollbar(
+                    child: new SmartRefresher(
+                        key: this._smartRefresherKey,
+                        controller: this._refreshController,
+                        enablePullDown: false,
+                        enablePullUp: this.widget.viewModel.channel.hasMore,
+                        onRefresh: this._onRefresh,
+                        reverse: true,
+                        headerBuilder: (context, mode) => new SmartRefreshHeader(mode: mode),
+                        child: this.widget.viewModel.messageLoading &&
+                               this.widget.viewModel.messages.isEmpty()
+                            ? this._buildLoadingPage()
+                            : this._buildMessageListView()
                     )
                 )
             );
@@ -482,6 +496,13 @@ namespace ConnectApp.screens {
         }
 
         ListView _buildMessageListView() {
+            if (this.widget.viewModel.messages.Count == 0) {
+                return new ListView(
+                    children: new List<Widget> {
+                        new Container()
+                    });
+            }
+            
             return ListView.builder(
                 padding: EdgeInsets.only(top: 16, bottom: this.inputBarHeight),
                 itemCount: this.widget.viewModel.messages.Count,
@@ -496,6 +517,17 @@ namespace ConnectApp.screens {
                     );
                 }
             );
+        }
+
+        ListView _buildLoadingPage() {
+            return new ListView(
+                children: new List<Widget> {
+                    new Container(
+                        child: new GlobalLoading(),
+                        width: MediaQuery.of(this.context).size.width,
+                        height: MediaQuery.of(this.context).size.height
+                    )
+                });
         }
 
         BoxDecoration _messageDecoration(ChannelMessageType type, bool left) {
@@ -525,17 +557,24 @@ namespace ConnectApp.screens {
                 child: this._buildMessageContent(message)
             );
 
-            if (message.type == ChannelMessageType.text) {
-                ret = new TipMenu(
-                    new List<TipMenuItem> {
-                        new TipMenuItem(
-                            "复制",
-                            () => Clipboard.setData(new ClipboardData(text: message.content))
-                        )
-                    },
-                    child: ret
-                );
+            var tipMenuItems = new List<TipMenuItem>();
+            if (message.type == ChannelMessageType.text || message.type == ChannelMessageType.embed) {
+                tipMenuItems.Add(new TipMenuItem(
+                    "复制",
+                    () => Clipboard.setData(new ClipboardData(text: message.content))
+                ));
             }
+
+            if (message.author.id == this.widget.viewModel.me) {
+                tipMenuItems.Add(new TipMenuItem(
+                    "删除",
+                    () => this._deleteMessage(message: message)
+                ));
+            }
+            ret = new TipMenu(
+                tipMenuItems: tipMenuItems,
+                child: ret
+            );
 
             ret = new Expanded(
                 child: new Column(
@@ -717,6 +756,10 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildEmbeddedName(string image, string name) {
+            if (image.isEmpty() && name.isEmpty()) {
+                return new Container();
+            }
+
             return new Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: new List<Widget> {

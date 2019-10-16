@@ -11,7 +11,7 @@ namespace ConnectApp.Models.Model {
         public TeamStats stats;
         public List<User> followers;
         public bool? followersHasMore;
-        public List<Member> members;
+        public List<TeamMember> members;
         public bool? membersHasMore;
         public List<string> articleIds;
         public bool? articlesHasMore;
@@ -27,7 +27,7 @@ namespace ConnectApp.Models.Model {
             TeamStats stats = null,
             List<User> followers = null,
             bool? followersHasMore = null,
-            List<Member> members = null,
+            List<TeamMember> members = null,
             bool? membersHasMore = null,
             List<string> articleIds = null,
             bool? articlesHasMore = null,
@@ -102,5 +102,15 @@ namespace ConnectApp.Models.Model {
                 membersCount: other.membersCount
             );
         }
+    }
+
+    [Serializable]
+    public class TeamMember {
+        public string id;
+        public string userId;
+        public string status;
+        public string email;
+        public string invitedBy;
+        public List<string> role;
     }
 }
