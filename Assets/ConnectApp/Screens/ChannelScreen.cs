@@ -1110,6 +1110,7 @@ namespace ConnectApp.screens {
                 child: new Container(
                     width: this.emojiSize,
                     height: this.emojiSize,
+                    color: CColors.Transparent,
                     padding: k == 0 ? EdgeInsets.zero : EdgeInsets.only(left: 2),
                     child: new Center(
                         child: new Text(
