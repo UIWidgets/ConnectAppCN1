@@ -46,31 +46,31 @@ namespace ConnectApp.Components {
         );
     }
     
-    enum _ArrowDirection {up, down}
+    public enum ArrowDirection {up, down}
     
-    class _TextSelectionToolbarNotchPainter : AbstractCustomPainter {
-        internal _TextSelectionToolbarNotchPainter(
-            _ArrowDirection arrowDirection
+    public class TrianglePainter : AbstractCustomPainter {
+        public TrianglePainter(
+            ArrowDirection arrowDirection
         ) {
             this.arrowDirection = arrowDirection;
         }
     
-        readonly _ArrowDirection arrowDirection;
+        readonly ArrowDirection arrowDirection;
     
         public override void paint(Canvas canvas, Size size) {
             Paint paint = new Paint {
                 color = CustomTextSelectionControlsUtils._kToolbarBackgroundColor,
                 style = PaintingStyle.fill
             };
-            float triangleBottomY = this.arrowDirection == _ArrowDirection.down
+            float triangleBottomY = this.arrowDirection == ArrowDirection.down
                 ? 0.0f
                 : CustomTextSelectionControlsUtils._kToolbarTriangleSize.height;
             Path triangle = new Path();
-            triangle.lineTo(CustomTextSelectionControlsUtils._kToolbarTriangleSize.width / 2, triangleBottomY);
-            triangle.lineTo(0.0f, CustomTextSelectionControlsUtils._kToolbarTriangleSize.height);
-            triangle.lineTo(-(CustomTextSelectionControlsUtils._kToolbarTriangleSize.width / 2), triangleBottomY);
+            triangle.lineTo(CustomTextSelectionControlsUtils._kToolbarTriangleSize.width / 2, y: triangleBottomY);
+            triangle.lineTo(0.0f, y: CustomTextSelectionControlsUtils._kToolbarTriangleSize.height);
+            triangle.lineTo(-(CustomTextSelectionControlsUtils._kToolbarTriangleSize.width / 2), y: triangleBottomY);
             triangle.close();
-            canvas.drawPath(triangle, paint);
+            canvas.drawPath(path: triangle, paint: paint);
         }
         
         public override bool shouldRepaint(CustomPainter oldPainter) => false;
@@ -83,7 +83,7 @@ namespace ConnectApp.Components {
             VoidCallback handleCopy = null,
             VoidCallback handlePaste = null,
             VoidCallback handleSelectAll = null,
-            _ArrowDirection? arrowDirection = null
+            ArrowDirection? arrowDirection = null
         ) : base(key: key) {
             this.handleCut = handleCut;
             this.handleCopy = handleCopy;
@@ -96,38 +96,38 @@ namespace ConnectApp.Components {
         readonly VoidCallback handleCopy;
         readonly VoidCallback handlePaste;
         readonly VoidCallback handleSelectAll;
-        readonly _ArrowDirection? arrowDirection;
+        readonly ArrowDirection? arrowDirection;
 
         public override Widget build(BuildContext context) {
             List<Widget> items = new List<Widget>();
             Widget onePhysicalPixelVerticalDivider =
-                new SizedBox(width: 1.0f / MediaQuery.of(context).devicePixelRatio);
+                new SizedBox(width: 1.0f / MediaQuery.of(context: context).devicePixelRatio);
 
             if (this.handleCut != null)
-                items.Add(_buildToolbarButton("剪切", this.handleCut));
+                items.Add(_buildToolbarButton("剪切", onPressed: this.handleCut));
 
             if (this.handleCopy != null) {
                 if (items.isNotEmpty()) {
-                    items.Add(onePhysicalPixelVerticalDivider);
+                    items.Add(item: onePhysicalPixelVerticalDivider);
                 }
 
-                items.Add(_buildToolbarButton("拷贝", this.handleCopy));
+                items.Add(_buildToolbarButton("拷贝", onPressed: this.handleCopy));
             }
 
             if (this.handlePaste != null) {
                 if (items.isNotEmpty()) {
-                    items.Add(onePhysicalPixelVerticalDivider);
+                    items.Add(item: onePhysicalPixelVerticalDivider);
                 }
 
-                items.Add(_buildToolbarButton("粘贴", this.handlePaste));
+                items.Add(_buildToolbarButton("粘贴", onPressed: this.handlePaste));
             }
 
             if (this.handleSelectAll != null) {
                 if (items.isNotEmpty()) {
-                    items.Add(onePhysicalPixelVerticalDivider);
+                    items.Add(item: onePhysicalPixelVerticalDivider);
                 }
 
-                items.Add(_buildToolbarButton("全选", this.handleSelectAll));
+                items.Add(_buildToolbarButton("全选", onPressed: this.handleSelectAll));
             }
 
             Widget padding = new Padding(padding: EdgeInsets.only(bottom: 10.0f));
@@ -135,7 +135,7 @@ namespace ConnectApp.Components {
             Widget triangle = SizedBox.fromSize(
                 size: CustomTextSelectionControlsUtils._kToolbarTriangleSize,
                 child: new CustomPaint(
-                    painter: new _TextSelectionToolbarNotchPainter((_ArrowDirection)this.arrowDirection)
+                    painter: new TrianglePainter((ArrowDirection)this.arrowDirection)
                 )
             );
 
@@ -151,7 +151,7 @@ namespace ConnectApp.Components {
                 )
             );
 
-            List<Widget> menus = this.arrowDirection == _ArrowDirection.down
+            List<Widget> menus = this.arrowDirection == ArrowDirection.down
                 ? new List<Widget> {toolbar, triangle, padding}
                 : new List<Widget> {padding, triangle, toolbar};
 
@@ -163,7 +163,7 @@ namespace ConnectApp.Components {
         
         static CustomButton _buildToolbarButton(string text, VoidCallback onPressed) {
             return new CustomButton(
-                child: new Text(text, style: CustomTextSelectionControlsUtils._kToolbarButtonFontStyle),
+                child: new Text(data: text, style: CustomTextSelectionControlsUtils._kToolbarButtonFontStyle),
                 decoration: new BoxDecoration(color: CustomTextSelectionControlsUtils._kToolbarBackgroundColor),
                 padding: CustomTextSelectionControlsUtils._kToolbarButtonPadding,
                 onPressed: () => onPressed()
@@ -210,7 +210,7 @@ namespace ConnectApp.Components {
                 y = this.screenSize.height - childSize.height - CustomTextSelectionControlsUtils._kToolbarScreenPadding;
             }
 
-            return new Offset(x, y);
+            return new Offset(dx: x, dy: y);
         }
 
         public override bool shouldRelayout(SingleChildLayoutDelegate oldDelegate) {
@@ -240,7 +240,7 @@ namespace ConnectApp.Components {
                     0.0f,
                     -(size.height - 2.0f * CustomTextSelectionControlsUtils._kHandlesPadding)
                 ),
-                paint
+                paint: paint
             );
         }
 
@@ -264,11 +264,11 @@ namespace ConnectApp.Components {
         ) {
             float availableHeight
                 = globalEditableRegion.top - MediaQuery.of(context).padding.top - CustomTextSelectionControlsUtils._kToolbarScreenPadding;
-            _ArrowDirection direction = availableHeight > CustomTextSelectionControlsUtils._kToolbarHeight
-                ? _ArrowDirection.down
-                : _ArrowDirection.up;
+            ArrowDirection direction = availableHeight > CustomTextSelectionControlsUtils._kToolbarHeight
+                ? ArrowDirection.down
+                : ArrowDirection.up;
 
-            float y = direction == _ArrowDirection.up
+            float y = direction == ArrowDirection.up
                 ? globalEditableRegion.height + CustomTextSelectionControlsUtils._kToolbarHeight + 6.0f
                 : 0.0f;
             return new ConstrainedBox(

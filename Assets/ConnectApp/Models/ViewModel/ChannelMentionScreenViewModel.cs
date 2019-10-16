@@ -5,6 +5,7 @@ namespace ConnectApp.Models.ViewModel {
     public class ChannelMentionScreenViewModel {
         public ChannelView channel;
         public Dictionary<string, ChannelMember> mentionSuggestions;
+        public Dictionary<string, User> userDict;
         public bool mentionLoading;
     }
 }

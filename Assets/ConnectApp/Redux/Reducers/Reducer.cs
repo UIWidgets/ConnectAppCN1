@@ -2913,6 +2913,7 @@ namespace ConnectApp.redux.reducers {
                     }
 
                     state.channelState.updateTotalMention();
+                    state.channelState.updateMentionSuggestion(message.channelId, message.author);
                     break;
                 }
 
@@ -2931,7 +2932,8 @@ namespace ConnectApp.redux.reducers {
                     if (!channel.messageIds.Contains(message.id) && !channel.newMessageIds.Contains(message.id)) {
                         channel.messageIds.Add(channelMessage.id);
                     }
-
+                    
+                    state.channelState.updateMentionSuggestion(message.channelId, message.author);
                     break;
                 }
 
@@ -2985,11 +2987,11 @@ namespace ConnectApp.redux.reducers {
 
                     if (state.channelState.mentionSuggestions.ContainsKey(action.memberData.channelId)) {
                         var suggestionDict = state.channelState.mentionSuggestions[action.memberData.channelId];
-                        if (suggestionDict.ContainsKey(action.memberData.id)) {
-                            suggestionDict[action.memberData.id].updateFromSocketResponseChannelMemberChangeData(action.memberData);
+                        if (suggestionDict.ContainsKey(action.memberData.user.id)) {
+                            suggestionDict[action.memberData.user.id].updateFromSocketResponseChannelMemberChangeData(action.memberData);
                         }
                         else {
-                            suggestionDict[action.memberData.id] = ChannelMember.fromSocketResponseChannelMemberChangeData(action.memberData);
+                            suggestionDict[action.memberData.user.id] = ChannelMember.fromSocketResponseChannelMemberChangeData(action.memberData);
                         }
                     }
 
@@ -3005,8 +3007,8 @@ namespace ConnectApp.redux.reducers {
 
                     if (state.channelState.mentionSuggestions.ContainsKey(action.memberData.channelId)) {
                         var suggestionDict = state.channelState.mentionSuggestions[action.memberData.channelId];
-                        if (suggestionDict.ContainsKey(action.memberData.id)) {
-                            suggestionDict.Remove(action.memberData.id);
+                        if (suggestionDict.ContainsKey(action.memberData.user.id)) {
+                            suggestionDict.Remove(action.memberData.user.id);
                         }
                     }
 
@@ -3063,7 +3065,7 @@ namespace ConnectApp.redux.reducers {
 
                 case FetchChannelMentionSuggestionsSuccessAction action: {
                     state.channelState.mentionLoading = false;
-                    state.channelState.mentionSuggestions[key: action.channelId] = action.users;
+                    state.channelState.mentionSuggestions[key: action.channelId] = action.channelMemberMap;
                     break;
                 }
 

@@ -1,9 +1,9 @@
 using System;
 using ConnectApp.Constants;
 using Unity.UIWidgets.animation;
-using Unity.UIWidgets.cupertino;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
+using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
@@ -90,11 +90,11 @@ namespace ConnectApp.Components {
             this.dragStartBehavior = dragStartBehavior;
         }
 
-        public readonly bool value;
-        public readonly Color activeColor;
-        public readonly ValueChanged<bool> onChanged;
-        public readonly TickerProvider vsync;
-        public readonly DragStartBehavior dragStartBehavior;
+        readonly bool value;
+        readonly Color activeColor;
+        readonly ValueChanged<bool> onChanged;
+        readonly TickerProvider vsync;
+        readonly DragStartBehavior dragStartBehavior;
         
         public override RenderObject createRenderObject(BuildContext context) {
             return new _RenderCustomSwitch(
@@ -117,7 +117,6 @@ namespace ConnectApp.Components {
             _renderObject.dragStartBehavior = this.dragStartBehavior;
         }
     }
-
 
     class _RenderCustomSwitch : RenderConstrainedBox {
         public _RenderCustomSwitch(
@@ -176,9 +175,9 @@ namespace ConnectApp.Components {
             this._reaction.addListener(this.markNeedsPaint);
         }
 
-        AnimationController _positionController;
-        CurvedAnimation _position;
-        AnimationController _reactionController;
+        readonly AnimationController _positionController;
+        readonly CurvedAnimation _position;
+        readonly AnimationController _reactionController;
         Animation<float> _reaction;
 
         public bool value {
@@ -265,7 +264,6 @@ namespace ConnectApp.Components {
 
         TextDirection _textDirection;
 
-
         public DragStartBehavior dragStartBehavior {
             get { return this._drag.dragStartBehavior; }
             set {
@@ -281,8 +279,8 @@ namespace ConnectApp.Components {
             get { return this.onChanged != null; }
         }
 
-        TapGestureRecognizer _tap;
-        HorizontalDragGestureRecognizer _drag;
+        readonly TapGestureRecognizer _tap;
+        readonly HorizontalDragGestureRecognizer _drag;
 
         public override void attach(object _owner) {
             base.attach(_owner);
@@ -411,7 +409,7 @@ namespace ConnectApp.Components {
             }
         }
         
-        public readonly CupertinoThumbPainter _thumbPainter = new CupertinoThumbPainter(shadowColor: CColors.Transparent);
+        readonly CustomThumbPainter _thumbPainter = new CustomThumbPainter(shadowColor: CColors.Transparent);
 
         public override void paint(PaintingContext context, Offset offset) {
             Canvas canvas = context.canvas;
@@ -430,8 +428,9 @@ namespace ConnectApp.Components {
 
             Color trackColor = this._value ? this.activeColor : CustomSwitchUtils._kTrackColor;
 
-            Paint paint = new Paint();
-            paint.color = trackColor;
+            Paint paint = new Paint {
+                color = trackColor
+            };
 
             Rect trackRect = Rect.fromLTWH(
                 offset.dx + (this.size.width - CustomSwitchUtils._kTrackWidth) / 2.0f,
@@ -471,6 +470,41 @@ namespace ConnectApp.Components {
             description.add(new FlagProperty("isInteractive", value: this.isInteractive, ifTrue: "enabled",
                 ifFalse: "disabled",
                 showName: true, defaultValue: true));
+        }
+    }
+
+    public class CustomThumbPainter {
+        public CustomThumbPainter(
+            Color color = null,
+            Color shadowColor = null
+        ) {
+            this._shadowPaint = new BoxShadow(
+                color: shadowColor,
+                blurRadius: 1.0f
+            ).toPaint();
+
+            this.color = color ?? CColors.White;
+            this.shadowColor = shadowColor ?? new Color(0x2C000000);
+        }
+
+        readonly Color color;
+        readonly Color shadowColor;
+        readonly Paint _shadowPaint;
+        public const float radius = 14.0f;
+        public const float extension = 7.0f;
+
+        public void paint(Canvas canvas, Rect rect) {
+            RRect rRect = RRect.fromRectAndRadius(
+                rect: rect,
+                Radius.circular(rect.shortestSide / 2.0f)
+            );
+
+            canvas.drawRRect(rect: rRect, paint: this._shadowPaint);
+            canvas.drawRRect(rRect.shift(new Offset(0.0f, 3.0f)), paint: this._shadowPaint);
+            var _paint = new Paint {
+                color = this.color
+            };
+            canvas.drawRRect(rect: rRect, paint: _paint);
         }
     }
 }

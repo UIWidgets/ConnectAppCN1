@@ -32,7 +32,8 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, ChannelMentionScreenViewModel>(
                 converter: state => new ChannelMentionScreenViewModel {
                     channel = state.channelState.channelDict[key: this.channelId],
-                    mentionSuggestions = state.channelState.mentionSuggestions.getOrDefault(this.channelId, null),
+                    mentionSuggestions = state.channelState.mentionSuggestions.getOrDefault(key: this.channelId, null),
+                    userDict = state.userState.userDict,
                     mentionLoading = state.channelState.mentionLoading
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -171,6 +172,11 @@ namespace ConnectApp.screens {
 
         Widget _buildMentionTile(BuildContext context, int index) {
             ChannelMember member = this.mentionList[index: index];
+            if (!this.widget.viewModel.userDict.ContainsKey(key: member.user.id)) {
+                return new Container();
+            }
+
+            var user = this.widget.viewModel.userDict[key: member.user.id];
             return new GestureDetector(
                 onTap: () => this.widget.actionModel.chooseMentionConfirm(obj: member.user.id),
                 child: new Container(
@@ -179,7 +185,7 @@ namespace ConnectApp.screens {
                     child: new Row(
                         children: new List<Widget> {
                             new SizedBox(width: 16),
-                            Avatar.User(user: member.user, 32),
+                            Avatar.User(user: user, 32),
                             new Expanded(
                                 child: new Container(
                                     padding: EdgeInsets.symmetric(0, 16),
@@ -188,7 +194,7 @@ namespace ConnectApp.screens {
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: new List<Widget> {
                                             new Flexible(child: new Text(
-                                                data: member.user.fullName,
+                                                data: user.fullName,
                                                 style: CTextStyle.PLargeBody,
                                                 maxLines: 1,
                                                 overflow: TextOverflow.ellipsis

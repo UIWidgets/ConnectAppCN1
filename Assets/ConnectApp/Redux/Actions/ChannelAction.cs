@@ -123,6 +123,14 @@ namespace ConnectApp.redux.actions {
 
         public static object fetchChannelMembers(string channelId, int offset = 0) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
+                var channel = getState().channelState.channelDict.ContainsKey(key: channelId)
+                    ? getState().channelState.channelDict[key: channelId]
+                    : new ChannelView();
+                var memberOffset = (channel.memberIds ?? new List<string>()).Count;
+                if (offset != 0 && offset != memberOffset) {
+                    offset = memberOffset;
+                }
+
                 return ChannelApi.FetchChannelMembers(channelId: channelId, offset: offset)
                     .Then(channelMemberResponse => {
                         dispatcher.dispatch(new FollowMapAction {followMap = channelMemberResponse.followeeMap});
@@ -165,13 +173,17 @@ namespace ConnectApp.redux.actions {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ChannelApi.FetchChannelMemberSuggestions(channelId: channelId)
                     .Then(channelMemberResponse => {
-                        var userMap = new Dictionary<string, ChannelMember>();
+                        dispatcher.dispatch(new FollowMapAction {followMap = channelMemberResponse.followeeMap});
+                        var userMap = new Dictionary<string, User>();
+                        var channelMemberMap = new Dictionary<string, ChannelMember>();
                         (channelMemberResponse.list ?? new List<ChannelMember>()).ForEach(member => {
-                            userMap[key: member.user.id] = member;
+                            channelMemberMap[key: member.user.id] = member;
+                            userMap[key: member.user.id] = member.user;
                         });
+                        dispatcher.dispatch(new UserMapAction {userMap = userMap});
                         dispatcher.dispatch(new FetchChannelMentionSuggestionsSuccessAction {
                             channelId = channelId,
-                            users = userMap
+                            channelMemberMap = channelMemberMap
                         });
                     })
                     .Catch(error => {
@@ -535,7 +547,7 @@ namespace ConnectApp.redux.actions {
 
     public class FetchChannelMentionSuggestionsSuccessAction : BaseAction {
         public string channelId;
-        public Dictionary<string, ChannelMember> users;
+        public Dictionary<string, ChannelMember> channelMemberMap;
     }
 
     public class FetchChannelMentionSuggestionsFailureAction : BaseAction {
