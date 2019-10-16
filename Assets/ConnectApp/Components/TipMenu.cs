@@ -89,7 +89,7 @@ namespace ConnectApp.Components {
             _overlayState.insert(entry: _overlayEntry);
         }
 
-        static void dismiss() {
+        public static void dismiss() {
             if (!_isVisible) {
                 return;
             }
@@ -197,7 +197,10 @@ namespace ConnectApp.Components {
                 child: new Text(data: text, style: CustomTextSelectionControlsUtils._kToolbarButtonFontStyle),
                 decoration: new BoxDecoration(color: CustomTextSelectionControlsUtils._kToolbarBackgroundColor),
                 padding: CustomTextSelectionControlsUtils._kToolbarButtonPadding,
-                onPressed: () => onPressed()
+                onPressed: () => {
+                    onPressed();
+                    TipMenu.dismiss();
+                }
             );
         }
     }
