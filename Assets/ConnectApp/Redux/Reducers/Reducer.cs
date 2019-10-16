@@ -2918,6 +2918,7 @@ namespace ConnectApp.redux.reducers {
                     }
 
                     state.channelState.updateTotalMention();
+                    state.channelState.updateMentionSuggestion(message.channelId, message.author);
                     break;
                 }
 
@@ -2936,7 +2937,8 @@ namespace ConnectApp.redux.reducers {
                     if (!channel.messageIds.Contains(message.id) && !channel.newMessageIds.Contains(message.id)) {
                         channel.messageIds.Add(channelMessage.id);
                     }
-
+                    
+                    state.channelState.updateMentionSuggestion(message.channelId, message.author);
                     break;
                 }
 
