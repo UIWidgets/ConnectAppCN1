@@ -70,7 +70,8 @@ namespace ConnectApp.screens {
                                 ? 8
                                 : state.channelState.publicChannels.Count)
                             .ToList(),
-                        currentTabBarIndex = state.tabBarState.currentTabIndex
+                        currentTabBarIndex = state.tabBarState.currentTabIndex,
+                        socketConnected = state.channelState.socketConnected
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -174,7 +175,9 @@ namespace ConnectApp.screens {
                 child: new Column(
                     children: new List<Widget> {
                         this._buildNavigationBar(),
-                        new Container(color: CColors.Separator2, height: 1),
+                        !this.widget.viewModel.socketConnected
+                            ? this._buildNetworkDisconnectedNote()
+                            : new Container(color: CColors.Separator2, height: 1),
                         new Flexible(
                             child: new NotificationListener<ScrollNotification>(
                                 child: new Container(
@@ -244,6 +247,19 @@ namespace ConnectApp.screens {
             );
         }
 
+        Widget _buildNetworkDisconnectedNote() {
+            return new Container(
+                height: 48,
+                color: CColors.Error.withAlpha((int) (255 * 0.16)),
+                child: new Center(
+                    child: new Text(
+                        "网络未连接",
+                        style: CTextStyle.PRegularError.copyWith(height: 1f)
+                    )
+                )
+            );
+        }
+        
         Widget _headerInSection(int section) {
             if (section == 0) {
                 return null;

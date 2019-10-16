@@ -58,6 +58,8 @@ namespace ConnectApp.redux.reducers {
                         HistoryManager.searchArticleHistoryList(userId: action.loginInfo.userId);
                     state.articleState.blockArticleList =
                         HistoryManager.blockArticleList(userId: action.loginInfo.userId);
+                    state.channelState.newNotifications =
+                        NewNotificationManager.getNewNotification(state.loginState.loginInfo.userId);
                     break;
                 }
 
@@ -78,6 +80,8 @@ namespace ConnectApp.redux.reducers {
                         HistoryManager.searchArticleHistoryList(userId: action.loginInfo.userId);
                     state.articleState.blockArticleList =
                         HistoryManager.blockArticleList(userId: action.loginInfo.userId);
+                    state.channelState.newNotifications =
+                        NewNotificationManager.getNewNotification(state.loginState.loginInfo.userId);
                     break;
                 }
 
@@ -2875,6 +2879,7 @@ namespace ConnectApp.redux.reducers {
 
                 case UpdateNewNotificationAction action: {
                     state.channelState.newNotifications = action.notification;
+                    NewNotificationManager.saveNewNotification(state.loginState.loginInfo.userId, action.notification);
                     break;
                 }
 

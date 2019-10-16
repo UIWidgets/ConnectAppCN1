@@ -173,7 +173,10 @@ namespace ConnectApp.Models.State {
                     messageDict = new Dictionary<string, ChannelMessageView>(),
                     channelTop = new Dictionary<string, bool>(),
                     socketConnected = true,
-                    mentionSuggestions = new Dictionary<string, Dictionary<string, ChannelMember>>()
+                    mentionSuggestions = new Dictionary<string, Dictionary<string, ChannelMember>>(),
+                    newNotifications = isLogin
+                        ? NewNotificationManager.getNewNotification(loginInfo.userId)
+                        : null
                 },
                 tabBarState = new TabBarState {
                     currentTabIndex = 0
