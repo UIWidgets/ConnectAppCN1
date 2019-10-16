@@ -64,7 +64,17 @@ namespace ConnectApp.Plugins {
                         }
                         case "OnReceiveNotification": {
                             //接收到推送
-                            EventBus.publish(EventBusConstant.newNotifications, new List<object>());
+                            if (args.isEmpty()) {
+                                return;
+                            }
+
+                            var node = args.first();
+                            var dict = JSON.Parse(node);
+                            var type = dict["type"] ?? "";
+                            if (type != "messenger") {
+                                EventBus.publish(EventBusConstant.newNotifications, new List<object>());
+                            }
+
                             break;
                         }
                         case "OnReceiveMessage": {
