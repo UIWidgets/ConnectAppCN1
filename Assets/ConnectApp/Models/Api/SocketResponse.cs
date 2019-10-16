@@ -149,6 +149,7 @@ namespace ConnectApp.Models.Api {
         public List<ChannelMessageLite> lastMessages;
         public List<NormalChannelLite> publicChannels;
         public List<NormalChannelLite> lobbyChannels;
+        public List<NormalChannelLite> privateChannels;
         public List<MessageUser> users;
     }
 

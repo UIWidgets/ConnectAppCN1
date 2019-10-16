@@ -80,6 +80,13 @@ namespace ConnectApp.Models.State {
                     this.joinedChannels.Add(item: channel.id);
                 }
             });
+            
+            sessionReadyData.privateChannels.ForEach(channel => {
+                this.updateNormalChannelLite(channel: channel);
+                if (!this.joinedChannels.Contains(item: channel.id)) {
+                    this.joinedChannels.Add(item: channel.id);
+                }
+            });
 
             sessionReadyData.users.ForEach(user => {
                 this.joinedChannels.ForEach(channelId => {
