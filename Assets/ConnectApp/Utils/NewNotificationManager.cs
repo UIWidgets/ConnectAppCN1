@@ -1,7 +1,5 @@
 using System.Collections.Generic;
-using ConnectApp.Models.Model;
 using Newtonsoft.Json;
-using Unity.UIWidgets.foundation;
 using UnityEngine;
 
 namespace ConnectApp.Utils {
