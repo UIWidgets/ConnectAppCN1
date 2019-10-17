@@ -7,6 +7,7 @@ using Unity.UIWidgets.foundation;
 using UnityEngine;
 #if UNITY_IOS
 using System.Runtime.InteropServices;
+
 #endif
 
 namespace ConnectApp.Utils {
@@ -496,7 +497,8 @@ namespace ConnectApp.Utils {
                     {"key", "type"}, {"dataType", "string"}, {"value", type.ToString()}
                 }
             };
-            AnalyticsApi.AnalyticsApp(userId: userId, device: device, "HandleFavoriteTag", appTime: DateTime.UtcNow, data: data);
+            AnalyticsApi.AnalyticsApp(userId: userId, device: device, "HandleFavoriteTag", appTime: DateTime.UtcNow,
+                data: data);
         }
 
         public static void AnalyticsFavoriteArticle(string articleId, IEnumerable<string> favoriteTagIds) {
@@ -514,7 +516,8 @@ namespace ConnectApp.Utils {
                     {"key", "state"}, {"dataType", "string"}, {"value", string.Join(",", values: favoriteTagIds)}
                 }
             };
-            AnalyticsApi.AnalyticsApp(userId: userId, device: device, "FavoriteArticle", appTime: DateTime.UtcNow, data: data);
+            AnalyticsApi.AnalyticsApp(userId: userId, device: device, "FavoriteArticle", appTime: DateTime.UtcNow,
+                data: data);
         }
 
         public static void AnalyticsUnFavoriteArticle(string favoriteId) {
@@ -529,7 +532,20 @@ namespace ConnectApp.Utils {
                     {"key", "favoriteId"}, {"dataType", "string"}, {"value", favoriteId}
                 }
             };
-            AnalyticsApi.AnalyticsApp(userId: userId, device: device, "UnFavoriteArticle", appTime: DateTime.UtcNow, data: data);
+            AnalyticsApi.AnalyticsApp(userId: userId, device: device, "UnFavoriteArticle", appTime: DateTime.UtcNow,
+                data: data);
+        }
+
+        public static void AnalyticsClickHomeFocus() {
+            if (Application.isEditor) {
+                return;
+            }
+
+            var userId = UserInfoManager.isLogin() ? UserInfoManager.initUserInfo().userId : null;
+            var device = deviceId() + (SystemInfo.deviceModel ?? "");
+            var data = new List<Dictionary<string, string>>();
+            AnalyticsApi.AnalyticsApp(userId: userId, device: device, "ClickHomeFocus", appTime: DateTime.UtcNow,
+                data: data);
         }
 
         public static string deviceId() {
