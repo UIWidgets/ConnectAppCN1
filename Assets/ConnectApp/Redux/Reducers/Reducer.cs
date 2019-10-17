@@ -2951,11 +2951,7 @@ namespace ConnectApp.redux.reducers {
                     var channel = state.channelState.channelDict[message.channelId];
                     var messageId = message.id;
                     if (state.channelState.messageDict.ContainsKey(messageId)) {
-                        state.channelState.messageDict.Remove(messageId);
-
-                        if (channel.messageIds.Contains(messageId)) {
-                            channel.messageIds.Remove(messageId);
-                        }
+                        state.channelState.messageDict[messageId].deleted = true;
                     }
 
                     break;

@@ -389,7 +389,8 @@ namespace ConnectApp.Models.Model {
                     attachments = message.attachments,
                     type = getType(message.content, message.attachments),
                     mentionEveryone = message.mentionEveryone,
-                    mentions = message.mentions?.Select(user => new User {id = user.id}).ToList()
+                    mentions = message.mentions?.Select(user => new User {id = user.id}).ToList(),
+                    deleted = message.deletedTime != null
                 };
         }
 

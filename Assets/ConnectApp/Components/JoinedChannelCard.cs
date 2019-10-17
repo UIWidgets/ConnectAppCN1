@@ -27,7 +27,10 @@ namespace ConnectApp.Components {
 
             string text;
             if (this.channel.lastMessage != null) {
-                if (this.channel.lastMessage.type == ChannelMessageType.image) {
+                if (this.channel.lastMessage.deleted) {
+                    text = "[此消息已被删除]";
+                }
+                else if (this.channel.lastMessage.type == ChannelMessageType.image) {
                     text = "[图片]";
                 }
                 else if (this.channel.lastMessage.type == ChannelMessageType.file) {
