@@ -916,7 +916,7 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case ArticleMapAction action: {
-                    if (action.articleMap != null && action.articleMap.isNotEmpty()) {
+                    if (action.articleMap.isNotNullAndEmpty()) {
                         var articleDict = state.articleState.articleDict;
                         foreach (var keyValuePair in action.articleMap) {
                             if (articleDict.ContainsKey(key: keyValuePair.Key)) {
@@ -935,7 +935,7 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case UserMapAction action: {
-                    if (action.userMap != null && action.userMap.isNotEmpty()) {
+                    if (action.userMap.isNotNullAndEmpty()) {
                         var userDict = state.userState.userDict;
                         foreach (var keyValuePair in action.userMap) {
                             if (userDict.ContainsKey(key: keyValuePair.Key)) {
@@ -954,7 +954,7 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case UserLicenseMapAction action: {
-                    if (action.userLicenseMap != null && action.userLicenseMap.isNotEmpty()) {
+                    if (action.userLicenseMap.isNotNullAndEmpty()) {
                         var userLicenseDict = state.userState.userLicenseDict;
                         foreach (var keyValuePair in action.userLicenseMap) {
                             if (userLicenseDict.ContainsKey(key: keyValuePair.Key)) {
@@ -972,7 +972,7 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case TeamMapAction action: {
-                    if (action.teamMap != null && action.teamMap.isNotEmpty()) {
+                    if (action.teamMap.isNotNullAndEmpty()) {
                         var teamDict = state.teamState.teamDict;
                         foreach (var keyValuePair in action.teamMap) {
                             if (teamDict.ContainsKey(key: keyValuePair.Key)) {
@@ -1004,7 +1004,7 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case PlaceMapAction action: {
-                    if (action.placeMap != null && action.placeMap.isNotEmpty()) {
+                    if (action.placeMap.isNotNullAndEmpty()) {
                         var placeDict = state.placeState.placeDict;
                         foreach (var keyValuePair in action.placeMap) {
                             if (placeDict.ContainsKey(key: keyValuePair.Key)) {
@@ -1022,7 +1022,7 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case FollowMapAction action: {
-                    if (action.followMap != null && action.followMap.isNotEmpty()) {
+                    if (action.followMap.isNotNullAndEmpty()) {
                         var userId = state.loginState.loginInfo.userId ?? "";
                         if (userId.isNotEmpty()) {
                             var followDict = state.followState.followDict;
@@ -1050,7 +1050,7 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case LikeMapAction action: {
-                    if (action.likeMap != null && action.likeMap.isNotEmpty()) {
+                    if (action.likeMap.isNotNullAndEmpty()) {
                         var userId = state.loginState.loginInfo.userId ?? "";
                         if (userId.isNotEmpty()) {
                             var likeDict = state.likeState.likeDict;
@@ -2637,8 +2637,7 @@ namespace ConnectApp.redux.reducers {
                             var channelMessage = ChannelMessageView.fromChannelMessage(action.messages[i]);
                             state.channelState.messageDict[channelMessage.id] = channelMessage;
                             channel.messageIds.Add(channelMessage.id);
-                            if (CStringUtils.HexToLong(channelMessage.id) >
-                                CStringUtils.HexToLong(channel.lastMessage.id)) {
+                            if (channelMessage.id.toLong() > channel.lastMessage.id.toLong()) {
                                 channel.lastMessage = channelMessage;
                                 channel.lastMessageId = channelMessage.id;
                             }

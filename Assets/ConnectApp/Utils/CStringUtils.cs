@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using ConnectApp.Constants;
 using Unity.UIWidgets.foundation;
@@ -97,13 +98,13 @@ namespace ConnectApp.Utils {
             return "";
         }
 
-        public static long HexToLong(string number, long defaultValue = -1) {
-            if (string.IsNullOrEmpty(number)) {
+        public static long toLong(this string number, long defaultValue = -1) {
+            if (number.isEmpty()) {
                 return defaultValue;
             }
 
             try {
-                return Convert.ToInt64(number, 16);
+                return Convert.ToInt64(value: number, 16);
             }
             catch (Exception e) {
                 Debug.LogError($"Error in converting {number}: {e}");
@@ -111,16 +112,48 @@ namespace ConnectApp.Utils {
             }
         }
 
-        public static string httpToHttps(string url) {
+        public static string toHttps(this string url) {
             if (url.isEmpty()) {
                 return "";
             }
 
-            if (url.Contains("http://")) {
-                return url.Replace("http://", "https://");
+            return url.Contains("http://")
+                ? url.Replace("http://", "https://")
+                : url;
+        }
+
+        public static bool isUrl(this string url) {
+            if (url.isEmpty()) {
+                return false;
             }
 
-            return url;
+            return url.StartsWith("http://") || url.StartsWith("https://");
+        }
+    }
+
+    public static class CCollectionUtils {
+        public static bool isNullOrEmpty<T>(this ICollection<T> it) {
+            return it == null || it.Count == 0;
+        }
+
+        public static bool isNotNullAndEmpty<T>(this ICollection<T> it) {
+            return it != null && it.Count > 0;
+        }
+
+        public static bool isNullOrEmpty<T>(this Queue<T> it) {
+            return it == null || it.Count == 0;
+        }
+
+        public static bool isNotNullAndEmpty<T>(this Queue<T> it) {
+            return it != null && it.Count > 0;
+        }
+
+        public static bool isNullOrEmpty<TKey, TValue>(this IDictionary<TKey, TValue> it) {
+            return it == null || it.Count == 0;
+        }
+
+        public static bool isNotNullAndEmpty<TKey, TValue>(this IDictionary<TKey, TValue> it) {
+            return it != null && it.Count > 0;
         }
     }
 }

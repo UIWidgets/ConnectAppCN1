@@ -562,7 +562,14 @@ namespace ConnectApp.screens {
             if (message.type == ChannelMessageType.text || message.type == ChannelMessageType.embed) {
                 tipMenuItems.Add(new TipMenuItem(
                     "复制",
-                    () => Clipboard.setData(new ClipboardData(text: message.content))
+                    () => {
+                        var content = MessageUtils.AnalyzeMessage(
+                            content: message.content,
+                            mentions: message.mentions,
+                            mentionEveryone: message.mentionEveryone
+                        );
+                        Clipboard.setData(new ClipboardData(text: content));
+                    }
                 ));
             }
 
@@ -620,11 +627,8 @@ namespace ConnectApp.screens {
         Widget _buildAvatar(User user) {
             const float avatarSize = 40;
 
-            var httpsUrl = user.avatar ?? "";
             // fix Android 9 http request error 
-            if (httpsUrl.Contains("http://")) {
-                httpsUrl = httpsUrl.Replace("http://", "https://");
-            }
+            var httpsUrl = user.avatar.toHttps();
 
             return new Container(
                 padding: EdgeInsets.symmetric(0, 10),
@@ -667,7 +671,7 @@ namespace ConnectApp.screens {
                                         "image/avatar-circle-1",
                                         fit: BoxFit.cover
                                     )
-                                ),
+                                )
                             }
                         )
                     )
