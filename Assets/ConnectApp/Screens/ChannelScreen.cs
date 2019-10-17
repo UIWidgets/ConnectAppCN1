@@ -639,6 +639,10 @@ namespace ConnectApp.screens {
                 child: new GestureDetector(
                     onTap: () => this.widget.actionModel.pushToUserDetail(user.id),
                     onLongPress: () => {
+                        if (user.id == this.widget.viewModel.me) {
+                            return;
+                        }
+                        
                         var userName = user.fullName;
                         var userId = user.id;
                         var newContent = this._textController.text + "@" + userName + " ";
