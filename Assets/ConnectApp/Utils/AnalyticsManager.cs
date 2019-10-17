@@ -542,7 +542,6 @@ namespace ConnectApp.Utils {
             }
 
             var userId = UserInfoManager.isLogin() ? UserInfoManager.initUserInfo().userId : null;
-            var device = deviceId() + (SystemInfo.deviceModel ?? "");
             var data = new List<Dictionary<string, string>>();
             AnalyticsApi.AnalyticsApp(userId: userId, "ClickHomeFocus",
                 data: data);
