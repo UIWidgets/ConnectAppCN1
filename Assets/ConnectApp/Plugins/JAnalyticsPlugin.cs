@@ -1,42 +1,39 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using UnityEngine;
-
 #if UNITY_IOS
 using System.Runtime.InteropServices;
-
-#elif UNITY_ANDROID
 #endif
 
 
 namespace ConnectApp.Plugins {
     public static class JAnalyticsPlugin {
         public static void StartPageView(string pageName) {
-            startLogPageView(pageName);
+            startLogPageView(pageName: pageName);
         }
 
         public static void StopPageView(string pageName) {
-            stopLogPageView(pageName);
+            stopLogPageView(pageName: pageName);
         }
 
         public static void Login(string loginType) {
-            loginEvent(loginType);
+            loginEvent(loginType: loginType);
         }
 
         public static void CountEvent(string eventId, Dictionary<string, string> extras) {
-            var extra = JsonConvert.SerializeObject(extras);
-            countEvent(eventId, extra);
+            var extra = JsonConvert.SerializeObject(value: extras);
+            countEvent(eventId: eventId, extra: extra);
         }
 
         public static void CalculateEvent(string eventId, string value, Dictionary<string, string> extras) {
-            var extra = JsonConvert.SerializeObject(extras);
-            calculateEvent(eventId, value, extra);
+            var extra = JsonConvert.SerializeObject(value: extras);
+            calculateEvent(eventId: eventId, value: value, extra: extra);
         }
 
         public static void BrowseEvent(string eventId, string name, string type, string duration,
             Dictionary<string, string> extras) {
-            var extra = JsonConvert.SerializeObject(extras);
-            browseEvent(eventId, name, type, duration, extra);
+            var extra = JsonConvert.SerializeObject(value: extras);
+            browseEvent(eventId: eventId, name: name, type: type, duration: duration, extra: extra);
         }
 
 

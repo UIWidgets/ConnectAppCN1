@@ -33,8 +33,7 @@ namespace ConnectApp.screens {
                     notifications = state.notificationState.notifications,
                     mentions = state.notificationState.mentions,
                     userDict = state.userState.userDict,
-                    teamDict = state.teamState.teamDict,
-                    currentTabBarIndex = state.tabBarState.currentTabIndex
+                    teamDict = state.teamState.teamDict
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new NotificationScreenActionModel {

@@ -125,6 +125,7 @@ namespace ConnectApp.Main {
             GlobalContext.context = context;
             return new WillPopScope(
                 onWillPop: () => {
+                    TipMenu.dismiss();
                     var promise = new Promise<bool>();
                     if (LoginScreen.navigator?.canPop() ?? false) {
                         LoginScreen.navigator.pop();

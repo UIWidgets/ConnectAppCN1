@@ -8,7 +8,7 @@ namespace ConnectApp.Utils {
                 return;
             }
 
-            setStatusBarStyle(isLight);
+            setStatusBarStyle(isLight: isLight);
         }
 
         public static void hideStatusBar(bool hidden) {
@@ -16,9 +16,8 @@ namespace ConnectApp.Utils {
                 return;
             }
 
-            hiddenStatusBar(hidden);
+            hiddenStatusBar(hidden: hidden);
         }
-
 
 #if UNITY_IOS
         [DllImport("__Internal")]
