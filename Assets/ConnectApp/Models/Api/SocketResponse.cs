@@ -201,6 +201,7 @@ namespace ConnectApp.Models.Api {
         public bool mentionEveryone;
         public List<MessageUserLite> mentions;
         public List<Attachment> attachments;
+        public string deletedTime;
     }
 
     [Serializable]
