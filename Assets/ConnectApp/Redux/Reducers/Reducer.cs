@@ -5,8 +5,8 @@ using ConnectApp.Components;
 using ConnectApp.Main;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
-using ConnectApp.redux.actions;
 using ConnectApp.Reality;
+using ConnectApp.redux.actions;
 using ConnectApp.screens;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
@@ -362,7 +362,8 @@ namespace ConnectApp.redux.reducers {
                             }
 
                             if (state.favoriteState.favoriteDetailArticleIdDict.ContainsKey(key: favorite.tagId)) {
-                                var favoriteDetailArticleIds = state.favoriteState.favoriteDetailArticleIdDict[key: favorite.tagId];
+                                var favoriteDetailArticleIds =
+                                    state.favoriteState.favoriteDetailArticleIdDict[key: favorite.tagId];
                                 favoriteDetailArticleIds.Insert(0, item: action.articleId);
                                 state.favoriteState.favoriteDetailArticleIdDict[key: favorite.tagId] =
                                     favoriteDetailArticleIds;
@@ -379,6 +380,7 @@ namespace ConnectApp.redux.reducers {
                         if (article.favorites.Contains(item: action.favorite)) {
                             article.favorites.Remove(item: action.favorite);
                         }
+
                         state.articleState.articleDict[key: action.articleId] = article;
                     }
 
@@ -2409,6 +2411,7 @@ namespace ConnectApp.redux.reducers {
                         oldFavoriteTagIds.AddRange(collection: favoriteTagIds);
                         state.favoriteState.favoriteTagIdDict[key: action.userId] = oldFavoriteTagIds;
                     }
+
                     state.favoriteState.favoriteTagHasMore = action.hasMore;
                     state.favoriteState.favoriteTagLoading = false;
                     break;
@@ -2517,6 +2520,7 @@ namespace ConnectApp.redux.reducers {
                             favoriteTagIds.Insert(1, item: action.favoriteTag.id);
                         }
                     }
+
                     state.favoriteState.favoriteTagIdDict[key: currentUserId] = favoriteTagIds;
 
                     if (!state.favoriteState.favoriteTagDict.ContainsKey(key: action.favoriteTag.id)) {
@@ -2545,6 +2549,7 @@ namespace ConnectApp.redux.reducers {
                     if (favoriteTagIds.Contains(item: action.favoriteTag.id)) {
                         favoriteTagIds.Remove(item: action.favoriteTag.id);
                     }
+
                     state.favoriteState.favoriteTagIdDict[key: currentUserId] = favoriteTagIds;
 
                     if (state.favoriteState.favoriteTagDict.ContainsKey(key: action.favoriteTag.id)) {
@@ -2598,6 +2603,7 @@ namespace ConnectApp.redux.reducers {
                     foreach (var channelMember in action.joinedMemberMap) {
                         channelTop.Add(key: channelMember.Key, channelMember.Value.stickTime.isNotEmpty());
                     }
+
                     state.channelState.channelTop = channelTop;
                     break;
                 }
@@ -2699,7 +2705,7 @@ namespace ConnectApp.redux.reducers {
                         channel.sentMessageSuccess = true;
                     }
 
-                    
+
                     break;
                 }
 
@@ -2738,6 +2744,7 @@ namespace ConnectApp.redux.reducers {
                     else {
                         channel.memberIds.AddRange(collection: memberIds);
                     }
+
                     channel.memberCount = action.total;
                     channel.memberOffset = action.offset;
                     state.channelState.channelDict[key: action.channelId] = channel;
@@ -2802,6 +2809,7 @@ namespace ConnectApp.redux.reducers {
                     if (channel.memberIds.Contains(item: currentMemberId)) {
                         channel.memberIds.Remove(item: currentMemberId);
                     }
+
                     channel.memberCount -= 1;
                     state.channelState.joinedChannels.Remove(item: action.channelId);
                     break;
@@ -2936,7 +2944,7 @@ namespace ConnectApp.redux.reducers {
                     if (!channel.messageIds.Contains(message.id) && !channel.newMessageIds.Contains(message.id)) {
                         channel.messageIds.Add(channelMessage.id);
                     }
-                    
+
                     state.channelState.updateMentionSuggestion(message.channelId, message.author);
                     break;
                 }
@@ -2948,13 +2956,11 @@ namespace ConnectApp.redux.reducers {
                     }
 
                     var channel = state.channelState.channelDict[message.channelId];
+                    channel.lastMessage.deleted = true;
+
                     var messageId = message.id;
                     if (state.channelState.messageDict.ContainsKey(messageId)) {
-                        state.channelState.messageDict.Remove(messageId);
-
-                        if (channel.messageIds.Contains(messageId)) {
-                            channel.messageIds.Remove(messageId);
-                        }
+                        state.channelState.messageDict[messageId].deleted = true;
                     }
 
                     break;
@@ -2992,10 +2998,12 @@ namespace ConnectApp.redux.reducers {
                     if (state.channelState.mentionSuggestions.ContainsKey(action.memberData.channelId)) {
                         var suggestionDict = state.channelState.mentionSuggestions[action.memberData.channelId];
                         if (suggestionDict.ContainsKey(action.memberData.user.id)) {
-                            suggestionDict[action.memberData.user.id].updateFromSocketResponseChannelMemberChangeData(action.memberData);
+                            suggestionDict[action.memberData.user.id]
+                                .updateFromSocketResponseChannelMemberChangeData(action.memberData);
                         }
                         else {
-                            suggestionDict[action.memberData.user.id] = ChannelMember.fromSocketResponseChannelMemberChangeData(action.memberData);
+                            suggestionDict[action.memberData.user.id] =
+                                ChannelMember.fromSocketResponseChannelMemberChangeData(action.memberData);
                         }
                     }
 
@@ -3029,7 +3037,7 @@ namespace ConnectApp.redux.reducers {
 
                     break;
                 }
-                
+
                 case MainNavigatorPushToChannelMentionAction action: {
                     Router.navigator.push(new PageRouteBuilder(
                             pageBuilder: (context, animation, secondaryAnimation) =>
@@ -3049,7 +3057,7 @@ namespace ConnectApp.redux.reducers {
                     state.channelState.mentionUserId = "";
                     break;
                 }
-                
+
                 case ChannelChooseMentionConfirmAction action: {
                     state.channelState.mentionAutoFocus = true;
                     state.channelState.mentionUserId = action.mentionUserId;
