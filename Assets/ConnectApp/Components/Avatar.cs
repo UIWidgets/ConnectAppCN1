@@ -113,7 +113,7 @@ namespace ConnectApp.Components {
                 : null;
 
             // fix Android 9 http request error 
-            var httpsUrl = this.avatarUrl.toHttps();
+            var httpsUrl = this.avatarUrl.httpToHttps();
             return new Container(
                 width: this.size,
                 height: this.size,

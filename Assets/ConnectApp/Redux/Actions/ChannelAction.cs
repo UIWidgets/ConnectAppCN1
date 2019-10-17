@@ -107,7 +107,7 @@ namespace ConnectApp.redux.actions {
                         try {
                             dispatcher.dispatch(channelMessagesResponse.items?.isNotEmpty() ?? false
                                 ? saveMessagesToDB(channelMessagesResponse.items)
-                                : loadMessagesFromDB(channelId, before.toLong()));
+                                : loadMessagesFromDB(channelId, before.hexToLong()));
                         }
                         catch (Exception e) {
                             Debug.LogError(e);
@@ -116,7 +116,7 @@ namespace ConnectApp.redux.actions {
                     .Catch(error => {
                         dispatcher.dispatch(new FetchChannelMessagesFailureAction());
                         Debug.LogError(error);
-                        dispatcher.dispatch(loadMessagesFromDB(channelId, before.toLong()));
+                        dispatcher.dispatch(loadMessagesFromDB(channelId, before.hexToLong()));
                     });
             });
         }

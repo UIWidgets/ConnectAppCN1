@@ -2643,7 +2643,7 @@ namespace ConnectApp.redux.reducers {
                             var channelMessage = ChannelMessageView.fromChannelMessage(action.messages[i]);
                             state.channelState.messageDict[channelMessage.id] = channelMessage;
                             channel.messageIds.Add(channelMessage.id);
-                            if (channelMessage.id.toLong() > channel.lastMessage.id.toLong()) {
+                            if (channelMessage.id.hexToLong() > channel.lastMessage.id.hexToLong()) {
                                 channel.lastMessage = channelMessage;
                                 channel.lastMessageId = channelMessage.id;
                             }

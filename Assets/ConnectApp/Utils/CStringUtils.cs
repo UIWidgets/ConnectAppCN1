@@ -98,7 +98,7 @@ namespace ConnectApp.Utils {
             return "";
         }
 
-        public static long toLong(this string number, long defaultValue = -1) {
+        public static long hexToLong(this string number, long defaultValue = -1) {
             if (number.isEmpty()) {
                 return defaultValue;
             }
@@ -112,7 +112,7 @@ namespace ConnectApp.Utils {
             }
         }
 
-        public static string toHttps(this string url) {
+        public static string httpToHttps(this string url) {
             if (url.isEmpty()) {
                 return "";
             }

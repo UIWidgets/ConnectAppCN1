@@ -450,10 +450,14 @@ namespace ConnectApp.screens {
         Widget _buildNavigationBar() {
             return new CustomAppBar(
                 () => this.widget.actionModel.mainRouterPop(),
-                new Text(
-                    data: this.widget.viewModel.channel.name,
-                    style: CTextStyle.PXLargeMedium
-                ),
+                new Flexible(
+                    child: new Text(
+                        data: this.widget.viewModel.channel.name,
+                        style: CTextStyle.PXLargeMedium,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis
+                    )
+                 ),
                 new CustomButton(
                     onPressed: () => this.widget.actionModel.pushToChannelDetail(),
                     child: new Container(
@@ -628,7 +632,7 @@ namespace ConnectApp.screens {
             const float avatarSize = 40;
 
             // fix Android 9 http request error 
-            var httpsUrl = user.avatar.toHttps();
+            var httpsUrl = user.avatar.httpToHttps();
 
             return new Container(
                 padding: EdgeInsets.symmetric(0, 10),
@@ -654,7 +658,7 @@ namespace ConnectApp.screens {
                                 user.avatar.isEmpty()
                                     ? new Container(
                                         padding: EdgeInsets.all(1.0f / Window.instance.devicePixelRatio),
-                                        color: Colors.white,
+                                        color: CColors.White,
                                         child: new _Placeholder(
                                             user.id ?? "",
                                             user.fullName ?? "",
@@ -663,7 +667,7 @@ namespace ConnectApp.screens {
                                     )
                                     : new Container(
                                         padding: EdgeInsets.all(1.0f / Window.instance.devicePixelRatio),
-                                        color: Colors.white,
+                                        color: CColors.White,
                                         child: CachedNetworkImageProvider.cachedNetworkImage(src: httpsUrl)
                                     ),
                                 Positioned.fill(
