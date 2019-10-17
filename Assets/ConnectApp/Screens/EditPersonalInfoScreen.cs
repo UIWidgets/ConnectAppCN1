@@ -292,7 +292,7 @@ namespace ConnectApp.screens {
 
         Widget _buildAvatar(User user) {
             // fix Android 9 http request error 
-            var httpsUrl = CStringUtils.httpToHttps(url: user.avatar);
+            var httpsUrl = user.avatar.httpToHttps();
 
             var image = this._pickedImage.isEmpty()
                 ? Image.network(src: httpsUrl)

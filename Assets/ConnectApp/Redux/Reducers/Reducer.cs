@@ -5,8 +5,8 @@ using ConnectApp.Components;
 using ConnectApp.Main;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
-using ConnectApp.redux.actions;
 using ConnectApp.Reality;
+using ConnectApp.redux.actions;
 using ConnectApp.screens;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
@@ -362,7 +362,8 @@ namespace ConnectApp.redux.reducers {
                             }
 
                             if (state.favoriteState.favoriteDetailArticleIdDict.ContainsKey(key: favorite.tagId)) {
-                                var favoriteDetailArticleIds = state.favoriteState.favoriteDetailArticleIdDict[key: favorite.tagId];
+                                var favoriteDetailArticleIds =
+                                    state.favoriteState.favoriteDetailArticleIdDict[key: favorite.tagId];
                                 favoriteDetailArticleIds.Insert(0, item: action.articleId);
                                 state.favoriteState.favoriteDetailArticleIdDict[key: favorite.tagId] =
                                     favoriteDetailArticleIds;
@@ -379,6 +380,7 @@ namespace ConnectApp.redux.reducers {
                         if (article.favorites.Contains(item: action.favorite)) {
                             article.favorites.Remove(item: action.favorite);
                         }
+
                         state.articleState.articleDict[key: action.articleId] = article;
                     }
 
@@ -916,7 +918,7 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case ArticleMapAction action: {
-                    if (action.articleMap != null && action.articleMap.isNotEmpty()) {
+                    if (action.articleMap.isNotNullAndEmpty()) {
                         var articleDict = state.articleState.articleDict;
                         foreach (var keyValuePair in action.articleMap) {
                             if (articleDict.ContainsKey(key: keyValuePair.Key)) {
@@ -935,7 +937,7 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case UserMapAction action: {
-                    if (action.userMap != null && action.userMap.isNotEmpty()) {
+                    if (action.userMap.isNotNullAndEmpty()) {
                         var userDict = state.userState.userDict;
                         foreach (var keyValuePair in action.userMap) {
                             if (userDict.ContainsKey(key: keyValuePair.Key)) {
@@ -954,7 +956,7 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case UserLicenseMapAction action: {
-                    if (action.userLicenseMap != null && action.userLicenseMap.isNotEmpty()) {
+                    if (action.userLicenseMap.isNotNullAndEmpty()) {
                         var userLicenseDict = state.userState.userLicenseDict;
                         foreach (var keyValuePair in action.userLicenseMap) {
                             if (userLicenseDict.ContainsKey(key: keyValuePair.Key)) {
@@ -972,7 +974,7 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case TeamMapAction action: {
-                    if (action.teamMap != null && action.teamMap.isNotEmpty()) {
+                    if (action.teamMap.isNotNullAndEmpty()) {
                         var teamDict = state.teamState.teamDict;
                         foreach (var keyValuePair in action.teamMap) {
                             if (teamDict.ContainsKey(key: keyValuePair.Key)) {
@@ -1004,7 +1006,7 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case PlaceMapAction action: {
-                    if (action.placeMap != null && action.placeMap.isNotEmpty()) {
+                    if (action.placeMap.isNotNullAndEmpty()) {
                         var placeDict = state.placeState.placeDict;
                         foreach (var keyValuePair in action.placeMap) {
                             if (placeDict.ContainsKey(key: keyValuePair.Key)) {
@@ -1022,7 +1024,7 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case FollowMapAction action: {
-                    if (action.followMap != null && action.followMap.isNotEmpty()) {
+                    if (action.followMap.isNotNullAndEmpty()) {
                         var userId = state.loginState.loginInfo.userId ?? "";
                         if (userId.isNotEmpty()) {
                             var followDict = state.followState.followDict;
@@ -1050,7 +1052,7 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case LikeMapAction action: {
-                    if (action.likeMap != null && action.likeMap.isNotEmpty()) {
+                    if (action.likeMap.isNotNullAndEmpty()) {
                         var userId = state.loginState.loginInfo.userId ?? "";
                         if (userId.isNotEmpty()) {
                             var likeDict = state.likeState.likeDict;
@@ -2409,6 +2411,7 @@ namespace ConnectApp.redux.reducers {
                         oldFavoriteTagIds.AddRange(collection: favoriteTagIds);
                         state.favoriteState.favoriteTagIdDict[key: action.userId] = oldFavoriteTagIds;
                     }
+
                     state.favoriteState.favoriteTagHasMore = action.hasMore;
                     state.favoriteState.favoriteTagLoading = false;
                     break;
@@ -2517,6 +2520,7 @@ namespace ConnectApp.redux.reducers {
                             favoriteTagIds.Insert(1, item: action.favoriteTag.id);
                         }
                     }
+
                     state.favoriteState.favoriteTagIdDict[key: currentUserId] = favoriteTagIds;
 
                     if (!state.favoriteState.favoriteTagDict.ContainsKey(key: action.favoriteTag.id)) {
@@ -2545,6 +2549,7 @@ namespace ConnectApp.redux.reducers {
                     if (favoriteTagIds.Contains(item: action.favoriteTag.id)) {
                         favoriteTagIds.Remove(item: action.favoriteTag.id);
                     }
+
                     state.favoriteState.favoriteTagIdDict[key: currentUserId] = favoriteTagIds;
 
                     if (state.favoriteState.favoriteTagDict.ContainsKey(key: action.favoriteTag.id)) {
@@ -2598,6 +2603,7 @@ namespace ConnectApp.redux.reducers {
                     foreach (var channelMember in action.joinedMemberMap) {
                         channelTop.Add(key: channelMember.Key, channelMember.Value.stickTime.isNotEmpty());
                     }
+
                     state.channelState.channelTop = channelTop;
                     break;
                 }
@@ -2637,8 +2643,7 @@ namespace ConnectApp.redux.reducers {
                             var channelMessage = ChannelMessageView.fromChannelMessage(action.messages[i]);
                             state.channelState.messageDict[channelMessage.id] = channelMessage;
                             channel.messageIds.Add(channelMessage.id);
-                            if (CStringUtils.HexToLong(channelMessage.id) >
-                                CStringUtils.HexToLong(channel.lastMessage.id)) {
+                            if (channelMessage.id.hexToLong() > channel.lastMessage.id.hexToLong()) {
                                 channel.lastMessage = channelMessage;
                                 channel.lastMessageId = channelMessage.id;
                             }
@@ -2700,7 +2705,7 @@ namespace ConnectApp.redux.reducers {
                         channel.sentMessageSuccess = true;
                     }
 
-                    
+
                     break;
                 }
 
@@ -2739,6 +2744,7 @@ namespace ConnectApp.redux.reducers {
                     else {
                         channel.memberIds.AddRange(collection: memberIds);
                     }
+
                     channel.memberCount = action.total;
                     channel.memberOffset = action.offset;
                     state.channelState.channelDict[key: action.channelId] = channel;
@@ -2803,6 +2809,7 @@ namespace ConnectApp.redux.reducers {
                     if (channel.memberIds.Contains(item: currentMemberId)) {
                         channel.memberIds.Remove(item: currentMemberId);
                     }
+
                     channel.memberCount -= 1;
                     state.channelState.joinedChannels.Remove(item: action.channelId);
                     break;
@@ -2937,7 +2944,7 @@ namespace ConnectApp.redux.reducers {
                     if (!channel.messageIds.Contains(message.id) && !channel.newMessageIds.Contains(message.id)) {
                         channel.messageIds.Add(channelMessage.id);
                     }
-                    
+
                     state.channelState.updateMentionSuggestion(message.channelId, message.author);
                     break;
                 }
@@ -2949,13 +2956,11 @@ namespace ConnectApp.redux.reducers {
                     }
 
                     var channel = state.channelState.channelDict[message.channelId];
+                    channel.lastMessage.deleted = true;
+
                     var messageId = message.id;
                     if (state.channelState.messageDict.ContainsKey(messageId)) {
-                        state.channelState.messageDict.Remove(messageId);
-
-                        if (channel.messageIds.Contains(messageId)) {
-                            channel.messageIds.Remove(messageId);
-                        }
+                        state.channelState.messageDict[messageId].deleted = true;
                     }
 
                     break;
@@ -2993,10 +2998,12 @@ namespace ConnectApp.redux.reducers {
                     if (state.channelState.mentionSuggestions.ContainsKey(action.memberData.channelId)) {
                         var suggestionDict = state.channelState.mentionSuggestions[action.memberData.channelId];
                         if (suggestionDict.ContainsKey(action.memberData.user.id)) {
-                            suggestionDict[action.memberData.user.id].updateFromSocketResponseChannelMemberChangeData(action.memberData);
+                            suggestionDict[action.memberData.user.id]
+                                .updateFromSocketResponseChannelMemberChangeData(action.memberData);
                         }
                         else {
-                            suggestionDict[action.memberData.user.id] = ChannelMember.fromSocketResponseChannelMemberChangeData(action.memberData);
+                            suggestionDict[action.memberData.user.id] =
+                                ChannelMember.fromSocketResponseChannelMemberChangeData(action.memberData);
                         }
                     }
 
@@ -3030,7 +3037,7 @@ namespace ConnectApp.redux.reducers {
 
                     break;
                 }
-                
+
                 case MainNavigatorPushToChannelMentionAction action: {
                     Router.navigator.push(new PageRouteBuilder(
                             pageBuilder: (context, animation, secondaryAnimation) =>
@@ -3050,7 +3057,7 @@ namespace ConnectApp.redux.reducers {
                     state.channelState.mentionUserId = "";
                     break;
                 }
-                
+
                 case ChannelChooseMentionConfirmAction action: {
                     state.channelState.mentionAutoFocus = true;
                     state.channelState.mentionUserId = action.mentionUserId;

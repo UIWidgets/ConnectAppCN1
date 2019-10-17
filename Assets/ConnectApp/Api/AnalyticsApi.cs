@@ -4,18 +4,19 @@ using ConnectApp.Constants;
 using ConnectApp.Models.Api;
 using ConnectApp.Utils;
 using RSG;
+using UnityEngine;
 
 namespace ConnectApp.Api {
     public static class AnalyticsApi {
-        public static Promise AnalyticsApp(string userId, string device, string eventType, DateTime appTime,
-            List<Dictionary<string, string>> data) {
+        public static Promise AnalyticsApp(string userId, string eventType, List<Dictionary<string, string>> data) {
             var promise = new Promise();
+            var device = AnalyticsManager.deviceId() + (SystemInfo.deviceModel ?? "");
             var para = new OpenAppParameter {
                 userId = userId,
                 device = device,
                 store = Config.store,
                 eventType = eventType,
-                appTime = appTime,
+                appTime = DateTime.UtcNow,
                 extraData = data
             };
             var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/statistic", parameter: para);

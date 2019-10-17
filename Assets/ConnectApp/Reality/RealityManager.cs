@@ -27,18 +27,13 @@ namespace ConnectApp.Reality {
 
         public static void TriggerSwitch() {
             if (instance) {
-                instance.enterReality = !instance.enterReality;
+                
 
                 instance.phone.TriggerSwitch();
-
-                if (instance.enterReality) {
-                    instance.DisplaySceneObjects(true);
-                    instance.viewer.SetActive(true);
-                }
             }
         }
 
-        void DisplaySceneObjects(bool state) {
+        public void DisplaySceneObjects(bool state) {
             foreach (var item in this.sceneObjects) {
                 item.SetActive(state);
             }
