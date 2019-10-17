@@ -7,6 +7,7 @@ using Unity.UIWidgets.foundation;
 using UnityEngine;
 #if UNITY_IOS
 using System.Runtime.InteropServices;
+
 #endif
 
 namespace ConnectApp.Utils {
@@ -533,6 +534,17 @@ namespace ConnectApp.Utils {
                 }
             };
             AnalyticsApi.AnalyticsApp(userId: userId, "UnFavoriteArticle", data: data);
+        }
+
+        public static void AnalyticsClickHomeFocus() {
+            if (Application.isEditor) {
+                return;
+            }
+
+            var userId = UserInfoManager.isLogin() ? UserInfoManager.initUserInfo().userId : null;
+            var data = new List<Dictionary<string, string>>();
+            AnalyticsApi.AnalyticsApp(userId: userId, "ClickHomeFocus",
+                data: data);
         }
 
         public static string deviceId() {
