@@ -983,10 +983,22 @@ namespace ConnectApp.screens {
             get { return emojiBoardRowSize * emojiBoardColumnSize - 1; }
         }
 
-        float emojiSize {
+        float emojiButtonSize {
             get {
                 return (MediaQuery.of(this.context).size.width - 42 - (emojiBoardRowSize - 1) * 2) / emojiBoardRowSize;
             }
+        }
+
+        float emojiSizeFactor {
+            get { return 0.7f; }
+        }
+
+        float deleteButtonSize {
+            get { return this.emojiButtonSize * this.emojiSizeFactor; }
+        }
+
+        float emojiSize {
+            get { return this.emojiButtonSize * this.emojiSizeFactor / EmojiUtils.sizeFactor; }
         }
 
         List<Widget> _buildEmojiBoardPages() {
@@ -1005,7 +1017,7 @@ namespace ConnectApp.screens {
                     }
 
                     rows.Add(new Container(
-                        height: this.emojiSize,
+                        height: this.emojiButtonSize,
                         padding: EdgeInsets.symmetric(0, 20),
                         child: new Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1038,7 +1050,7 @@ namespace ConnectApp.screens {
                         child: new Column(
                             children: new List<Widget> {
                                 new Container(
-                                    height: (this.emojiSize + 8) * (emojiBoardColumnSize - 1) + this.emojiSize,
+                                    height: (this.emojiButtonSize + 8) * (emojiBoardColumnSize - 1) + this.emojiButtonSize,
                                     child: new TabBarView(
                                         controller: this._emojiTabController,
                                         children: this._buildEmojiBoardPages()
@@ -1096,13 +1108,13 @@ namespace ConnectApp.screens {
             return new GestureDetector(
                 onTap: this._handleDelete,
                 child: new Container(
-                    width: this.emojiSize,
-                    height: this.emojiSize,
+                    width: this.emojiButtonSize,
+                    height: this.emojiButtonSize,
                     padding: padding,
                     child: new Center(
                         child: new Icon(
                             Icons.outline_delete_keyboard,
-                            size: this.emojiSize * 0.7f,
+                            size: this.emojiButtonSize * 0.7f,
                             color: CColors.Icon
                         )
                     )
@@ -1133,14 +1145,14 @@ namespace ConnectApp.screens {
                     })
                     : null,
                 child: new Container(
-                    width: this.emojiSize,
-                    height: this.emojiSize,
+                    width: this.emojiButtonSize,
+                    height: this.emojiButtonSize,
                     color: CColors.Transparent,
                     padding: k == 0 ? EdgeInsets.zero : EdgeInsets.only(left: 2),
                     child: new Center(
                         child: new Text(
                             this.getEmojiText(index),
-                            style: new TextStyle(fontSize: this.emojiSize * 0.7f, height: 1)
+                            style: new TextStyle(fontSize: this.emojiSize, height: 1.46f)
                         )
                     )
                 )
