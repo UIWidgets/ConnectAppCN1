@@ -47,7 +47,8 @@ public class PushMessageReceiver extends JPushMessageReceiver{
 
     @Override
     public void onNotifyMessageArrived(Context context, NotificationMessage message) {
-        UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("jpush", "OnReceiveNotification", Arrays.asList(""));
+        String JSON = message.notificationExtras;
+        UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("jpush", "OnReceiveNotification", Arrays.asList(JSON));
     }
 
 
