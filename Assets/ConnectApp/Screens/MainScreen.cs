@@ -1,3 +1,4 @@
+
 using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Constants;
@@ -15,11 +16,11 @@ namespace ConnectApp.screens {
                 child: new CustomSafeArea(
                     top: false,
                     bottom: false,
-                    child: new CustomTabBar(
+                    child: new CustomTabBarConnector(
                         new List<Widget> {
                             new ArticlesScreenConnector(),
                             new EventsScreen(),
-                            new NotificationScreenConnector(),
+                            new MessengerScreenConnector(),
                             new PersonalScreenConnector()
                         },
                         new List<CustomTabBarItem> {
@@ -37,9 +38,9 @@ namespace ConnectApp.screens {
                             ),
                             new CustomTabBarItem(
                                 2,
-                                Icons.outline_notification,
-                                Icons.notification,
-                                "通知"
+                                Icons.outline_question_answer,
+                                Icons.question_answer,
+                                "群聊"
                             ),
                             new CustomTabBarItem(
                                 3,

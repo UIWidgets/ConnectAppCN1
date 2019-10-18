@@ -64,6 +64,7 @@ namespace ConnectApp.redux.actions {
                         dispatcher.dispatch(new LoginByEmailSuccessAction {
                             loginInfo = loginInfo
                         });
+                        dispatcher.dispatch(fetchChannels(1));
                         dispatcher.dispatch<IPromise>(fetchUserProfile(loginInfo.userId));
                         dispatcher.dispatch(new MainNavigatorPopAction());
                         dispatcher.dispatch(new CleanEmailAndPasswordAction());
@@ -75,6 +76,7 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new LoginByEmailFailureAction());
+                        Debug.Log(error);
                         var customSnackBar = new CustomSnackBar(
                             "邮箱或密码不正确，请稍后再试。"
                         );
@@ -102,6 +104,7 @@ namespace ConnectApp.redux.actions {
                         dispatcher.dispatch(new LoginByWechatSuccessAction {
                             loginInfo = loginInfo
                         });
+                        dispatcher.dispatch(fetchChannels(1));
                         UserInfoManager.saveUserInfo(loginInfo);
                         AnalyticsManager.LoginEvent("wechat");
                         AnalyticsManager.AnalyticsLogin("wechat", loginInfo.userId);

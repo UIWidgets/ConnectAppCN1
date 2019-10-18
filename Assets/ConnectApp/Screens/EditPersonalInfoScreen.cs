@@ -137,7 +137,8 @@ namespace ConnectApp.screens {
                         pickImage => {
                             this._pickedImage = pickImage;
                             this.setState(() => { });
-                        }
+                        },
+                        maxSize: 100 * 1024
                     )
                 ),
                 new ActionSheetItem(
@@ -147,7 +148,8 @@ namespace ConnectApp.screens {
                         pickImage => {
                             this._pickedImage = pickImage;
                             this.setState(() => { });
-                        }
+                        },
+                        maxSize: 100 * 1024
                     )
                 ),
                 new ActionSheetItem("取消", type: ActionType.cancel)
@@ -290,7 +292,7 @@ namespace ConnectApp.screens {
 
         Widget _buildAvatar(User user) {
             // fix Android 9 http request error 
-            var httpsUrl = CStringUtils.httpToHttps(url: user.avatar);
+            var httpsUrl = user.avatar.httpToHttps();
 
             var image = this._pickedImage.isEmpty()
                 ? Image.network(src: httpsUrl)

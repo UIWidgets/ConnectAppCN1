@@ -21,6 +21,8 @@ import com.unity3d.unityconnect.plugins.JPushPlugin;
 
 import java.util.Arrays;
 
+import cn.jpush.android.api.JPushInterface;
+
 public class UnityPlayerActivityStatusBar extends UnityPlayerActivity
 {
     VideoView videoView;
@@ -30,7 +32,7 @@ public class UnityPlayerActivityStatusBar extends UnityPlayerActivity
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        if (this.getIntent().getScheme()!=null&&this.getIntent().getScheme().equals("unityconnect")){
+        if (this.getIntent().getScheme()!=null && this.getIntent().getScheme().equals("unityconnect")){
             JPushPlugin.getInstance().schemeUrl = this.getIntent().getDataString();
         }
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -114,9 +116,14 @@ public class UnityPlayerActivityStatusBar extends UnityPlayerActivity
     @Override
     protected void onRestart() {
         super.onRestart();
-        if (this.getIntent().getScheme() != null && this.getIntent().getScheme().equals("unityconnect")){
+        if (this.getIntent().getScheme() != null && this.getIntent().getScheme().equals("unityconnect") ){
             String data = this.getIntent().getDataString();
-            UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("jpush", "OnOpenUrl", Arrays.asList(data));
+            if (JPushPlugin.getInstance().isListenCompleted){
+                UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("jpush", "OnOpenUrl", Arrays.asList(data));
+            }else {
+                JPushPlugin.getInstance().schemeUrl = data;
+
+            }
         }
     }
 

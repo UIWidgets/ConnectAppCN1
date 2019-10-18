@@ -33,7 +33,7 @@ namespace ConnectApp.Models.Model {
         public List<string> badges;
         public string errorCode;
 
-        User copyWith(
+        public User copyWith(
             string id = null,
             string type = null,
             string username = null,
@@ -134,5 +134,14 @@ namespace ConnectApp.Models.Model {
     public class UserLicense {
         public string userId;
         public string license;
+    }
+
+    [Serializable]
+    public class Following {
+        public string id;
+        public string userId;
+        public string type;
+        public string followeeId;
+        public DateTime createdTime;
     }
 }

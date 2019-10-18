@@ -5,7 +5,7 @@ using Unity.UIWidgets;
 namespace ConnectApp.Utils {
     public static class OpenUrlUtil {
         public static void OpenUrl(string url, Dispatcher dispatcher) {
-            if (url.StartsWith("http://") || url.StartsWith("https://")) {
+            if (url.isUrl()) {
                 var uri = new Uri(url);
                 if ((uri.Host.Equals("connect.unity.com") || uri.Host.Equals("connect-test.unity.com")) &&
                     uri.AbsolutePath.StartsWith("/p/")) {

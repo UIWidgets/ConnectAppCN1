@@ -7,6 +7,7 @@ using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
+using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.Redux;
@@ -143,7 +144,7 @@ namespace ConnectApp.screens {
                 child = new GlobalLoading();
             }
             else if (searchKeyword.Length > 0) {
-                child = searchTeamIds != null && searchTeamIds.Count > 0
+                child = searchTeamIds.isNotNullAndEmpty()
                     ? this._buildContent()
                     : new BlankView(
                         "哎呀，换个关键词试试吧",

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using System.Web;
+using ConnectApp.Components;
 using ConnectApp.Constants;
 using ConnectApp.Main;
 using ConnectApp.redux;
@@ -13,8 +13,9 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using EventType = ConnectApp.Models.State.EventType;
-
 #if UNITY_IOS
+using System.Runtime.InteropServices;
+
 #endif
 
 namespace ConnectApp.Plugins {
@@ -32,7 +33,8 @@ namespace ConnectApp.Plugins {
                 UIWidgetsMessageManager.instance.AddChannelMessageDelegate("jpush", _handleMethodCall);
                 completed();
                 setJPushChannel(Config.store);
-                setJPushTags(new List<string> {Config.versionCode.ToString()});
+                setJPushTags(
+                    new List<string> {Config.versionCode.ToString(), Config.messengerTag, Config.versionNumber});
             }
         }
 
@@ -41,26 +43,44 @@ namespace ConnectApp.Plugins {
                 using (WindowProvider.of(GlobalContext.context).getScope()) {
                     switch (method) {
                         case "OnOpenNotification": {
+                            if (args.isEmpty()) {
+                                return;
+                            }
+
                             //点击应用通知栏
-                            var node = args[0];
+                            var node = args.first();
                             var dict = JSON.Parse(node);
                             var type = dict["type"];
                             var subType = dict["subtype"];
-                            var id = dict["id"];
+                            string id = dict["id"] ?? "";
+                            if (id.isEmpty()) {
+                                id = dict["channelId"] ?? "";
+                            }
+
                             AnalyticsManager.AnalyticsWakeApp("OnOpenNotification", id, type, subType);
                             AnalyticsManager.ClickNotification(type, subType, id);
                             pushPage(type, subType, id, true);
-                        }
                             break;
+                        }
                         case "OnReceiveNotification": {
                             //接收到推送
-                            EventBus.publish(EventBusConstant.refreshNotifications, new List<object>());
-                        }
+                            if (args.isEmpty()) {
+                                return;
+                            }
+
+                            var node = args.first();
+                            var dict = JSON.Parse(node);
+                            var type = dict["type"] ?? "";
+                            if (type != "messenger") {
+                                EventBus.publish(EventBusConstant.newNotifications, new List<object>());
+                            }
+
                             break;
+                        }
                         case "OnReceiveMessage": {
                             //接收到应用内消息
-                        }
                             break;
+                        }
                         case "OnOpenUrl": {
                             if (args.isEmpty()) {
                                 return;
@@ -68,8 +88,8 @@ namespace ConnectApp.Plugins {
 
                             AnalyticsManager.AnalyticsWakeApp("OnOpenUrl", args.first());
                             openUrl(args.first());
-                        }
                             break;
+                        }
                         case "OnOpenUniversalLinks": {
                             if (args.isEmpty()) {
                                 return;
@@ -77,10 +97,14 @@ namespace ConnectApp.Plugins {
 
                             AnalyticsManager.AnalyticsWakeApp("OnOpenUniversalLinks", args.first());
                             openUniversalLink(args.first());
-                        }
                             break;
+                        }
                         case "CompletedCallback": {
-                            var node = args[0];
+                            if (args.isEmpty()) {
+                                return;
+                            }
+
+                            var node = args.first();
                             var dict = JSON.Parse(node);
                             var isPush = (bool) dict["push"];
                             if (isPush) {
@@ -96,8 +120,17 @@ namespace ConnectApp.Plugins {
                                     StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushReplaceMainAction());
                                 }
                             }
-                        }
+
                             break;
+                        }
+                        case "SaveImageSuccess": {
+                            CustomDialogUtils.showToast("保存成功", iconData: Icons.sentiment_satisfied);
+                            break;
+                        }
+                        case "SaveImageError": {
+                            CustomDialogUtils.showToast("保存失败，请检查权限", iconData: Icons.sentiment_dissatisfied);
+                            break;
+                        }
                     }
                 }
             }
@@ -161,6 +194,10 @@ namespace ConnectApp.Plugins {
         }
 
         static void pushPage(string type, string subType, string id, bool isPush = false) {
+            if (id.isEmpty()) {
+                return;
+            }
+
             if (type == "project") {
                 if (subType == "article") {
                     AnalyticsManager.ClickEnterArticleDetail("Push_Article", id, $"PushArticle_{id}");
@@ -193,6 +230,12 @@ namespace ConnectApp.Plugins {
             else if (type == "webView") {
                 StoreProvider.store.dispatcher.dispatch(
                     new MainNavigatorPushToWebViewAction {url = id});
+            }
+            else if (type == "messenger") {
+                if (subType == "channelAt") {
+                    StoreProvider.store.dispatcher.dispatch(
+                        new MainNavigatorPushToChannelAction {channelId = id});
+                }
             }
         }
 

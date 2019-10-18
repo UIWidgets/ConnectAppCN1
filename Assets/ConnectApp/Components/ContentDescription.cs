@@ -16,14 +16,17 @@ namespace ConnectApp.Components {
     public static class ContentDescription {
         const int codeBlockNumber = 10;
         static readonly Color codeBlockBackgroundColor = Color.fromRGBO(110, 198, 255, 0.12f);
+        public static List<string> imageUrls = new List<string>();
 
         public static List<Widget> map(BuildContext context, string cont, Dictionary<string, ContentMap> contentMap,
             Dictionary<string, VideoSliceMap> videoSliceMap, Dictionary<string, string> videoPosterMap,
             Action<string> openUrl, Action<string, bool, int> playVideo, Action loginAction, string licence,
-            Action browserImage = null) {
+            Action<string> browserImage = null) {
             if (cont == null || contentMap == null) {
                 return new List<Widget>();
             }
+
+            imageUrls.Clear();
 
             var content = JsonConvert.DeserializeObject<EventContent>(cont);
             var widgets = new List<Widget>();
@@ -330,7 +333,7 @@ namespace ConnectApp.Components {
             _OriginalImage originalImage, string videoStatus, string videoPoster,
             string url, string downloadUrl, string attachmentId, Action<string> openUrl,
             Action<string, bool, int> playVideo, Action loginAction, bool needUpdate, int limitSeconds,
-            Action browserImage = null) {
+            Action<string> browserImage = null) {
             if (type == "ATTACHMENT" && contentType != "video/mp4") {
                 return new Container();
             }
@@ -435,6 +438,7 @@ namespace ConnectApp.Components {
                 imageUrl = imageUrl.EndsWith(".gif") || imageUrl.EndsWith(".png")
                     ? imageUrl
                     : CImageUtils.SuitableSizeImageUrl(MediaQuery.of(context).size.width, imageUrl);
+                imageUrls.Add(imageUrl);
             }
 
             var nodes = new List<Widget> {
@@ -452,7 +456,7 @@ namespace ConnectApp.Components {
                                 }
                                 else {
                                     if (browserImage != null) {
-                                        browserImage();
+                                        browserImage(imageUrl);
                                     }
                                 }
                             }

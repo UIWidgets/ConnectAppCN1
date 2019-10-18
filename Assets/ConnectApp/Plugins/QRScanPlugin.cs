@@ -82,7 +82,7 @@ namespace ConnectApp.Plugins {
                     switch (method) {
                         case "OnReceiveQRCode": {
                             string qrCode = args[0];
-                            if (qrCode.StartsWith("http://") || qrCode.StartsWith("https://")) {
+                            if (qrCode.isUrl()) {
                                 var uri = new Uri(uriString: qrCode);
                                 if (uri.AbsoluteUri.StartsWith("https://connect")) {
                                     var token = HttpUtility.ParseQueryString(query: uri.Query).Get("token");

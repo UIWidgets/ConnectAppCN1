@@ -779,7 +779,7 @@ PlayerSettings:
   scriptingDefineSymbols:
     1: 
     4: 
-    7: 
+    7: UIWidgets_DEBUG
   platformArchitecture:
     iPhone: 1
   scriptingBackend: {}

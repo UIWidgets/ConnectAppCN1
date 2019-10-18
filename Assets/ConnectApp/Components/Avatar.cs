@@ -30,6 +30,7 @@ namespace ConnectApp.Components {
             bool hasWhiteBorder = false,
             float whiteBorderWidth = DefaultWhiteBorderWidth,
             AvatarShape avatarShape = AvatarShape.circle,
+            bool useCachedNetworkImage = false,
             Key key = null
         ) : base(key: key) {
             this.id = id ?? "";
@@ -40,6 +41,7 @@ namespace ConnectApp.Components {
             this.hasWhiteBorder = hasWhiteBorder;
             this.whiteBorderWidth = whiteBorderWidth;
             this.avatarShape = avatarShape;
+            this.useCachedNetworkImage = useCachedNetworkImage;
         }
 
         readonly string id;
@@ -50,6 +52,7 @@ namespace ConnectApp.Components {
         readonly bool hasWhiteBorder;
         readonly float whiteBorderWidth;
         readonly AvatarShape avatarShape;
+        readonly bool useCachedNetworkImage;
 
         const int DefaultWhiteBorderWidth = 2;
         const int DefaultRectCorner = 4;
@@ -60,6 +63,7 @@ namespace ConnectApp.Components {
             bool hasWhiteBorder = false,
             float whiteBorderWidth = DefaultWhiteBorderWidth,
             AvatarShape avatarShape = AvatarShape.circle,
+            bool useCachedNetworkImage = false,
             Key key = null
         ) {
             return new Avatar(
@@ -71,6 +75,7 @@ namespace ConnectApp.Components {
                 hasWhiteBorder: hasWhiteBorder,
                 whiteBorderWidth: whiteBorderWidth,
                 avatarShape: avatarShape,
+                useCachedNetworkImage: useCachedNetworkImage,
                 key: key
             );
         }
@@ -81,6 +86,7 @@ namespace ConnectApp.Components {
             bool hasWhiteBorder = false,
             float whiteBorderWidth = DefaultWhiteBorderWidth,
             AvatarShape avatarShape = AvatarShape.rect,
+            bool useCachedNetworkImage = false,
             Key key = null
         ) {
             return new Avatar(
@@ -92,6 +98,7 @@ namespace ConnectApp.Components {
                 hasWhiteBorder: hasWhiteBorder,
                 whiteBorderWidth: whiteBorderWidth,
                 avatarShape: avatarShape,
+                useCachedNetworkImage: useCachedNetworkImage,
                 key: key
             );
         }
@@ -106,7 +113,7 @@ namespace ConnectApp.Components {
                 : null;
 
             // fix Android 9 http request error 
-            var httpsUrl = CStringUtils.httpToHttps(url: this.avatarUrl);
+            var httpsUrl = this.avatarUrl.httpToHttps();
             return new Container(
                 width: this.size,
                 height: this.size,
@@ -132,7 +139,9 @@ namespace ConnectApp.Components {
                             width: avatarSize,
                             height: avatarSize,
                             color: CColors.AvatarLoading,
-                            child: Image.network(src: httpsUrl)
+                            child: this.useCachedNetworkImage
+                                ? CachedNetworkImageProvider.cachedNetworkImage(src: httpsUrl)
+                                : Image.network(src: httpsUrl)
                         )
                 )
             );
@@ -160,7 +169,7 @@ namespace ConnectApp.Components {
         }
     }
 
-    class _Placeholder : StatelessWidget {
+    public class _Placeholder : StatelessWidget {
         public _Placeholder(
             string id,
             string title,
