@@ -7,35 +7,28 @@ using UnityEngine;
 namespace ConnectApp.Utils {
     public static class CCommonUtils {
         public static float getSafeAreaTopPadding(BuildContext context) {
-            float topPadding = 0;
-            if (Application.platform == RuntimePlatform.IPhonePlayer) {
-                topPadding = MediaQuery.of(context).padding.top;
-            }
-
-            return topPadding;
+            return Application.platform == RuntimePlatform.IPhonePlayer 
+                ? MediaQuery.of(context: context).padding.top
+                : 0;
         }
 
         public static float getSafeAreaBottomPadding(BuildContext context) {
-            float bottomPadding = 0;
-            if (Application.platform == RuntimePlatform.IPhonePlayer) {
-                bottomPadding = MediaQuery.of(context).padding.bottom;
-            }
-
-            return bottomPadding;
+            return Application.platform == RuntimePlatform.IPhonePlayer 
+                ? MediaQuery.of(context: context).padding.bottom
+                : 0;
         }
 
         public static string GetUserLicense(string userId, Dictionary<string, UserLicense> userLicenseMap = null) {
-            var license = "";
             if (userLicenseMap == null || !userLicenseMap.ContainsKey(key: userId)) {
-                return license;
+                return "";
             }
 
             var userLicense = userLicenseMap[key: userId];
             if (userLicense != null && userId == userLicense.userId && userLicense.license.isNotEmpty()) {
-                license = userLicense.license;
+                return userLicense.license;
             }
 
-            return license;
+            return "";
         }
     }
 }

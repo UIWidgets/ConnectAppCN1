@@ -12,18 +12,21 @@ namespace ConnectApp.Components {
             List<Widget> rightWidgets,
             Color backgroundColor,
             float offset,
+            EdgeInsets padding = null,
             Key key = null
         ) : base(key) {
             this.leftWidget = leftWidget;
             this.rightWidgets = rightWidgets;
             this.backgroundColor = backgroundColor;
             this.offset = offset;
+            this.padding = padding ?? EdgeInsets.only(bottom: 8, left: 16, right: 16);
         }
 
         readonly Widget leftWidget;
         readonly List<Widget> rightWidgets;
         readonly Color backgroundColor;
         readonly float offset;
+        readonly EdgeInsets padding;
         public static readonly float height = 96;
 
         public override Widget build(BuildContext context) {
@@ -36,7 +39,7 @@ namespace ConnectApp.Components {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: new List<Widget> {
                             new Padding(
-                                padding: EdgeInsets.only(bottom: 8, left: 16, right: 16),
+                                padding: this.padding,
                                 child: new Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: new List<Widget> {

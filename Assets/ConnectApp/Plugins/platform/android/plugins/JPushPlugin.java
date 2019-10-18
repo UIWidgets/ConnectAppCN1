@@ -2,21 +2,16 @@ package com.unity3d.unityconnect.plugins;
 
 import android.content.Context;
 import android.text.TextUtils;
-import android.util.Log;
-
 import com.google.gson.Gson;
 import com.unity.uiwidgets.plugin.UIWidgetsMessageManager;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-
 import cn.jpush.android.api.JPushInterface;
 
 public class JPushPlugin {
@@ -38,7 +33,10 @@ public class JPushPlugin {
 
     public String schemeUrl;
 
+    public boolean isListenCompleted;
+
     public void listenCompleted(){
+        isListenCompleted = true;
         Boolean needPush = false;
         if (pushJson != null || schemeUrl != null){
             needPush = true;
@@ -46,7 +44,6 @@ public class JPushPlugin {
         Map<String, Boolean> map = new HashMap<String, Boolean>();
         map.put("push", needPush);
         UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("jpush", "CompletedCallback", Arrays.asList(new Gson().toJson(map)));
-
         if (pushJson != null){
             UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("jpush", "OnOpenNotification", Arrays.asList(pushJson));
         }
@@ -84,7 +81,7 @@ public class JPushPlugin {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        
+
         JPushInterface.setTags(mContext, sequence, tagSet);
     }
 }

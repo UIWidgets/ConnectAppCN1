@@ -5,9 +5,11 @@ using ConnectApp.Utils;
 using Newtonsoft.Json;
 using RSG;
 using Unity.UIWidgets.foundation;
+using UnityEngine;
 
 namespace ConnectApp.Api {
     public static class MessageApi {
+        
         public static Promise<FetchCommentsResponse> FetchMessages(string channelId, string currOldestMessageId) {
             var promise = new Promise<FetchCommentsResponse>();
             var para = new Dictionary<string, object> ();

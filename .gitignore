@@ -69,3 +69,10 @@ Assets/Plugins/Editor/JetBrains.meta
 # NuGet v3's project.json files produces more ignorable files
 *.nuget.props
 *.nuget.targets
+
+
+# Editor cache files
+Editor/imgCache/
+Editor/imgCache.meta
+Editor/messenger.db
+Editor/messenger.db.meta

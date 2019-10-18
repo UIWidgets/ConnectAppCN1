@@ -102,20 +102,21 @@
 -(void)updateApperance:(NSNotification *)na{
     if ([[na.userInfo objectForKey:@"key"]isEqualToString:@"style"]) {
         _isLight = [[na.userInfo valueForKey:@"value"] boolValue];
-        [self setNeedsStatusBarAppearanceUpdate];
-
     }
     if ([[na.userInfo objectForKey:@"key"]isEqualToString:@"hidden"]){
         _isHidden = [[na.userInfo valueForKey:@"value"] boolValue];
-        [self setNeedsStatusBarAppearanceUpdate];
-
     }
+    [self setNeedsStatusBarAppearanceUpdate];
 }
 
 
 @end
 
 @implementation UnityPortraitOnlyViewController
+{
+    BOOL _isHidden;
+    BOOL _isLight;
+}
 - (NSUInteger)supportedInterfaceOrientations
 {
     return 1 << UIInterfaceOrientationPortrait;
@@ -124,11 +125,26 @@
 - (void)viewWillAppear:(BOOL)animated
 {
     [GetAppController() updateAppOrientation: UIInterfaceOrientationPortrait];
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(updateApperance:) name:@"UpdateStatusBarStyle" object:nil];
     [super viewWillAppear: animated];
+}
+-(void)updateApperance:(NSNotification *)na{
+    if ([[na.userInfo objectForKey:@"key"]isEqualToString:@"style"]) {
+        _isLight = [[na.userInfo valueForKey:@"value"] boolValue];
+    }
+    if ([[na.userInfo objectForKey:@"key"]isEqualToString:@"hidden"]){
+        _isHidden = [[na.userInfo valueForKey:@"value"] boolValue];
+    }
+    [self setNeedsStatusBarAppearanceUpdate];
 }
 - (BOOL)prefersStatusBarHidden
 {
-    return false;
+    return _isHidden;
+}
+
+- (UIStatusBarStyle)preferredStatusBarStyle
+{
+    return _isLight ? UIStatusBarStyleLightContent: UIStatusBarStyleDefault;
 }
 @end
 

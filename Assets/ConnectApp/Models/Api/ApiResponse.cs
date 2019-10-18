@@ -186,13 +186,12 @@ namespace ConnectApp.Models.Api {
     public class FetchTeamArticleResponse {
         public Dictionary<string, bool> likeMap;
         public List<Article> projects;
-        public Dictionary<string, UserLicense> userLicenseMap;
         public bool projectsHasMore;
     }
 
     [Serializable]
     public class FetchTeamMemberResponse {
-        public List<Member> members;
+        public List<TeamMember> members;
         public Dictionary<string, User> userMap;
         public Dictionary<string, bool> followMap;
         public bool hasMore;
@@ -219,10 +218,64 @@ namespace ConnectApp.Models.Api {
     }
 
     [Serializable]
+    public class FetchChannelsResponse {
+        public List<string> discoverList;
+        public List<string> joinedList;
+        public int discoverPage;
+        public Dictionary<string, Channel> channelMap;
+        public Dictionary<string, ChannelMember> joinedMemberMap;
+        public Dictionary<string, bool> joinedChannelMap;
+    }
+
+    [Serializable]
+    public class FetchStickChannelResponse {
+    }
+
+    [Serializable]
+    public class FetchUnStickChannelResponse {
+    }
+
+    [Serializable]
+    public class FetchChannelMessagesResponse {
+        public List<ChannelMessage> items;
+        public bool hasMore;
+        public bool hasMoreNew;
+        public Dictionary<string, UserLicense> userLicenseMap; 
+    }
+
+    [Serializable]
+    public class DeleteChannelMessageResponse {
+    }
+
+    [Serializable]
+    public class AckChannelMessagesResponse {
+    }
+
+    [Serializable]
+    public class FetchChannelMembersResponse {
+        public List<ChannelMember> list;
+        public int offset;
+        public int total;
+        public Dictionary<string, bool> followeeMap;
+    }
+
+    [Serializable]
+    public class FetchChannelMemberResponse {
+        public ChannelMember member;
+    }
+
+    [Serializable]
+    public class JoinChannelResponse {
+        public ChannelMember member;
+    }
+
+    [Serializable]
+    public class LeaveChannelResponse {
+    }
+
+    [Serializable]
     public class UpdateAvatarResponse {
         public string avatar;
-        public int profilePercent;
-        public string nextStep;
     }
 
     [Serializable]

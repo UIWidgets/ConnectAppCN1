@@ -37,25 +37,39 @@ namespace ConnectApp.Reality {
         }
 
         void SetScreenSize(float width, float height) {
+            // Debug.Log($"SetScreenSize ({width}, {height})");
+            
             var widthRatio = width / this.defaultScreenSize.x;
             var heightRatio = height / this.defaultScreenSize.y;
+            
+            // Debug.Log($"W&H Ratio: ({widthRatio}, {heightRatio})");
 
-            this.screenRect.sizeDelta = new Vector2(width, height);
             var shellScale = this.shell.transform.localScale;
             shellScale.x *= widthRatio;
             shellScale.y *= heightRatio;
+
+            if (widthRatio < heightRatio) {
+                shellScale.x *= widthRatio / heightRatio;
+                shellScale.y *= widthRatio / heightRatio;
+            }
+            
             this.shell.transform.localScale = shellScale;
 
             var inHandLocalPosition = this.inHand.localPosition;
-            inHandLocalPosition.z *= widthRatio > heightRatio ? widthRatio : heightRatio;
+            // Debug.Log($"distance: {inHandLocalPosition.z}");
+            var delta = inHandLocalPosition.z;
+            inHandLocalPosition.z *= Mathf.Min(widthRatio, heightRatio);
+            delta -= inHandLocalPosition.z;
             this.inHand.localPosition = inHandLocalPosition;
-            this.screenCanvas.planeDistance = inHandLocalPosition.z;
+            this.screenCanvas.planeDistance -= delta;
 
             this.transform.position = this.inHand.position;
             this.transform.rotation = this.inHand.rotation;
         }
 
         public void TriggerSwitch() {
+            RealityManager.instance.enterReality = !RealityManager.instance.enterReality;
+
             this.m_TowardOnTable = !this.m_TowardOnTable;
             if (!this.m_IsMoving) {
                 if (!this.m_TowardOnTable) {
@@ -71,6 +85,11 @@ namespace ConnectApp.Reality {
             }
 
             this.m_IsMoving = true;
+
+            if (RealityManager.instance.enterReality) {
+                RealityManager.instance.DisplaySceneObjects(true);
+                RealityManager.instance.viewer.SetActive(true);
+            }
         }
 
         void Update() {
