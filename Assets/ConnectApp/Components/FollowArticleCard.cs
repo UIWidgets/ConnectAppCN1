@@ -147,7 +147,7 @@ namespace ConnectApp.Components {
 
         Widget _buildAvatar() {
             Widget rightWidget;
-            if (this.userType == UserType.me) {
+            if (this.userType == UserType.me || this.userType == UserType.follow) {
                 var time = this.article.publishedTime;
                 rightWidget = new Text(
                     $"{DateConvert.DateStringFromNow(dt: time)}",

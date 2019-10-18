@@ -43,6 +43,7 @@ namespace ConnectApp.Components {
         readonly bool isLast;
         static readonly List<string> types = new List<string> {
             "project_liked",
+            "project_commented",
             "project_message_commented",
             "project_participate_comment",
             "project_message_liked",
@@ -117,121 +118,142 @@ namespace ConnectApp.Components {
         Widget _buildNotificationTitle() {
             var type = this.notification.type;
             var data = this.notification.data;
-            var subTitle = new TextSpan();
-            var content = "";
-            if (type == "project_liked") {
-                subTitle = new TextSpan(
-                    " 赞了你的文章",
-                    style: CTextStyle.PLargeBody2
-                );
-            }
-
-            if (type == "project_message_commented") {
-                if (data.parentComment.isNotEmpty()) {
-                    content = $" “{MessageUtils.AnalyzeMessage(data.parentComment, this.mentions, false)}”";
-                    subTitle = new TextSpan(
-                        " 回复了你的评论" + content,
-                        style: CTextStyle.PLargeBody2
-                    );
-                }
-                else {
-                    subTitle = new TextSpan(
-                        " 评论了你的文章",
-                        style: CTextStyle.PLargeBody2
-                    );
-                }
-            }
-
-            if (type == "project_participate_comment") {
-                if (data.parentComment.isNotEmpty()) {
-                    content = $" “{MessageUtils.AnalyzeMessage(data.parentComment, this.mentions, false)}”";
-                }
-
-                subTitle = new TextSpan(
-                    " 回复了你的评论" + content,
-                    style: CTextStyle.PLargeBody2
-                );
-            }
-
-            if (type == "project_message_liked") {
-                if (data.comment.isNotEmpty()) {
-                    content = $" “{MessageUtils.AnalyzeMessage(data.comment, this.mentions, false)}”";
-                }
-
-                subTitle = new TextSpan(
-                    " 赞了你的评论" + content,
-                    style: CTextStyle.PLargeBody2
-                );
-            }
-
-            if (type == "project_message_participate_liked") {
-                if (data.comment.isNotEmpty()) {
-                    content = $" “{MessageUtils.AnalyzeMessage(data.comment, this.mentions, false)}”";
-                }
-
-                subTitle = new TextSpan(
-                    " 赞了你的评论" + content,
-                    style: CTextStyle.PLargeBody2
-                );
-            }
-
-            if (type == "followed") {
-                subTitle = new TextSpan(
-                    " 关注了你",
-                    style: CTextStyle.PLargeBody2
-                );
-            }
-
-            if (type == "team_followed") {
-                subTitle = new TextSpan(
-                    children: new List<TextSpan> {
-                        new TextSpan(" 关注了 "),
-                        new TextSpan(data.teamName, recognizer: new TapGestureRecognizer {
-                            onTap = () => { this.pushToTeamDetail(data.teamId); }
-                        }, style: CTextStyle.PLargeBlue)
-                    },
-                    style: CTextStyle.PLargeBody2
-                );
-            }
-
-            if (type == "project_article_publish") {
-                string name;
-                GestureTapCallback onTap;
-                if (this.notification.data.role == "team") {
-                    name = data.teamName;
-                    onTap = () => this.pushToTeamDetail(obj: data.teamId);
-                }
-                else {
-                    name = data.fullname;
-                    onTap = () => this.pushToUserDetail(obj: data.userId);
-                }
-                subTitle = new TextSpan(
-                    children: new List<TextSpan> {
-                        new TextSpan(text: name, recognizer: new TapGestureRecognizer {
-                            onTap = onTap
-                        }, style: CTextStyle.PLargeBlue),
-                        new TextSpan(" 发布了新文章")
-                    },
-                    style: CTextStyle.PLargeBody2
-                );
-            }
-
-            Widget projectTitle;
-            if (data.projectTitle.isNotEmpty()) {
-                projectTitle = new Text(
-                    data: data.projectTitle,
-                    maxLines: 1,
-                    style: CTextStyle.PLargeMedium,
-                    overflow: TextOverflow.ellipsis
-                );
-            }
-            else {
-                projectTitle = new Container();
-            }
 
             List<TextSpan> textSpans = new List<TextSpan>();
+            Widget subTitleWidget = new Container();
+            switch (type) {
+                case "project_liked": {
+                    textSpans.Add(new TextSpan(
+                        " 赞了你的文章",
+                        style: CTextStyle.PLargeBody2
+                    ));
+                    textSpans.Add(new TextSpan(
+                        $"《{data.projectTitle}》",
+                        style: CTextStyle.PLargeMedium
+                    ));
+                    break;
+                }
+
+                case "project_commented": {
+                    textSpans.Add(new TextSpan(
+                        " 评价了你的文章",
+                        style: CTextStyle.PLargeBody2
+                    ));
+                    textSpans.Add(new TextSpan(
+                        $"《{data.projectTitle}》",
+                        style: CTextStyle.PLargeMedium
+                    ));
+
+                    subTitleWidget = new Text(
+                        this._analyzeComment(comment: data.comment),
+                        style: CTextStyle.PLargeBody2,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis
+                    );
+                    break;
+                }
+
+                case "project_message_commented": {
+                    if (data.upperMessageId.isNotEmpty()) {
+                        textSpans.Add(new TextSpan(
+                            " 回复了你" + this._analyzeComment(comment: data.upperComment),
+                            style: CTextStyle.PLargeBody2
+                        ));
+                    }
+                    else if (data.parentMessageId.isNotEmpty()) {
+                        textSpans.Add(new TextSpan(
+                            " 回复了你" + this._analyzeComment(comment: data.parentComment),
+                            style: CTextStyle.PLargeBody2
+                        ));
+                    }
+
+                    subTitleWidget = new Text(
+                        this._analyzeComment(comment: data.comment),
+                        style: CTextStyle.PLargeBody2,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis
+                    );
+                    break;
+                }
+
+                case "project_participate_comment": {
+                    textSpans.Add(new TextSpan(
+                        " 评价了你关注的文章",
+                        style: CTextStyle.PLargeBody2
+                    ));
+                    textSpans.Add(new TextSpan(
+                        $"《{data.projectTitle}》",
+                        style: CTextStyle.PLargeMedium
+                    ));
+
+                    subTitleWidget = new Text(
+                        this._analyzeComment(comment: data.comment),
+                        style: CTextStyle.PLargeBody2,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis
+                    );
+                    break;
+                }
+
+                case "project_message_liked": {
+                    textSpans.Add(new TextSpan(
+                        " 赞了你的评论" + this._analyzeComment(comment: data.comment),
+                        style: CTextStyle.PLargeBody2
+                    ));
+                    break;
+                }
+
+                case "project_message_participate_liked": {
+                    textSpans.Add(new TextSpan(
+                        " 赞了你关注的评论" + this._analyzeComment(comment: data.comment),
+                        style: CTextStyle.PLargeBody2
+                    ));
+                    break;
+                }
+
+                case "followed": {
+                    textSpans.Add(new TextSpan(" 关注了你", style: CTextStyle.PLargeBody2));
+                    break;
+                }
+
+                case "team_followed": {
+                    textSpans.Add(new TextSpan(" 关注了 ", style: CTextStyle.PLargeBody2));
+                    textSpans.Add(new TextSpan(
+                        text: data.teamName,
+                        recognizer: new TapGestureRecognizer {
+                            onTap = () => this.pushToTeamDetail(obj: data.teamId)
+                        },
+                        style: CTextStyle.PLargeBlue
+                    ));
+                    break;
+                }
+
+                case "project_article_publish": {
+                    string name;
+                    GestureTapCallback onTap;
+                    if (this.notification.data.role == "team") {
+                        name = data.teamName;
+                        onTap = () => this.pushToTeamDetail(obj: data.teamId);
+                    }
+                    else {
+                        name = data.fullname;
+                        onTap = () => this.pushToUserDetail(obj: data.userId);
+                    }
+
+                    textSpans.Add(new TextSpan(
+                        text: name,
+                        recognizer: new TapGestureRecognizer {
+                            onTap = onTap
+                        },
+                        style: CTextStyle.PLargeMedium
+                    ));
+                    textSpans.Add(new TextSpan(" 发布了新文章", style: CTextStyle.PLargeBody2));
+                    break;
+                }
+            }
+
             if (type != "project_article_publish") {
-                textSpans.Add(new TextSpan(
+                textSpans.Insert(0, new TextSpan(
                     text: data.fullname,
                     style: CTextStyle.PLargeMedium,
                     recognizer: new TapGestureRecognizer {
@@ -239,7 +261,6 @@ namespace ConnectApp.Components {
                     }
                 ));
             }
-            textSpans.Add(item: subTitle);
 
             return new Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -251,7 +272,7 @@ namespace ConnectApp.Components {
                         ),
                         overflow: TextOverflow.ellipsis
                     ),
-                    projectTitle
+                    subTitleWidget
                 }
             );
         }
@@ -264,6 +285,12 @@ namespace ConnectApp.Components {
                     style: CTextStyle.PSmallBody4
                 )
             );
+        }
+
+        string _analyzeComment(string comment) {
+            return comment.isNotEmpty() 
+                ? $" “{MessageUtils.AnalyzeMessage(content: comment, mentions: this.mentions, false)}”" 
+                : "";
         }
     }
 }

@@ -7,7 +7,7 @@ namespace ConnectApp.Models.State {
     public class FavoriteState {
         public bool favoriteTagLoading { get; set; }
         public bool favoriteDetailLoading { get; set; }
-        public List<string> favoriteTagIds { get; set; }
+        public Dictionary<string, List<string>> favoriteTagIdDict { get; set; }
         public Dictionary<string, List<string>> favoriteDetailArticleIdDict { get; set; }
         public bool favoriteTagHasMore { get; set; }
         public bool favoriteDetailHasMore { get; set; }

@@ -23,10 +23,12 @@ namespace ConnectApp.Models.Model {
         public string type;
         public string body;
         public bool like;
-        public Favorite favorite;
+        public List<Favorite> favorites;
         public List<string> projectIds;
         public string channelId;
         public Dictionary<string, ContentMap> contentMap;
+        public Dictionary<string, VideoSliceMap> videoSliceMap;
+        public Dictionary<string, string> videoPosterMap;
         public string currOldestMessageId;
         public bool hasMore;
         public bool isNotFirst;
@@ -51,7 +53,7 @@ namespace ConnectApp.Models.Model {
             string type = null,
             string body = null,
             bool? like = null,
-            Favorite favorite = null,
+            List<Favorite> favorites = null,
             List<string> projectIds = null,
             string channelId = null,
             Dictionary<string, ContentMap> contentMap = null,
@@ -79,7 +81,7 @@ namespace ConnectApp.Models.Model {
                 type = type ?? this.type,
                 body = body ?? this.body,
                 like = like ?? this.like,
-                favorite = favorite ?? this.favorite,
+                favorites = favorites ?? this.favorites,
                 projectIds = projectIds ?? this.projectIds,
                 channelId = channelId ?? this.channelId,
                 contentMap = contentMap ?? this.contentMap,
@@ -114,7 +116,7 @@ namespace ConnectApp.Models.Model {
                 type: other.type,
                 body: other.body,
                 like: other.like,
-                favorite: other.favorite,
+                favorites: other.favorites,
                 projectIds: other.projectIds,
                 channelId: other.channelId,
                 contentMap: other.contentMap,

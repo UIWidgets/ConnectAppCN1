@@ -35,7 +35,7 @@ namespace ConnectApp.Utils {
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
             UnityWebRequest.ClearCookieCache();
             request.SetRequestHeader(COOKIE, _cookieHeader());
-            request.SetRequestHeader("AppVersion", Config.versionNumber);
+            request.SetRequestHeader("ConnectAppVersion", Config.versionNumber);
             return request;
         }
 

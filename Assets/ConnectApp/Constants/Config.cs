@@ -2,6 +2,8 @@ namespace ConnectApp.Constants {
     public static class Config {
         public const string apiAddress = "https://connect.unity.com";
 
+        public const string apiPath = "/api/connectapp/v1";
+
         public const string domain = ".connect.unity.com";
 
         public const string idBaseUrl = "https://id.unity.com";
@@ -14,15 +16,19 @@ namespace ConnectApp.Constants {
 
         public const string jgAppKey = "a50eff2d99416a0495f02766";
 
-        public const string MINIID = "gh_f731aec0bdd0";
+        public const string miniId = "gh_f731aec0bdd0";
 
-        public const string versionNumber = "1.1.4";
+        public const string versionNumber = "1.1.6";
 
-        public const int versionCode = 61;
+        public const int versionCode = 69;
 
         public const string originCodeUrl = "https://github.com/UnityTech/ConnectAppCN";
 
         public const string widgetOriginCodeUrl = "https://github.com/UnityTech/UIWidgets";
+
+        public const string unityStoreUrl = "https://store.unity.com/";
+
+        public const string unityLearnPremiumUrl = "https://unity.com/learn-premium";
 
         public const int miniProgramType = 0; // 0 -> 正式版  1 -> 开发版  2 -> 体验版
 

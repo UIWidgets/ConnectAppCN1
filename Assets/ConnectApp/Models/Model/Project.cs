@@ -10,13 +10,15 @@ namespace ConnectApp.Models.Model {
         public Dictionary<string, ContentMap> contentMap;
         public Dictionary<string, User> userMap;
         public Dictionary<string, UserLicense> userLicenseMap;
+        public Dictionary<string, VideoSliceMap> videoSliceMap;
+        public Dictionary<string, string> videoPosterMap;
         public Dictionary<string, Team> teamMap;
         public Dictionary<string, bool> followMap;
         public Dictionary<string, User> mentionUsers;
         public FetchCommentsResponse comments;
         public string channelId;
         public bool like;
-        public Favorite favorite;
+        public List<Favorite> favoriteList;
         public bool edit;
     }
 }

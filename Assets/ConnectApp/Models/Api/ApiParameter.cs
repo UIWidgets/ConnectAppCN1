@@ -23,7 +23,7 @@ namespace ConnectApp.Models.Api {
     public class HandleArticleParameter {
         public string type;
         public string itemId;
-        public string tagId;
+        public List<string> tagIds;
     }
 
     [Serializable]
@@ -74,6 +74,7 @@ namespace ConnectApp.Models.Api {
     public class OpenAppParameter {
         public string userId;
         public string device;
+        public string store;
         public string eventType;
         public DateTime appTime;
         public List<Dictionary<string, string>> extraData;
