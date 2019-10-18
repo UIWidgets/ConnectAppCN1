@@ -394,12 +394,12 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
     [self.backBtn mas_makeConstraints:^(MASConstraintMaker *make) {
         make.leading.equalTo(self.topView).offset(10);
         make.size.mas_equalTo(CGSizeMake(40, 40));
-        make.centerY.equalTo(self.topView);
+        make.top.equalTo(self.topView).offset(16);
     }];
     [self.shareBtn mas_makeConstraints:^(MASConstraintMaker *make) {
         make.right.equalTo(self.topView).offset(-10);
         make.size.mas_equalTo(CGSizeMake(40, 40));
-        make.centerY.equalTo(self.topView);
+        make.top.equalTo(self.topView).offset(16);
     }];
 //    [self.titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
 //        make.leading.mas_equalTo(self.backBtn.mas_trailing).offset(50);
