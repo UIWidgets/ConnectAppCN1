@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using ConnectApp.Constants;
 using Unity.UIWidgets.foundation;
@@ -11,22 +12,20 @@ namespace ConnectApp.Utils {
         }
 
         public static string CountToString(int count, string placeholder = "") {
-            var countString = "";
-            if (count == 0) {
-                countString = placeholder;
-            }
 
             if (count > 0 && count < 1000) {
-                countString = count.ToString();
-            }
-            else if (count >= 1000 && count <= 10000) {
-                countString = $"{count / 1000f:f1}k";
-            }
-            else if (count > 10000) {
-                countString = "10k+";
+                return count.ToString();
             }
 
-            return countString;
+            if (count >= 1000 && count <= 10000) {
+                return $"{count / 1000f:f1}k";
+            }
+
+            if (count > 10000) {
+                return "10k+";
+            }
+
+            return placeholder;
         }
 
         public static string genAvatarName(string name) {
@@ -99,18 +98,62 @@ namespace ConnectApp.Utils {
             return "";
         }
 
-        public static long HexToLong(string number, long defaultValue = -1) {
-            if (string.IsNullOrEmpty(number)) {
+        public static long hexToLong(this string number, long defaultValue = -1) {
+            if (number.isEmpty()) {
                 return defaultValue;
             }
 
             try {
-                return Convert.ToInt64(number, 16);
+                return Convert.ToInt64(value: number, 16);
             }
             catch (Exception e) {
                 Debug.LogError($"Error in converting {number}: {e}");
                 return defaultValue;
             }
+        }
+
+        public static string httpToHttps(this string url) {
+            if (url.isEmpty()) {
+                return "";
+            }
+
+            return url.Contains("http://")
+                ? url.Replace("http://", "https://")
+                : url;
+        }
+
+        public static bool isUrl(this string url) {
+            if (url.isEmpty()) {
+                return false;
+            }
+
+            return url.StartsWith("http://") || url.StartsWith("https://");
+        }
+    }
+
+    public static class CCollectionUtils {
+        public static bool isNullOrEmpty<T>(this ICollection<T> it) {
+            return it == null || it.Count == 0;
+        }
+
+        public static bool isNotNullAndEmpty<T>(this ICollection<T> it) {
+            return it != null && it.Count > 0;
+        }
+
+        public static bool isNullOrEmpty<T>(this Queue<T> it) {
+            return it == null || it.Count == 0;
+        }
+
+        public static bool isNotNullAndEmpty<T>(this Queue<T> it) {
+            return it != null && it.Count > 0;
+        }
+
+        public static bool isNullOrEmpty<TKey, TValue>(this IDictionary<TKey, TValue> it) {
+            return it == null || it.Count == 0;
+        }
+
+        public static bool isNotNullAndEmpty<TKey, TValue>(this IDictionary<TKey, TValue> it) {
+            return it != null && it.Count > 0;
         }
     }
 }

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using ConnectApp.Constants;
 using ConnectApp.Models.Model;
-using ConnectApp.Models.ViewModel;
 using ConnectApp.Utils;
 
 namespace ConnectApp.Models.State {
@@ -174,7 +173,10 @@ namespace ConnectApp.Models.State {
                     messageDict = new Dictionary<string, ChannelMessageView>(),
                     channelTop = new Dictionary<string, bool>(),
                     socketConnected = true,
-                    mentionSuggestions = new Dictionary<string, Dictionary<string, ChannelMember>>()
+                    mentionSuggestions = new Dictionary<string, Dictionary<string, ChannelMember>>(),
+                    newNotifications = isLogin
+                        ? NewNotificationManager.getNewNotification(loginInfo.userId)
+                        : null
                 },
                 tabBarState = new TabBarState {
                     currentTabIndex = 0
@@ -182,7 +184,7 @@ namespace ConnectApp.Models.State {
                 favoriteState = new FavoriteState {
                     favoriteTagLoading = false,
                     favoriteDetailLoading = false,
-                    favoriteTagIds = new List<string>(),
+                    favoriteTagIdDict = new Dictionary<string, List<string>>(),
                     favoriteDetailArticleIdDict = new Dictionary<string, List<string>>(),
                     favoriteTagHasMore = false,
                     favoriteDetailHasMore = false,

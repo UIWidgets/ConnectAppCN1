@@ -149,6 +149,7 @@ namespace ConnectApp.Models.Api {
         public List<ChannelMessageLite> lastMessages;
         public List<NormalChannelLite> publicChannels;
         public List<NormalChannelLite> lobbyChannels;
+        public List<NormalChannelLite> privateChannels;
         public List<MessageUser> users;
     }
 
@@ -200,6 +201,7 @@ namespace ConnectApp.Models.Api {
         public bool mentionEveryone;
         public List<MessageUserLite> mentions;
         public List<Attachment> attachments;
+        public string deletedTime;
     }
 
     [Serializable]
@@ -281,6 +283,7 @@ namespace ConnectApp.Models.Api {
         public string workspaceId;
         public User user;
         public string role;
+        public string stickTime;
         public bool isBanned;
         public bool kicked;
         public bool left;

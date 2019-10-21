@@ -440,6 +440,7 @@ namespace ConnectApp.screens {
                                         },
                                         child: new Container(
                                             padding: EdgeInsets.all(6),
+                                            color: CColors.Transparent,
                                             child: new Container(
                                                 width: 24,
                                                 height: 24,
@@ -447,8 +448,8 @@ namespace ConnectApp.screens {
                                                     color: color,
                                                     borderRadius: BorderRadius.circular(12),
                                                     border: Border.all(
-                                                        color: isSelected ? CColors.TextBody : CColors.Transparent,
-                                                        width: 1.5f
+                                                        isSelected ? CColors.TextBody : CColors.Transparent,
+                                                        1.5f
                                                     )
                                                 )
                                             )

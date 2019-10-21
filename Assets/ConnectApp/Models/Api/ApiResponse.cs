@@ -93,6 +93,7 @@ namespace ConnectApp.Models.Api {
     public class FetchCommentsResponse {
         public List<Message> items;
         public List<Message> parents;
+        public List<Message> uppers;
         public Dictionary<string, UserLicense> userLicenseMap;
         public string currOldestMessageId;
         public bool hasMore;
@@ -190,7 +191,7 @@ namespace ConnectApp.Models.Api {
 
     [Serializable]
     public class FetchTeamMemberResponse {
-        public List<Member> members;
+        public List<TeamMember> members;
         public Dictionary<string, User> userMap;
         public Dictionary<string, bool> followMap;
         public bool hasMore;
@@ -222,7 +223,16 @@ namespace ConnectApp.Models.Api {
         public List<string> joinedList;
         public int discoverPage;
         public Dictionary<string, Channel> channelMap;
+        public Dictionary<string, ChannelMember> joinedMemberMap;
         public Dictionary<string, bool> joinedChannelMap;
+    }
+
+    [Serializable]
+    public class FetchStickChannelResponse {
+    }
+
+    [Serializable]
+    public class FetchUnStickChannelResponse {
     }
 
     [Serializable]
@@ -231,6 +241,10 @@ namespace ConnectApp.Models.Api {
         public bool hasMore;
         public bool hasMoreNew;
         public Dictionary<string, UserLicense> userLicenseMap; 
+    }
+
+    [Serializable]
+    public class DeleteChannelMessageResponse {
     }
 
     [Serializable]
@@ -246,13 +260,17 @@ namespace ConnectApp.Models.Api {
     }
 
     [Serializable]
-    public class JoinChannelResponse {
-        
+    public class FetchChannelMemberResponse {
+        public ChannelMember member;
     }
-    
+
+    [Serializable]
+    public class JoinChannelResponse {
+        public ChannelMember member;
+    }
+
     [Serializable]
     public class LeaveChannelResponse {
-        
     }
 
     [Serializable]

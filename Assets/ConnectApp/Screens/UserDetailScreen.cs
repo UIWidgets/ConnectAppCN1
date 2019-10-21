@@ -52,11 +52,12 @@ namespace ConnectApp.screens {
                         userLoading = state.userState.userLoading,
                         userArticleLoading = state.userState.userArticleLoading,
                         userFavoriteLoading = state.favoriteState.favoriteDetailLoading,
-                        favoriteArticleIdDict = state.favoriteState.favoriteDetailArticleIdDict,
+                        favoriteTagIdDict = state.favoriteState.favoriteTagIdDict,
                         userFavoriteHasMore = state.favoriteState.favoriteDetailHasMore,
                         user = user,
                         userLicenseDict = state.userState.userLicenseDict,
                         articleDict = state.articleState.articleDict,
+                        favoriteTagDict = state.favoriteState.favoriteTagDict,
                         followMap = followMap,
                         userDict = state.userState.userDict,
                         teamDict = state.teamState.teamDict,
@@ -70,16 +71,20 @@ namespace ConnectApp.screens {
                         fetchUserProfile = () => dispatcher.dispatch<IPromise>(Actions.fetchUserProfile(this.userId)),
                         startFetchUserArticle = () => dispatcher.dispatch(new StartFetchUserArticleAction()),
                         fetchUserArticle = (userId, pageNumber) =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchUserArticle(userId, pageNumber)),
+                            dispatcher.dispatch<IPromise>(Actions.fetchUserArticle(userId: userId, pageNumber: pageNumber)),
                         startFetchUserFavorite = () => dispatcher.dispatch(new StartFetchFavoriteDetailAction()),
                         fetchUserFavorite = (userId, offset) =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchFavoriteDetail(userId, "", offset)),
+                            dispatcher.dispatch<IPromise>(Actions.fetchFavoriteTags(userId: userId, offset: offset)),
                         startFollowUser = userId =>
                             dispatcher.dispatch(new StartFollowUserAction {followUserId = userId}),
-                        followUser = userId => dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(userId)),
+                        followUser = userId => 
+                            dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(followUserId: userId)),
                         startUnFollowUser = userId => dispatcher.dispatch(new StartUnFollowUserAction
                             {unFollowUserId = userId}),
-                        unFollowUser = userId => dispatcher.dispatch<IPromise>(Actions.fetchUnFollowUser(userId)),
+                        unFollowUser = userId => 
+                            dispatcher.dispatch<IPromise>(Actions.fetchUnFollowUser(unFollowUserId: userId)),
+                        deleteFavoriteTag = tagId =>
+                            dispatcher.dispatch<IPromise>(Actions.deleteFavoriteTag(tagId: tagId)),
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Login
@@ -87,6 +92,17 @@ namespace ConnectApp.screens {
                         pushToArticleDetail = id => dispatcher.dispatch(
                             new MainNavigatorPushToArticleDetailAction {
                                 articleId = id
+                            }
+                        ),
+                        pushToFavoriteDetail = (userId, tagId) => dispatcher.dispatch(
+                            new MainNavigatorPushToFavoriteDetailAction {
+                                userId = userId,
+                                tagId = tagId
+                            }
+                        ),
+                        pushToCreateFavorite = tagId => dispatcher.dispatch(
+                            new MainNavigatorPushToEditFavoriteAction {
+                                tagId = tagId
                             }
                         ),
                         pushToReport = (reportId, reportType) => dispatcher.dispatch(
@@ -168,6 +184,7 @@ namespace ConnectApp.screens {
         int _selectedIndex;
         Animation<RelativeRect> _animation;
         AnimationController _controller;
+        readonly CustomDismissibleController _dismissibleController = new CustomDismissibleController();
 
         public override void initState() {
             base.initState();
@@ -273,8 +290,8 @@ namespace ConnectApp.screens {
                     this._favoriteArticleOffset = 0;
                 }
                 else {
-                    var favoriteDetailArticleIds = this.widget.viewModel.favoriteArticleIdDict.ContainsKey($"{this.widget.viewModel.user.id}all")
-                        ? this.widget.viewModel.favoriteArticleIdDict[$"{this.widget.viewModel.user.id}all"]
+                    var favoriteDetailArticleIds = this.widget.viewModel.favoriteTagIdDict.ContainsKey(key: this.widget.viewModel.user.id)
+                        ? this.widget.viewModel.favoriteTagIdDict[key: this.widget.viewModel.user.id]
                         : new List<string>();
                     this._favoriteArticleOffset = favoriteDetailArticleIds.Count;
                 }
@@ -415,8 +432,8 @@ namespace ConnectApp.screens {
 
         Widget _buildUserContent(BuildContext context) {
             var articleIds = this.widget.viewModel.user.articleIds;
-            var favoriteIds = this.widget.viewModel.favoriteArticleIdDict.ContainsKey($"{this.widget.viewModel.user.id}all")
-                ? this.widget.viewModel.favoriteArticleIdDict[$"{this.widget.viewModel.user.id}all"]
+            var favoriteIds = this.widget.viewModel.favoriteTagIdDict.ContainsKey(key: this.widget.viewModel.user.id)
+                ? this.widget.viewModel.favoriteTagIdDict[key: this.widget.viewModel.user.id]
                 : null;
             var articlesHasMore = this.widget.viewModel.user.articlesHasMore ?? false;
             var userFavoriteHasMore = this.widget.viewModel.userFavoriteHasMore;
@@ -445,7 +462,6 @@ namespace ConnectApp.screens {
                         var favoriteCount = userFavoriteHasMore ? favoriteIds.Count : favoriteIds.Count + 1;
                         itemCount = 2 + (favoriteIds.Count == 0 ? 1 : favoriteCount);
                     }
-                    
                 }
             }
 
@@ -473,7 +489,15 @@ namespace ConnectApp.screens {
                                     return this._buildUserArticleTitle();
                                 }
 
-                                if ((userArticleLoading || userFavoriteLoading) && index == 2) {
+                                if (userArticleLoading && index == 2 && this._selectedIndex == 0) {
+                                    var height = MediaQuery.of(context: context).size.height - headerHeight - 44;
+                                    return new Container(
+                                        height: height,
+                                        child: new GlobalLoading()
+                                    );
+                                }
+
+                                if (userFavoriteLoading && index == 2 && this._selectedIndex == 1) {
                                     var height = MediaQuery.of(context: context).size.height - headerHeight - 44;
                                     return new Container(
                                         height: height,
@@ -511,9 +535,12 @@ namespace ConnectApp.screens {
                                     return new EndView();
                                 }
 
-                                var articleId = this._selectedIndex == 0
-                                    ? articleIds[index - 2]
-                                    : favoriteIds[index - 2];
+                                if (this._selectedIndex == 1) {
+                                    var favoriteId = favoriteIds[index - 2];
+                                    return this._buildFavoriteCard(favoriteId: favoriteId);
+                                }
+
+                                var articleId = articleIds[index - 2];
                                 if (!this.widget.viewModel.articleDict.ContainsKey(key: articleId)) {
                                     return new Container();
                                 }
@@ -928,6 +955,68 @@ namespace ConnectApp.screens {
                     )
                 )
             );
+        }
+
+        Widget _buildFavoriteCard(string favoriteId) {
+            var favoriteTagDict = this.widget.viewModel.favoriteTagDict;
+            if (!favoriteTagDict.ContainsKey(key: favoriteId)) {
+                return new Container();
+            }
+
+            var favoriteTag = favoriteTagDict[key: favoriteId];
+            return CustomDismissible.builder(
+                Key.key(value: favoriteTag.id),
+                new FavoriteCard(
+                    favoriteTag: favoriteTag,
+                    false,
+                    () => this.widget.actionModel.pushToFavoriteDetail(arg1: this.widget.viewModel.user.id,
+                        arg2: favoriteTag.id)
+                ),
+                new CustomDismissibleDrawerDelegate(),
+                secondaryActions: this._buildSecondaryActions(favoriteTag: favoriteTag),
+                controller: this._dismissibleController
+            );
+        }
+
+        List<Widget> _buildSecondaryActions(FavoriteTag favoriteTag) {
+            if (!this.widget.viewModel.isLoggedIn) {
+                return new List<Widget>();
+            }
+
+            if (this.widget.viewModel.currentUserId != this.widget.viewModel.user.id) {
+                return new List<Widget>();
+            }
+
+            if (favoriteTag.type == "default") {
+                return new List<Widget>();
+            }
+
+            return new List<Widget> {
+                new DeleteActionButton(
+                    80,
+                    EdgeInsets.only(24, right: 12),
+                    () => {
+                        ActionSheetUtils.showModalActionSheet(
+                            new ActionSheet(
+                                title: "确定删除收藏夹及收藏夹中的内容？",
+                                items: new List<ActionSheetItem> {
+                                    new ActionSheetItem(
+                                        "确定",
+                                        type: ActionType.normal,
+                                        () => this.widget.actionModel.deleteFavoriteTag(arg: favoriteTag.id)
+                                    ),
+                                    new ActionSheetItem("取消", type: ActionType.cancel)
+                                }
+                            )
+                        );
+                    }
+                ),
+                new EditActionButton(
+                    80,
+                    EdgeInsets.only(12, right: 24),
+                    () => this.widget.actionModel.pushToCreateFavorite(obj: favoriteTag.id)
+                )
+            };
         }
 
         public void didPopNext() {

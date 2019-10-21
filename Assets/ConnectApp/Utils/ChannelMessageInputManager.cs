@@ -69,10 +69,10 @@ namespace ConnectApp.Utils {
             for (int i = 0; i < this.contentSpans.Count; i++) {
                 if (this.mentionIds[i] != null) {
                     Dictionary<string, ChannelMember> userDict = null;
-                    if (suggestionDict.ContainsKey(this.mentionIds[i])) {
+                    if (suggestionDict != null && suggestionDict.ContainsKey(this.mentionIds[i])) {
                         userDict = suggestionDict;
                     }
-                    else if (membersDict.ContainsKey(this.mentionIds[i])) {
+                    else if (membersDict != null && membersDict.ContainsKey(this.mentionIds[i])) {
                         userDict = membersDict;
                     }
 

@@ -12,8 +12,8 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
@@ -256,7 +256,12 @@ namespace ConnectApp.screens {
                         child: new PageView(
                             physics: physics,
                             controller: this._pageController,
-                            onPageChanged: index => this.setState(() => this._selectedIndex = index),
+                            onPageChanged: index => {
+                                this.setState(() => this._selectedIndex = index);
+                                if (index == 0) {
+                                    AnalyticsManager.AnalyticsClickHomeFocus();
+                                }
+                            },
                             children: new List<Widget> {
                                 new FollowArticleScreenConnector(),
                                 new RecommendArticleScreenConnector()

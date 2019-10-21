@@ -18,9 +18,9 @@ namespace ConnectApp.Constants {
 
         public const string miniId = "gh_f731aec0bdd0";
 
-        public const string versionNumber = "1.1.4";
+        public const string versionNumber = "1.1.6";
 
-        public const int versionCode = 61;
+        public const int versionCode = 69;
 
         public const string messengerTag = "messenger";
 

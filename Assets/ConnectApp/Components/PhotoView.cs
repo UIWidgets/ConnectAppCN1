@@ -7,9 +7,10 @@ using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.Components {
     public class PhotoView : StatefulWidget {
@@ -81,17 +82,25 @@ namespace ConnectApp.Components {
                 onTap: () => { StoreProvider.store.dispatcher.dispatch(new MainNavigatorPopAction()); },
                 onLongPress: this._pickImage,
                 child: new Container(
-                    color: Colors.black,
+                    color: CColors.Black,
                     child: new Stack(
+                        alignment: Alignment.center,
                         children: new List<Widget> {
                             pageView,
                             new Positioned(
                                 bottom: 30,
-                                left: 0,
-                                right: 0,
-                                child: new Center(
+                                child: new Container(
+                                    height: 40,
+                                    padding: EdgeInsets.symmetric(0, 24),
+                                    alignment: Alignment.center,
+                                    decoration: new BoxDecoration(
+                                        color: Color.fromRGBO(0, 0, 0, 0.5f),
+                                        borderRadius: BorderRadius.all(20)
+                                    ),
                                     child: new Text($"{this.currentIndex + 1}/{this.widget.urls.Count}",
-                                        style: CTextStyle.H4White)))
+                                        style: CTextStyle.PLargeWhite.copyWith(height: 1))
+                                )
+                            )
                         })));
         }
 
@@ -101,6 +110,7 @@ namespace ConnectApp.Components {
             if (imagePath.isEmpty()) {
                 return;
             }
+
             var items = new List<ActionSheetItem> {
                 new ActionSheetItem(
                     "保存图片",

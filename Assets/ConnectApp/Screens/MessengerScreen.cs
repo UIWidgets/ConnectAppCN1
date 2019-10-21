@@ -13,8 +13,8 @@ using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
@@ -23,8 +23,8 @@ namespace ConnectApp.screens {
         public MessengerScreenConnector(
             Key key = null
         ) : base(key: key) {
-            
         }
+
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, MessengerScreenViewModel>(
                 converter: state => {
@@ -35,7 +35,18 @@ namespace ConnectApp.screens {
                                             isTop;
                             return channel;
                         }).ToList();
-                    joinedChannels.Sort((c1, c2) => c1.isTop == c2.isTop ? 0 : (c1.isTop ? -1 : 1));
+                    joinedChannels.Sort(
+                        (c1, c2) => {
+                            if (c1.isTop && !c2.isTop) {
+                                return -1;
+                            }
+
+                            if (!c1.isTop && c2.isTop) {
+                                return 1;
+                            }
+
+                            return (c2.lastMessage.time - c1.lastMessage.time).Milliseconds;
+                        });
                     var lastMessageMap = new Dictionary<string, string>();
                     foreach (var channel in joinedChannels) {
                         if (!string.IsNullOrEmpty(value: channel.lastMessageId)) {
@@ -46,7 +57,7 @@ namespace ConnectApp.screens {
                     return new MessengerScreenViewModel {
                         joinedChannels = joinedChannels,
                         lastMessageMap = lastMessageMap,
-                        hasUnreadNotifications = state.notificationState.notifications.Any(item => item.read == "false"),
+                        hasUnreadNotifications = state.channelState.newNotifications != null,
                         popularChannels = state.channelState.publicChannels
                             .Select(channelId => state.channelState.channelDict[key: channelId])
                             .Take(state.channelState.publicChannels.Count > 0
@@ -59,16 +70,25 @@ namespace ConnectApp.screens {
                                 ? 8
                                 : state.channelState.publicChannels.Count)
                             .ToList(),
-                        currentTabBarIndex = state.tabBarState.currentTabIndex
+                        currentTabBarIndex = state.tabBarState.currentTabIndex,
+                        socketConnected = state.channelState.socketConnected
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new MessengerScreenActionModel {
-                        pushToNotifications = () => dispatcher.dispatch(new MainNavigatorPushToAction {
-                            routeName = MainNavigatorRoutes.Notification
-                        }),
+                        pushToNotifications = () => {
+                            dispatcher.dispatch(new MainNavigatorPushToAction {
+                                routeName = MainNavigatorRoutes.Notification
+                            });
+                            dispatcher.dispatch(new UpdateNewNotificationAction {
+                                notification = null
+                            });
+                        },
                         pushToDiscoverChannels = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.DiscoverChannel
+                        }),
+                        updateNewNotification = () => dispatcher.dispatch(new UpdateNewNotificationAction {
+                            notification = ""
                         }),
                         pushToChannel = channelId => {
                             dispatcher.dispatch(new MainNavigatorPushToChannelAction {
@@ -78,10 +98,12 @@ namespace ConnectApp.screens {
                                 dispatcher.dispatch(Actions.ackChannelMessage(messageId: messageId));
                             }
                         },
-                        pushToChannelDetail = channelId => dispatcher.dispatch(new MainNavigatorPushToChannelDetailAction {
-                            channelId = channelId
-                        }),
-                        fetchChannels = pageNumber => dispatcher.dispatch<IPromise>(Actions.fetchChannels(page: pageNumber)),
+                        pushToChannelDetail = channelId => dispatcher.dispatch(
+                            new MainNavigatorPushToChannelDetailAction {
+                                channelId = channelId
+                            }),
+                        fetchChannels = pageNumber =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchChannels(page: pageNumber)),
                         startJoinChannel = channelId => dispatcher.dispatch(new StartJoinChannelAction {
                             channelId = channelId
                         }),
@@ -115,6 +137,7 @@ namespace ConnectApp.screens {
     public class _MessageScreenState : AutomaticKeepAliveClientMixin<MessengerScreen>, RouteAware {
         RefreshController _refreshController;
         int _pageNumber;
+        string _newNotificationSubId;
 
         protected override bool wantKeepAlive {
             get { return true; }
@@ -124,6 +147,9 @@ namespace ConnectApp.screens {
             base.initState();
             this._refreshController = new RefreshController();
             this._pageNumber = 1;
+            this._newNotificationSubId = EventBus.subscribe(sName: EventBusConstant.newNotifications, args => {
+                this.widget.actionModel.updateNewNotification();
+            });
         }
 
         public override void didChangeDependencies() {
@@ -133,6 +159,7 @@ namespace ConnectApp.screens {
 
         public override void dispose() {
             Router.routeObserve.unsubscribe(this);
+            EventBus.unSubscribe(sName: EventBusConstant.newNotifications, id: this._newNotificationSubId);
             base.dispose();
         }
 
@@ -148,7 +175,9 @@ namespace ConnectApp.screens {
                 child: new Column(
                     children: new List<Widget> {
                         this._buildNavigationBar(),
-                        new Container(color: CColors.Separator2, height: 1),
+                        !this.widget.viewModel.socketConnected
+                            ? this._buildNetworkDisconnectedNote()
+                            : new Container(color: CColors.Separator2, height: 1),
                         new Flexible(
                             child: new NotificationListener<ScrollNotification>(
                                 child: new Container(
@@ -187,29 +216,56 @@ namespace ConnectApp.screens {
                 new List<Widget> {
                     new CustomButton(
                         onPressed: () => this.widget.actionModel.pushToNotifications(),
+                        padding: EdgeInsets.symmetric(8, 16),
                         child: new Container(
                             width: 28,
                             height: 28,
                             child: new Stack(
                                 children: new List<Widget> {
-                                    new Icon(icon: Icons.outline_notification, color: CColors.Icon, size: 28),
-                                    Positioned.fill(new Align(
-                                        alignment: Alignment.topRight,
-                                        child: new NotificationDot(
-                                            this.widget.viewModel.hasUnreadNotifications
-                                            ? "" : null)))
+                                    new Icon(
+                                        icon: Icons.outline_notification,
+                                        color: CColors.Icon,
+                                        size: 28
+                                    ),
+                                    Positioned.fill(
+                                        new Align(
+                                            alignment: Alignment.topRight,
+                                            child: new NotificationDot(
+                                                this.widget.viewModel.hasUnreadNotifications ? "" : null,
+                                                new BorderSide(color: CColors.White, 2)
+                                            )
+                                        )
+                                    )
                                 }
                             )
                         )
                     )
                 },
                 backgroundColor: CColors.White,
-                0
+                0,
+                EdgeInsets.only(16, bottom: 8)
             );
         }
 
+        Widget _buildNetworkDisconnectedNote() {
+            return new Container(
+                height: 48,
+                color: CColors.Error.withAlpha((int) (255 * 0.16)),
+                child: new Center(
+                    child: new Text(
+                        "网络未连接",
+                        style: CTextStyle.PRegularError.copyWith(height: 1f)
+                    )
+                )
+            );
+        }
+        
         Widget _headerInSection(int section) {
             if (section == 0) {
+                return null;
+            }
+
+            if (this.widget.viewModel.publicChannels.isEmpty()) {
                 return null;
             }
 
@@ -224,12 +280,15 @@ namespace ConnectApp.screens {
                         color: CColors.Transparent,
                         child: new Row(
                             children: new List<Widget> {
-                                new Text(
-                                    "查看全部",
-                                    style: new TextStyle(
-                                        fontSize: 12,
-                                        fontFamily: "Roboto-Regular",
-                                        color: CColors.TextBody4
+                                new Padding(
+                                    padding: EdgeInsets.only(top: 2),
+                                    child: new Text(
+                                        "查看全部",
+                                        style: new TextStyle(
+                                            fontSize: 12,
+                                            fontFamily: "Roboto-Regular",
+                                            color: CColors.TextBody4
+                                        )
                                     )
                                 ),
                                 new Icon(

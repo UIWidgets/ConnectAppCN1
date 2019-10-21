@@ -74,7 +74,8 @@ namespace ConnectApp.Models.Model {
         public string channelId;
         public User user;
         public string role;
-        public string presenceStatus = null;
+        public string stickTime;
+        public string presenceStatus;
         public bool isBanned;
         public bool kicked;
         public bool left;
@@ -88,6 +89,7 @@ namespace ConnectApp.Models.Model {
                 channelId = data.channelId,
                 user = data.user,
                 role = data.role,
+                stickTime = data.stickTime,
                 presenceStatus = null,
                 isBanned = data.isBanned,
                 kicked = data.kicked,
@@ -103,6 +105,7 @@ namespace ConnectApp.Models.Model {
             this.channelId = data.channelId ?? this.channelId;
             this.user = data.user ?? this.user;
             this.role = data.role ?? this.role;
+            this.stickTime = data.stickTime ?? this.stickTime;
             this.isBanned = data.isBanned;
             this.kicked = data.kicked;
             this.left = data.left;
@@ -135,12 +138,14 @@ namespace ConnectApp.Models.Model {
         public bool sendingMessage = false;
         public bool sentMessageFailed = false;
         public bool sentMessageSuccess = false;
+        public bool sentImageSuccess = false;
         public bool hasMore = true;
         public bool hasMoreNew = true;
         public List<string> memberIds;
         public Dictionary<string, ChannelMember> membersDict;
         public int memberOffset;
-        public bool atBottom = true;
+        public bool atBottom = false;
+        public ChannelMember currentMember;
 
         public static ChannelView fromChannel(Channel channel) {
             return new ChannelView {
@@ -159,7 +164,8 @@ namespace ConnectApp.Models.Model {
                 lastMessage = ChannelMessageView.fromChannelMessage(channel?.lastMessage),
                 messageIds = new List<string>(),
                 oldMessageIds = new List<string>(),
-                newMessageIds = new List<string>()
+                newMessageIds = new List<string>(),
+                currentMember = new ChannelMember()
             };
         }
 
@@ -195,7 +201,8 @@ namespace ConnectApp.Models.Model {
                 lastMessageId = channel?.lastMessageId,
                 messageIds = new List<string>(),
                 oldMessageIds = new List<string>(),
-                newMessageIds = new List<string>()
+                newMessageIds = new List<string>(),
+                currentMember = new ChannelMember()
             };
         }
 
@@ -228,11 +235,7 @@ namespace ConnectApp.Models.Model {
         }
 
         public ChannelMember getMember(string userId) {
-            if (this.membersDict.TryGetValue(userId, out var member)) {
-                return member;
-            }
-
-            return null;
+            return this.membersDict.TryGetValue(key: userId, out var member) ? member : null;
         }
 
         public void updateMessageUser(MessageUser user, bool addUserIfNotExist = true) {
@@ -386,7 +389,8 @@ namespace ConnectApp.Models.Model {
                     attachments = message.attachments,
                     type = getType(message.content, message.attachments),
                     mentionEveryone = message.mentionEveryone,
-                    mentions = message.mentions?.Select(user => new User {id = user.id}).ToList()
+                    mentions = message.mentions?.Select(user => new User {id = user.id}).ToList(),
+                    deleted = message.deletedTime != null
                 };
         }
 
