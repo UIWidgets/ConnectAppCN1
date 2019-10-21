@@ -79,14 +79,21 @@ namespace ConnectApp.screens {
                         new Container(
                             margin: EdgeInsets.only(bottom: 16),
                             alignment: Alignment.center,
-                            child: new Icon(
-                                icon: Icons.UnityLogo,
-                                size: 64
+                            child: Image.asset(
+                                name: "image/img-unity_app_logo",
+                                width: 128,
+                                height: 128,
+                                fit: BoxFit.cover
                             )
                         ),
-                        new Text(
-                            "unity Connect",
-                            style: CTextStyle.H4
+                        new Container(
+                            alignment: Alignment.center,
+                            child: Image.asset(
+                                name: "image/img-unity_text_logo",
+                                width: 149,
+                                height: 24,
+                                fit: BoxFit.cover
+                            )
                         ),
                         new Container(height: 8),
                         new Text(
