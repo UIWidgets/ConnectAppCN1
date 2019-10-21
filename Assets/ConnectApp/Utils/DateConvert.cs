@@ -10,6 +10,9 @@ namespace ConnectApp.Utils {
     }
 
     public static class DateConvert {
+        static readonly DateTime startTime =
+            new DateTime(2016, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        
         public static string DateStringFromNow(DateTime dt, bool isLocal = false) {
             TimeSpan span = isLocal ? DateTime.Now - dt : DateTime.UtcNow - dt;
             if (span.TotalDays > 3) {
@@ -60,12 +63,40 @@ namespace ConnectApp.Utils {
         }
 
         public static string DateStringFromNonce(string nonce) {
-            var startTime = TimeZoneInfo.ConvertTime(new DateTime(2016, 1, 1), TimeZoneInfo.Local);
-            var span = Convert.ToInt64(nonce, 16);
+            return DateStringFromNow(DateTimeFromNonce(nonce), true);
+        }
+        
+        public static DateTime DateTimeFromNonce(string nonce) {
+            if (string.IsNullOrEmpty(nonce)) return startTime;
+            return DateTimeFromNonce(Convert.ToInt64(nonce, 16));
+        }
+        
+        public static DateTime DateTimeFromNonce(long span) {
             var shifted = (span + 1) >> 22;
             var timespan = (shifted - 1);
-            var dt = startTime.AddMilliseconds(timespan);
-            return DateStringFromNow(dt, true);
+            return startTime.AddMilliseconds(timespan);
+        }
+
+        public static string DateTimeString(this DateTime time, bool showTimeNotToday = true) {
+            var localtime = time.ToLocalTime();
+            if (showTimeNotToday) {
+                return localtime.Date == DateTime.Today
+                        ? localtime.ToString("HH:mm")
+                        : localtime.Date == DateTime.Today - TimeSpan.FromDays(1)
+                            ? $"昨天 {localtime:HH:mm}"
+                            : localtime.Year == DateTime.Today.Year
+                                ? localtime.ToString("M月d日 HH:mm")
+                                : localtime.ToString("yyyy年M月d日 HH:mm");
+            }
+            else {
+                return localtime.Date == DateTime.Today
+                        ? localtime.ToString("HH:mm")
+                        : localtime.Date == DateTime.Today - TimeSpan.FromDays(1)
+                            ? "昨天"
+                            : localtime.Year == DateTime.Today.Year
+                                ? localtime.ToString("M月d日")
+                                : localtime.ToString("yyyy年M月d日");
+            }
         }
 
         public static EventStatus GetEventStatus(TimeMap begin) {

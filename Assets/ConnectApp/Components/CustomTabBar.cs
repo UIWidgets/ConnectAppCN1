@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using ConnectApp.Constants;
+using ConnectApp.Models.State;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
@@ -13,10 +15,53 @@ using Color = Unity.UIWidgets.ui.Color;
 namespace ConnectApp.Components {
     public delegate bool SelectTabCallBack(int fromIndex, int toIndex);
 
+    public class CustomTabBarConnector : StatelessWidget {
+        public CustomTabBarConnector(
+            List<Widget> controllers,
+            List<CustomTabBarItem> items,
+            Color backgroundColor,
+            SelectTabCallBack tapCallBack = null,
+            Key key = null
+        ) : base(key: key) {
+            this.tapCallBack = tapCallBack;
+            this.backgroundColor = backgroundColor;
+            this.controllers = controllers;
+            this.items = items;
+        }
+
+        public readonly SelectTabCallBack tapCallBack;
+        public readonly Color backgroundColor;
+        public readonly List<Widget> controllers;
+        public readonly List<CustomTabBarItem> items;
+
+        public override Widget build(BuildContext context) {
+            return new StoreConnector<AppState, List<string>>(
+                converter: state => {
+                    return new List<string> {
+                        null,
+                        null,
+                        state.channelState.totalNotification(),
+                        null
+                    };
+                },
+                builder: (context1, notifications, dispatcher) => {
+                    return new CustomTabBar(
+                        controllers: this.controllers,
+                        items: this.items,
+                        backgroundColor: this.backgroundColor,
+                        notifications: notifications,
+                        tapCallBack: this.tapCallBack
+                    );
+                }
+            );
+        }
+    }
+
     public class CustomTabBar : StatefulWidget {
         public CustomTabBar(
             List<Widget> controllers,
             List<CustomTabBarItem> items,
+            List<string> notifications,
             Color backgroundColor,
             SelectTabCallBack tapCallBack = null,
             Key key = null
@@ -28,12 +73,14 @@ namespace ConnectApp.Components {
             this.items = items;
             this.backgroundColor = backgroundColor;
             this.tapCallBack = tapCallBack;
+            this.notifications = notifications;
         }
 
         public readonly SelectTabCallBack tapCallBack;
         public readonly Color backgroundColor;
         public readonly List<Widget> controllers;
         public readonly List<CustomTabBarItem> items;
+        public readonly List<string> notifications;
 
         public override State createState() {
             return new CustomTabBarState();
@@ -112,6 +159,7 @@ namespace ConnectApp.Components {
 
         List<Widget> _buildItems() {
             var children = new List<Widget>();
+            var screenWidth = MediaQuery.of(context: this.context).size.width;
             this.widget.items.ForEach(item => {
                 Widget buildItem = new Flexible(
                     child: new Stack(
@@ -134,18 +182,23 @@ namespace ConnectApp.Components {
                                 },
                                 child: new Container(
                                     decoration: new BoxDecoration(
-                                        CColors.Transparent
+                                        color: CColors.Transparent
                                     ),
                                     child: new Column(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: new List<Widget> {
-                                            new Icon(
-                                                this._selectedIndex == item.index
-                                                    ? item.selectedIcon
-                                                    : item.normalIcon, size: item.size,
-                                                color: this._selectedIndex == item.index
-                                                    ? item.activeColor
-                                                    : item.inActiveColor
+                                            new Padding(
+                                                padding: EdgeInsets.only(top: 5),
+                                                child: new Stack(
+                                                    children: new List<Widget> {
+                                                        new Icon(this._selectedIndex == item.index
+                                                                ? item.selectedIcon
+                                                                : item.normalIcon, size: item.size,
+                                                            color: this._selectedIndex == item.index
+                                                                ? item.activeColor
+                                                                : item.inActiveColor),
+                                                    }
+                                                )
                                             ),
                                             new Padding(
                                                 padding: EdgeInsets.only(top: 2.5f),
@@ -157,6 +210,14 @@ namespace ConnectApp.Components {
                                             )
                                         }
                                     )
+                                )
+                            ),
+                            new Positioned(
+                                left: (float) Math.Ceiling(screenWidth / 8) + 2,
+                                top: 4,
+                                child: new NotificationDot(
+                                    this.widget.notifications[index: item.index],
+                                    new BorderSide(color: CColors.White, 2)
                                 )
                             )
                         }

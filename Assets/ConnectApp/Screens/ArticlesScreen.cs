@@ -12,8 +12,8 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
@@ -44,7 +44,8 @@ namespace ConnectApp.screens {
                         pushToReality = () => {
                             dispatcher.dispatch(new EnterRealityAction());
                             AnalyticsManager.AnalyticsClickEgg(1);
-                        }
+                        },
+                        fetchChannels = () => dispatcher.dispatch<IPromise>(Actions.fetchChannels(1)),
                     };
                     return new ArticlesScreen(viewModel: viewModel, actionModel: actionModel);
                 }
@@ -96,7 +97,12 @@ namespace ConnectApp.screens {
             StatusBarManager.hideStatusBar(false);
             SplashManager.fetchSplash();
             AnalyticsManager.AnalyticsOpenApp();
-            SchedulerBinding.instance.addPostFrameCallback(_ => { this.widget.actionModel.fetchReviewUrl(); });
+            SchedulerBinding.instance.addPostFrameCallback(_ => {
+                this.widget.actionModel.fetchReviewUrl();
+                if (this.widget.viewModel.isLoggedIn) {
+                    this.widget.actionModel.fetchChannels();
+                }
+            });
             this._loginSubId = EventBus.subscribe(sName: EventBusConstant.login_success, args => {
                 if (this._selectedIndex != 1) {
                     this._selectedIndex = 1;
@@ -250,7 +256,12 @@ namespace ConnectApp.screens {
                         child: new PageView(
                             physics: physics,
                             controller: this._pageController,
-                            onPageChanged: index => this.setState(() => this._selectedIndex = index),
+                            onPageChanged: index => {
+                                this.setState(() => this._selectedIndex = index);
+                                if (index == 0) {
+                                    AnalyticsManager.AnalyticsClickHomeFocus();
+                                }
+                            },
                             children: new List<Widget> {
                                 new FollowArticleScreenConnector(),
                                 new RecommendArticleScreenConnector()

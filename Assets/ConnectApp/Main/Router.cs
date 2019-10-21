@@ -18,6 +18,7 @@ namespace ConnectApp.Main {
         public const string Main = "/main";
         public const string Search = "/search";
         public const string ArticleDetail = "/article-detail";
+        public const string Notification = "/notification";
         public const string Setting = "/setting";
         public const string MyEvent = "/my-event";
         public const string MyFavorite = "/my-favorite";
@@ -38,6 +39,11 @@ namespace ConnectApp.Main {
         public const string QRScanLogin = "/qr-login";
         public const string Feedback = "/feedback";
         public const string FeedbackType = "/feedback-type";
+        public const string DiscoverChannel = "/discover-channel";
+        public const string ChannelScreen = "/channel-screen";
+        public const string ChannelDetail = "/channel-detail";
+        public const string ChannelMembers = "/channel-members";
+        public const string ChannelIntroduction = "/channel-introduction";
     }
 
     class Router : StatelessWidget {
@@ -59,6 +65,7 @@ namespace ConnectApp.Main {
                 var routes = new Dictionary<string, WidgetBuilder> {
                     {MainNavigatorRoutes.Search, context => new SearchScreenConnector()},
                     {MainNavigatorRoutes.ArticleDetail, context => new ArticleDetailScreenConnector("")},
+                    {MainNavigatorRoutes.Notification, context => new NotificationScreenConnector()},
                     {MainNavigatorRoutes.Setting, context => new SettingScreenConnector()},
                     {MainNavigatorRoutes.MyEvent, context => new MyEventsScreenConnector()},
                     {MainNavigatorRoutes.MyFavorite, context => new MyFavoriteScreenConnector()},
@@ -78,7 +85,12 @@ namespace ConnectApp.Main {
                     {MainNavigatorRoutes.TeamMember, context => new TeamMemberScreenConnector("")},
                     {MainNavigatorRoutes.QRScanLogin, context => new QRScanLoginScreenConnector("")},
                     {MainNavigatorRoutes.Feedback, context => new FeedbackScreenConnector()},
-                    {MainNavigatorRoutes.FeedbackType, context => new FeedbackTypeScreenConnector()}
+                    {MainNavigatorRoutes.FeedbackType, context => new FeedbackTypeScreenConnector()},
+                    {MainNavigatorRoutes.DiscoverChannel, context => new DiscoverChannelsScreenConnector()},
+                    {MainNavigatorRoutes.ChannelScreen, context => new ChannelScreenConnector("")},
+                    {MainNavigatorRoutes.ChannelDetail, context => new ChannelDetailScreenConnector("")},
+                    {MainNavigatorRoutes.ChannelMembers, context => new ChannelMembersScreenConnector("")},
+                    {MainNavigatorRoutes.ChannelIntroduction, context => new ChannelIntroductionScreenConnector("")},
                 };
                 if (Application.isEditor) {
                     var isExistSplash = SplashManager.isExistSplash();
@@ -113,6 +125,7 @@ namespace ConnectApp.Main {
             GlobalContext.context = context;
             return new WillPopScope(
                 onWillPop: () => {
+                    TipMenu.dismiss();
                     var promise = new Promise<bool>();
                     if (LoginScreen.navigator?.canPop() ?? false) {
                         LoginScreen.navigator.pop();

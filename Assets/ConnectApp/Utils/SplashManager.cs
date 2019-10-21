@@ -1,10 +1,8 @@
-using System;
 using System.IO;
 using ConnectApp.Api;
 using ConnectApp.Models.Model;
 using Newtonsoft.Json;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.ui;
 using UnityEngine;
 
 namespace ConnectApp.Utils {
@@ -18,13 +16,7 @@ namespace ConnectApp.Utils {
         public static byte[] readImage() {
             if (image_bytes == null) {
                 var splash = JsonConvert.DeserializeObject<Splash>(PlayerPrefs.GetString(SPLASHINFOKEY));
-                FileStream fs = new FileStream(PATH + splash.image.GetHashCode(), FileMode.Open, FileAccess.Read);
-                fs.Seek(0, SeekOrigin.Begin);
-                byte[] bytes = new byte[fs.Length];
-                fs.Read(bytes, 0, (int) fs.Length);
-                fs.Close();
-                fs.Dispose();
-                image_bytes = bytes;
+                image_bytes = CImageUtils.readImage(PATH + splash.image.GetHashCode());
             }
 
             return image_bytes;

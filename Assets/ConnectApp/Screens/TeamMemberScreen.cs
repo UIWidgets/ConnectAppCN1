@@ -34,7 +34,7 @@ namespace ConnectApp.screens {
                     var team = state.teamState.teamDict.ContainsKey(key: this.teamId)
                         ? state.teamState.teamDict[key: this.teamId]
                         : new Team();
-                    var members = team.members ?? new List<Member>();
+                    var members = team.members ?? new List<TeamMember>();
                     var currentUserId = state.loginState.loginInfo.userId ?? "";
                     var followMap = state.followState.followDict.ContainsKey(key: currentUserId)
                         ? state.followState.followDict[key: currentUserId]

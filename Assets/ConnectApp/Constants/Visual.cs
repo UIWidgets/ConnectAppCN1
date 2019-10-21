@@ -15,6 +15,14 @@ namespace ConnectApp.Constants {
         public static readonly IconData WechatIcon = new IconData(0xe61f, "iconfont");
 
         public static readonly IconData description = new IconData(0xe873, "Material Icons");
+        public static readonly IconData question_answer = new IconData(0xe8af, "Material Icons");
+        public static readonly IconData outline_delete_keyboard = new IconData(0xe626, "iconfont");
+        public static readonly IconData outline_keyboard = new IconData(0xeaf9, "Outline Material Icons");
+        public static readonly IconData outline_question_answer = new IconData(0xeaa4, "Outline Material Icons");
+        public static readonly IconData outline_time = new IconData(0xebed, "Outline Material Icons");
+        public static readonly IconData whatshot = new IconData(0xe80e, "Material Icons");
+        public static readonly IconData outline_photo_size_select_actual = new IconData(0xebca, "Outline Material Icons");
+        public static readonly IconData notifications_off = new IconData(0xe7f6, "Material Icons");
         public static readonly IconData outline_description = new IconData(0xe621, "iconfont");
         public static readonly IconData eventIcon = new IconData(0xe60b, "iconfont");
         public static readonly IconData outline_event = new IconData(0xe614, "iconfont");
@@ -140,7 +148,6 @@ namespace ConnectApp.Constants {
             fontFamily: "Roboto-Medium",
             color: CColors.TextTitle
         );
-
 
         public static readonly TextStyle PXLarge = new TextStyle(
             height: 1.68f,
@@ -372,7 +379,7 @@ namespace ConnectApp.Constants {
             fontFamily: "Roboto-Regular",
             color: CColors.PrimaryBlue
         );
-
+        
         public static readonly TextStyle Caption = new TextStyle(
             height: 1.53f,
             fontSize: 12,
@@ -424,6 +431,20 @@ namespace ConnectApp.Constants {
             fontFamily: "Roboto-Regular",
             color: CColors.TextBody5
         );
+
+        public static readonly TextStyle PSmallWhite = new TextStyle(
+            height: 1.53f,
+            fontSize: 12,
+            fontFamily: "Roboto-Regular",
+            color: CColors.White
+        );
+
+        public static readonly TextStyle PRedDot = new TextStyle(
+            height: 1.1f,
+            fontSize: 12,
+            fontFamily: "Roboto-Bold",
+            color: CColors.White
+        );
     }
 
     public static class CColors {
@@ -463,6 +484,7 @@ namespace ConnectApp.Constants {
 
         public static readonly Color Background = new Color(0xFFFAFAFA);
         public static readonly Color Icon = new Color(0xFF979A9E);
+        public static readonly Color EmojiBottomBar = new Color(0xFFF4F4F4);
 
         public static readonly Color Gerakdine = new Color(0xFFFF8686);
         public static readonly Color Tan = new Color(0xFFFFAB6D);
@@ -474,5 +496,9 @@ namespace ConnectApp.Constants {
         public static readonly Color DullLavender = new Color(0xFF9E91F8);
         public static readonly Color BrightLavender = new Color(0xFFC586F3);
         public static readonly Color Comet = new Color(0xFF636672);
+        public static readonly Color AquaMarine = new Color(0xFF1DE9B6);
+        public static readonly Color MuteIcon = new Color(0xFFC7CBCF);
+        public static readonly Color GreyMessage = new Color(0xFFF0F0F0);
+        public static readonly Color BlueMessage = new Color(0xFFC5E8FF);
     }
 }

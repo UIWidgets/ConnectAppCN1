@@ -24,6 +24,7 @@ namespace ConnectApp.Models.State {
         public SettingState settingState { get; set; }
         public ReportState reportState { get; set; }
         public FeedbackState feedbackState { get; set; }
+        public ChannelState channelState { get; set; }
         public TabBarState tabBarState { get; set; }
         public FavoriteState favoriteState { get; set; }
 
@@ -160,6 +161,22 @@ namespace ConnectApp.Models.State {
                 feedbackState = new FeedbackState {
                     feedbackType = FeedbackType.Advice,
                     loading = false
+                },
+                channelState = new ChannelState {
+                    publicChannels = new List<string>(),
+                    joinedChannels = new List<string>(),
+                    discoverPage = 1,
+                    messageLoading = false,
+                    totalUnread = 0,
+                    totalMention = 0,
+                    channelDict = new Dictionary<string, ChannelView>(),
+                    messageDict = new Dictionary<string, ChannelMessageView>(),
+                    channelTop = new Dictionary<string, bool>(),
+                    socketConnected = true,
+                    mentionSuggestions = new Dictionary<string, Dictionary<string, ChannelMember>>(),
+                    newNotifications = isLogin
+                        ? NewNotificationManager.getNewNotification(loginInfo.userId)
+                        : null
                 },
                 tabBarState = new TabBarState {
                     currentTabIndex = 0

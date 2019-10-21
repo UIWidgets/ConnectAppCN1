@@ -45,6 +45,12 @@ namespace ConnectApp.Reality {
             var shellScale = this.shell.transform.localScale;
             shellScale.x *= widthRatio;
             shellScale.y *= heightRatio;
+
+            if (widthRatio < heightRatio) {
+                shellScale.x *= widthRatio / heightRatio;
+                shellScale.y *= widthRatio / heightRatio;
+            }
+            
             this.shell.transform.localScale = shellScale;
 
             var inHandLocalPosition = this.inHand.localPosition;

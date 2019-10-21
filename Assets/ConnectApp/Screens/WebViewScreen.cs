@@ -52,14 +52,11 @@ namespace ConnectApp.screens {
                         }
                     }
                 );
-                this._webViewObject.LoadURL(this.widget.url);
                 this._webViewObject.ClearCookies();
                 if (HttpManager.getCookie().isNotEmpty()) {
-#if UNITY_IOS
                     this._webViewObject.AddCustomHeader("Cookie", HttpManager.getCookie());
-#endif
                 }
-
+                this._webViewObject.LoadURL(this.widget.url);
                 this._webViewObject.SetVisibility(true);
             }
 
