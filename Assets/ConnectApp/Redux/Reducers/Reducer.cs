@@ -1298,236 +1298,152 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case MainNavigatorPushToChannelAction action: {
-                    state.channelState.channelDict[action.channelId].unread = 0;
-                    state.channelState.channelDict[action.channelId].mentioned = 0;
-                    state.channelState.channelDict[action.channelId].atAll = false;
-                    state.channelState.channelDict[action.channelId].atMe = false;
+                    state.channelState.channelDict[key: action.channelId].unread = 0;
+                    state.channelState.channelDict[key: action.channelId].mentioned = 0;
+                    state.channelState.channelDict[key: action.channelId].atAll = false;
+                    state.channelState.channelDict[key: action.channelId].atMe = false;
                     state.channelState.updateTotalMention();
-                    Router.navigator.push(new PageRouteBuilder(
-                            pageBuilder: (context, animation, secondaryAnimation) =>
-                                new ChannelScreenConnector(action.channelId),
-                            transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
-                                new PushPageTransition(
-                                    routeAnimation: animation,
-                                    child: child
-                                )
-                        )
-                    );
+                    if (action.channelId.isNotEmpty()) {
+                        Router.navigator.push(new CustomPageRoute(
+                            context => new ChannelScreenConnector(channelId: action.channelId)
+                        ));
+                    }
+
                     break;
                 }
 
                 case MainNavigatorPushToChannelDetailAction action: {
-                    Router.navigator.push(new PageRouteBuilder(
-                            pageBuilder: (context, animation, secondaryAnimation) =>
-                                new ChannelDetailScreenConnector(action.channelId),
-                            transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
-                                new PushPageTransition(
-                                    routeAnimation: animation,
-                                    child: child
-                                )
-                        )
-                    );
+                    if (action.channelId.isNotEmpty()) {
+                        Router.navigator.push(new CustomPageRoute(
+                            context => new ChannelDetailScreenConnector(channelId: action.channelId)
+                        ));
+                    }
+
                     break;
                 }
 
                 case MainNavigatorPushToChannelMembersAction action: {
-                    Router.navigator.push(new PageRouteBuilder(
-                            pageBuilder: (context, animation, secondaryAnimation) =>
-                                new ChannelMembersScreenConnector(action.channelId),
-                            transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
-                                new PushPageTransition(
-                                    routeAnimation: animation,
-                                    child: child
-                                )
-                        )
-                    );
+                    if (action.channelId.isNotEmpty()) {
+                        Router.navigator.push(new CustomPageRoute(
+                            context => new ChannelMembersScreenConnector(channelId: action.channelId)
+                        ));
+                    }
+
                     break;
                 }
 
                 case MainNavigatorPushToChannelIntroductionAction action: {
-                    Router.navigator.push(new PageRouteBuilder(
-                            pageBuilder: (context, animation, secondaryAnimation) =>
-                                new ChannelIntroductionScreenConnector(action.channelId),
-                            transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
-                                new PushPageTransition(
-                                    routeAnimation: animation,
-                                    child: child
-                                )
-                        )
-                    );
+                    if (action.channelId.isNotEmpty()) {
+                        Router.navigator.push(new CustomPageRoute(
+                            context => new ChannelIntroductionScreenConnector(channelId: action.channelId)
+                        ));
+                    }
+
                     break;
                 }
 
                 case MainNavigatorPushToArticleDetailAction action: {
-                    if (action.articleId != null) {
-                        Router.navigator.push(new PageRouteBuilder(
-                                pageBuilder: (context, animation, secondaryAnimation) =>
-                                    new ArticleDetailScreenConnector(articleId: action.articleId,
-                                        isPush: action.isPush),
-                                transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
-                                    new PushPageTransition(
-                                        routeAnimation: animation,
-                                        child: child
-                                    )
-                            )
-                        );
+                    if (action.articleId.isNotEmpty()) {
+                        Router.navigator.push(new CustomPageRoute(
+                            context => new ArticleDetailScreenConnector(articleId: action.articleId,
+                                isPush: action.isPush)
+                        ));
                     }
 
                     break;
                 }
 
                 case MainNavigatorPushToUserDetailAction action: {
-                    if (action.userId != null) {
-                        Router.navigator.push(new PageRouteBuilder(
-                                pageBuilder: (context, animation, secondaryAnimation) =>
-                                    new UserDetailScreenConnector(userId: action.userId, isSlug: action.isSlug),
-                                transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
-                                    new PushPageTransition(
-                                        routeAnimation: animation,
-                                        child: child
-                                    )
-                            )
-                        );
+                    if (action.userId.isNotEmpty()) {
+                        Router.navigator.push(new CustomPageRoute(
+                            context => new UserDetailScreenConnector(userId: action.userId, isSlug: action.isSlug)
+                        ));
                     }
 
                     break;
                 }
 
                 case MainNavigatorPushToUserFollowingAction action: {
-                    if (action.userId != null) {
-                        Router.navigator.push(new PageRouteBuilder(
-                                pageBuilder: (context, animation, secondaryAnimation) =>
-                                    new UserFollowingScreenConnector(userId: action.userId,
-                                        initialPage: action.initialPage),
-                                transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
-                                    new PushPageTransition(
-                                        routeAnimation: animation,
-                                        child: child
-                                    )
-                            )
-                        );
+                    if (action.userId.isNotEmpty()) {
+                        Router.navigator.push(new CustomPageRoute(
+                            context => new UserFollowingScreenConnector(userId: action.userId,
+                                initialPage: action.initialPage)
+                        ));
                     }
 
                     break;
                 }
 
                 case MainNavigatorPushToUserFollowerAction action: {
-                    if (action.userId != null) {
-                        Router.navigator.push(new PageRouteBuilder(
-                                pageBuilder: (context, animation, secondaryAnimation) =>
-                                    new UserFollowerScreenConnector(userId: action.userId),
-                                transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
-                                    new PushPageTransition(
-                                        routeAnimation: animation,
-                                        child: child
-                                    )
-                            )
-                        );
+                    if (action.userId.isNotEmpty()) {
+                        Router.navigator.push(new CustomPageRoute(
+                            context => new UserFollowerScreenConnector(userId: action.userId)
+                        ));
                     }
 
                     break;
                 }
 
                 case MainNavigatorPushToEditPersonalInfoAction action: {
-                    if (action.userId != null) {
-                        Router.navigator.push(new PageRouteBuilder(
-                                pageBuilder: (context, animation, secondaryAnimation) =>
-                                    new EditPersonalInfoScreenConnector(personalId: action.userId),
-                                transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
-                                    new PushPageTransition(
-                                        routeAnimation: animation,
-                                        child: child
-                                    )
-                            )
-                        );
+                    if (action.userId.isNotEmpty()) {
+                        Router.navigator.push(new CustomPageRoute(
+                            context => new EditPersonalInfoScreenConnector(personalId: action.userId)
+                        ));
                     }
 
                     break;
                 }
 
                 case MainNavigatorPushToTeamDetailAction action: {
-                    if (action.teamId != null) {
-                        Router.navigator.push(new PageRouteBuilder(
-                                pageBuilder: (context, animation, secondaryAnimation) =>
-                                    new TeamDetailScreenConnector(teamId: action.teamId, isSlug: action.isSlug),
-                                transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
-                                    new PushPageTransition(
-                                        routeAnimation: animation,
-                                        child: child
-                                    )
-                            )
-                        );
+                    if (action.teamId.isNotEmpty()) {
+                        Router.navigator.push(new CustomPageRoute(
+                            context => new TeamDetailScreenConnector(teamId: action.teamId, isSlug: action.isSlug)
+                        ));
                     }
 
                     break;
                 }
 
                 case MainNavigatorPushToTeamFollowerAction action: {
-                    if (action.teamId != null) {
-                        Router.navigator.push(new PageRouteBuilder(
-                                pageBuilder: (context, animation, secondaryAnimation) =>
-                                    new TeamFollowerScreenConnector(teamId: action.teamId),
-                                transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
-                                    new PushPageTransition(
-                                        routeAnimation: animation,
-                                        child: child
-                                    )
-                            )
-                        );
+                    if (action.teamId.isNotEmpty()) {
+                        Router.navigator.push(new CustomPageRoute(
+                            context => new TeamFollowerScreenConnector(teamId: action.teamId)
+                        ));
                     }
 
                     break;
                 }
 
                 case MainNavigatorPushToTeamMemberAction action: {
-                    if (action.teamId != null) {
-                        Router.navigator.push(new PageRouteBuilder(
-                                pageBuilder: (context, animation, secondaryAnimation) =>
-                                    new TeamMemberScreenConnector(teamId: action.teamId),
-                                transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
-                                    new PushPageTransition(
-                                        routeAnimation: animation,
-                                        child: child
-                                    )
-                            )
-                        );
+                    if (action.teamId.isNotEmpty()) {
+                        Router.navigator.push(new CustomPageRoute(
+                            context => new TeamMemberScreenConnector(teamId: action.teamId)
+                        ));
                     }
 
                     break;
                 }
 
                 case MainNavigatorPushToEventDetailAction action: {
-                    if (action.eventId != null) {
-                        Router.navigator.push(new PageRouteBuilder(
-                            pageBuilder: (context, animation, secondaryAnimation) => {
+                    if (action.eventId.isNotEmpty()) {
+                        Router.navigator.push(new CustomPageRoute(
+                            context => {
                                 if (action.eventType == EventType.offline) {
                                     return new EventOfflineDetailScreenConnector(eventId: action.eventId);
                                 }
 
                                 return new EventOnlineDetailScreenConnector(eventId: action.eventId);
-                            },
-                            transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
-                                new PushPageTransition(
-                                    routeAnimation: animation,
-                                    child: child
-                                ))
-                        );
+                            }
+                        ));
                     }
 
                     break;
                 }
 
                 case MainNavigatorPushToReportAction action: {
-                    Router.navigator.push(new PageRouteBuilder(
-                            pageBuilder: (context, animation, secondaryAnimation) =>
-                                new ReportScreenConnector(reportId: action.reportId, reportType: action.reportType),
-                            transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
-                                new PushPageTransition(
-                                    routeAnimation: animation,
-                                    child: child
-                                )
-                        )
-                    );
+                    Router.navigator.push(new CustomPageRoute(
+                        context => new ReportScreenConnector(reportId: action.reportId, reportType: action.reportType)
+                    ));
 
                     break;
                 }
@@ -1554,18 +1470,6 @@ namespace ConnectApp.redux.reducers {
                         }
                     }
 
-                    break;
-                }
-
-                case LoginNavigatorPushToBindUnityAction _: {
-                    LoginScreen.navigator.push(new PageRouteBuilder(
-                        pageBuilder: (context, animation, secondaryAnimation) =>
-                            new BindUnityScreenConnector(fromPage: FromPage.login),
-                        transitionsBuilder: (context1, animation, secondaryAnimation, child) => new PushPageTransition(
-                            routeAnimation: animation,
-                            child: child
-                        ))
-                    );
                     break;
                 }
 
@@ -1599,15 +1503,9 @@ namespace ConnectApp.redux.reducers {
 
                 case MainNavigatorPushToWebViewAction action: {
                     if (action.url != null) {
-                        Router.navigator.push(new PageRouteBuilder(
-                            pageBuilder: (context, animation, secondaryAnimation) =>
-                                new WebViewScreen(url: action.url),
-                            transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
-                                new PushPageTransition(
-                                    routeAnimation: animation,
-                                    child: child
-                                ))
-                        );
+                        Router.navigator.push(new CustomPageRoute(
+                            context => new WebViewScreen(url: action.url)
+                        ));
                     }
 
                     break;
@@ -1615,16 +1513,10 @@ namespace ConnectApp.redux.reducers {
 
                 case MainNavigatorPushToVideoPlayerAction action: {
                     if (action.url != null) {
-                        Router.navigator.push(new PageRouteBuilder(
-                                pageBuilder: (context, animation, secondaryAnimation) =>
-                                    new VideoViewScreen(action.url, action.needUpdate, action.limitSeconds),
-                                transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
-                                    new PushPageTransition(
-                                        routeAnimation: animation,
-                                        child: child
-                                    )
-                            )
-                        );
+                        Router.navigator.push(new CustomPageRoute(
+                            context => new VideoViewScreen(url: action.url, needUpdate: action.needUpdate,
+                                limitSeconds: action.limitSeconds)
+                        ));
                     }
 
                     break;
@@ -1632,49 +1524,29 @@ namespace ConnectApp.redux.reducers {
 
                 case MainNavigatorPushToQRScanLoginAction action: {
                     if (action.token != null) {
-                        Router.navigator.push(new PageRouteBuilder(
-                                pageBuilder: (context, animation, secondaryAnimation) =>
-                                    new QRScanLoginScreenConnector(token: action.token),
-                                transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
-                                    new ModalPageTransition(
-                                        routeAnimation: animation,
-                                        child: child
-                                    )
-                            )
-                        );
+                        Router.navigator.push(new CustomPageRoute(
+                            context => new QRScanLoginScreenConnector(token: action.token),
+                            fullscreenDialog: true
+                        ));
                     }
 
                     break;
                 }
 
                 case MainNavigatorPushToFavoriteDetailAction action: {
-                    if (action.tagId != null) {
-                        Router.navigator.push(new PageRouteBuilder(
-                                pageBuilder: (context, animation, secondaryAnimation) =>
-                                    new FavoriteDetailScreenConnector(tagId: action.tagId, userId: action.userId),
-                                transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
-                                    new PushPageTransition(
-                                        routeAnimation: animation,
-                                        child: child
-                                    )
-                            )
-                        );
+                    if (action.tagId.isNotEmpty()) {
+                        Router.navigator.push(new CustomPageRoute(
+                            context => new FavoriteDetailScreenConnector(tagId: action.tagId, userId: action.userId)
+                        ));
                     }
 
                     break;
                 }
 
                 case MainNavigatorPushToEditFavoriteAction action: {
-                    Router.navigator.push(new PageRouteBuilder(
-                            pageBuilder: (context, animation, secondaryAnimation) =>
-                                new EditFavoriteScreenConnector(tagId: action.tagId),
-                            transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
-                                new PushPageTransition(
-                                    routeAnimation: animation,
-                                    child: child
-                                )
-                        )
-                    );
+                    Router.navigator.push(new CustomPageRoute(
+                        context => new EditFavoriteScreenConnector(tagId: action.tagId)
+                    ));
 
                     break;
                 }
@@ -1682,17 +1554,11 @@ namespace ConnectApp.redux.reducers {
                 case MainNavigatorPushToPhotoViewAction action: {
                     if (action.url.isNotEmpty() && action.urls.isNotEmpty() && action.urls.Contains(action.url)) {
                         var index = action.urls.IndexOf(action.url);
-                        Router.navigator.push(new PageRouteBuilder(
-                                pageBuilder: (context, animation, secondaryAnimation) =>
-                                    new PhotoView(action.urls, index: index,
-                                        useCachedNetworkImage: action.useCachedNetworkImage),
-                                transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
-                                    new ModalPageTransition(
-                                        routeAnimation: animation,
-                                        child: child
-                                    )
-                            )
-                        );
+                        Router.navigator.push(new CustomPageRoute(
+                            context => new PhotoView(urls: action.urls, index: index,
+                                useCachedNetworkImage: action.useCachedNetworkImage),
+                            fullscreenDialog: true
+                        ));
                     }
 
                     break;
@@ -3040,20 +2906,17 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case MainNavigatorPushToChannelMentionAction action: {
-                    Router.navigator.push(new PageRouteBuilder(
-                            pageBuilder: (context, animation, secondaryAnimation) =>
-                                new ChannelMentionScreenConnector(action.channelId),
-                            transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
-                                new ModalPageTransition(
-                                    routeAnimation: animation,
-                                    child: child
-                                )
-                        )
-                    );
+                    if (action.channelId.isNotEmpty()) {
+                        Router.navigator.push(new CustomPageRoute(
+                            context => new ChannelMentionScreenConnector(channelId: action.channelId),
+                            fullscreenDialog: true
+                        ));
+                    }
+
                     break;
                 }
 
-                case ChannelChooseMentionCancelAction action: {
+                case ChannelChooseMentionCancelAction _: {
                     state.channelState.mentionAutoFocus = true;
                     state.channelState.mentionUserId = "";
                     break;
@@ -3065,7 +2928,7 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
-                case ChannelClearMentionAction action: {
+                case ChannelClearMentionAction _: {
                     state.channelState.mentionAutoFocus = false;
                     state.channelState.mentionUserId = "";
                     break;
