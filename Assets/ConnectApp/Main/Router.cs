@@ -133,7 +133,7 @@ namespace ConnectApp.Main {
                     }
                     else if (Screen.orientation != ScreenOrientation.Portrait) {
                         //视频全屏时禁止物理返回按钮
-                        EventBus.publish(EventBusConstant.fullScreen, new List<object> {true});
+                        EventBus.publish(sName: EventBusConstant.fullScreen, new List<object> {true});
                         promise.Resolve(false);
                     }
                     else if (navigator.canPop()) {
@@ -174,26 +174,11 @@ namespace ConnectApp.Main {
                     observers: new List<NavigatorObserver> {
                         _routeObserve
                     },
-                    onGenerateRoute: settings => {
-                        if (fullScreenRoutes.ContainsKey(settings.name)) {
-                            return new PageRouteBuilder(
-                                settings: settings,
-                                (context1, animation, secondaryAnimation) => mainRoutes[settings.name](context1),
-                                (context1, animation, secondaryAnimation, child) => {
-                                    return new PushPageTransition(
-                                        routeAnimation: animation,
-                                        child: child
-                                    );
-                                }
-                            );
-                        }
-                        else {
-                            return new CustomPageRoute(
-                                settings: settings,
-                                builder: (context1) => mainRoutes[settings.name](context1)
-                            );
-                        }
-                    }
+                    onGenerateRoute: settings => new CustomPageRoute(
+                        settings: settings,
+                        fullscreenDialog: fullScreenRoutes.ContainsKey(key: settings.name),
+                        builder: context1 => mainRoutes[key: settings.name](context: context1)
+                    )
                 )
             );
         }

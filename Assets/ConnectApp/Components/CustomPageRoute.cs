@@ -13,24 +13,24 @@ using Color = Unity.UIWidgets.ui.Color;
 using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace ConnectApp.Components {
-    public class CustomPageRouteUtils {
+    public static class CustomPageRouteUtils {
         public const float _kBackGestureWidth = 80.0f;
         public const float _kMinFlingVelocity = 1.0f;
         public const int _kMaxDroppedSwipePageForwardAnimationTime = 800; // Milliseconds.
         public const int _kMaxPageBackAnimationTime = 300; // Milliseconds.
 
         public static readonly Animatable<Offset> _kRightMiddleTween = new OffsetTween(
-            begin: new Offset(1.0f, 0.0f),
+            new Offset(1.0f, 0.0f),
             end: Offset.zero
         );
 
         public static readonly Animatable<Offset> _kMiddleLeftTween = new OffsetTween(
             begin: Offset.zero,
-            end: new Offset(-1.0f / 3.0f, 0.0f)
+            new Offset(-1.0f / 3.0f, 0.0f)
         );
 
         public static readonly Animatable<Offset> _kBottomUpTween = new OffsetTween(
-            begin: new Offset(0.0f, 1.0f),
+            new Offset(0.0f, 1.0f),
             end: Offset.zero
         );
 
@@ -44,7 +44,7 @@ namespace ConnectApp.Components {
                         new Color(0x00000000),
                         new Color(0x04000000),
                         new Color(0x12000000),
-                        new Color(0x38000000),
+                        new Color(0x38000000)
                     },
                     stops: new List<float> {0.0f, 0.3f, 0.6f, 1.0f}
                 )
@@ -110,16 +110,13 @@ namespace ConnectApp.Components {
             get { return null; }
         }
 
-
         public string barrierLabel {
             get { return null; }
         }
 
-
         public override bool canTransitionFrom(TransitionRoute previousRoute) {
             return previousRoute is CustomPageRoute;
         }
-
 
         public override bool canTransitionTo(TransitionRoute nextRoute) {
             return nextRoute is CustomPageRoute && !((CustomPageRoute) nextRoute).fullscreenDialog;
@@ -128,7 +125,6 @@ namespace ConnectApp.Components {
         static bool isPopGestureInProgress(PageRoute route) {
             return route.navigator.userGestureInProgress;
         }
-
 
         public bool popGestureInProgress {
             get { return isPopGestureInProgress(this); }
@@ -210,18 +206,16 @@ namespace ConnectApp.Components {
                 );
             }
 
-            else {
-                return new CustomPageTransition(
-                    primaryRouteAnimation: animation,
-                    secondaryRouteAnimation: secondaryAnimation,
-                    linearTransition: isPopGestureInProgress(route),
-                    child: new _CustomPageBackGestureDetector(
-                        enabledCallback: () => _isPopGestureEnabled(route),
-                        onStartPopGesture: () => _startPopGesture(route),
-                        child: child
-                    )
-                );
-            }
+            return new CustomPageTransition(
+                primaryRouteAnimation: animation,
+                secondaryRouteAnimation: secondaryAnimation,
+                linearTransition: isPopGestureInProgress(route),
+                child: new _CustomPageBackGestureDetector(
+                    enabledCallback: () => _isPopGestureEnabled(route),
+                    onStartPopGesture: () => _startPopGesture(route),
+                    child: child
+                )
+            );
         }
 
         public override Widget buildTransitions(BuildContext context, Animation<float> animation,
@@ -312,27 +306,27 @@ namespace ConnectApp.Components {
 
         void _handlePointerDown(PointerDownEvent evt) {
             if (this.widget.enabledCallback()) {
-                this._recognizer.addPointer(evt);
+                this._recognizer.addPointer(evt: evt);
             }
         }
 
         float? _convertToLogical(float? value) {
-            switch (Directionality.of(this.context)) {
+            switch (Directionality.of(context: this.context)) {
                 case TextDirection.rtl:
                     return -value;
                 case TextDirection.ltr:
                     return value;
+                default:
+                    return value;
             }
-
-            return value;
         }
 
 
         public override Widget build(BuildContext context) {
-            float dragAreaWidth = Directionality.of(context) == TextDirection.ltr
-                ? MediaQuery.of(context).padding.left
-                : MediaQuery.of(context).padding.right;
-            dragAreaWidth = Mathf.Max(dragAreaWidth, CustomPageRouteUtils._kBackGestureWidth);
+            float dragAreaWidth = Directionality.of(context: context) == TextDirection.ltr
+                ? MediaQuery.of(context: context).padding.left
+                : MediaQuery.of(context: context).padding.right;
+            dragAreaWidth = Mathf.Max(a: dragAreaWidth, b: CustomPageRouteUtils._kBackGestureWidth);
             return new Stack(
                 fit: StackFit.passthrough,
                 children: new List<Widget> {
@@ -365,8 +359,8 @@ namespace ConnectApp.Components {
             this.navigator.didStartUserGesture();
         }
 
-        public readonly AnimationController controller;
-        public readonly NavigatorState navigator;
+        readonly AnimationController controller;
+        readonly NavigatorState navigator;
 
         public void dragUpdate(float? delta) {
             if (delta != null) {
@@ -379,19 +373,19 @@ namespace ConnectApp.Components {
             bool animateForward;
 
             if (velocity.abs() >= CustomPageRouteUtils._kMinFlingVelocity) {
-                animateForward = velocity > 0 ? false : true;
+                animateForward = velocity <= 0;
             }
             else {
-                animateForward = this.controller.value > 0.5 ? true : false;
+                animateForward = this.controller.value > 0.5;
             }
 
             if (animateForward) {
                 int droppedPageForwardAnimationTime = Mathf.Min(
-                    MathUtils.lerpFloat(CustomPageRouteUtils._kMaxDroppedSwipePageForwardAnimationTime, 0f,
-                        this.controller.value).floor(),
-                    CustomPageRouteUtils._kMaxPageBackAnimationTime
+                    MathUtils.lerpFloat(a: CustomPageRouteUtils._kMaxDroppedSwipePageForwardAnimationTime, 0f,
+                        t: this.controller.value).floor(),
+                    b: CustomPageRouteUtils._kMaxPageBackAnimationTime
                 );
-                this.controller.animateTo(1.0f, duration: new TimeSpan(0, 0, 0, 0, droppedPageForwardAnimationTime),
+                this.controller.animateTo(1.0f, TimeSpan.FromMilliseconds(value: droppedPageForwardAnimationTime),
                     curve: animationCurve);
             }
             else {
@@ -399,9 +393,9 @@ namespace ConnectApp.Components {
 
                 if (this.controller.isAnimating) {
                     int droppedPageBackAnimationTime =
-                        MathUtils.lerpFloat(0f, CustomPageRouteUtils._kMaxDroppedSwipePageForwardAnimationTime,
-                            this.controller.value).floor();
-                    this.controller.animateBack(0.0f, duration: new TimeSpan(0, 0, 0, 0, droppedPageBackAnimationTime),
+                        MathUtils.lerpFloat(0f, b: CustomPageRouteUtils._kMaxDroppedSwipePageForwardAnimationTime,
+                            t: this.controller.value).floor();
+                    this.controller.animateBack(0.0f, TimeSpan.FromMilliseconds(value: droppedPageBackAnimationTime),
                         curve: animationCurve);
                 }
             }
@@ -436,7 +430,7 @@ namespace ConnectApp.Components {
                         curve: Curves.linearToEaseOut,
                         reverseCurve: Curves.easeInToLinear
                     )
-                ).drive(CustomPageRouteUtils._kRightMiddleTween);
+                ).drive(child: CustomPageRouteUtils._kRightMiddleTween);
 
             this._secondaryPositionAnimation =
                 (linearTransition
@@ -446,7 +440,7 @@ namespace ConnectApp.Components {
                         curve: Curves.linearToEaseOut,
                         reverseCurve: Curves.easeInToLinear
                     )
-                ).drive(CustomPageRouteUtils._kMiddleLeftTween);
+                ).drive(child: CustomPageRouteUtils._kMiddleLeftTween);
             this._primaryShadowAnimation =
                 (linearTransition
                     ? primaryRouteAnimation
@@ -454,15 +448,14 @@ namespace ConnectApp.Components {
                         parent: primaryRouteAnimation,
                         curve: Curves.linearToEaseOut
                     )
-                ).drive(CustomPageRouteUtils._kGradientShadowTween);
+                ).drive(child: CustomPageRouteUtils._kGradientShadowTween);
             this.child = child;
         }
 
-        public readonly Animation<Offset> _primaryPositionAnimation;
-        public readonly Animation<Offset> _secondaryPositionAnimation;
-        public readonly Animation<Decoration> _primaryShadowAnimation;
-
-        public readonly Widget child;
+        readonly Animation<Offset> _primaryPositionAnimation;
+        readonly Animation<Offset> _secondaryPositionAnimation;
+        readonly Animation<Decoration> _primaryShadowAnimation;
+        readonly Widget child;
 
         public override Widget build(BuildContext context) {
             return new SlideTransition(
@@ -489,13 +482,12 @@ namespace ConnectApp.Components {
                 parent: animation,
                 curve: Curves.linearToEaseOut,
                 reverseCurve: Curves.linearToEaseOut.flipped
-            ).drive(CustomPageRouteUtils._kBottomUpTween);
+            ).drive(child: CustomPageRouteUtils._kBottomUpTween);
             this.child = child;
         }
 
         readonly Animation<Offset> _positionAnimation;
-
-        public readonly Widget child;
+        readonly Widget child;
 
         public override Widget build(BuildContext context) {
             return new SlideTransition(
@@ -512,8 +504,7 @@ namespace ConnectApp.Components {
             this.edgeGradient = edgeGradient;
         }
 
-        public static _CustomEdgeShadowDecoration none =
-            new _CustomEdgeShadowDecoration();
+        public static readonly _CustomEdgeShadowDecoration none = new _CustomEdgeShadowDecoration();
 
         public readonly LinearGradient edgeGradient;
 
@@ -605,7 +596,7 @@ namespace ConnectApp.Components {
         public _CustomEdgeShadowPainter(
             _CustomEdgeShadowDecoration decoration = null,
             VoidCallback onChange = null
-        ) : base(onChange) {
+        ) : base(onChanged: onChange) {
             D.assert(decoration != null);
             this._decoration = decoration;
         }
@@ -619,10 +610,11 @@ namespace ConnectApp.Components {
             }
 
             float deltaX = -configuration.size.width;
-            Rect rect = (offset & configuration.size).translate(deltaX, 0.0f);
-            Paint paint = new Paint();
-            paint.shader = gradient.createShader(rect);
-            canvas.drawRect(rect, paint);
+            Rect rect = (offset & configuration.size).translate(translateX: deltaX, 0.0f);
+            Paint paint = new Paint {
+                shader = gradient.createShader(rect: rect)
+            };
+            canvas.drawRect(rect: rect, paint: paint);
         }
     }
 }
