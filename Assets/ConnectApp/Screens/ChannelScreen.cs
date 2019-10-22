@@ -887,7 +887,7 @@ namespace ConnectApp.screens {
         Widget _buildInputBar() {
             var padding = this.showKeyboard || this.showEmojiBoard ? 0 : this.mPaddingBottom;
             Widget ret = new Container(
-                padding: EdgeInsets.symmetric(0, 16),
+                padding: EdgeInsets.symmetric(5, 16),
                 decoration: new BoxDecoration(
                     CColors.Separator2,
                     borderRadius: BorderRadius.all(16)
@@ -943,7 +943,7 @@ namespace ConnectApp.screens {
                                 children: new List<Widget> {
                                     new Container(height:8f),
                                     ret,
-                                    new Container(height:16f)
+                                    new Container(height:9f)
                                 })),
                         this._buildShowEmojiBoardButton(),
                         this._buildPickImageButton(),
