@@ -30,6 +30,7 @@ namespace ConnectApp.Components {
             TextAlign textAlign = TextAlign.left,
             Alignment alignment = null,
             int? maxLines = 1,
+            int? minLines = null,
             int? maxLength = null,
             bool maxLengthEnforced = true,
             bool autofocus = false,
@@ -46,7 +47,7 @@ namespace ConnectApp.Components {
             Radius cursorRadius = null,
             TextInputAction textInputAction = TextInputAction.none,
             TextInputType keyboardType = null,
-            float height = 44.0f,
+            float? height = 44.0f,
             InputFieldClearButtonMode clearButtonMode = InputFieldClearButtonMode.never,
             bool enableInteractiveSelection = true,
             Color selectionColor = null,
@@ -54,6 +55,7 @@ namespace ConnectApp.Components {
             ValueChanged<string> onSubmitted = null,
             EdgeInsets scrollPadding = null
         ) : base(key: key) {
+            D.assert(maxLines == null || minLines == null || maxLines >= minLines);
             this.controller = controller;
             this.textAlign = textAlign;
             this.focusNode = focusNode;
@@ -65,6 +67,7 @@ namespace ConnectApp.Components {
             this.textAlign = textAlign;
             this.alignment = alignment ?? Alignment.center;
             this.maxLines = maxLines;
+            this.minLines = minLines;
             this.maxLength = maxLength;
             this.maxLengthEnforced = maxLengthEnforced;
             this.autofocus = autofocus;
@@ -100,6 +103,7 @@ namespace ConnectApp.Components {
         public readonly TextAlign textAlign;
         public readonly Alignment alignment;
         public readonly int? maxLines;
+        public readonly int? minLines;
         public readonly int? maxLength;
         public readonly bool maxLengthEnforced;
         public readonly bool autofocus;
@@ -116,7 +120,7 @@ namespace ConnectApp.Components {
         public readonly Radius cursorRadius;
         public readonly TextInputAction textInputAction;
         public readonly TextInputType keyboardType;
-        public readonly float height;
+        public readonly float? height;
         public readonly InputFieldClearButtonMode clearButtonMode;
         public readonly bool enableInteractiveSelection;
         public readonly Color selectionColor;
@@ -320,6 +324,7 @@ namespace ConnectApp.Components {
                     child: new EditableText(
                         key: this._editableTextKey,
                         maxLines: this.widget.maxLines,
+                        minLines: this.widget.minLines,
                         controller: this._textEditingController,
                         focusNode: this._focusNode,
                         autofocus: this.widget.autofocus,
@@ -369,6 +374,7 @@ namespace ConnectApp.Components {
                     var focusNode = this.widget.focusNode ?? this._focusNode;
                     FocusScope.of(context).requestFocus(focusNode);
                 },
+
                 child: new Container(
                     height: this.widget.height,
                     alignment: Alignment.center,
@@ -378,7 +384,7 @@ namespace ConnectApp.Components {
                             this._buildPrefix(),
                             new Expanded(
                                 child: new Stack(
-                                    fit: StackFit.expand,
+                                    fit: this.widget.height == null ? StackFit.loose : StackFit.expand,
                                     children: new List<Widget> {
                                         new Container(
                                             alignment: this.widget.alignment,

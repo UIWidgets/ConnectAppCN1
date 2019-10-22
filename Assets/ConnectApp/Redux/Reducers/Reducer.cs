@@ -2476,7 +2476,7 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case FetchChannelsFailureAction _: {
-                    state.channelState.socketConnected = false;
+                    NetworkStatusManager.isConnected = false;
                     break;
                 }
 
@@ -2537,7 +2537,7 @@ namespace ConnectApp.redux.reducers {
 
                 case FetchChannelMessagesFailureAction _: {
                     state.channelState.messageLoading = false;
-                    state.channelState.socketConnected = false;
+                    NetworkStatusManager.isConnected = false;
                     break;
                 }
 
