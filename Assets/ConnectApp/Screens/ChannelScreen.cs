@@ -251,7 +251,7 @@ namespace ConnectApp.screens {
         }
 
         string _lastMessageEditingContent = "";
-        Dictionary<string, string> mentionMap = new Dictionary<string, string>();
+        readonly Dictionary<string, string> mentionMap = new Dictionary<string, string>();
 
         void _onTextChanged() {
             var curTextContent = this._textController.text;
