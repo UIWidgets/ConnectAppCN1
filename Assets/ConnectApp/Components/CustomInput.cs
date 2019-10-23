@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.Constants;
-using ConnectApp.Utils;
+using ConnectApp.Plugins;
+using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -30,75 +32,73 @@ namespace ConnectApp.Components {
     }
 
     public class _CustomInputState : State<CustomInput> {
-        bool _isPublish;
-        string _inputText;
-        readonly TextEditingController _controller = new TextEditingController("");
-        readonly GlobalKey _inputFieldKey = GlobalKey.key();
-        readonly EdgeInsets _inputFieldPadding = EdgeInsets.symmetric(horizontal: 16, vertical: 5);
-        readonly TextStyle _inputFieldStyle = CTextStyle.PLargeBody;
-        float _inputFieldHeight = 22;
+        readonly TextEditingController _textController = new TextEditingController("");
+        readonly GlobalKey _inputFieldKey = GlobalKey.key("inputFieldKey");
+        bool _showEmojiBoard;
 
-        public override void initState() {
-            base.initState();
-            this._isPublish = false;
-            this._controller.addListener(this._controllerListener);
+        static int _codeUnitLengthAt(TextEditingValue value) {
+            return value.selection.start > 1 && char.IsSurrogate(value.text[value.selection.start - 1]) ? 2 : 1;
         }
 
-        public override void dispose() {
-            this._controller.removeListener(this._controllerListener);
-            base.dispose();
-        }
-
-        void _controllerListener() {
-            var text = this._controller.text ?? "友好的评论是交流的起点…";
-            if (!this.mounted) {
+        void _handleEmoji(string emojiText) {
+            if (emojiText.isEmpty()) {
                 return;
             }
 
-            var inputFieldWidth = this._inputFieldKey.currentContext.size.width;
-            var inputFieldHeight = CTextUtils.CalculateTextHeight(
-                text: text, textStyle: this._inputFieldStyle, textWidth: inputFieldWidth, 2);
+            var selection = this._textController.selection;
+            this._textController.value = new TextEditingValue(
+                this._textController.text.Substring(0, length: selection.start) +
+                emojiText + this._textController.text.Substring(startIndex: selection.end),
+                TextSelection.collapsed(selection.start + emojiText.Length));
+        }
 
-            if (this._inputFieldHeight != inputFieldHeight) {
-                this.setState(() => this._inputFieldHeight = inputFieldHeight);
+        void _handleDelete() {
+            var selection = this._textController.selection;
+            if (selection.isCollapsed) {
+                if (selection.start > 0) {
+                    this._textController.value = new TextEditingValue(
+                        this._textController.text.Substring( 0,
+                                  selection.start - _codeUnitLengthAt(value: this._textController.value)) +
+                              this._textController.text.Substring(startIndex: selection.end),
+                        TextSelection.collapsed(selection.start - _codeUnitLengthAt(value: this._textController.value)));
+                }
+            }
+            else {
+                this._textController.value = new TextEditingValue(
+                    this._textController.text.Substring(0, length: selection.start) +
+                    this._textController.text.Substring(startIndex: selection.end),
+                    TextSelection.collapsed(offset: selection.start));
             }
         }
 
         void _onSubmitted(string text) {
+            if (string.IsNullOrWhiteSpace(value: text)) {
+                CustomDialogUtils.showToast("不能发送空消息", Icons.error_outline);
+                return;
+            }
+
             this.widget.doneCallBack?.Invoke(text: text);
         }
 
-        public override Widget build(BuildContext context) {
-            Widget reply;
-            if (!this.widget.replyUserName.isEmpty()) {
-                reply = new Container(
-                    height: 40,
-                    width: MediaQuery.of(context).size.width,
-                    padding: EdgeInsets.only(16, right: 16),
-                    alignment: Alignment.centerLeft,
-                    decoration: new BoxDecoration(
-                        CColors.White,
-                        border: new Border(
-                            bottom: new BorderSide(CColors.Separator)
-                        )
-                    ),
-                    child: new RichText(
-                        text: new TextSpan(
-                            "回复 ",
-                            CTextStyle.PRegularBody3,
-                            new List<TextSpan> {
-                                new TextSpan(this.widget.replyUserName,
-                                    CTextStyle.PMediumBody3
-                                )
-                            }
-                        )
-                    )
-                );
-            }
-            else {
-                reply = new Container();
-            }
+        bool showEmojiBoard {
+            get {
+                if (this.showKeyboard && this._showEmojiBoard) {
+                    Promise.Delayed(TimeSpan.FromMilliseconds(300)).Then(() => {
+                        if (this.showKeyboard && this._showEmojiBoard) {
+                            this._showEmojiBoard = false;
+                        }
+                    });
+                }
 
+                return this._showEmojiBoard && !this.showKeyboard;
+            }
+        }
+
+        bool showKeyboard {
+            get { return MediaQuery.of(context: this.context).viewInsets.bottom > 50; }
+        }
+
+        public override Widget build(BuildContext context) {
             return new Container(
                 child: new Column(
                     mainAxisAlignment: MainAxisAlignment.end,
@@ -109,69 +109,81 @@ namespace ConnectApp.Components {
                                 color: CColors.White,
                                 child: new Column(
                                     children: new List<Widget> {
-                                        reply,
-                                        new Row(
-                                            children: new List<Widget> {
-                                                new Expanded(
-                                                    child: new Container(
-                                                        margin: EdgeInsets.only(10, 6.5f, 8, 6.5f),
-                                                        decoration: new BoxDecoration(
-                                                            CColors.Separator2,
-                                                            borderRadius: BorderRadius.circular(
-                                                                (this._inputFieldHeight + 13) / 2)
-                                                        ),
-                                                        child: new Container(
-                                                            padding: this._inputFieldPadding,
-                                                            child: new InputField(this._inputFieldKey,
-                                                                height: this._inputFieldHeight,
-                                                                controller: this._controller,
-                                                                style: this._inputFieldStyle,
-                                                                maxLines: 2,
-                                                                autofocus: true,
-                                                                hintText: "友好的评论是交流的起点…",
-                                                                hintStyle: CTextStyle.PLargeBody4,
-                                                                cursorColor: CColors.PrimaryBlue,
-                                                                textInputAction: TextInputAction.send,
-                                                                onChanged: text => {
-                                                                    var isTextEmpty = text.Length > 0;
-                                                                    if (this._isPublish != isTextEmpty) {
-                                                                        this.setState(() => {
-                                                                            this._isPublish = isTextEmpty;
-                                                                        });
-                                                                    }
-
-                                                                    this._inputText = text;
-                                                                },
-                                                                onSubmitted: this._onSubmitted
-                                                            )
-                                                        )
-                                                    )
-                                                ),
-                                                new CustomButton(
-                                                    onPressed: () => {
-                                                        if (!this._isPublish) {
-                                                            return;
-                                                        }
-
-                                                        this._onSubmitted(this._inputText);
-                                                    },
-                                                    child: new Text(
-                                                        "发布",
-                                                        style: this._isPublish
-                                                            ? CTextStyle.PLargeBlue
-                                                            : CTextStyle.PLargeDisabled
-                                                    )
-                                                ),
-                                                new Container(width: 8)
-                                            }
-                                        )
+                                        this._buildReplyWidget(context: context),
+                                        this._buildTextField()
                                     }
-                                ),
-                                margin: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom)
+                                )
                             )
-                        )
+                        ),
+                        this.showEmojiBoard
+                            ? this._buildEmojiBoard()
+                            : new Container(height: MediaQuery.of(context: context).viewInsets.bottom)
                     }
                 )
+            );
+        }
+
+        Widget _buildReplyWidget(BuildContext context) {
+            if (this.widget.replyUserName.isEmpty()) {
+                return new Container();
+            }
+
+            return new Container(
+                height: 40,
+                width: MediaQuery.of(context: context).size.width,
+                padding: EdgeInsets.only(16, right: 16),
+                alignment: Alignment.centerLeft,
+                decoration: new BoxDecoration(
+                    color: CColors.White,
+                    border: new Border(bottom: new BorderSide(color: CColors.Separator))
+                ),
+                child: new RichText(
+                    text: new TextSpan(
+                        "回复 ",
+                        style: CTextStyle.PRegularBody3,
+                        new List<TextSpan> {
+                            new TextSpan(
+                                text: this.widget.replyUserName,
+                                style: CTextStyle.PMediumBody3
+                            )
+                        }
+                    )
+                )
+            );
+        }
+
+        Widget _buildTextField() {
+            return new CustomTextField(
+                textFieldKey: this._inputFieldKey,
+                hintText: "友好的评论是交流的起点…",
+                controller: this._textController,
+                autofocus: true,
+                maxLines: 2,
+                minLines: 1,
+                showEmojiBoard: this.showEmojiBoard,
+                isShowImageButton: false,
+                onSubmitted: this._onSubmitted,
+                onPressEmoji: () => {
+                    if (this.showEmojiBoard) {
+                        TextInputPlugin.TextInputShow();
+                        Promise.Delayed(TimeSpan.FromMilliseconds(200)).Then(
+                            () => this.setState(() => this._showEmojiBoard = false));
+                    }
+                    else {
+                        this.setState(() => this._showEmojiBoard = true);
+                        Promise.Delayed(TimeSpan.FromMilliseconds(100)).Then(
+                            onResolved: TextInputPlugin.TextInputHide
+                        );
+                    }
+                }
+            );
+        }
+
+        Widget _buildEmojiBoard() {
+            return new EmojiBoard(
+                handleEmoji: this._handleEmoji,
+                handleDelete: this._handleDelete,
+                () => this._onSubmitted(text: this._textController.text)
             );
         }
     }

@@ -215,9 +215,11 @@ namespace ConnectApp.Components {
                             new Positioned(
                                 left: (float) Math.Ceiling(screenWidth / 8) + 2,
                                 top: 4,
-                                child: new NotificationDot(
-                                    this.widget.notifications[index: item.index],
-                                    new BorderSide(color: CColors.White, 2)
+                                child: new IgnorePointer(
+                                    child: new NotificationDot(
+                                        this.widget.notifications[index: item.index],
+                                        new BorderSide(color: CColors.White, 2)
+                                    )
                                 )
                             )
                         }

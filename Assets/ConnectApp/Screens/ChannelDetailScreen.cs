@@ -61,7 +61,9 @@ namespace ConnectApp.screens {
                         joinChannel = () => dispatcher.dispatch<IPromise>(
                             Actions.joinChannel(channelId: this.channelId, groupId: viewModel.channel.groupId, true)),
                         leaveChannel = () => dispatcher.dispatch<IPromise>(
-                            Actions.leaveChannel(channelId: this.channelId, groupId: viewModel.channel.groupId)),
+                            Actions.leaveChannel(channelId: this.channelId,
+                                memberId: viewModel.channel.currentMember.id,
+                                groupId: viewModel.channel.groupId)),
                         updateTop = isTop => dispatcher.dispatch<IPromise>(isTop
                             ? Actions.fetchStickChannel(channelId: this.channelId)
                             : Actions.fetchUnStickChannel(channelId: this.channelId))
