@@ -15,9 +15,9 @@ namespace ConnectApp.Components {
 
     public class EmojiBoard : StatefulWidget {
         public EmojiBoard(
-            HandleEmojiCallback handleEmoji,
-            GestureTapCallback handleDelete,
-            GestureTapCallback handleSubmit,
+            HandleEmojiCallback handleEmoji = null,
+            GestureTapCallback handleDelete = null,
+            GestureTapCallback handleSubmit = null,
             Key key = null
         ) : base(key: key) {
             this.handleEmoji = handleEmoji;

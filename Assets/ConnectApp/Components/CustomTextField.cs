@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using ConnectApp.Constants;
-using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -19,7 +18,10 @@ namespace ConnectApp.Components {
             FocusNode focusNode = null,
             ValueChanged<string> onSubmitted = null,
             bool autofocus = false,
+            int? maxLines = null,
+            int? minLines = null,
             bool loading = false,
+            bool showEmojiBoard = false,
             bool isShowImageButton = false,
             GestureTapCallback onPressImage = null,
             GestureTapCallback onPressEmoji = null,
@@ -33,7 +35,10 @@ namespace ConnectApp.Components {
             this.focusNode = focusNode;
             this.onSubmitted = onSubmitted;
             this.autofocus = autofocus;
+            this.maxLines = maxLines;
+            this.minLines = minLines;
             this.loading = loading;
+            this.showEmojiBoard = showEmojiBoard;
             this.isShowImageButton = isShowImageButton;
             this.onPressImage = onPressImage;
             this.onPressEmoji = onPressEmoji;
@@ -47,7 +52,10 @@ namespace ConnectApp.Components {
         public readonly FocusNode focusNode;
         public readonly ValueChanged<string> onSubmitted;
         public readonly bool autofocus;
+        public readonly int? maxLines;
+        public readonly int? minLines;
         public readonly bool loading;
+        public readonly bool showEmojiBoard;
         public readonly bool isShowImageButton;
         public readonly GestureTapCallback onPressImage;
         public readonly GestureTapCallback onPressEmoji;
@@ -61,35 +69,12 @@ namespace ConnectApp.Components {
         GlobalKey _textFieldKey;
         TextEditingController _controller;
         FocusNode _focusNode;
-        readonly TextStyle _textFieldFieldStyle = CTextStyle.PLargeBody;
-        float _textFieldHeight = 22;
 
         public override void initState() {
             base.initState();
             this._textFieldKey = (GlobalKey)this.widget.textFieldKey ?? GlobalKey.key("textFieldKey");
             this._controller = this.widget.controller ?? new TextEditingController("");
             this._focusNode = this.widget.focusNode ?? new FocusNode();
-            this._controller.addListener(listener: this._controllerListener);
-        }
-
-        public override void dispose() {
-            this._controller.removeListener(listener: this._controllerListener);
-            base.dispose();
-        }
-
-        void _controllerListener() {
-            if (!this.mounted) {
-                return;
-            }
-
-            var text = this._controller.text ?? this.widget.hintText;
-            var textFieldWidth = this._textFieldKey.currentContext.size.width;
-            var textFieldHeight = CTextUtils.CalculateTextHeight(
-                text: text, textStyle: this._textFieldFieldStyle, textWidth: textFieldWidth, 3);
-
-            if (this._textFieldHeight != textFieldHeight) {
-                this.setState(() => this._textFieldHeight = textFieldHeight);
-            }
         }
 
         public override Widget build(BuildContext context) {
@@ -129,12 +114,13 @@ namespace ConnectApp.Components {
                     key: this._textFieldKey,
                     controller: this._controller,
                     focusNode: this._focusNode,
-                    style: this._textFieldFieldStyle,
+                    style: CTextStyle.PLargeBody,
                     hintText: this.widget.hintText,
                     hintStyle: CTextStyle.PLargeBody4.copyWith(height: 1),
                     autofocus: this.widget.autofocus,
-                    height: this._textFieldHeight,
-                    maxLines: 3,
+                    height: null,
+                    maxLines: this.widget.maxLines,
+                    minLines: this.widget.minLines,
                     cursorColor: CColors.PrimaryBlue,
                     textInputAction: TextInputAction.send,
                     onSubmitted: this.widget.onSubmitted
@@ -195,7 +181,7 @@ namespace ConnectApp.Components {
                     height: 49,
                     child: new Center(
                         child: new Icon(
-                            icon: Icons.outline_keyboard,
+                            this.widget.showEmojiBoard ? Icons.outline_keyboard : Icons.mood,
                             size: 28,
                             color: CColors.Icon
                         )

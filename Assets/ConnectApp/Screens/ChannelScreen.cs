@@ -699,7 +699,7 @@ namespace ConnectApp.screens {
                     var url = CImageUtils.SizeToScreenImageUrl(message.content);
                     this.widget.actionModel.browserImage(url, imageUrls);
                 },
-                child: new _ImageMessage(
+                child: new ImageMessage(
                     url: message.content,
                     size: 140,
                     ratio: 16.0f / 9.0f,
@@ -828,54 +828,6 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildPickImageButton() {
-            return new CustomButton(
-                padding: EdgeInsets.zero,
-                onPressed: this._pickImage,
-                child: new Container(
-                    width: 44,
-                    height: 49,
-                    child: new Center(
-                        child: new Icon(Icons.outline_photo_size_select_actual,
-                            size: 28, color: CColors.Icon)
-                    )
-                )
-            );
-        }
-
-        Widget _buildShowEmojiBoardButton() {
-            return new CustomButton(
-                padding: EdgeInsets.zero,
-                onPressed: () => {
-                    this.setState(() => {
-                        this._refreshController.scrollController.jumpTo(0);
-                        FocusScope.of(this.context).requestFocus(this._focusNode);
-                        if (this.showEmojiBoard) {
-                            TextInputPlugin.TextInputShow();
-                            Promise.Delayed(TimeSpan.FromMilliseconds(200)).Then(
-                                () => { this.setState(() => { this._showEmojiBoard = false; }); });
-                        }
-                        else {
-                            this.setState(() => { this._showEmojiBoard = true; });
-                            Promise.Delayed(TimeSpan.FromMilliseconds(100)).Then(
-                                TextInputPlugin.TextInputHide
-                            );
-                        }
-                    });
-                },
-                child: new Container(
-                    width: 44,
-                    height: 49,
-                    child: new Center(
-                        child: new Icon(this.showEmojiBoard
-                                ? Icons.outline_keyboard
-                                : Icons.mood,
-                            size: 28, color: CColors.Icon)
-                    )
-                )
-            );
-        }
-
         Widget _buildInputBar() {
             var padding = this.showKeyboard || this.showEmojiBoard ? 0 : this.mPaddingBottom;
             var customTextField = new CustomTextField(
@@ -888,94 +840,29 @@ namespace ConnectApp.screens {
                 "说点想法…",
                 controller: this._textController,
                 focusNode: this._focusNode,
+                maxLines: 4,
+                minLines: 1,
                 loading: this.widget.viewModel.channel.sendingMessage,
+                showEmojiBoard: this.showEmojiBoard,
                 isShowImageButton: true,
                 onSubmitted: this._handleSubmit,
                 onPressImage: this._pickImage,
                 onPressEmoji: () => {
-                    this.setState(() => {
-                        this._refreshController.scrollController.jumpTo(0);
-                        FocusScope.of(this.context).requestFocus(this._focusNode);
-                        if (this.showEmojiBoard) {
-                            TextInputPlugin.TextInputShow();
-                            Promise.Delayed(TimeSpan.FromMilliseconds(200)).Then(
-                                () => { this.setState(() => { this._showEmojiBoard = false; }); });
-                        }
-                        else {
-                            this.setState(() => { this._showEmojiBoard = true; });
-                            Promise.Delayed(TimeSpan.FromMilliseconds(100)).Then(
-                                TextInputPlugin.TextInputHide
-                            );
-                        }
-                    });
+                    this._refreshController.scrollController.jumpTo(0);
+                    FocusScope.of(context: this.context).requestFocus(node: this._focusNode);
+                    if (this.showEmojiBoard) {
+                        TextInputPlugin.TextInputShow();
+                        Promise.Delayed(TimeSpan.FromMilliseconds(200)).Then(
+                            () => this.setState(() =>this._showEmojiBoard = false));
+                    }
+                    else {
+                        this.setState(() => this._showEmojiBoard = true);
+                        Promise.Delayed(TimeSpan.FromMilliseconds(100)).Then(
+                            onResolved: TextInputPlugin.TextInputHide
+                        );
+                    }
                 }
             );
-//            var padding = this.showKeyboard || this.showEmojiBoard ? 0 : this.mPaddingBottom;
-//            Widget ret = new Container(
-//                padding: EdgeInsets.symmetric(5, 16),
-//                decoration: new BoxDecoration(
-//                    CColors.Separator2,
-//                    borderRadius: BorderRadius.all(16)
-//                ),
-//                alignment: Alignment.centerLeft,
-//                child: new InputField(
-//                    key: this._focusNodeKey,
-//                    controller: this._textController,
-//                    focusNode: this._focusNode,
-//                    style: CTextStyle.PRegularBody,
-//                    hintText: "说点想法…",
-//                    hintStyle: CTextStyle.PRegularBody4.copyWith(height: 1),
-//                    keyboardType: TextInputType.multiline,
-//                    height: null,
-//                    maxLines: 4,
-//                    minLines: 1,
-//                    cursorColor: CColors.PrimaryBlue,
-//                    textInputAction: TextInputAction.send,
-//                    onSubmitted: this._handleSubmit
-//                )
-//            );
-//
-//            if (this.widget.viewModel.channel.sendingMessage) {
-//                ret = new Stack(
-//                    children: new List<Widget> {
-//                        ret,
-//                        new Positioned(
-//                            right: 8,
-//                            top: 0,
-//                            bottom: 0,
-//                            child: new Align(
-//                                alignment: Alignment.center,
-//                                child: new CustomActivityIndicator(size: LoadingSize.small)
-//                            )
-//                        )
-//                    });
-//            }
-//
-//
-//            ret = new Container(
-//                padding: EdgeInsets.only(bottom: padding),
-//                decoration: new BoxDecoration(
-//                    border: new Border(new BorderSide(CColors.Separator)),
-//                    color: this.showEmojiBoard ? CColors.White : CColors.TabBarBg
-//                ),
-//                child: new Row(
-//                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                    crossAxisAlignment: CrossAxisAlignment.end,
-//                    children: new List<Widget> {
-//                        new Container(width: 16),
-//                        new Expanded(
-//                            child: new Column(
-//                                children: new List<Widget> {
-//                                    new Container(height:8f),
-//                                    ret,
-//                                    new Container(height:9f)
-//                                })),
-//                        this._buildShowEmojiBoardButton(),
-//                        this._buildPickImageButton(),
-//                        new Container(width: 10)
-//                    }
-//                )
-//            );
 
             Widget backdropFilterWidget;
             if (!this.showEmojiBoard && !this.showKeyboard) {
@@ -1214,125 +1101,6 @@ namespace ConnectApp.screens {
             }
 
             return height;
-        }
-    }
-
-    class _ImageMessage : StatefulWidget {
-        public readonly string url;
-        public readonly float size;
-        public readonly float ratio;
-        public readonly float radius;
-        public readonly float srcWidth;
-        public readonly float srcHeight;
-        public readonly Dictionary<string, string> headers;
-
-        public _ImageMessage(
-            string url,
-            float size,
-            float ratio,
-            float srcWidth = 0,
-            float srcHeight = 0,
-            Dictionary<string, string> headers = null,
-            float radius = 10) {
-            this.url = url;
-            this.size = size;
-            this.ratio = ratio;
-            this.radius = radius;
-            this.headers = headers;
-            this.srcWidth = srcWidth;
-            this.srcHeight = srcHeight;
-        }
-
-        public Size srcSize {
-            get {
-                if (this.srcWidth != 0 && this.srcHeight != 0) {
-                    return new Size(this.srcWidth, this.srcHeight);
-                }
-
-                return null;
-            }
-        }
-
-        public override State createState() {
-            return new _ImageMessageState();
-        }
-    }
-
-    class _ImageMessageState : State<_ImageMessage> {
-        Image image;
-        Size size;
-        ImageStream stream;
-
-        Size _finalSize(Size size) {
-            if (size.width > size.height * this.widget.ratio) {
-                return new Size(
-                    width: this.widget.size,
-                    height: this.widget.size / this.widget.ratio);
-            }
-
-            if (size.width > size.height) {
-                return new Size(
-                    width: this.widget.size,
-                    height: this.widget.size / size.width * size.height);
-            }
-
-            if (size.width > size.height / this.widget.ratio) {
-                return new Size(
-                    width: this.widget.size / size.height * size.width,
-                    height: this.widget.size);
-            }
-
-            return new Size(
-                width: this.widget.size / this.widget.ratio,
-                height: this.widget.size);
-        }
-
-        void _updateSize(ImageInfo info, bool _) {
-            this.size = this._finalSize(new Size(info.image.width, info.image.height));
-
-            this.setState(() => { });
-        }
-
-        public override void initState() {
-            base.initState();
-            if (this.widget.srcSize == null) {
-                this.image = CachedNetworkImageProvider.cachedNetworkImage(
-                    src: CImageUtils.SizeToScreenImageUrl(this.widget.url),
-                    headers: this.widget.headers);
-                this.stream = this.image.image
-                    .resolve(new ImageConfiguration());
-                this.stream.addListener(this._updateSize);
-            }
-            else {
-                this.size = this._finalSize(this.widget.srcSize);
-            }
-        }
-
-        public override void dispose() {
-            this.stream?.removeListener(this._updateSize);
-            base.dispose();
-        }
-
-        public override Widget build(BuildContext context) {
-            return this.size == null || this.widget.url == null
-                ? new Container(
-                    width: this.widget.size,
-                    height: this.widget.size,
-                    decoration: new BoxDecoration(
-                        color: CColors.Disable,
-                        borderRadius: BorderRadius.all(this.widget.radius)
-                    ))
-                : (Widget) new ClipRRect(
-                    borderRadius: BorderRadius.all(this.widget.radius),
-                    child: new Container(
-                        width: this.size.width,
-                        height: this.size.height,
-                        color: CColors.Disable,
-                        child: CachedNetworkImageProvider.cachedNetworkImage(
-                            CImageUtils.SizeToScreenImageUrl(this.widget.url),
-                            headers: this.widget.headers,
-                            fit: BoxFit.cover))
-                );
         }
     }
 }

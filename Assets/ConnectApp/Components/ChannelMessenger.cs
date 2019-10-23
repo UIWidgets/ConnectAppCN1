@@ -35,7 +35,7 @@ namespace ConnectApp.Components {
         public readonly float srcWidth;
         public readonly float srcHeight;
         public readonly Dictionary<string, string> headers;
-        
+
         public Size srcSize {
             get {
                 if (this.srcWidth != 0 && this.srcHeight != 0) {
