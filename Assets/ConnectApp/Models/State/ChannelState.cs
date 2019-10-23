@@ -49,12 +49,23 @@ namespace ConnectApp.Models.State {
             channelView.updateFromNormalChannelLite(channel: channel);
         }
 
+        public void clearMentions() {
+            this.totalUnread = 0;
+            this.totalMention = 0;
+            this.joinedChannels.ForEach(channelId => {
+                this.channelDict[key: channelId].unread = 0;
+                this.channelDict[key: channelId].mentioned = 0;
+            });
+        }
+
         public void updateTotalMention() {
             this.totalUnread = 0;
             this.totalMention = 0;
             this.joinedChannels.ForEach(channelId => {
                 this.totalUnread += this.channelDict[key: channelId].unread;
-                this.totalMention += this.channelDict[key: channelId].mentioned;
+                this.totalMention += this.channelDict[key: channelId].unread > 0
+                    ? this.channelDict[key: channelId].mentioned
+                    : 0;
             });
         }
 
