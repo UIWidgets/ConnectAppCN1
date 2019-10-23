@@ -37,6 +37,14 @@ namespace ConnectApp.screens {
                         }).ToList();
                     joinedChannels.Sort(
                         (c1, c2) => {
+                            if (c1 == null) {
+                                return -1;
+                            }
+
+                            if (c2 == null) {
+                                return 1;
+                            }
+                            
                             if (c1.isTop && !c2.isTop) {
                                 return -1;
                             }

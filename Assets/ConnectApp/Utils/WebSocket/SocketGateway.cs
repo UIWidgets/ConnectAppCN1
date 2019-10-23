@@ -155,7 +155,7 @@ namespace ConnectApp.Utils {
             bool reset = !this.resumable || this.m_BackOff.fail > 0;
             var delay = this._OnFail(reset);
 
-            StoreProvider.store.dispatcher.dispatch(new SocketConnectStateAction {connected = false});
+            NetworkStatusManager.isConnected = false;
             DebugAssert(false, $"connection failed, retry in {delay / 1000f} seconds");
         }
 
@@ -270,11 +270,11 @@ namespace ConnectApp.Utils {
                                 }
                             }
                         );
-                        StoreProvider.store.dispatcher.dispatch(new SocketConnectStateAction {connected = true});
+                        NetworkStatusManager.isConnected = true;
                     }
                     else {
                         var delay = this._OnFail();
-                        StoreProvider.store.dispatcher.dispatch(new SocketConnectStateAction {connected = false});
+                        NetworkStatusManager.isConnected = false;
                         DebugAssert(false, $"gateway discovery failed, retry in {delay / 1000f} seconds");
                     }
                 });
