@@ -2917,8 +2917,8 @@ namespace ConnectApp.redux.reducers {
 
                         channel.lastMessageId = channelMessage.id;
                         channel.lastMessage = channelMessage;
-                        if ((!state.loginState.isLoggedIn ||
-                             channelMessage.author.id != state.loginState.loginInfo.userId) &&
+                        if (state.loginState.isLoggedIn &&
+                            channelMessage.author.id != state.loginState.loginInfo.userId &&
                             !channel.atBottom) {
                             channel.handleUnreadMessage(channelMessage, state.loginState.loginInfo.userId);
                         }
