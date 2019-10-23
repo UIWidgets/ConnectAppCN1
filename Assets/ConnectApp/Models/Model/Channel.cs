@@ -218,6 +218,26 @@ namespace ConnectApp.Models.Model {
             this.lastMessageId = channel?.lastMessageId ?? this.lastMessageId;
         }
 
+        public void updateFromSocketResponseUpdateChannelData(SocketResponseUpdateChannelData channel) {
+            this.id = channel?.id ?? this.id;
+            this.groupId = channel?.groupId ?? this.groupId;
+            this.thumbnail = channel?.thumbnail ?? this.thumbnail;
+            this.name = channel?.name ?? this.name;
+            this.topic = channel?.topic ?? this.topic;
+            this.memberCount = channel?.memberCount ?? this.memberCount;
+            this.isMute = channel?.isMute ?? this.isMute;
+            this.live = channel?.live ?? this.live;
+            this.lastMessage = channel?.lastMessage == null
+                ? this.lastMessage
+                : ChannelMessageView.fromChannelMessageLite(channel.lastMessage);
+        }
+
+        public static ChannelView fromSocketResponseUpdateChannelData(SocketResponseUpdateChannelData channel) {
+            ChannelView channelView = new ChannelView();
+            channelView.updateFromSocketResponseUpdateChannelData(channel);
+            return channelView;
+        }
+
         public void handleUnreadMessage(ChannelMessageView message, string userId) {
             if (message.mentionEveryone || message.mentions.Any(user => user.id == userId)) {
                 this.mentioned += 1;
