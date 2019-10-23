@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace ConnectApp.Utils {
     class ChannelMessageInputManager {
-        const bool debugMode = true;
+        const bool debugMode = false;
         
         readonly List<string> contentSpans = new List<string>();
         readonly List<string> mentionIds = new List<string>();
