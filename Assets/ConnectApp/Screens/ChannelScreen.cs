@@ -178,7 +178,6 @@ namespace ConnectApp.screens {
         readonly TextEditingController _textController = new TextEditingController();
         readonly RefreshController _refreshController = new RefreshController();
         readonly GlobalKey _smartRefresherKey = GlobalKey<State<SmartRefresher>>.key("SmartRefresher");
-        readonly ChannelMessageInputManager _inputContentManager = new ChannelMessageInputManager();
         FocusNode _focusNode;
         GlobalKey _focusNodeKey;
 
