@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Resources;
 using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
@@ -63,6 +64,7 @@ namespace ConnectApp.screens {
                     }
 
                     return new MessengerScreenViewModel {
+                        myUserId = state.loginState.loginInfo.userId,
                         joinedChannels = joinedChannels,
                         lastMessageMap = lastMessageMap,
                         hasUnreadNotifications = state.channelState.newNotifications != null,
@@ -376,7 +378,8 @@ namespace ConnectApp.screens {
                 var joinedChannel = joinedChannels[index: row];
                 return new JoinedChannelCard(
                     channel: joinedChannel,
-                    () => this.widget.actionModel.pushToChannel(obj: joinedChannel.id)
+                    myUserId: this.widget.viewModel.myUserId,
+                    onTap: () => this.widget.actionModel.pushToChannel(obj: joinedChannel.id)
                 );
             }
 

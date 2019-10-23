@@ -14,14 +14,17 @@ namespace ConnectApp.Components {
         public JoinedChannelCard(
             ChannelView channel,
             GestureTapCallback onTap = null,
+            string myUserId = null,
             Key key = null
         ) : base(key: key) {
             this.channel = channel;
             this.onTap = onTap;
+            this.myUserId = myUserId;
         }
 
         readonly ChannelView channel;
         readonly GestureTapCallback onTap;
+        readonly string myUserId;
 
         public override Widget build(BuildContext context) {
 
@@ -40,7 +43,8 @@ namespace ConnectApp.Components {
                     text = this.channel.lastMessage.content ?? "";
                 }
                 if (!string.IsNullOrEmpty(value: this.channel.lastMessage.author?.fullName) &&
-                    !string.IsNullOrEmpty(value: text)) {
+                    !string.IsNullOrEmpty(value: text) &&
+                    this.channel.lastMessage.author.id != this.myUserId) {
                     text = $"{this.channel.lastMessage.author?.fullName}: {text}";
                 }
             }
