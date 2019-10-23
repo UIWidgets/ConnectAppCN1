@@ -68,6 +68,16 @@ namespace ConnectApp.Utils {
             var message = new StringBuilder();
             for (int i = 0; i < this.contentSpans.Count; i++) {
                 if (this.mentionIds[i] != null) {
+                    
+                    //special case: @everyone
+                    if (this.mentionIds[i] == "everyone") {
+                        var span = this.contentSpans[i].TrimEnd();
+                        if (span == "@所有人") {
+                            message.Append($"@{this.mentionIds[i]} ");
+                            continue;
+                        }
+                    }
+                    
                     Dictionary<string, ChannelMember> userDict = null;
                     if (suggestionDict != null && suggestionDict.ContainsKey(this.mentionIds[i])) {
                         userDict = suggestionDict;
