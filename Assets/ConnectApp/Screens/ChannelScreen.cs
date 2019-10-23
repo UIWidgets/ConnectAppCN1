@@ -203,7 +203,6 @@ namespace ConnectApp.screens {
         float messageBubbleWidth = 0;
         bool _showEmojiBoard = false;
         Dictionary<string, string> headers;
-        float mPaddingBottom = 0;
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
@@ -329,7 +328,6 @@ namespace ConnectApp.screens {
                 return this._buildLoadingPage();
             }
 
-            this.mPaddingBottom = MediaQuery.of(context).padding.bottom;
             if (this.widget.viewModel.mentionAutoFocus) {
                 SchedulerBinding.instance.addPostFrameCallback(_ => {
                     FocusScope.of(this.context)?.requestFocus(this._focusNode);
@@ -693,6 +691,12 @@ namespace ConnectApp.screens {
                             text: newContent,
                             TextSelection.collapsed(newContent.Length)
                         );
+                        if (!this._focusNode.hasFocus || !this.showKeyboard) {
+                            FocusScope.of(this.context).requestFocus(this._focusNode);
+                            TextInputPlugin.TextInputShow();
+                            Promise.Delayed(TimeSpan.FromMilliseconds(200)).Then(
+                                () => { this.setState(() => { this._showEmojiBoard = false; }); });
+                        }
                     },
                     child: new Container(
                         width: avatarSize,
@@ -878,7 +882,7 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildInputBar() {
-            var padding = this.showKeyboard || this.showEmojiBoard ? 0 : this.mPaddingBottom;
+            var padding = this.showKeyboard || this.showEmojiBoard ? 0 : MediaQuery.of(this.context).padding.bottom;
             var customTextField = new CustomTextField(
                 EdgeInsets.only(bottom: padding),
                 new BoxDecoration(
@@ -902,7 +906,7 @@ namespace ConnectApp.screens {
                     if (this.showEmojiBoard) {
                         TextInputPlugin.TextInputShow();
                         Promise.Delayed(TimeSpan.FromMilliseconds(200)).Then(
-                            () => this.setState(() =>this._showEmojiBoard = false));
+                            () => this.setState(() => this._showEmojiBoard = false));
                     }
                     else {
                         this.setState(() => this._showEmojiBoard = true);
