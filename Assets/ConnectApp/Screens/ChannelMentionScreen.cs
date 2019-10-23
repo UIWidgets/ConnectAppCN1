@@ -123,11 +123,13 @@ namespace ConnectApp.screens {
                 }
             }
 
-            var myMemberInfo = this.widget.viewModel.channel.currentMember;
-            if (myMemberInfo.role == "admin" ||
-                myMemberInfo.role == "owner" ||
-                myMemberInfo.role == "moderator") {
-                this.mentionList.Insert(0, new AtAllMention());
+            if (this.curQuery == "") {
+                var myMemberInfo = this.widget.viewModel.channel.currentMember;
+                if (myMemberInfo.role == "admin" ||
+                    myMemberInfo.role == "owner" ||
+                    myMemberInfo.role == "moderator") {
+                    this.mentionList.Insert(0, new AtAllMention());
+                }
             }
         }
 
