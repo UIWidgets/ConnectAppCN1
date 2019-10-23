@@ -236,6 +236,14 @@ namespace ConnectApp.Models.Api {
     }
 
     [Serializable]
+    public class FetchMuteChannelResponse {
+    }
+
+    [Serializable]
+    public class FetchUnMuteChannelResponse {
+    }
+
+    [Serializable]
     public class FetchChannelMessagesResponse {
         public List<ChannelMessage> items;
         public bool hasMore;

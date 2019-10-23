@@ -44,6 +44,26 @@ namespace ConnectApp.Api {
             return promise;
         }
 
+        public static Promise<FetchMuteChannelResponse> FetchMuteChannel(string channelId) {
+            var promise = new Promise<FetchMuteChannelResponse>();
+            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/mute");
+            HttpManager.resume(request: request).Then(responseText => {
+                var muteChannel = JsonConvert.DeserializeObject<FetchMuteChannelResponse>(value: responseText);
+                promise.Resolve(value: muteChannel);
+            }).Catch(exception => promise.Reject(ex: exception));
+            return promise;
+        }
+
+        public static Promise<FetchUnMuteChannelResponse> FetchUnMuteChannel(string channelId) {
+            var promise = new Promise<FetchUnMuteChannelResponse>();
+            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/unMute");
+            HttpManager.resume(request: request).Then(responseText => {
+                var unMuteChannel = JsonConvert.DeserializeObject<FetchUnMuteChannelResponse>(value: responseText);
+                promise.Resolve(value: unMuteChannel);
+            }).Catch(exception => promise.Reject(ex: exception));
+            return promise;
+        }
+
         public static Promise<FetchChannelMessagesResponse> FetchChannelMessages(
             string channelId, string before = null, string after = null) {
             D.assert(before == null || after == null);

@@ -64,7 +64,10 @@ namespace ConnectApp.screens {
                             Actions.leaveChannel(channelId: this.channelId, groupId: viewModel.channel.groupId)),
                         updateTop = isTop => dispatcher.dispatch<IPromise>(isTop
                             ? Actions.fetchStickChannel(channelId: this.channelId)
-                            : Actions.fetchUnStickChannel(channelId: this.channelId))
+                            : Actions.fetchUnStickChannel(channelId: this.channelId)),
+                        updateMute = isMute => dispatcher.dispatch<IPromise>(isMute
+                            ? Actions.fetchMuteChannel(channelId: this.channelId)
+                            : Actions.fetchUnMuteChannel(channelId: this.channelId))
                     };
                     return new ChannelDetailScreen(actionModel: actionModel, viewModel: viewModel);
                 }
@@ -305,13 +308,11 @@ namespace ConnectApp.screens {
                         this.widget.viewModel.channel?.isTop ?? false,
                         value => this.widget.actionModel.updateTop(obj: value)
                     ),
-#if false
                     _switchRow(
                         "消息免打扰",
                         this.widget.viewModel.channel?.isMute ?? false,
-                        value => { }
+                        value => this.widget.actionModel.updateMute(obj: value)
                     ),
-#endif
                     new Container(height: 16),
                     leaveContainer
                 }

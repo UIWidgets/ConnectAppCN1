@@ -13,18 +13,18 @@ namespace ConnectApp.Components {
     public class JoinedChannelCard : StatelessWidget {
         public JoinedChannelCard(
             ChannelView channel,
-            GestureTapCallback onTap = null,
             string myUserId = null,
+            GestureTapCallback onTap = null,
             Key key = null
         ) : base(key: key) {
             this.channel = channel;
-            this.onTap = onTap;
             this.myUserId = myUserId;
+            this.onTap = onTap;
         }
 
         readonly ChannelView channel;
-        readonly GestureTapCallback onTap;
         readonly string myUserId;
+        readonly GestureTapCallback onTap;
 
         public override Widget build(BuildContext context) {
 
@@ -121,7 +121,7 @@ namespace ConnectApp.Components {
                             child: message
                         )
                     ),
-                    this.channel.isMute || this.channel.unread > 0 ? icon : new Container()
+                    icon
                 }
             );
 

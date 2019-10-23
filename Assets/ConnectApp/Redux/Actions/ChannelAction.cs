@@ -84,6 +84,50 @@ namespace ConnectApp.redux.actions {
             });
         }
 
+        public static object fetchMuteChannel(string channelId) {
+            if (HttpManager.isNetWorkError()) {
+                CustomDialogUtils.showToast("请检查网络", iconData: Icons.sentiment_dissatisfied);
+                return null;
+            }
+            CustomDialogUtils.showCustomDialog(child: new CustomLoadingDialog(message: "免打扰中"));
+
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return ChannelApi.FetchMuteChannel(channelId: channelId)
+                    .Then(muteChannelResponse => {
+                        CustomDialogUtils.hiddenCustomDialog();
+                        dispatcher.dispatch(new FetchMuteChannelSuccessAction {
+                            channelId = channelId
+                        });
+                    })
+                    .Catch(error => {
+                        CustomDialogUtils.hiddenCustomDialog();
+                        Debug.Log(error);
+                    });
+            });
+        }
+
+        public static object fetchUnMuteChannel(string channelId) {
+            if (HttpManager.isNetWorkError()) {
+                CustomDialogUtils.showToast("请检查网络", iconData: Icons.sentiment_dissatisfied);
+                return null;
+            }
+            CustomDialogUtils.showCustomDialog(child: new CustomLoadingDialog(message: "取消免打扰中"));
+
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return ChannelApi.FetchUnMuteChannel(channelId: channelId)
+                    .Then(unMuteChannelResponse => {
+                        CustomDialogUtils.hiddenCustomDialog();
+                        dispatcher.dispatch(new FetchUnMuteChannelSuccessAction {
+                            channelId = channelId
+                        });
+                    })
+                    .Catch(error => {
+                        CustomDialogUtils.hiddenCustomDialog();
+                        Debug.Log(error);
+                    });
+            });
+        }
+
         public static object fetchChannelMessages(string channelId, string before = null, string after = null) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 dispatcher.dispatch(new StartFetchChannelMessageAction());
@@ -375,6 +419,14 @@ namespace ConnectApp.redux.actions {
     }
 
     public class FetchUnStickChannelSuccessAction : BaseAction {
+        public string channelId;
+    }
+
+    public class FetchMuteChannelSuccessAction : BaseAction {
+        public string channelId;
+    }
+
+    public class FetchUnMuteChannelSuccessAction : BaseAction {
         public string channelId;
     }
 
