@@ -2457,14 +2457,21 @@ namespace ConnectApp.redux.reducers {
 
                     state.channelState.discoverPage = action.discoverPage;
                     state.channelState.joinedChannels = action.joinedList;
+                    var joinedChannelMap = new Dictionary<string, bool>();
                     foreach (var channelId in action.joinedList) {
-                        action.joinedChannelMap[key: channelId] = true;
+                        joinedChannelMap[key: channelId] = true;
                     }
 
                     foreach (var entry in action.channelMap) {
                         state.channelState.updateChannel(channel: entry.Value);
-                        state.channelState.channelDict[key: entry.Key].joined =
-                            action.joinedChannelMap.ContainsKey(key: entry.Key);
+                        var channel = state.channelState.channelDict[key: entry.Key];
+                        channel.joined = joinedChannelMap.ContainsKey(key: entry.Key);
+                        if (!string.IsNullOrEmpty(channel.groupId)) {
+                            if (action.groupMap.ContainsKey(channel.groupId)) {
+                                Group group = action.groupMap[channel.groupId];
+                                channel.completeMissingFieldsFromGroup(group);
+                            }
+                        }
                     }
 
                     var channelTop = new Dictionary<string, bool>();
@@ -2910,6 +2917,7 @@ namespace ConnectApp.redux.reducers {
                     if (!state.channelState.joinedChannels.Contains(channelData.id)) {
                         state.channelState.joinedChannels.Add(channelData.id);
                     }
+
                     break;
                 }
 
@@ -2921,6 +2929,7 @@ namespace ConnectApp.redux.reducers {
                     else {
                         Debug.LogWarning($"Channel {channelData.id} not exists!");
                     }
+
                     break;
                 }
 
@@ -2938,9 +2947,10 @@ namespace ConnectApp.redux.reducers {
                             state.channelState.joinedChannels.Add(channelData.id);
                         }
                     }
+
                     break;
                 }
-                
+
                 case PushChannelMessageAckAction action: {
                     var ackData = action.ackData;
                     if (state.channelState.channelDict.ContainsKey(ackData.channelId)) {
@@ -2954,6 +2964,7 @@ namespace ConnectApp.redux.reducers {
                     else {
                         Debug.LogWarning($"Channel {ackData.channelId} not exists!");
                     }
+
                     break;
                 }
 

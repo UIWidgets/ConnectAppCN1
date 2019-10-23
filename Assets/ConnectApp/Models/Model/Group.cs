@@ -4,43 +4,43 @@ using System.Collections.Generic;
 namespace ConnectApp.Models.Model {
     [Serializable]
     public class Group {
-        string id;
-        string avatar;
-        string name;
-        string slug;
-        string userId;
-        string coverImage;
-        string createdTime;
-        List<string> categoryIds;
-        string description;
-        List<string> preferredLanguages;
-        List<string> tags;
-        string privacy;
-        string postPermission;
-        string joinPermission;
-        string placeId;
-        int actions;
-        int unreadPosts;
-        string unityLicense;
+        public string id;
+        public string avatar;
+        public string name;
+        public string slug;
+        public string userId;
+        public string coverImage;
+        public string createdTime;
+        public List<string> categoryIds;
+        public string description;
+        public List<string> preferredLanguages;
+        public List<string> tags;
+        public string privacy;
+        public string postPermission;
+        public string joinPermission;
+        public string placeId;
+        public int actions;
+        public int unreadPosts;
+        public string unityLicense;
     }
 
     [Serializable]
     public class GroupStats {
-        string id;
-        int membersCount;
-        int postsCount;
+        public string id;
+        public int membersCount;
+        public int postsCount;
     }
 
     [Serializable]
     public class GroupMember {
-        string id;
-        string groupId;
-        string userId;
-        List<string> roles;
-        string status;
-        string email;
-        string createdTime;
-        string lastReadPostTime;
-        string emailSetting;
+        public string id;
+        public string groupId;
+        public string userId;
+        public List<string> roles;
+        public string status;
+        public string email;
+        public string createdTime;
+        public string lastReadPostTime;
+        public string emailSetting;
     }
 }

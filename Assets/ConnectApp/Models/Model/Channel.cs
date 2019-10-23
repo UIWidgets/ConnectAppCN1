@@ -238,11 +238,19 @@ namespace ConnectApp.Models.Model {
             return channelView;
         }
 
+        public void completeMissingFieldsFromGroup(Group group) {
+            this.groupId = string.IsNullOrEmpty(group.id) ? this.groupId : group.id;
+            this.thumbnail = string.IsNullOrEmpty(this.thumbnail) ? group.avatar : this.thumbnail;
+            this.topic = string.IsNullOrEmpty(this.topic) ? group.description : this.topic;
+            this.name = string.IsNullOrEmpty(this.name) ? group.name : this.name;
+        }
+
         public void handleUnreadMessage(ChannelMessageView message, string userId) {
             if (message.mentionEveryone || message.mentions.Any(user => user.id == userId)) {
                 this.mentioned += 1;
                 this.atMe = true;
             }
+
             this.atAll = this.atAll || message.mentionEveryone;
             this.unread += 1;
         }
@@ -349,6 +357,7 @@ namespace ConnectApp.Models.Model {
                 case ChannelMessageType.file:
                     return attachments[0].filename;
             }
+
             return "";
         }
 
