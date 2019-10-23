@@ -181,7 +181,6 @@ namespace ConnectApp.screens {
         readonly TextEditingController _textController = new TextEditingController();
         readonly RefreshController _refreshController = new RefreshController();
         readonly GlobalKey _smartRefresherKey = GlobalKey<State<SmartRefresher>>.key("SmartRefresher");
-        readonly ChannelMessageInputManager _inputContentManager = new ChannelMessageInputManager();
         TabController _emojiTabController;
         FocusNode _focusNode;
         GlobalKey _focusNodeKey;
@@ -252,35 +251,13 @@ namespace ConnectApp.screens {
         }
 
         string _lastMessageEditingContent = "";
-        bool omitTextChange;
+        Dictionary<string, string> mentionMap = new Dictionary<string, string>();
 
         void _onTextChanged() {
-            if (this.omitTextChange) {
-                this.omitTextChange = false;
-                return;
-            }
-
             var curTextContent = this._textController.text;
             if (curTextContent != this._lastMessageEditingContent) {
                 var isDelete = curTextContent.Length < this._lastMessageEditingContent.Length;
                 this._lastMessageEditingContent = curTextContent;
-
-                if (!isDelete) {
-                    this._inputContentManager.AddContent(this._textController.selection.start,
-                        this._lastMessageEditingContent);
-                }
-                else {
-                    var jumpForward = 0;
-                    this._lastMessageEditingContent = this._inputContentManager.DeleteContent(
-                        this._textController.selection.end, this._lastMessageEditingContent, ref jumpForward);
-                    if (this._textController.text != this._lastMessageEditingContent) {
-                        var selection = this._textController.selection;
-                        this.omitTextChange = true;
-                        this._textController.value = new TextEditingValue(
-                            text: this._lastMessageEditingContent,
-                            TextSelection.collapsed(selection.start - jumpForward));
-                    }
-                }
 
                 if (!isDelete &&
                     this._lastMessageEditingContent.isNotEmpty() &&
@@ -312,8 +289,9 @@ namespace ConnectApp.screens {
                     if (!this.widget.viewModel.mentionUserId.isEmpty()) {
                         var userName = this.widget.viewModel.mentionUserName;
                         var newContent = this._textController.text + userName + " ";
-                        this._inputContentManager.AddMention(userName + " ", this.widget.viewModel.mentionUserId,
-                            newContent);
+
+                        this.mentionMap[userName] = this.widget.viewModel.mentionUserId;
+                        
                         this._textController.value = new TextEditingValue(
                             text: newContent,
                             TextSelection.collapsed(newContent.Length));
@@ -643,8 +621,7 @@ namespace ConnectApp.screens {
                         var userName = user.fullName;
                         var userId = user.id;
                         var newContent = this._textController.text + "@" + userName + " ";
-                        this._inputContentManager.AddMention(userName + " ", userId,
-                            newContent);
+                        this.mentionMap[userName] = userId;
                         this._textController.value = new TextEditingValue(
                             text: newContent,
                             TextSelection.collapsed(newContent.Length)
@@ -1190,8 +1167,7 @@ namespace ConnectApp.screens {
                 return;
             }
 
-            text = this._inputContentManager.ToMessage(
-                this.widget.viewModel.mentionSuggestion, this.widget.viewModel.channel.membersDict, text);
+            text = ChannelMessageMentionHelper.parseMention(text, this.mentionMap);
             if (string.IsNullOrWhiteSpace(text)) {
                 CustomDialogUtils.showToast("不能发送空消息", Icons.error_outline);
                 return;
@@ -1302,7 +1278,7 @@ namespace ConnectApp.screens {
         }
 
         public void didPop() {
-            this._inputContentManager.Clear();
+            this.mentionMap.Clear();
             if (this._focusNode.hasFocus) {
                 this._focusNode.unfocus();
             }
