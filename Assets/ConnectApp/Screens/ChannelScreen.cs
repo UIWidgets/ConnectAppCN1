@@ -14,8 +14,6 @@ using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.gestures;
-using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
@@ -24,7 +22,6 @@ using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using Config = ConnectApp.Constants.Config;
-using Icons = ConnectApp.Constants.Icons;
 using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.screens {
@@ -42,7 +39,7 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, ChannelScreenViewModel>(
                 converter: state => {
                     List<ChannelMessageView> getMessages(List<string> messageIds) {
-                        if (messageIds == null || messageIds.Count == 0) {
+                        if (messageIds.isNullOrEmpty()) {
                             return new List<ChannelMessageView>();
                         }
 
@@ -200,7 +197,6 @@ namespace ConnectApp.screens {
         readonly RefreshController _refreshController = new RefreshController();
         readonly GlobalKey _smartRefresherKey = GlobalKey<State<SmartRefresher>>.key("SmartRefresher");
         readonly ChannelMessageInputManager _inputContentManager = new ChannelMessageInputManager();
-        TabController _emojiTabController;
         FocusNode _focusNode;
         GlobalKey _focusNodeKey;
 
@@ -238,9 +234,6 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
-            this._emojiTabController = new TabController(
-                length: (emojiList.Count - 1) / emojiBoardPageSize + 1,
-                vsync: this);
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 if (this.widget.viewModel.hasChannel) {
                     this.fetchMessages();
@@ -273,7 +266,6 @@ namespace ConnectApp.screens {
             Router.routeObserve.unsubscribe(this);
             this._textController.removeListener(this._onTextChanged);
             this._textController.dispose();
-            this._emojiTabController.dispose();
             SchedulerBinding.instance.addPostFrameCallback(_ => { this.widget.actionModel.clearUnread(); });
             this._focusNode.dispose();
             base.dispose();
@@ -756,7 +748,7 @@ namespace ConnectApp.screens {
                     var url = CImageUtils.SizeToScreenImageUrl(message.content);
                     this.widget.actionModel.browserImage(url, imageUrls);
                 },
-                child: new _ImageMessage(
+                child: new ImageMessage(
                     url: message.content,
                     size: 140,
                     ratio: 16.0f / 9.0f,
@@ -885,339 +877,83 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildPickImageButton() {
-            return new CustomButton(
-                padding: EdgeInsets.zero,
-                onPressed: this._pickImage,
-                child: new Container(
-                    width: 44,
-                    height: 49,
-                    child: new Center(
-                        child: new Icon(Icons.outline_photo_size_select_actual,
-                            size: 28, color: CColors.Icon)
-                    )
-                )
-            );
-        }
-
-        Widget _buildShowEmojiBoardButton() {
-            return new CustomButton(
-                padding: EdgeInsets.zero,
-                onPressed: () => {
-                    this.setState(() => {
-                        this._refreshController.scrollController.jumpTo(0);
-                        FocusScope.of(this.context).requestFocus(this._focusNode);
-                        if (this.showEmojiBoard) {
-                            TextInputPlugin.TextInputShow();
-                            Promise.Delayed(TimeSpan.FromMilliseconds(200)).Then(
-                                () => { this.setState(() => { this._showEmojiBoard = false; }); });
-                        }
-                        else {
-                            this.setState(() => { this._showEmojiBoard = true; });
-                            Promise.Delayed(TimeSpan.FromMilliseconds(100)).Then(
-                                TextInputPlugin.TextInputHide
-                            );
-                        }
-                    });
-                },
-                child: new Container(
-                    width: 44,
-                    height: 49,
-                    child: new Center(
-                        child: new Icon(this.showEmojiBoard
-                                ? Icons.outline_keyboard
-                                : Icons.mood,
-                            size: 28, color: CColors.Icon)
-                    )
-                )
-            );
-        }
-
         Widget _buildInputBar() {
             var padding = this.showKeyboard || this.showEmojiBoard ? 0 : this.mPaddingBottom;
-            Widget ret = new Container(
-                padding: EdgeInsets.symmetric(5, 16),
-                decoration: new BoxDecoration(
-                    CColors.Separator2,
-                    borderRadius: BorderRadius.all(16)
-                ),
-                alignment: Alignment.centerLeft,
-                child: new InputField(
-                    key: this._focusNodeKey,
-                    controller: this._textController,
-                    focusNode: this._focusNode,
-                    style: CTextStyle.PRegularBody,
-                    hintText: "说点想法…",
-                    hintStyle: CTextStyle.PRegularBody4.copyWith(height: 1),
-                    keyboardType: TextInputType.multiline,
-                    height: null,
-                    maxLines: 4,
-                    minLines: 1,
-                    cursorColor: CColors.PrimaryBlue,
-                    textInputAction: TextInputAction.send,
-                    onSubmitted: this._handleSubmit
-                )
-            );
-
-            if (this.widget.viewModel.channel.sendingMessage) {
-                ret = new Stack(
-                    children: new List<Widget> {
-                        ret,
-                        new Positioned(
-                            right: 8,
-                            top: 0,
-                            bottom: 0,
-                            child: new Align(
-                                alignment: Alignment.center,
-                                child: new CustomActivityIndicator(size: LoadingSize.small)
-                            )
-                        )
-                    });
-            }
-
-
-            ret = new Container(
-                padding: EdgeInsets.only(bottom: padding),
-                decoration: new BoxDecoration(
-                    border: new Border(new BorderSide(CColors.Separator)),
+            var customTextField = new CustomTextField(
+                EdgeInsets.only(bottom: padding),
+                new BoxDecoration(
+                    border: new Border(new BorderSide(color: CColors.Separator)),
                     color: this.showEmojiBoard ? CColors.White : CColors.TabBarBg
                 ),
-                child: new Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: new List<Widget> {
-                        new Container(width: 16),
-                        new Expanded(
-                            child: new Column(
-                                children: new List<Widget> {
-                                    new Container(height: 8f),
-                                    ret,
-                                    new Container(height: 9f)
-                                })),
-                        this._buildShowEmojiBoardButton(),
-                        this._buildPickImageButton(),
-                        new Container(width: 10)
+                textFieldKey: this._focusNodeKey,
+                "说点想法…",
+                controller: this._textController,
+                focusNode: this._focusNode,
+                maxLines: 4,
+                minLines: 1,
+                loading: this.widget.viewModel.channel.sendingMessage,
+                showEmojiBoard: this.showEmojiBoard,
+                isShowImageButton: true,
+                onSubmitted: this._handleSubmit,
+                onPressImage: this._pickImage,
+                onPressEmoji: () => {
+                    this._refreshController.scrollController.jumpTo(0);
+                    FocusScope.of(context: this.context).requestFocus(node: this._focusNode);
+                    if (this.showEmojiBoard) {
+                        TextInputPlugin.TextInputShow();
+                        Promise.Delayed(TimeSpan.FromMilliseconds(200)).Then(
+                            () => this.setState(() =>this._showEmojiBoard = false));
                     }
-                )
+                    else {
+                        this.setState(() => this._showEmojiBoard = true);
+                        Promise.Delayed(TimeSpan.FromMilliseconds(100)).Then(
+                            onResolved: TextInputPlugin.TextInputHide
+                        );
+                    }
+                }
             );
 
+            Widget backdropFilterWidget;
             if (!this.showEmojiBoard && !this.showKeyboard) {
-                ret = new BackdropFilter(
+                backdropFilterWidget = new BackdropFilter(
                     filter: ImageFilter.blur(10, 10),
-                    child: ret
+                    child: customTextField
                 );
             }
+            else {
+                backdropFilterWidget = customTextField;
+            }
 
-            ret = new Positioned(
+            return new Positioned(
                 left: 0,
                 right: 0,
                 bottom: 0,
-                child: ret
+                child: backdropFilterWidget
             );
-
-            return ret;
-        }
-
-        static readonly List<int> emojiList = new List<int> {
-            0x1F600, 0x1F603, 0x1F604, 0x1F601, 0x1F606, 0x1F605, 0x1F602, 0x1F923, 0x1F62D,
-            0x1F617, 0x1F619, 0x1F61A, 0x1F618, 0x263A, 0x1F60A, 0x1F970, 0x1F60D, 0x1F929,
-            0x1F917, 0x1F642, 0x1F643, 0x1F609, 0x1F60B, 0x1F61B, 0x1F61D, 0x1F61C, 0x1F92A,
-            0x1F914, 0x1F928, 0x1F9D0, 0x1F644, 0x1F60F, 0x1F612, 0x1F623, 0x1F614, 0x1F60C,
-            0x2639, 0x1F641, 0x1F615, 0x1F61F, 0x1F97A, 0x1F62C, 0x1F910, 0x1F92B, 0x1F92D,
-            0x1F630, 0x1F628, 0x1F627, 0x1F626, 0x1F62E, 0x1F62F, 0x1F632, 0x1F633, 0x1F92F,
-            0x1F622, 0x1F625, 0x1F613, 0x1F61E, 0x1F616, 0x1F629, 0x1F62B, 0x1F635, 0x1F631,
-            0x1F922, 0x1F92E, 0x1F927, 0x1F637, 0x1F974, 0x1F912, 0x1F915, 0x1F975, 0x1F976,
-            0x1F636, 0x1F610, 0x1F611, 0x1F624, 0x1F924, 0x1F634, 0x1F62A, 0x1F607, 0x1F920,
-            0x1F973, 0x1F60E, 0x1F913, 0x1F925
-        };
-
-        static readonly int emojiBoardRowSize = 8;
-        static readonly int emojiBoardColumnSize = 3;
-
-        static int emojiBoardPageSize {
-            get { return emojiBoardRowSize * emojiBoardColumnSize - 1; }
-        }
-
-        float emojiButtonSize {
-            get {
-                return (MediaQuery.of(this.context).size.width - 42 - (emojiBoardRowSize - 1) * 2) / emojiBoardRowSize;
-            }
-        }
-
-        float emojiSizeFactor {
-            get { return 0.7f; }
-        }
-
-        float deleteButtonSize {
-            get { return this.emojiButtonSize * this.emojiSizeFactor; }
-        }
-
-        float emojiSize {
-            get { return this.emojiButtonSize * this.emojiSizeFactor / EmojiUtils.sizeFactor; }
-        }
-
-        List<Widget> _buildEmojiBoardPages() {
-            List<Widget> emojiPages = new List<Widget>();
-            for (int i = 0; i < emojiList.Count; i += emojiBoardPageSize) {
-                List<Widget> rows = new List<Widget>();
-                for (int j = 0; j < emojiBoardColumnSize; j++) {
-                    List<Widget> emojis = new List<Widget>();
-                    for (int k = 0; k < emojiBoardRowSize; k++) {
-                        emojis.Add(j == emojiBoardColumnSize - 1 && k == emojiBoardRowSize - 1
-                            ? this._buildDeleteKey(EdgeInsets.only(left: 2))
-                            : this._buildEmojiButton(i, j, k));
-                    }
-
-                    if (j > 0) {
-                        rows.Add(new Container(height: 8));
-                    }
-
-                    rows.Add(new Container(
-                        height: this.emojiButtonSize,
-                        padding: EdgeInsets.symmetric(0, 20),
-                        child: new Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: emojis
-                        )
-                    ));
-                }
-
-                emojiPages.Add(new Container(
-                    width: MediaQuery.of(this.context).size.width,
-                    child: new Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: rows
-                    )
-                ));
-            }
-
-            return emojiPages;
         }
 
         Widget _buildEmojiBoard() {
-            return new Column(
-                children: new List<Widget> {
-                    new Container(
-                        decoration: new BoxDecoration(
-                            color: CColors.White,
-                            border: new Border(new BorderSide(color: CColors.Separator))
-                        ),
-                        padding: EdgeInsets.symmetric(24),
-                        child: new Column(
-                            children: new List<Widget> {
-                                new Container(
-                                    height: (this.emojiButtonSize + 8) * (emojiBoardColumnSize - 1) +
-                                            this.emojiButtonSize,
-                                    child: new TabBarView(
-                                        controller: this._emojiTabController,
-                                        children: this._buildEmojiBoardPages()
-                                    )
-                                ),
-                                new Container(height: 16),
-                                new CustomTabPageSelector(
-                                    controller: this._emojiTabController,
-                                    indicatorSize: 8,
-                                    selectedColor: CColors.PrimaryBlue,
-                                    color: CColors.Disable2
-                                )
-                            }
-                        )
-                    ),
-                    new Container(
-                        color: CColors.EmojiBottomBar,
-                        height: 36,
-                        child: new Row(
-                            children: new List<Widget> {
-                                new Container(width: 16),
-                                new GestureDetector(
-                                    child: new Container(height: 36, width: 44,
-                                        decoration: new BoxDecoration(color: CColors.White),
-                                        child: new Center(
-                                            child: new Text(
-                                                char.ConvertFromUtf32(0x1f642),
-                                                style: new TextStyle(fontSize: 24, height: 1))))
-                                ),
-                                new Expanded(child: new Container()),
-                                new GestureDetector(
-                                    onTap: () => this._handleSubmit(this._textController.text),
-                                    child: new Container(
-                                        width: 60, height: 16,
-                                        decoration: new BoxDecoration(
-                                            border: new Border(left: new BorderSide(color: CColors.Separator))
-                                        ),
-                                        child: new Center(
-                                            child: new Text("发送",
-                                                style: CTextStyle.PMediumBlue.copyWith(height: 1)))
-                                    )
-                                )
-                            }
-                        )
-                    ),
-                    new Container(
-                        color: CColors.EmojiBottomBar,
-                        height: this.mPaddingBottom
-                    )
-                }
-            );
-        }
-
-        Widget _buildDeleteKey(EdgeInsets padding) {
-            return new GestureDetector(
-                onTap: this._handleDelete,
-                child: new Container(
-                    width: this.emojiButtonSize,
-                    height: this.emojiButtonSize,
-                    padding: padding,
-                    child: new Center(
-                        child: new Icon(
-                            Icons.outline_delete_keyboard,
-                            size: this.emojiButtonSize * 0.7f,
-                            color: CColors.Icon
-                        )
-                    )
-                )
-            );
-        }
-
-        string getEmojiText(int index) {
-            if (index < emojiList.Count) {
-                return emojiList[index] > 0x10000
-                    ? char.ConvertFromUtf32(emojiList[index])
-                    : $"{(char) emojiList[index]}";
-            }
-
-            return "";
-        }
-
-        Widget _buildEmojiButton(int i, int j, int k) {
-            int index = i + j * emojiBoardRowSize + k;
-            return new GestureDetector(
-                onTap: this.getEmojiText(index) != ""
-                    ? (GestureTapCallback) (() => {
-                        var selection = this._textController.selection;
-                        this._textController.value = new TextEditingValue(
-                            this._textController.text.Substring(0, selection.start) +
-                            this.getEmojiText(index) + this._textController.text.Substring(selection.end),
-                            TextSelection.collapsed(selection.start + this.getEmojiText(index).Length));
-                    })
-                    : null,
-                child: new Container(
-                    width: this.emojiButtonSize,
-                    height: this.emojiButtonSize,
-                    color: CColors.Transparent,
-                    padding: k == 0 ? EdgeInsets.zero : EdgeInsets.only(left: 2),
-                    child: new Center(
-                        child: new Text(
-                            this.getEmojiText(index),
-                            style: new TextStyle(fontSize: this.emojiSize, height: 1.46f)
-                        )
-                    )
-                )
+            return new EmojiBoard(
+                handleEmoji: this._handleEmoji,
+                handleDelete: this._handleDelete,
+                () => this._handleSubmit(text: this._textController.text)
             );
         }
 
         int codeUnitLengthAt(TextEditingValue value) {
             return value.selection.start > 1 && char.IsSurrogate(value.text[value.selection.start - 1]) ? 2 : 1;
+        }
+
+        void _handleEmoji(string emojiText) {
+            if (emojiText.isEmpty()) {
+                return;
+            }
+
+            var selection = this._textController.selection;
+            this._textController.value = new TextEditingValue(
+                this._textController.text.Substring(0, length: selection.start) +
+                emojiText + this._textController.text.Substring(startIndex: selection.end),
+                TextSelection.collapsed(selection.start + emojiText.Length));
         }
 
         void _handleDelete() {
@@ -1414,125 +1150,6 @@ namespace ConnectApp.screens {
             }
 
             return height;
-        }
-    }
-
-    class _ImageMessage : StatefulWidget {
-        public readonly string url;
-        public readonly float size;
-        public readonly float ratio;
-        public readonly float radius;
-        public readonly float srcWidth;
-        public readonly float srcHeight;
-        public readonly Dictionary<string, string> headers;
-
-        public _ImageMessage(
-            string url,
-            float size,
-            float ratio,
-            float srcWidth = 0,
-            float srcHeight = 0,
-            Dictionary<string, string> headers = null,
-            float radius = 10) {
-            this.url = url;
-            this.size = size;
-            this.ratio = ratio;
-            this.radius = radius;
-            this.headers = headers;
-            this.srcWidth = srcWidth;
-            this.srcHeight = srcHeight;
-        }
-
-        public Size srcSize {
-            get {
-                if (this.srcWidth != 0 && this.srcHeight != 0) {
-                    return new Size(this.srcWidth, this.srcHeight);
-                }
-
-                return null;
-            }
-        }
-
-        public override State createState() {
-            return new _ImageMessageState();
-        }
-    }
-
-    class _ImageMessageState : State<_ImageMessage> {
-        Image image;
-        Size size;
-        ImageStream stream;
-
-        Size _finalSize(Size size) {
-            if (size.width > size.height * this.widget.ratio) {
-                return new Size(
-                    width: this.widget.size,
-                    height: this.widget.size / this.widget.ratio);
-            }
-
-            if (size.width > size.height) {
-                return new Size(
-                    width: this.widget.size,
-                    height: this.widget.size / size.width * size.height);
-            }
-
-            if (size.width > size.height / this.widget.ratio) {
-                return new Size(
-                    width: this.widget.size / size.height * size.width,
-                    height: this.widget.size);
-            }
-
-            return new Size(
-                width: this.widget.size / this.widget.ratio,
-                height: this.widget.size);
-        }
-
-        void _updateSize(ImageInfo info, bool _) {
-            this.size = this._finalSize(new Size(info.image.width, info.image.height));
-
-            this.setState(() => { });
-        }
-
-        public override void initState() {
-            base.initState();
-            if (this.widget.srcSize == null) {
-                this.image = CachedNetworkImageProvider.cachedNetworkImage(
-                    src: CImageUtils.SizeToScreenImageUrl(this.widget.url),
-                    headers: this.widget.headers);
-                this.stream = this.image.image
-                    .resolve(new ImageConfiguration());
-                this.stream.addListener(this._updateSize);
-            }
-            else {
-                this.size = this._finalSize(this.widget.srcSize);
-            }
-        }
-
-        public override void dispose() {
-            this.stream?.removeListener(this._updateSize);
-            base.dispose();
-        }
-
-        public override Widget build(BuildContext context) {
-            return this.size == null || this.widget.url == null
-                ? new Container(
-                    width: this.widget.size,
-                    height: this.widget.size,
-                    decoration: new BoxDecoration(
-                        color: CColors.Disable,
-                        borderRadius: BorderRadius.all(this.widget.radius)
-                    ))
-                : (Widget) new ClipRRect(
-                    borderRadius: BorderRadius.all(this.widget.radius),
-                    child: new Container(
-                        width: this.size.width,
-                        height: this.size.height,
-                        color: CColors.Disable,
-                        child: CachedNetworkImageProvider.cachedNetworkImage(
-                            CImageUtils.SizeToScreenImageUrl(this.widget.url),
-                            headers: this.widget.headers,
-                            fit: BoxFit.cover))
-                );
         }
     }
 }
