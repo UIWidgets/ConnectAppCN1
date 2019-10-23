@@ -232,7 +232,6 @@ namespace ConnectApp.screens {
                         height: 60,
                         child: new Row(
                             children: new List<Widget> {
-                                new SizedBox(width: 16),
                                 new Expanded(
                                     child: new Container(
                                         padding: EdgeInsets.symmetric(0, 16),
