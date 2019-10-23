@@ -104,6 +104,7 @@ namespace ConnectApp.redux.reducers {
                     state.favoriteState.favoriteTagIdDict = new Dictionary<string, List<string>>();
                     state.favoriteState.favoriteTagDict = new Dictionary<string, FavoriteTag>();
                     state.favoriteState.favoriteDetailArticleIdDict = new Dictionary<string, List<string>>();
+                    state.channelState.clearMentions();
                     state.channelState.mentionSuggestions.Clear();
                     break;
                 }
@@ -2805,8 +2806,8 @@ namespace ConnectApp.redux.reducers {
 
                         channel.lastMessageId = channelMessage.id;
                         channel.lastMessage = channelMessage;
-                        if ((!state.loginState.isLoggedIn ||
-                             channelMessage.author.id != state.loginState.loginInfo.userId) &&
+                        if (state.loginState.isLoggedIn &&
+                            channelMessage.author.id != state.loginState.loginInfo.userId &&
                             !channel.atBottom) {
                             channel.handleUnreadMessage(channelMessage, state.loginState.loginInfo.userId);
                         }
