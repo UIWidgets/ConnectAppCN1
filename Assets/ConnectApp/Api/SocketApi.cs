@@ -155,6 +155,34 @@ namespace ConnectApp.Api {
                                 memberData = memberRemoveData
                             });
                             break;
+                        case DispatchMsgType.CHANNEL_CREATE:
+                            var createChannelData = (SocketResponseUpdateChannelData) data;
+                            
+                            StoreProvider.store.dispatcher.dispatch(new PushChannelCreateChannelAction {
+                                channelData = createChannelData
+                            });
+                            break;
+                        case DispatchMsgType.CHANNEL_DELETE:
+                            var deleteChannelData = (SocketResponseUpdateChannelData) data;
+                            
+                            StoreProvider.store.dispatcher.dispatch(new PushChannelDeleteChannelAction {
+                                channelData = deleteChannelData
+                            });
+                            break;
+                        case DispatchMsgType.CHANNEL_UPDATE:
+                            var updateChannelData = (SocketResponseUpdateChannelData) data;
+                            
+                            StoreProvider.store.dispatcher.dispatch(new PushChannelUpdateChannelAction {
+                                channelData = updateChannelData
+                            });
+                            break;
+                        case DispatchMsgType.MESSAGE_ACK:
+                            var messageAckData = (SocketResponseMessageAckData) data;
+                            
+                            StoreProvider.store.dispatcher.dispatch(new PushChannelMessageAckAction {
+                                ackData = messageAckData
+                            });
+                            break;
                     }
                 });
         }

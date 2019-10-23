@@ -6,6 +6,7 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
 
 namespace ConnectApp.Components {
     public class CustomTextField : StatefulWidget {
@@ -72,9 +73,19 @@ namespace ConnectApp.Components {
 
         public override void initState() {
             base.initState();
-            this._textFieldKey = (GlobalKey)this.widget.textFieldKey ?? GlobalKey.key("textFieldKey");
+            this._textFieldKey = (GlobalKey) this.widget.textFieldKey ?? GlobalKey.key("textFieldKey");
             this._controller = this.widget.controller ?? new TextEditingController("");
             this._focusNode = this.widget.focusNode ?? new FocusNode();
+            this._controller.addListener(this._onTextChanged);
+        }
+
+        public override void dispose() {
+            base.dispose();
+            this._controller.removeListener(this._onTextChanged);
+        }
+
+        void _onTextChanged() {
+            this.setState();
         }
 
         public override Widget build(BuildContext context) {
@@ -122,7 +133,7 @@ namespace ConnectApp.Components {
                     maxLines: this.widget.maxLines,
                     minLines: this.widget.minLines,
                     cursorColor: CColors.PrimaryBlue,
-                    textInputAction: TextInputAction.send,
+                    textInputAction: this._isIphone() ? TextInputAction.send : TextInputAction.newline,
                     onSubmitted: this.widget.onSubmitted
                 )
             );
@@ -147,11 +158,52 @@ namespace ConnectApp.Components {
             return textFieldWidget;
         }
 
+        bool _isIphone() {
+            if (Application.platform == RuntimePlatform.IPhonePlayer) {
+                return true;
+            }
+
+            return false;
+        }
+
         Widget _buildPickImageButton() {
+            if (!this._isIphone()) {
+                if (this.widget.isShowImageButton) {
+                    if (this.widget.controller.text.isEmpty()) {
+                        return this.pickImageButton();
+                    }
+                    else {
+                        return new Container(
+                            width: 44,
+                            height: 49,
+                            child: new Center(
+                                child: new Text("发送", style: CTextStyle.PLargeBlue.copyWith(height: 1))
+                            )
+                        );
+                    }
+                }
+                else {
+                    return new Container(
+                        width: 44,
+                        height: 49,
+                        child: new Center(
+                            child: new Text("发送",
+                                style: this.widget.controller.text.isEmpty()
+                                    ? CTextStyle.PLargeDisabled.copyWith(height: 1)
+                                    : CTextStyle.PLargeBlue.copyWith(height: 1))
+                        )
+                    );
+                }
+            }
+
             if (!this.widget.isShowImageButton) {
                 return new Container();
             }
 
+            return this.pickImageButton();
+        }
+
+        Widget pickImageButton() {
             return new CustomButton(
                 padding: EdgeInsets.zero,
                 onPressed: this.widget.onPressImage,
@@ -168,6 +220,7 @@ namespace ConnectApp.Components {
                 )
             );
         }
+
 
         Widget _buildShowEmojiBoardButton(BuildContext context) {
             return new CustomButton(
