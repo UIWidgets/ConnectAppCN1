@@ -17,6 +17,7 @@ namespace ConnectApp.Models.State {
         public bool socketConnected;
         
         public string mentionUserId;
+        public string mentionUserName;
         public bool mentionAutoFocus;
         public Dictionary<string, Dictionary<string, ChannelMember>> mentionSuggestions;
         public bool mentionLoading;

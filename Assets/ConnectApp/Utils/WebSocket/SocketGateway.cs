@@ -214,6 +214,17 @@ namespace ConnectApp.Utils {
                             var memberChangeResponse = (SocketResponseChannelMemberChange) response;
                             data = memberChangeResponse.data;
                             break;
+                        case DispatchMsgType.CHANNEL_CREATE:
+                        case DispatchMsgType.CHANNEL_DELETE:
+                        case DispatchMsgType.CHANNEL_UPDATE:
+                            var createChannelResponse = (SocketResponseUpdateChannel) response;
+                            data = createChannelResponse.data;
+                            break;
+                        case DispatchMsgType.MESSAGE_ACK:
+                            var messageAckResponse = (SocketResponseMessageAck) response;
+                            data = messageAckResponse.data;
+                            break;
+                        
                         default:
                             data = null;
                             break;
