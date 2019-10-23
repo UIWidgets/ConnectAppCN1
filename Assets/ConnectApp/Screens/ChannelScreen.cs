@@ -236,10 +236,14 @@ namespace ConnectApp.screens {
             base.initState();
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 if (this.widget.viewModel.hasChannel) {
-                    this.fetchMessages();
+                    this.fetchMessagesAndMembers();
+                    this.addListener();
                 }
                 else {
-                    this.widget.actionModel.fetchChannelInfo().Then(() => { this.fetchMessages(); });
+                    this.widget.actionModel.fetchChannelInfo().Then(() => {
+                        this.fetchMessagesAndMembers();
+                        this.addListener();
+                    });
                 }
             });
 
@@ -250,15 +254,17 @@ namespace ConnectApp.screens {
                 {"ConnectAppVersion", Config.versionNumber},
                 {"X-Requested-With", "XmlHttpRequest"}
             };
-
-            this._textController.addListener(this._onTextChanged);
         }
 
-        void fetchMessages() {
+        void fetchMessagesAndMembers() {
             this.widget.actionModel.fetchMessages(null, null);
             this.widget.actionModel.fetchMembers();
             this.widget.actionModel.fetchMember();
             this.widget.actionModel.reportHitBottom();
+        }
+
+        void addListener() {
+            this._textController.addListener(this._onTextChanged);
             this._refreshController.scrollController.addListener(this._handleScrollListener);
         }
 
