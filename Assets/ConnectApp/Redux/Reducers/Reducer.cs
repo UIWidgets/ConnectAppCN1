@@ -5,8 +5,8 @@ using ConnectApp.Components;
 using ConnectApp.Main;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
-using ConnectApp.Reality;
 using ConnectApp.redux.actions;
+using ConnectApp.Reality;
 using ConnectApp.screens;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
@@ -1297,11 +1297,14 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case MainNavigatorPushToChannelAction action: {
-                    state.channelState.channelDict[action.channelId].unread = 0;
-                    state.channelState.channelDict[action.channelId].mentioned = 0;
-                    state.channelState.channelDict[action.channelId].atAll = false;
-                    state.channelState.channelDict[action.channelId].atMe = false;
-                    state.channelState.updateTotalMention();
+                    if (state.channelState.channelDict.ContainsKey(action.channelId)) {
+                        state.channelState.channelDict[action.channelId].unread = 0;
+                        state.channelState.channelDict[action.channelId].mentioned = 0;
+                        state.channelState.channelDict[action.channelId].atAll = false;
+                        state.channelState.channelDict[action.channelId].atMe = false;
+                        state.channelState.updateTotalMention();
+                    }
+
                     Router.navigator.push(new PageRouteBuilder(
                             pageBuilder: (context, animation, secondaryAnimation) =>
                                 new ChannelScreenConnector(action.channelId),
@@ -2620,6 +2623,11 @@ namespace ConnectApp.redux.reducers {
 
                 case FetchUnStickChannelSuccessAction action: {
                     state.channelState.channelTop[key: action.channelId] = false;
+                    break;
+                }
+
+                case FetchChannelInfoSuccessAction action: {
+                    state.channelState.updateChannel(action.channel);
                     break;
                 }
 

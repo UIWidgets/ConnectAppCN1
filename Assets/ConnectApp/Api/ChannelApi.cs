@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using ConnectApp.Constants;
 using ConnectApp.Models.Api;
+using ConnectApp.Models.Model;
 using ConnectApp.Utils;
 using Newtonsoft.Json;
 using RSG;
@@ -50,10 +51,10 @@ namespace ConnectApp.Api {
             var promise = new Promise<FetchChannelMessagesResponse>();
             var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/messages",
                 parameter: before != null
-                ? new Dictionary<string, object> {{"before", before}}
-                : after != null
-                    ? new Dictionary<string, object> {{"after", after}}
-                    : null);
+                    ? new Dictionary<string, object> {{"before", before}}
+                    : after != null
+                        ? new Dictionary<string, object> {{"after", after}}
+                        : null);
             HttpManager.resume(request: request).Then(responseText => {
                 promise.Resolve(JsonConvert.DeserializeObject<FetchChannelMessagesResponse>(value: responseText));
             }).Catch(exception => promise.Reject(ex: exception));
@@ -74,6 +75,15 @@ namespace ConnectApp.Api {
             var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/messages/{messageId}/ack");
             HttpManager.resume(request: request).Then(responseText => {
                 promise.Resolve(JsonConvert.DeserializeObject<AckChannelMessagesResponse>(value: responseText));
+            }).Catch(exception => promise.Reject(ex: exception));
+            return promise;
+        }
+
+        public static Promise<Channel> FetchChannelInfo(string channelId) {
+            var promise = new Promise<Channel>();
+            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}");
+            HttpManager.resume(request: request).Then(responseText => {
+                promise.Resolve(JsonConvert.DeserializeObject<Channel>(value: responseText));
             }).Catch(exception => promise.Reject(ex: exception));
             return promise;
         }
@@ -104,7 +114,7 @@ namespace ConnectApp.Api {
             var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/join",
                 parameter: new Dictionary<string, string> {
                     {"channelId", channelId}
-            });
+                });
             HttpManager.resume(request: request).Then(responseText => {
                 promise.Resolve(JsonConvert.DeserializeObject<JoinChannelResponse>(value: responseText));
             }).Catch(exception => promise.Reject(ex: exception));
@@ -116,7 +126,7 @@ namespace ConnectApp.Api {
             var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/leave",
                 parameter: new Dictionary<string, string> {
                     {"channelId", channelId}
-            });
+                });
             HttpManager.resume(request: request).Then(responseText => {
                 promise.Resolve(JsonConvert.DeserializeObject<LeaveChannelResponse>(value: responseText));
             }).Catch(exception => promise.Reject(ex: exception));
@@ -130,15 +140,15 @@ namespace ConnectApp.Api {
             var request = HttpManager.POST(
                 $"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/messages/attachments",
                 parameter: new List<List<object>> {
-                    new List<object>{"channel", channelId},
-                    new List<object>{"content", content},
-                    new List<object>{"parentMessageId", parentMessageId},
-                    new List<object>{"nonce", nonce},
-                    new List<object>{"size", $"{data.Length}"},
-                    new List<object>{"file", data}
+                    new List<object> {"channel", channelId},
+                    new List<object> {"content", content},
+                    new List<object> {"parentMessageId", parentMessageId},
+                    new List<object> {"nonce", nonce},
+                    new List<object> {"size", $"{data.Length}"},
+                    new List<object> {"file", data}
                 },
-                multipart: true, 
-                filename: "image.png", 
+                multipart: true,
+                filename: "image.png",
                 fileType: "image/png");
             HttpManager.resume(request: request).Then(responseText => {
                 promise.Resolve(new FetchSendMessageResponse {
