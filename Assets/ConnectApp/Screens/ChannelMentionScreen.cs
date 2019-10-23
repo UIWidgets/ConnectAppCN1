@@ -18,6 +18,10 @@ using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
+    public class AtAllMention {
+        
+    }
+    
     public class ChannelMentionScreenConnector : StatelessWidget {
         public ChannelMentionScreenConnector(
             string channelId,
@@ -43,9 +47,10 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch(new ChannelChooseMentionCancelAction());
                             dispatcher.dispatch(new MainNavigatorPopAction());
                         },
-                        chooseMentionConfirm = mentionUserId => {
+                        chooseMentionConfirm = (mentionUserId, mentionUserName) => {
                             dispatcher.dispatch(new ChannelChooseMentionConfirmAction {
-                                mentionUserId = mentionUserId
+                                mentionUserId = mentionUserId,
+                                mentionUserName = mentionUserName
                             });
                             dispatcher.dispatch(new MainNavigatorPopAction());
                         },
@@ -82,7 +87,7 @@ namespace ConnectApp.screens {
     class _ChannelMentionScreenState : State<ChannelMentionScreen>, RouteAware {
         readonly TextEditingController _editingController = new TextEditingController();
         readonly ScrollController _scrollController = new ScrollController();
-        readonly List<ChannelMember> mentionList = new List<ChannelMember>();
+        readonly List<object> mentionList = new List<object>();
 
         string curQuery = "";
 
@@ -116,6 +121,13 @@ namespace ConnectApp.screens {
                 if (this.curQuery == "" || member.user.fullName.ToLower().Contains(this.curQuery.ToLower())) {
                     this.mentionList.Add(item: member);
                 }
+            }
+
+            var myMemberInfo = this.widget.viewModel.channel.currentMember;
+            if (myMemberInfo.role == "admin" ||
+                myMemberInfo.role == "owner" ||
+                myMemberInfo.role == "moderator") {
+                this.mentionList.Insert(0, new AtAllMention());
             }
         }
 
@@ -171,42 +183,80 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildMentionTile(BuildContext context, int index) {
-            ChannelMember member = this.mentionList[index: index];
-            if (!this.widget.viewModel.userDict.ContainsKey(key: member.user.id)) {
-                return new Container();
-            }
+            var mentionObj = this.mentionList[index: index];
 
-            var user = this.widget.viewModel.userDict[key: member.user.id];
-            return new GestureDetector(
-                onTap: () => this.widget.actionModel.chooseMentionConfirm(obj: member.user.id),
-                child: new Container(
-                    color: CColors.White,
-                    height: 60,
-                    child: new Row(
-                        children: new List<Widget> {
-                            new SizedBox(width: 16),
-                            Avatar.User(user: user, 32),
-                            new Expanded(
-                                child: new Container(
-                                    padding: EdgeInsets.symmetric(0, 16),
-                                    child: new Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: new List<Widget> {
-                                            new Flexible(child: new Text(
-                                                data: user.fullName,
-                                                style: CTextStyle.PLargeBody,
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis
-                                            ))
-                                        }
+            if (mentionObj is ChannelMember) {
+                ChannelMember member = (ChannelMember)this.mentionList[index: index];
+                if (!this.widget.viewModel.userDict.ContainsKey(key: member.user.id)) {
+                    return new Container();
+                }
+
+                var user = this.widget.viewModel.userDict[key: member.user.id];
+                return new GestureDetector(
+                    onTap: () => this.widget.actionModel.chooseMentionConfirm(member.user.id, member.user.fullName),
+                    child: new Container(
+                        color: CColors.White,
+                        height: 60,
+                        child: new Row(
+                            children: new List<Widget> {
+                                new SizedBox(width: 16),
+                                Avatar.User(user: user, 32),
+                                new Expanded(
+                                    child: new Container(
+                                        padding: EdgeInsets.symmetric(0, 16),
+                                        child: new Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: new List<Widget> {
+                                                new Flexible(child: new Text(
+                                                    data: user.fullName,
+                                                    style: CTextStyle.PLargeBody,
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis
+                                                ))
+                                            }
+                                        )
                                     )
                                 )
-                            )
-                        }
+                            }
+                        )
                     )
-                )
-            );
+                );
+            }
+            
+            if (mentionObj is AtAllMention) {
+                return new GestureDetector(
+                    onTap: () => this.widget.actionModel.chooseMentionConfirm("everyone", "所有人"),
+                    child: new Container(
+                        color: CColors.White,
+                        height: 60,
+                        child: new Row(
+                            children: new List<Widget> {
+                                new SizedBox(width: 16),
+                                new Expanded(
+                                    child: new Container(
+                                        padding: EdgeInsets.symmetric(0, 16),
+                                        child: new Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: new List<Widget> {
+                                                new Flexible(child: new Text(
+                                                    data: "@所有人",
+                                                    style: CTextStyle.PLargeBody,
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis
+                                                ))
+                                            }
+                                        )
+                                    )
+                                )
+                            }
+                        )
+                    )
+                );
+            }
+
+            return new Container();
         }
 
         Widget _buildSearchBar() {

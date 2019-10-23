@@ -84,6 +84,7 @@ namespace ConnectApp.screens {
                         socketConnected = state.channelState.socketConnected,
                         mentionAutoFocus = state.channelState.mentionAutoFocus,
                         mentionUserId = state.channelState.mentionUserId,
+                        mentionUserName = state.channelState.mentionUserName,
                         mentionSuggestion = state.channelState.mentionSuggestions.getOrDefault(this.channelId, null)
                     };
                 },
@@ -309,17 +310,13 @@ namespace ConnectApp.screens {
                 SchedulerBinding.instance.addPostFrameCallback(_ => {
                     FocusScope.of(this.context)?.requestFocus(this._focusNode);
                     if (!this.widget.viewModel.mentionUserId.isEmpty()) {
-                        var userDict = this.widget.viewModel.mentionSuggestion ??
-                                       this.widget.viewModel.channel.membersDict;
-                        if (userDict.ContainsKey(this.widget.viewModel.mentionUserId)) {
-                            var userName = userDict[this.widget.viewModel.mentionUserId].user.fullName;
-                            var newContent = this._textController.text + userName + " ";
-                            this._inputContentManager.AddMention(userName + " ", this.widget.viewModel.mentionUserId,
-                                newContent);
-                            this._textController.value = new TextEditingValue(
-                                text: newContent,
-                                TextSelection.collapsed(newContent.Length));
-                        }
+                        var userName = this.widget.viewModel.mentionUserName;
+                        var newContent = this._textController.text + userName + " ";
+                        this._inputContentManager.AddMention(userName + " ", this.widget.viewModel.mentionUserId,
+                            newContent);
+                        this._textController.value = new TextEditingValue(
+                            text: newContent,
+                            TextSelection.collapsed(newContent.Length));
                     }
 
                     this.widget.actionModel.clearLastChannelMention();

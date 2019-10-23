@@ -2894,6 +2894,30 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case PushChannelCreateChannelAction action: {
+                    var channelData = action.channelData;
+                    Debug.Log("create channel: " + channelData.id);
+                    break;
+                }
+
+                case PushChannelDeleteChannelAction action: {
+                    var channelData = action.channelData;
+                    Debug.Log("delete channel: " + channelData.id);
+                    break;
+                }
+
+                case PushChannelUpdateChannelAction action: {
+                    var channelData = action.channelData;
+                    Debug.Log("update channel: " + channelData.id);
+                    break;
+                }
+                
+                case PushChannelMessageAckAction action: {
+                    var ackData = action.ackData;
+                    Debug.Log("ack message: " + ackData.lastMessageId);
+                    break;
+                }
+
                 case SocketConnectStateAction action: {
                     state.channelState.socketConnected = action.connected;
                     break;
@@ -2919,18 +2943,21 @@ namespace ConnectApp.redux.reducers {
                 case ChannelChooseMentionCancelAction _: {
                     state.channelState.mentionAutoFocus = true;
                     state.channelState.mentionUserId = "";
+                    state.channelState.mentionUserName = "";
                     break;
                 }
 
                 case ChannelChooseMentionConfirmAction action: {
                     state.channelState.mentionAutoFocus = true;
                     state.channelState.mentionUserId = action.mentionUserId;
+                    state.channelState.mentionUserName = action.mentionUserName;
                     break;
                 }
 
                 case ChannelClearMentionAction _: {
                     state.channelState.mentionAutoFocus = false;
                     state.channelState.mentionUserId = "";
+                    state.channelState.mentionUserName = "";
                     break;
                 }
 

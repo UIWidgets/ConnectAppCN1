@@ -502,6 +502,18 @@ namespace ConnectApp.redux.actions {
         public SocketResponseChannelMemberChangeData memberData;
     }
 
+    public class PushChannelCreateChannelAction : BaseAction {
+        public SocketResponseUpdateChannelData channelData;
+    }
+
+    public class PushChannelDeleteChannelAction : BaseAction {
+        public SocketResponseUpdateChannelData channelData;
+    }
+
+    public class PushChannelUpdateChannelAction : BaseAction {
+        public SocketResponseUpdateChannelData channelData;
+    }
+
     public class SaveMessagesToDBSuccessAction : BaseAction {
         
     }
@@ -534,6 +546,7 @@ namespace ConnectApp.redux.actions {
     
     public class ChannelChooseMentionConfirmAction : BaseAction {
         public string mentionUserId;
+        public string mentionUserName;
     }
 
     public class ChannelChooseMentionCancelAction : BaseAction {
@@ -555,5 +568,9 @@ namespace ConnectApp.redux.actions {
 
     public class UpdateNewNotificationAction : BaseAction {
         public string notification;
+    }
+
+    public class PushChannelMessageAckAction : BaseAction {
+        public SocketResponseMessageAckData ackData;
     }
 }

@@ -14,10 +14,15 @@ namespace ConnectApp.Models.Api {
         public const string MESSAGE_CREATE = "MESSAGE_CREATE";
         public const string MESSAGE_UPDATE = "MESSAGE_UPDATE";
         public const string MESSAGE_DELETE = "MESSAGE_DELETE";
+        public const string MESSAGE_ACK = "MESSAGE_ACK";
         public const string PRESENCE_UPDATE = "PRESENCE_UPDATE";
         public const string PING = "PING";
         public const string CHANNEL_MEMBER_ADD = "CHANNEL_MEMBER_ADD";
         public const string CHANNEL_MEMBER_REMOVE = "CHANNEL_MEMBER_REMOVE";
+        public const string CHANNEL_CREATE = "CHANNEL_CREATE";
+        public const string CHANNEL_DELETE = "CHANNEL_DELETE";
+        public const string CHANNEL_UPDATE = "CHANNEL_UPDATE";
+
     }
 
     public class FrameConverter : JsonConverter {
@@ -96,6 +101,24 @@ namespace ConnectApp.Models.Api {
                         opCode = int.Parse(jObject["op"].ToString()),
                         sequence = int.Parse(jObject["s"].ToString()),
                         data = memberChangeData
+                    };
+                case DispatchMsgType.CHANNEL_CREATE:
+                case DispatchMsgType.CHANNEL_DELETE:
+                case DispatchMsgType.CHANNEL_UPDATE:
+                    var channelDeleteData = serializer.Deserialize<SocketResponseUpdateChannelData>(dataReader);
+                    return new SocketResponseUpdateChannel {
+                        type = type,
+                        opCode = int.Parse(jObject["op"].ToString()),
+                        sequence = int.Parse(jObject["s"].ToString()),
+                        data = channelDeleteData
+                    };
+                case DispatchMsgType.MESSAGE_ACK:
+                    var messageAckData = serializer.Deserialize<SocketResponseMessageAckData>(dataReader);
+                    return new SocketResponseMessageAck {
+                        type = type,
+                        opCode = int.Parse(jObject["op"].ToString()),
+                        sequence = int.Parse(jObject["s"].ToString()),
+                        data = messageAckData
                     };
                 default:
                     var defaultData = serializer.Deserialize<SocketResponseNullData>(dataReader);
@@ -294,6 +317,46 @@ namespace ConnectApp.Models.Api {
 
     [Serializable]
     public class SocketResponseChannelMemberChange : Frame<SocketResponseChannelMemberChangeData> {
+        
+    }
+
+    [Serializable]
+    public class SocketResponseMessageAckData : SocketResponseDataBase {
+        public string channelId;
+        public string lastMessageId;
+        public string lastMentionId;
+        public int mentionCount;
+    }
+
+    [Serializable]
+    public class SocketResponseMessageAck : Frame<SocketResponseMessageAckData> {
+        
+    }
+    
+    [Serializable]
+    public class SocketResponseUpdateChannelData : SocketResponseDataBase {
+        public string id;
+        public string workspaceId;
+        public string type;
+        public string liveChannelId;
+        public bool live;
+        public string groupId;
+        public string thumbnail;
+        public int commentCount;
+        public string name;
+        public string topic;
+        public List<ChannelTag> tags;
+        public ChannelMessageLite lastMessage;
+        public int memberCount;
+        public int? onlineMemberCount;
+        public bool isArchived;
+        public bool isHidden;
+        [JsonProperty("readonly")] public bool Readonly;
+        public bool isMute;
+    }
+    
+    [Serializable]
+    public class SocketResponseUpdateChannel : Frame<SocketResponseUpdateChannelData> {
         
     }
 }
