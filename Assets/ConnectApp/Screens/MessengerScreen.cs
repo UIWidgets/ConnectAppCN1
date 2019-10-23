@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Resources;
 using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
