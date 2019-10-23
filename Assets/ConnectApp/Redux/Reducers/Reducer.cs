@@ -104,6 +104,7 @@ namespace ConnectApp.redux.reducers {
                     state.favoriteState.favoriteTagIdDict = new Dictionary<string, List<string>>();
                     state.favoriteState.favoriteTagDict = new Dictionary<string, FavoriteTag>();
                     state.favoriteState.favoriteDetailArticleIdDict = new Dictionary<string, List<string>>();
+                    state.channelState.clearMentions();
                     break;
                 }
 
