@@ -230,7 +230,7 @@ namespace ConnectApp.redux.actions {
             });
         }
 
-        public static object leaveChannel(string channelId, string groupId = null) {
+        public static object leaveChannel(string channelId, string memberId = null, string groupId = null) {
             if (HttpManager.isNetWorkError()) {
                 CustomDialogUtils.showToast("请检查网络", iconData: Icons.sentiment_dissatisfied);
                 return null;
@@ -239,7 +239,7 @@ namespace ConnectApp.redux.actions {
             CustomDialogUtils.showCustomDialog(child: new CustomLoadingDialog(message: "正在退出群聊"));
 
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return ChannelApi.LeaveChannel(channelId: channelId, groupId: groupId)
+                return ChannelApi.LeaveChannel(channelId: channelId, memberId: memberId, groupId: groupId)
                     .Then(leaveChannelResponse => {
                         dispatcher.dispatch(new LeaveChannelSuccessAction {channelId = channelId});
                         CustomDialogUtils.hiddenCustomDialog();

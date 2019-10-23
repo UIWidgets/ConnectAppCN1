@@ -6,6 +6,7 @@ using ConnectApp.Utils;
 using Newtonsoft.Json;
 using RSG;
 using Unity.UIWidgets.foundation;
+using UnityEngine.Networking;
 
 namespace ConnectApp.Api {
     public static class ChannelApi {
@@ -101,22 +102,34 @@ namespace ConnectApp.Api {
 
         public static Promise<JoinChannelResponse> JoinChannel(string channelId, string groupId = null) {
             var promise = new Promise<JoinChannelResponse>();
-            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/join",
-                parameter: new Dictionary<string, string> {
-                    {"channelId", channelId}
-            });
+            UnityWebRequest request = null;
+
+            if (string.IsNullOrEmpty(groupId)) {
+                request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/join");
+            }
+            else {
+                request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/groups/{groupId}/join");
+            }
+            
             HttpManager.resume(request: request).Then(responseText => {
                 promise.Resolve(JsonConvert.DeserializeObject<JoinChannelResponse>(value: responseText));
             }).Catch(exception => promise.Reject(ex: exception));
             return promise;
         }
 
-        public static Promise<LeaveChannelResponse> LeaveChannel(string channelId, string groupId = null) {
+        public static Promise<LeaveChannelResponse> LeaveChannel(
+            string channelId, string memberId = null, string groupId = null) {
             var promise = new Promise<LeaveChannelResponse>();
-            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/leave",
-                parameter: new Dictionary<string, string> {
-                    {"channelId", channelId}
-            });
+            UnityWebRequest request;
+            if (string.IsNullOrEmpty(groupId) || string.IsNullOrEmpty(memberId)) {
+                request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/leave");
+            }
+            else {
+                request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/groups/{groupId}/leave",
+                    parameter: new Dictionary<string, string> {
+                        {"memberId", memberId}
+                    });
+            }
             HttpManager.resume(request: request).Then(responseText => {
                 promise.Resolve(JsonConvert.DeserializeObject<LeaveChannelResponse>(value: responseText));
             }).Catch(exception => promise.Reject(ex: exception));
