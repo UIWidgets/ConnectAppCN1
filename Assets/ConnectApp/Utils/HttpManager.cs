@@ -59,6 +59,7 @@ namespace ConnectApp.Utils {
                     newUri += $"?{newParameterString}";
                 }
             }
+            Debug.Log(newUri);
 
             return initRequest(url: newUri, method: Method.GET);
         }
