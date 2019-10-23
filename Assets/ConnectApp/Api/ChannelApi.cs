@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using ConnectApp.Constants;
 using ConnectApp.Models.Api;
-using ConnectApp.Models.Model;
 using ConnectApp.Utils;
 using Newtonsoft.Json;
 using RSG;
@@ -79,11 +78,11 @@ namespace ConnectApp.Api {
             return promise;
         }
 
-        public static Promise<Channel> FetchChannelInfo(string channelId) {
-            var promise = new Promise<Channel>();
+        public static Promise<FetchChannelInfoResponse> FetchChannelInfo(string channelId) {
+            var promise = new Promise<FetchChannelInfoResponse>();
             var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}");
             HttpManager.resume(request: request).Then(responseText => {
-                promise.Resolve(JsonConvert.DeserializeObject<Channel>(value: responseText));
+                promise.Resolve(JsonConvert.DeserializeObject<FetchChannelInfoResponse>(value: responseText));
             }).Catch(exception => promise.Reject(ex: exception));
             return promise;
         }

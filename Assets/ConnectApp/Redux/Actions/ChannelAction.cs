@@ -91,9 +91,13 @@ namespace ConnectApp.redux.actions {
         public static object fetchChannelInfo(string channelId) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ChannelApi.FetchChannelInfo(channelId: channelId)
-                    .Then(channel => {
-                        dispatcher.dispatch(new FetchChannelInfoSuccessAction() {
-                            channel = channel
+                    .Then(channelInfoResponse => {
+                        if (channelInfoResponse.channelMember == null) {
+                            dispatcher.dispatch(new FetchChannelInfoErrorAction());
+                        }
+
+                        dispatcher.dispatch(new FetchChannelInfoSuccessAction {
+                            channel = channelInfoResponse.channel
                         });
                     })
                     .Catch(error => { Debug.Log(error); });
@@ -392,6 +396,9 @@ namespace ConnectApp.redux.actions {
 
     public class FetchChannelInfoSuccessAction : BaseAction {
         public Channel channel;
+    }
+
+    public class FetchChannelInfoErrorAction : BaseAction {
     }
 
     public class StartFetchChannelMessageAction : BaseAction {

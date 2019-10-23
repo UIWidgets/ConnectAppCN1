@@ -15,12 +15,12 @@ namespace ConnectApp.Models.State {
         public Dictionary<string, ChannelMessageView> messageDict;
         public Dictionary<string, bool> channelTop;
         public bool socketConnected;
-        
         public string mentionUserId;
         public bool mentionAutoFocus;
         public Dictionary<string, Dictionary<string, ChannelMember>> mentionSuggestions;
         public bool mentionLoading;
         public string newNotifications;
+        public bool channelError;
 
         public void updateMentionSuggestion(string channelId, User userInfo) {
             if (this.mentionSuggestions.ContainsKey(channelId)) {
@@ -80,7 +80,7 @@ namespace ConnectApp.Models.State {
                     this.joinedChannels.Add(item: channel.id);
                 }
             });
-            
+
             sessionReadyData.privateChannels.ForEach(channel => {
                 this.updateNormalChannelLite(channel: channel);
                 if (!this.joinedChannels.Contains(item: channel.id)) {
@@ -110,7 +110,9 @@ namespace ConnectApp.Models.State {
                 if (this.channelDict.TryGetValue(key: channelId, out var channel)) {
                     channel.mentioned = readState.mentionCount;
                     channel.unread = readState.lastMessageId != channel.lastMessageId &&
-                                     channel.lastMessageId != null ? 1 : 0;
+                                     channel.lastMessageId != null
+                        ? 1
+                        : 0;
                     channel.atMe = channel.mentioned > 0 && channel.unread > 0;
                 }
             });

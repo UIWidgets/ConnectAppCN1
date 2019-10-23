@@ -13,5 +13,7 @@ namespace ConnectApp.Models.ViewModel {
         public bool mentionAutoFocus;
         public string mentionUserId;
         public Dictionary<string, ChannelMember> mentionSuggestion;
+        public bool hasChannel;
+        public bool channelError;
     }
 }
