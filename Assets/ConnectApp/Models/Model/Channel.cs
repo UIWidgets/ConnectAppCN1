@@ -218,11 +218,39 @@ namespace ConnectApp.Models.Model {
             this.lastMessageId = channel?.lastMessageId ?? this.lastMessageId;
         }
 
+        public void updateFromSocketResponseUpdateChannelData(SocketResponseUpdateChannelData channel) {
+            this.id = channel?.id ?? this.id;
+            this.groupId = channel?.groupId ?? this.groupId;
+            this.thumbnail = channel?.thumbnail ?? this.thumbnail;
+            this.name = channel?.name ?? this.name;
+            this.topic = channel?.topic ?? this.topic;
+            this.memberCount = channel?.memberCount ?? this.memberCount;
+            this.isMute = channel?.isMute ?? this.isMute;
+            this.live = channel?.live ?? this.live;
+            this.lastMessage = channel?.lastMessage == null
+                ? this.lastMessage
+                : ChannelMessageView.fromChannelMessageLite(channel.lastMessage);
+        }
+
+        public static ChannelView fromSocketResponseUpdateChannelData(SocketResponseUpdateChannelData channel) {
+            ChannelView channelView = new ChannelView();
+            channelView.updateFromSocketResponseUpdateChannelData(channel);
+            return channelView;
+        }
+
+        public void completeMissingFieldsFromGroup(Group group) {
+            this.groupId = string.IsNullOrEmpty(group.id) ? this.groupId : group.id;
+            this.thumbnail = string.IsNullOrEmpty(this.thumbnail) ? group.avatar : this.thumbnail;
+            this.topic = string.IsNullOrEmpty(this.topic) ? group.description : this.topic;
+            this.name = string.IsNullOrEmpty(this.name) ? group.name : this.name;
+        }
+
         public void handleUnreadMessage(ChannelMessageView message, string userId) {
             if (message.mentionEveryone || message.mentions.Any(user => user.id == userId)) {
                 this.mentioned += 1;
                 this.atMe = true;
             }
+
             this.atAll = this.atAll || message.mentionEveryone;
             this.unread += 1;
         }
@@ -329,6 +357,7 @@ namespace ConnectApp.Models.Model {
                 case ChannelMessageType.file:
                     return attachments[0].filename;
             }
+
             return "";
         }
 
