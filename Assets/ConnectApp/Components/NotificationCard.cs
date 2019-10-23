@@ -248,6 +248,10 @@ namespace ConnectApp.Components {
                         style: CTextStyle.PLargeMedium
                     ));
                     textSpans.Add(new TextSpan(" 发布了新文章", style: CTextStyle.PLargeBody2));
+                    textSpans.Add(new TextSpan(
+                        $"《{data.projectTitle}》",
+                        style: CTextStyle.PLargeMedium
+                    ));
                     break;
                 }
             }

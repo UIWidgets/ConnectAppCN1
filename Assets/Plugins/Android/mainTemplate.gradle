@@ -25,8 +25,6 @@ apply plugin: 'com.android.application'
 
 
 dependencies {
-
-
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation(name: 'zxing-lib', ext: 'aar')
     implementation(name:'dkplayer-java', ext:'aar')
@@ -58,8 +56,8 @@ android {
         ndk {
             abiFilters 'armeabi-v7a', 'x86'
         }
-        versionCode 69
-        versionName '1.1.6'
+        versionCode 78
+        versionName '1.2.0'
     }
 
     lintOptions {
