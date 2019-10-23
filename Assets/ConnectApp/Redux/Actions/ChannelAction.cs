@@ -88,6 +88,23 @@ namespace ConnectApp.redux.actions {
             });
         }
 
+
+        public static object fetchChannelInfo(string channelId) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return ChannelApi.FetchChannelInfo(channelId: channelId)
+                    .Then(channelInfoResponse => {
+                        if (channelInfoResponse.channelMember == null) {
+                            dispatcher.dispatch(new FetchChannelInfoErrorAction());
+                        }
+
+                        dispatcher.dispatch(new FetchChannelInfoSuccessAction {
+                            channel = channelInfoResponse.channel
+                        });
+                    })
+                    .Catch(error => { Debug.Log(error); });
+            });
+        }
+
         public static object fetchChannelMessages(string channelId, string before = null, string after = null) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 dispatcher.dispatch(new StartFetchChannelMessageAction());
@@ -377,6 +394,13 @@ namespace ConnectApp.redux.actions {
 
     public class FetchUnStickChannelSuccessAction : BaseAction {
         public string channelId;
+    }
+
+    public class FetchChannelInfoSuccessAction : BaseAction {
+        public Channel channel;
+    }
+
+    public class FetchChannelInfoErrorAction : BaseAction {
     }
 
     public class StartFetchChannelMessageAction : BaseAction {

@@ -52,32 +52,47 @@ namespace ConnectApp.screens {
                         return channelMessageViews;
                     }
 
-                    var channel = state.channelState.channelDict[this.channelId];
+
                     List<ChannelMessageView> newMessages = null;
                     List<ChannelMessageView> messages;
-                    if (channel.newMessageIds.isNotEmpty()) {
-                        messages = getMessages(messageIds: channel.messageIds);
-                        newMessages = getMessages(messageIds:channel.newMessageIds);
-                    }
-                    else if (channel.oldMessageIds.isNotEmpty()) {
-                        messages = getMessages(messageIds: channel.oldMessageIds);
-                        messages.AddRange(getMessages(messageIds: channel.messageIds));
+                    ChannelView channel;
+                    var hasChannel = false;
+                    if (state.channelState.channelDict.isEmpty() ||
+                        !state.channelState.channelDict.ContainsKey(this.channelId)) {
+                        messages = new List<ChannelMessageView>();
+                        channel = new ChannelView();
                     }
                     else {
-                        messages = getMessages(messageIds: channel.messageIds);
+                        hasChannel = true;
+                        channel = state.channelState.channelDict[this.channelId];
+                        if (channel.newMessageIds.isNotEmpty()) {
+                            messages = getMessages(messageIds: channel.messageIds);
+                            newMessages = getMessages(messageIds: channel.newMessageIds);
+                        }
+                        else if (channel.oldMessageIds.isNotEmpty()) {
+                            messages = getMessages(messageIds: channel.oldMessageIds);
+                            messages.AddRange(getMessages(messageIds: channel.messageIds));
+                        }
+                        else {
+                            messages = getMessages(messageIds: channel.messageIds);
+                        }
                     }
 
-                    messages = messages
-                        .Where(message => message.type != ChannelMessageType.text || message.content != "")
-                        .ToList();
+                    if (messages.isNotEmpty()) {
+                        messages = messages
+                            .Where(message => message.type != ChannelMessageType.text || message.content != "")
+                            .ToList();
+                    }
 
                     return new ChannelScreenViewModel {
-                        channel = state.channelState.channelDict[this.channelId],
+                        hasChannel = hasChannel,
+                        channelError = state.channelState.channelError,
+                        channel = channel,
                         messages = messages,
                         newMessages = newMessages ?? new List<ChannelMessageView>(),
                         me = state.loginState.loginInfo.userId,
                         messageLoading = state.channelState.messageLoading,
-                        newMessageCount = state.channelState.channelDict[this.channelId].unread,
+                        newMessageCount = hasChannel ? state.channelState.channelDict[this.channelId].unread : 0,
                         socketConnected = state.channelState.socketConnected,
                         mentionAutoFocus = state.channelState.mentionAutoFocus,
                         mentionUserId = state.channelState.mentionUserId,
@@ -86,18 +101,20 @@ namespace ConnectApp.screens {
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
-                    if (viewModel.channel.oldMessageIds.isNotEmpty()) {
-                        SchedulerBinding.instance.addPostFrameCallback(_ => {
-                            dispatcher.dispatch(new MergeOldChannelMessages {channelId = this.channelId});
-                        });
-                    }
+                    if (viewModel.hasChannel) {
+                        if (viewModel.channel.oldMessageIds.isNotEmpty()) {
+                            SchedulerBinding.instance.addPostFrameCallback(_ => {
+                                dispatcher.dispatch(new MergeOldChannelMessages {channelId = this.channelId});
+                            });
+                        }
 
-                    if (viewModel.channel.sentMessageFailed ||
-                        viewModel.channel.sentMessageSuccess ||
-                        viewModel.channel.sentImageSuccess) {
-                        SchedulerBinding.instance.addPostFrameCallback(_ => {
-                            dispatcher.dispatch(new ClearSentChannelMessage {channelId = this.channelId});
-                        });
+                        if (viewModel.channel.sentMessageFailed ||
+                            viewModel.channel.sentMessageSuccess ||
+                            viewModel.channel.sentImageSuccess) {
+                            SchedulerBinding.instance.addPostFrameCallback(_ => {
+                                dispatcher.dispatch(new ClearSentChannelMessage {channelId = this.channelId});
+                            });
+                        }
                     }
 
                     var actionModel = new ChannelScreenActionModel {
@@ -111,6 +128,8 @@ namespace ConnectApp.screens {
                             url = url,
                             urls = imageUrls
                         }),
+                        fetchChannelInfo = () => dispatcher.dispatch<IPromise>(
+                            Actions.fetchChannelInfo(channelId: this.channelId)),
                         fetchMessages = (before, after) => dispatcher.dispatch<IPromise>(
                             Actions.fetchChannelMessages(channelId: this.channelId, before: before, after: after)),
                         fetchMembers = () => dispatcher.dispatch<IPromise>(
@@ -184,7 +203,6 @@ namespace ConnectApp.screens {
         float messageBubbleWidth = 0;
         bool _showEmojiBoard = false;
         Dictionary<string, string> headers;
-        float mPaddingBottom = 0;
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
@@ -216,12 +234,18 @@ namespace ConnectApp.screens {
         public override void initState() {
             base.initState();
             SchedulerBinding.instance.addPostFrameCallback(_ => {
-                this._refreshController.scrollController.addListener(this._handleScrollListener);
-                this.widget.actionModel.fetchMessages(null, null);
-                this.widget.actionModel.fetchMembers();
-                this.widget.actionModel.fetchMember();
-                this.widget.actionModel.reportHitBottom();
+                if (this.widget.viewModel.hasChannel) {
+                    this.fetchMessagesAndMembers();
+                    this.addScrollListener();
+                }
+                else {
+                    this.widget.actionModel.fetchChannelInfo().Then(() => {
+                        this.fetchMessagesAndMembers();
+                        this.addScrollListener();
+                    });
+                }
             });
+
             this._focusNode = new FocusNode();
             this._focusNodeKey = GlobalKey.key("_channelFocusNodeKey");
             this.headers = new Dictionary<string, string> {
@@ -229,8 +253,18 @@ namespace ConnectApp.screens {
                 {"ConnectAppVersion", Config.versionNumber},
                 {"X-Requested-With", "XmlHttpRequest"}
             };
-
             this._textController.addListener(this._onTextChanged);
+        }
+
+        void fetchMessagesAndMembers() {
+            this.widget.actionModel.fetchMessages(null, null);
+            this.widget.actionModel.fetchMembers();
+            this.widget.actionModel.fetchMember();
+            this.widget.actionModel.reportHitBottom();
+        }
+
+        void addScrollListener() {
+            this._refreshController.scrollController.addListener(this._handleScrollListener);
         }
 
         public override void dispose() {
@@ -274,7 +308,10 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
-            this.mPaddingBottom = MediaQuery.of(context).padding.bottom;
+            if (this.widget.viewModel.channel.id == null) {
+                return this._buildLoadingPage();
+            }
+
             if (this.widget.viewModel.mentionAutoFocus) {
                 SchedulerBinding.instance.addPostFrameCallback(_ => {
                     FocusScope.of(this.context)?.requestFocus(this._focusNode);
@@ -424,7 +461,7 @@ namespace ConnectApp.screens {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis
                     )
-                 ),
+                ),
                 new CustomButton(
                     onPressed: () => this.widget.actionModel.pushToChannelDetail(),
                     child: new Container(
@@ -438,6 +475,10 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildContent() {
+            if (this.widget.viewModel.channelError) {
+                return this._buildErrorPage();
+            }
+
             Widget ret = new Container(
                 color: CColors.White,
                 child: new CustomScrollbar(
@@ -474,7 +515,7 @@ namespace ConnectApp.screens {
                         new Container()
                     });
             }
-            
+
             return ListView.builder(
                 padding: EdgeInsets.only(top: 16, bottom: this.inputBarHeight),
                 itemCount: this.widget.viewModel.messages.Count,
@@ -496,6 +537,17 @@ namespace ConnectApp.screens {
                 children: new List<Widget> {
                     new Container(
                         child: new GlobalLoading(),
+                        width: MediaQuery.of(this.context).size.width,
+                        height: MediaQuery.of(this.context).size.height
+                    )
+                });
+        }
+
+        ListView _buildErrorPage() {
+            return new ListView(
+                children: new List<Widget> {
+                    new Container(
+                        child: new Center(child: new Text("你已不在该群组", style: CTextStyle.PLargeBody.copyWith(height: 1))),
                         width: MediaQuery.of(this.context).size.width,
                         height: MediaQuery.of(this.context).size.height
                     )
@@ -550,6 +602,7 @@ namespace ConnectApp.screens {
                     () => this._deleteMessage(message: message)
                 ));
             }
+
             ret = new TipMenu(
                 tipMenuItems: tipMenuItems,
                 child: ret
@@ -609,7 +662,7 @@ namespace ConnectApp.screens {
                         if (user.id == this.widget.viewModel.me) {
                             return;
                         }
-                        
+
                         var userName = user.fullName;
                         var userId = user.id;
                         var newContent = this._textController.text + "@" + userName + " ";
@@ -618,6 +671,12 @@ namespace ConnectApp.screens {
                             text: newContent,
                             TextSelection.collapsed(newContent.Length)
                         );
+                        if (!this._focusNode.hasFocus || !this.showKeyboard) {
+                            FocusScope.of(this.context).requestFocus(this._focusNode);
+                            TextInputPlugin.TextInputShow();
+                            Promise.Delayed(TimeSpan.FromMilliseconds(200)).Then(
+                                () => { this.setState(() => { this._showEmojiBoard = false; }); });
+                        }
                     },
                     child: new Container(
                         width: avatarSize,
@@ -803,7 +862,7 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildInputBar() {
-            var padding = this.showKeyboard || this.showEmojiBoard ? 0 : this.mPaddingBottom;
+            var padding = this.showKeyboard || this.showEmojiBoard ? 0 : MediaQuery.of(this.context).padding.bottom;
             var customTextField = new CustomTextField(
                 EdgeInsets.only(bottom: padding),
                 new BoxDecoration(
@@ -827,7 +886,7 @@ namespace ConnectApp.screens {
                     if (this.showEmojiBoard) {
                         TextInputPlugin.TextInputShow();
                         Promise.Delayed(TimeSpan.FromMilliseconds(200)).Then(
-                            () => this.setState(() =>this._showEmojiBoard = false));
+                            () => this.setState(() => this._showEmojiBoard = false));
                     }
                     else {
                         this.setState(() => this._showEmojiBoard = true);

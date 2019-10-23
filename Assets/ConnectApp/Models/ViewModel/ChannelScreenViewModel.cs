@@ -14,5 +14,7 @@ namespace ConnectApp.Models.ViewModel {
         public string mentionUserId;
         public string mentionUserName;
         public Dictionary<string, ChannelMember> mentionSuggestion;
+        public bool hasChannel;
+        public bool channelError;
     }
 }
