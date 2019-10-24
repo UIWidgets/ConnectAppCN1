@@ -5,8 +5,8 @@ using ConnectApp.Components;
 using ConnectApp.Main;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
-using ConnectApp.redux.actions;
 using ConnectApp.Reality;
+using ConnectApp.redux.actions;
 using ConnectApp.screens;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
@@ -916,6 +916,20 @@ namespace ConnectApp.redux.reducers {
 
                 case SendMessageFailureAction _: {
                     state.messageState.sendMessageLoading = false;
+                    break;
+                }
+
+                case AddLocalMessageAction action: {
+                    if (state.channelState.channelDict.ContainsKey(action.message.channelId)) {
+                        state.channelState.localMessageDict[
+                                $"{action.message.author.id}:{action.message.channelId}:{action.message.id}"] =
+                            action.message;
+                        var channel = state.channelState.channelDict[action.message.channelId];
+                        if (!channel.localMessageIds.Contains(action.message.id)) {
+                            channel.localMessageIds.Add(action.message.id);
+                        }
+                    }
+
                     break;
                 }
 
@@ -2555,6 +2569,10 @@ namespace ConnectApp.redux.reducers {
                                 channel.lastMessage = channelMessage;
                                 channel.lastMessageId = channelMessage.id;
                             }
+
+                            if (channelMessage.author.id == state.loginState.loginInfo.userId) {
+                                state.channelState.removeLocalMessage(channelMessage);
+                            }
                         }
                     }
                     else if (action.before != null) {
@@ -2564,10 +2582,12 @@ namespace ConnectApp.redux.reducers {
                             var channelMessage = ChannelMessageView.fromChannelMessage(action.messages[i]);
                             state.channelState.messageDict[channelMessage.id] = channelMessage;
                             channel.oldMessageIds.Add(channelMessage.id);
+                            if (channelMessage.author.id == state.loginState.loginInfo.userId) {
+                                state.channelState.removeLocalMessage(channelMessage);
+                            }
                         }
                     }
 
-                    state.channelState.messageLoading = false;
                     state.channelState.updateTotalMention();
                     if (channel.atBottom) {
                         channel.clearUnread();
@@ -2598,37 +2618,25 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case StartSendChannelMessageAction action: {
-                    var channel = state.channelState.channelDict[action.channelId];
-                    channel.sendingMessage = true;
+                    action.message.status = "sending";
                     break;
                 }
 
                 case SendChannelMessageSuccessAction action: {
-                    var channel = state.channelState.channelDict[action.channelId];
-                    channel.sendingMessage = false;
-                    if (action.isImage) {
-                        channel.sentImageSuccess = true;
-                    }
-                    else {
-                        channel.sentMessageSuccess = true;
-                    }
-
-
                     break;
                 }
 
                 case SendChannelMessageFailureAction action: {
-                    var channel = state.channelState.channelDict[action.channelId];
-                    channel.sendingMessage = false;
-                    channel.sentMessageFailed = true;
+                    var key = $"{state.loginState.loginInfo.userId}:{action.channelId}:{action.messageId}";
+                    if (state.channelState.localMessageDict.ContainsKey(key)) {
+                        var message = state.channelState.localMessageDict[key];
+                        message.status = "failed";
+                    }
+
                     break;
                 }
 
                 case ClearSentChannelMessage action: {
-                    var channel = state.channelState.channelDict[key: action.channelId];
-                    channel.sentMessageSuccess = false;
-                    channel.sentImageSuccess = false;
-                    channel.sentMessageFailed = false;
                     break;
                 }
 
@@ -2829,6 +2837,10 @@ namespace ConnectApp.redux.reducers {
                             channelMessage.author.id != state.loginState.loginInfo.userId &&
                             !channel.atBottom) {
                             channel.handleUnreadMessage(channelMessage, state.loginState.loginInfo.userId);
+                        }
+
+                        if (channelMessage.author.id == state.loginState.loginInfo.userId) {
+                            state.channelState.removeLocalMessage(channelMessage);
                         }
                     }
 

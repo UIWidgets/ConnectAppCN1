@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.Constants;
 using ConnectApp.Utils;
@@ -86,12 +87,18 @@ namespace ConnectApp.Components {
             this.setState(() => { });
         }
 
+        static Image _getImage(string content, Dictionary<string, string> headers = null) {
+            return content.StartsWith("http")
+                ? CachedNetworkImageProvider.cachedNetworkImage(
+                    src: CImageUtils.SizeToScreenImageUrl(content),
+                    headers: headers)
+                : Image.memory(Convert.FromBase64String(s: content));
+        }
+
         public override void initState() {
             base.initState();
             if (this.widget.srcSize == null) {
-                this.image = CachedNetworkImageProvider.cachedNetworkImage(
-                    src: CImageUtils.SizeToScreenImageUrl(this.widget.url),
-                    headers: this.widget.headers);
+                this.image = _getImage(this.widget.url, this.widget.headers);
                 this.stream = this.image.image
                     .resolve(new ImageConfiguration());
                 this.stream.addListener(this._updateSize);
@@ -121,10 +128,7 @@ namespace ConnectApp.Components {
                         width: this.size.width,
                         height: this.size.height,
                         color: CColors.Disable,
-                        child: CachedNetworkImageProvider.cachedNetworkImage(
-                            CImageUtils.SizeToScreenImageUrl(this.widget.url),
-                            headers: this.widget.headers,
-                            fit: BoxFit.cover))
+                        child: _getImage(this.widget.url, this.widget.headers))
                 );
         }
     }

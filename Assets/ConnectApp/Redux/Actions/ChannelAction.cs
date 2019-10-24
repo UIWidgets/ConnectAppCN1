@@ -94,6 +94,7 @@ namespace ConnectApp.redux.actions {
                 CustomDialogUtils.showToast("请检查网络", iconData: Icons.sentiment_dissatisfied);
                 return null;
             }
+
             CustomDialogUtils.showCustomDialog(child: new CustomLoadingDialog(message: "免打扰中"));
 
             return new ThunkAction<AppState>((dispatcher, getState) => {
@@ -116,6 +117,7 @@ namespace ConnectApp.redux.actions {
                 CustomDialogUtils.showToast("请检查网络", iconData: Icons.sentiment_dissatisfied);
                 return null;
             }
+
             CustomDialogUtils.showCustomDialog(child: new CustomLoadingDialog(message: "取消免打扰中"));
 
             return new ThunkAction<AppState>((dispatcher, getState) => {
@@ -334,7 +336,8 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new SendChannelMessageFailureAction {
-                            channelId = channelId
+                            channelId = channelId,
+                            messageId = nonce
                         });
                         Debug.Log(error);
                     });
@@ -375,7 +378,10 @@ namespace ConnectApp.redux.actions {
                         });
                     })
                     .Catch(error => {
-                        dispatcher.dispatch(new SendChannelMessageFailureAction());
+                        dispatcher.dispatch(new SendChannelMessageFailureAction {
+                            channelId = channelId,
+                            messageId = nonce
+                        });
                         Debug.Log(error);
                     });
             });
@@ -509,7 +515,7 @@ namespace ConnectApp.redux.actions {
     }
 
     public class StartSendChannelMessageAction : RequestAction {
-        public string channelId;
+        public ChannelMessageView message;
     }
 
     public class SendChannelMessageSuccessAction : BaseAction {
@@ -521,6 +527,7 @@ namespace ConnectApp.redux.actions {
 
     public class SendChannelMessageFailureAction : BaseAction {
         public string channelId;
+        public string messageId;
     }
 
     public class DeleteChannelMessageSuccessAction : BaseAction {
@@ -647,5 +654,9 @@ namespace ConnectApp.redux.actions {
 
     public class PushChannelMessageAckAction : BaseAction {
         public SocketResponseMessageAckData ackData;
+    }
+
+    public class AddLocalMessageAction : BaseAction {
+        public ChannelMessageView message;
     }
 }
