@@ -15,22 +15,22 @@ namespace ConnectApp.Models.State {
         public Dictionary<string, ChannelMessageView> messageDict;
         public Dictionary<string, bool> channelTop;
         public bool socketConnected;
-        
         public string mentionUserId;
         public string mentionUserName;
         public bool mentionAutoFocus;
         public Dictionary<string, Dictionary<string, ChannelMember>> mentionSuggestions;
         public bool mentionLoading;
         public string newNotifications;
+        public bool channelError;
         public string lastMentionQuery;
         public bool mentionSearching;
         public List<ChannelMember> queryMentions;
 
         public void updateMentionSuggestion(string channelId, User userInfo) {
-            if (this.mentionSuggestions.ContainsKey(channelId)) {
-                var suggestions = this.mentionSuggestions[channelId];
-                if (suggestions.ContainsKey(userInfo.id)) {
-                    suggestions[userInfo.id].user = userInfo;
+            if (this.mentionSuggestions.ContainsKey(key: channelId)) {
+                var suggestions = this.mentionSuggestions[key: channelId];
+                if (suggestions.ContainsKey(key: userInfo.id)) {
+                    suggestions[key: userInfo.id].user = userInfo;
                 }
             }
         }
@@ -66,9 +66,10 @@ namespace ConnectApp.Models.State {
             this.totalUnread = 0;
             this.totalMention = 0;
             this.joinedChannels.ForEach(channelId => {
-                this.totalUnread += this.channelDict[key: channelId].unread;
-                this.totalMention += this.channelDict[key: channelId].unread > 0
-                    ? this.channelDict[key: channelId].mentioned
+                var channel = this.channelDict[key: channelId];
+                this.totalUnread += channel.unread;
+                this.totalMention += channel.unread > 0 && !channel.isMute
+                    ? channel.mentioned
                     : 0;
             });
         }
@@ -95,7 +96,7 @@ namespace ConnectApp.Models.State {
                     this.joinedChannels.Add(item: channel.id);
                 }
             });
-            
+
             sessionReadyData.privateChannels.ForEach(channel => {
                 this.updateNormalChannelLite(channel: channel);
                 if (!this.joinedChannels.Contains(item: channel.id)) {
@@ -125,7 +126,9 @@ namespace ConnectApp.Models.State {
                 if (this.channelDict.TryGetValue(key: channelId, out var channel)) {
                     channel.mentioned = readState.mentionCount;
                     channel.unread = readState.lastMessageId != channel.lastMessageId &&
-                                     channel.lastMessageId != null ? 1 : 0;
+                                     channel.lastMessageId != null
+                        ? 1
+                        : 0;
                     channel.atMe = channel.mentioned > 0 && channel.unread > 0;
                 }
             });

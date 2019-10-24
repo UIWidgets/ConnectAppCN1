@@ -51,7 +51,7 @@ public class AVPlayerPlugin {
                 RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT, (int)height);
                 if (isPop){
-                    lp.setMargins((int)left, (int)top, 0, 0);//设置margin,此处单位为px
+                    lp.setMargins((int)left, 0, 0, 0);//设置margin,此处单位为px
                 }else{
                     lp.addRule(RelativeLayout.CENTER_IN_PARENT);
                 }

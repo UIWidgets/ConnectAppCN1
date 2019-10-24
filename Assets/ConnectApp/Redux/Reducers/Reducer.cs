@@ -5,8 +5,8 @@ using ConnectApp.Components;
 using ConnectApp.Main;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
-using ConnectApp.Reality;
 using ConnectApp.redux.actions;
+using ConnectApp.Reality;
 using ConnectApp.screens;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
@@ -1299,11 +1299,14 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case MainNavigatorPushToChannelAction action: {
-                    state.channelState.channelDict[key: action.channelId].unread = 0;
-                    state.channelState.channelDict[key: action.channelId].mentioned = 0;
-                    state.channelState.channelDict[key: action.channelId].atAll = false;
-                    state.channelState.channelDict[key: action.channelId].atMe = false;
-                    state.channelState.updateTotalMention();
+                    if (state.channelState.channelDict.ContainsKey(action.channelId)) {
+                        state.channelState.channelDict[key: action.channelId].unread = 0;
+                        state.channelState.channelDict[key: action.channelId].mentioned = 0;
+                        state.channelState.channelDict[key: action.channelId].atAll = false;
+                        state.channelState.channelDict[key: action.channelId].atMe = false;
+                        state.channelState.updateTotalMention();
+                    }
+
                     if (action.channelId.isNotEmpty()) {
                         Router.navigator.push(new CustomPageRoute(
                             context => new ChannelScreenConnector(channelId: action.channelId)
@@ -2457,19 +2460,28 @@ namespace ConnectApp.redux.reducers {
 
                     state.channelState.discoverPage = action.discoverPage;
                     state.channelState.joinedChannels = action.joinedList;
+                    var joinedChannelMap = new Dictionary<string, bool>();
                     foreach (var channelId in action.joinedList) {
-                        action.joinedChannelMap[key: channelId] = true;
+                        joinedChannelMap[key: channelId] = true;
                     }
 
                     foreach (var entry in action.channelMap) {
                         state.channelState.updateChannel(channel: entry.Value);
-                        state.channelState.channelDict[key: entry.Key].joined =
-                            action.joinedChannelMap.ContainsKey(key: entry.Key);
+                        var channel = state.channelState.channelDict[key: entry.Key];
+                        channel.joined = joinedChannelMap.ContainsKey(key: entry.Key);
+                        if (!string.IsNullOrEmpty(channel.groupId)) {
+                            if (action.groupMap.ContainsKey(channel.groupId)) {
+                                Group group = action.groupMap[channel.groupId];
+                                channel.completeMissingFieldsFromGroup(group);
+                            }
+                        }
                     }
 
                     var channelTop = new Dictionary<string, bool>();
                     foreach (var channelMember in action.joinedMemberMap) {
                         channelTop.Add(key: channelMember.Key, channelMember.Value.stickTime.isNotEmpty());
+                        state.channelState.channelDict[key: channelMember.Key].isMute =
+                            channelMember.Value.isMute;
                     }
 
                     state.channelState.channelTop = channelTop;
@@ -2488,6 +2500,34 @@ namespace ConnectApp.redux.reducers {
 
                 case FetchUnStickChannelSuccessAction action: {
                     state.channelState.channelTop[key: action.channelId] = false;
+                    break;
+                }
+
+                case FetchMuteChannelSuccessAction action: {
+                    state.channelState.channelDict[key: action.channelId].isMute = true;
+                    break;
+                }
+
+                case FetchUnMuteChannelSuccessAction action: {
+                    state.channelState.channelDict[key: action.channelId].isMute = false;
+                    break;
+                }
+
+                case FetchChannelInfoSuccessAction action: {
+                    state.channelState.updateChannel(action.channel);
+                    if (state.channelState.channelDict.ContainsKey(action.channel.id)) {
+                        state.channelState.channelDict[key: action.channel.id].unread = 0;
+                        state.channelState.channelDict[key: action.channel.id].mentioned = 0;
+                        state.channelState.channelDict[key: action.channel.id].atAll = false;
+                        state.channelState.channelDict[key: action.channel.id].atMe = false;
+                        state.channelState.updateTotalMention();
+                    }
+
+                    break;
+                }
+
+                case FetchChannelInfoErrorAction action: {
+                    state.channelState.channelError = true;
                     break;
                 }
 
@@ -2897,25 +2937,67 @@ namespace ConnectApp.redux.reducers {
 
                 case PushChannelCreateChannelAction action: {
                     var channelData = action.channelData;
-                    Debug.Log("create channel: " + channelData.id);
+                    if (state.channelState.channelDict.ContainsKey(channelData.id)) {
+                        Debug.LogWarning($"Channel {channelData.id} already exists! Overwrite!");
+                        ChannelView channel = state.channelState.channelDict[channelData.id];
+                        channel.updateFromSocketResponseUpdateChannelData(channelData);
+                    }
+                    else {
+                        state.channelState.channelDict[channelData.id] =
+                            ChannelView.fromSocketResponseUpdateChannelData(channelData);
+                    }
+
+                    if (!state.channelState.joinedChannels.Contains(channelData.id)) {
+                        state.channelState.joinedChannels.Add(channelData.id);
+                    }
+
                     break;
                 }
 
                 case PushChannelDeleteChannelAction action: {
                     var channelData = action.channelData;
-                    Debug.Log("delete channel: " + channelData.id);
+                    if (state.channelState.joinedChannels.Contains(channelData.id)) {
+                        state.channelState.joinedChannels.Remove(channelData.id);
+                    }
+                    else {
+                        Debug.LogWarning($"Channel {channelData.id} not exists!");
+                    }
+
                     break;
                 }
 
                 case PushChannelUpdateChannelAction action: {
                     var channelData = action.channelData;
-                    Debug.Log("update channel: " + channelData.id);
+                    if (state.channelState.channelDict.ContainsKey(channelData.id)) {
+                        ChannelView channel = state.channelState.channelDict[channelData.id];
+                        channel.updateFromSocketResponseUpdateChannelData(channelData);
+                    }
+                    else {
+                        Debug.LogWarning($"Channel {channelData.id} not exists! Create new.");
+                        state.channelState.channelDict[channelData.id] =
+                            ChannelView.fromSocketResponseUpdateChannelData(channelData);
+                        if (!state.channelState.joinedChannels.Contains(channelData.id)) {
+                            state.channelState.joinedChannels.Add(channelData.id);
+                        }
+                    }
+
                     break;
                 }
-                
+
                 case PushChannelMessageAckAction action: {
                     var ackData = action.ackData;
-                    Debug.Log("ack message: " + ackData.lastMessageId);
+                    if (state.channelState.channelDict.ContainsKey(ackData.channelId)) {
+                        ChannelView channel = state.channelState.channelDict[ackData.channelId];
+                        if (channel.lastMessageId.hexToLong() <= ackData.lastMessageId.hexToLong()) {
+                            channel.unread = 0;
+                            channel.mentioned = 0;
+                            state.channelState.updateTotalMention();
+                        }
+                    }
+                    else {
+                        Debug.LogWarning($"Channel {ackData.channelId} not exists!");
+                    }
+
                     break;
                 }
 

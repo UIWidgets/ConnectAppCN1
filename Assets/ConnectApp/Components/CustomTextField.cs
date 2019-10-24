@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using ConnectApp.Constants;
+using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -72,9 +73,19 @@ namespace ConnectApp.Components {
 
         public override void initState() {
             base.initState();
-            this._textFieldKey = (GlobalKey)this.widget.textFieldKey ?? GlobalKey.key("textFieldKey");
+            this._textFieldKey = (GlobalKey) this.widget.textFieldKey ?? GlobalKey.key("textFieldKey");
             this._controller = this.widget.controller ?? new TextEditingController("");
             this._focusNode = this.widget.focusNode ?? new FocusNode();
+            this._controller.addListener(this._onTextChanged);
+        }
+
+        public override void dispose() {
+            base.dispose();
+            this._controller.removeListener(this._onTextChanged);
+        }
+
+        void _onTextChanged() {
+            this.setState();
         }
 
         public override Widget build(BuildContext context) {
@@ -122,7 +133,7 @@ namespace ConnectApp.Components {
                     maxLines: this.widget.maxLines,
                     minLines: this.widget.minLines,
                     cursorColor: CColors.PrimaryBlue,
-                    textInputAction: TextInputAction.send,
+                    textInputAction: CCommonUtils.isIPhone ? TextInputAction.send : TextInputAction.newline,
                     onSubmitted: this.widget.onSubmitted
                 )
             );
@@ -148,10 +159,18 @@ namespace ConnectApp.Components {
         }
 
         Widget _buildPickImageButton() {
-            if (!this.widget.isShowImageButton) {
-                return new Container();
+            if (!CCommonUtils.isIPhone) {
+                if (this.widget.isShowImageButton) {
+                    return this.widget.controller.text.isEmpty() ? this._pickImageButton() : this._buildSendButton();
+                }
+
+                return this._buildSendButton();
             }
 
+            return this.widget.isShowImageButton ? this._pickImageButton() : new Container();
+        }
+
+        Widget _pickImageButton() {
             return new CustomButton(
                 padding: EdgeInsets.zero,
                 onPressed: this.widget.onPressImage,
@@ -163,6 +182,25 @@ namespace ConnectApp.Components {
                             icon: Icons.outline_photo_size_select_actual,
                             size: 28,
                             color: CColors.Icon
+                        )
+                    )
+                )
+            );
+        }
+
+        Widget _buildSendButton() {
+            return new CustomButton(
+                padding: EdgeInsets.zero,
+                onPressed: () => this.widget.onSubmitted(value: this._controller.text),
+                child: new Container(
+                    width: 44,
+                    height: 49,
+                    child: new Center(
+                        child: new Text(
+                            "发送",
+                            style: this.widget.controller.text.isEmpty()
+                                ? CTextStyle.PLargeDisabled.copyWith(height: 1)
+                                : CTextStyle.PLargeBlue.copyWith(height: 1)
                         )
                     )
                 )
