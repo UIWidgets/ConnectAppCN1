@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ConnectApp.Models.Model;
 using RSG;
 
 namespace ConnectApp.Models.ActionModel {
@@ -21,5 +22,6 @@ namespace ConnectApp.Models.ActionModel {
         public Func<string, IPromise> deleteChannelMessage;
         public Action pushToChannelMention;
         public Action clearLastChannelMention;
+        public Action<ChannelMessageView> addLocalMessage;
     }
 }

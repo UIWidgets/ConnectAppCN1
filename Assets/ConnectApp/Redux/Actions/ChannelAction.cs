@@ -94,6 +94,7 @@ namespace ConnectApp.redux.actions {
                 CustomDialogUtils.showToast("请检查网络", iconData: Icons.sentiment_dissatisfied);
                 return null;
             }
+
             CustomDialogUtils.showCustomDialog(child: new CustomLoadingDialog(message: "免打扰中"));
 
             return new ThunkAction<AppState>((dispatcher, getState) => {
@@ -116,6 +117,7 @@ namespace ConnectApp.redux.actions {
                 CustomDialogUtils.showToast("请检查网络", iconData: Icons.sentiment_dissatisfied);
                 return null;
             }
+
             CustomDialogUtils.showCustomDialog(child: new CustomLoadingDialog(message: "取消免打扰中"));
 
             return new ThunkAction<AppState>((dispatcher, getState) => {
@@ -647,5 +649,9 @@ namespace ConnectApp.redux.actions {
 
     public class PushChannelMessageAckAction : BaseAction {
         public SocketResponseMessageAckData ackData;
+    }
+
+    public class AddLocalMessageAction : BaseAction {
+        public ChannelMessageView message;
     }
 }

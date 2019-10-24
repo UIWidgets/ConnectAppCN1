@@ -15,8 +15,8 @@ using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -167,7 +167,10 @@ namespace ConnectApp.screens {
                                 channelId = this.channelId
                             });
                         },
-                        clearLastChannelMention = () => dispatcher.dispatch(new ChannelClearMentionAction())
+                        clearLastChannelMention = () => dispatcher.dispatch(new ChannelClearMentionAction()),
+                        addLocalMessage = message => dispatcher.dispatch(new AddLocalMessageAction {
+                            message = message
+                        })
                     };
                     return new ChannelScreen(viewModel: viewModel, actionModel: actionModel);
                 }
