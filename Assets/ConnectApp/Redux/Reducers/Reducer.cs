@@ -2480,6 +2480,8 @@ namespace ConnectApp.redux.reducers {
                     var channelTop = new Dictionary<string, bool>();
                     foreach (var channelMember in action.joinedMemberMap) {
                         channelTop.Add(key: channelMember.Key, channelMember.Value.stickTime.isNotEmpty());
+                        state.channelState.channelDict[key: channelMember.Key].isMute =
+                            channelMember.Value.isMute;
                     }
 
                     state.channelState.channelTop = channelTop;
@@ -2498,6 +2500,16 @@ namespace ConnectApp.redux.reducers {
 
                 case FetchUnStickChannelSuccessAction action: {
                     state.channelState.channelTop[key: action.channelId] = false;
+                    break;
+                }
+
+                case FetchMuteChannelSuccessAction action: {
+                    state.channelState.channelDict[key: action.channelId].isMute = true;
+                    break;
+                }
+
+                case FetchUnMuteChannelSuccessAction action: {
+                    state.channelState.channelDict[key: action.channelId].isMute = false;
                     break;
                 }
 

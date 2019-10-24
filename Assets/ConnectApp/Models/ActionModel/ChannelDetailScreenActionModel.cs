@@ -10,5 +10,6 @@ namespace ConnectApp.Models.ActionModel {
         public Action joinChannel;
         public Action leaveChannel;
         public Action<bool> updateTop;
+        public Action<bool> updateMute;
     }
 }

@@ -455,11 +455,27 @@ namespace ConnectApp.screens {
             return new CustomAppBar(
                 () => this.widget.actionModel.mainRouterPop(),
                 new Flexible(
-                    child: new Text(
-                        data: this.widget.viewModel.channel.name,
-                        style: CTextStyle.PXLargeMedium,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis
+                    child: new Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: new List<Widget> {
+                            new Flexible(
+                                child: new Text(
+                                    data: this.widget.viewModel.channel.name,
+                                    style: CTextStyle.PXLargeMedium,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis
+                                )
+                            ),
+                            this.widget.viewModel.channel.isMute 
+                                ? new Container(
+                                    margin: EdgeInsets.only(4),
+                                    child: new Icon(
+                                        icon: Icons.notifications_off,
+                                        size: 16,
+                                        color: CColors.MuteIcon
+                                    )
+                                ) : new Container()
+                        }
                     )
                 ),
                 new CustomButton(

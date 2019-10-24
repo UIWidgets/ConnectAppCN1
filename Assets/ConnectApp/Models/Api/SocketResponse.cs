@@ -307,6 +307,7 @@ namespace ConnectApp.Models.Api {
         public User user;
         public string role;
         public string stickTime;
+        public bool isMute;
         public bool isBanned;
         public bool kicked;
         public bool left;
