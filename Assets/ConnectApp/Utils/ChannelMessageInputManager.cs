@@ -2,19 +2,30 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Unity.UIWidgets.foundation;
 
 namespace ConnectApp.Utils {
-
     static class ChannelMessageMentionHelper {
-        
-        public static string parseMention(string text, Dictionary<string, string> replacements) {
-            var pattern = String.Join("|", replacements.Keys.Select(k => "@" + Regex.Escape(k)));
-            if (string.IsNullOrEmpty(pattern)) {
+        public static string parseMention(this string text, Dictionary<string, string> replacements) {
+            if (text.isEmpty()) {
+                return "";
+            }
+
+            if (replacements.isNullOrEmpty()) {
                 return text;
             }
-            var regex = new Regex(pattern);
-            var replaced = regex.Replace(text,m => {
-                return "<@" + replacements[m.Value.Substring(1)] + ">";
+
+            var regex = new Regex(String.Join("|",replacements.Keys.Select(k => "@" + Regex.Escape(k))));
+            var replaced = regex.Replace(input: text, m => {
+                if (m.Value.isEmpty()) {
+                    return "";
+                }
+
+                if (replacements.ContainsKey(m.Value.Substring(1))) {
+                    return "<@" + replacements[m.Value.Substring(1)] + ">";
+                }
+
+                return "";
             });
             return replaced;
         }
