@@ -320,7 +320,7 @@ namespace ConnectApp.screens {
                         var newContent = this._textController.text + userName + " ";
 
                         this.mentionMap[userName] = this.widget.viewModel.mentionUserId;
-                        
+
                         this._textController.value = new TextEditingValue(
                             text: newContent,
                             TextSelection.collapsed(newContent.Length));
@@ -367,9 +367,9 @@ namespace ConnectApp.screens {
             ret = new Column(
                 children: new List<Widget> {
                     this._buildNavigationBar(),
-                    this.widget.viewModel.socketConnected
-                        ? new Container()
-                        : this._buildNetworkDisconnectedNote(),
+                    HttpManager.isNetWorkError()
+                        ? this._buildNetworkDisconnectedNote()
+                        : new Container(),
                     new Flexible(child: ret),
                     this.showEmojiBoard
                         ? this._buildEmojiBoard()
@@ -456,7 +456,7 @@ namespace ConnectApp.screens {
                 () => this.widget.actionModel.mainRouterPop(),
                 new Flexible(
                     child: new Text(
-                        data: this.widget.viewModel.channel.name,
+                        data: this.widget.viewModel.socketConnected ? this.widget.viewModel.channel.name : "收取中...",
                         style: CTextStyle.PXLargeMedium,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis

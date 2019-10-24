@@ -13,8 +13,8 @@ using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
@@ -44,7 +44,7 @@ namespace ConnectApp.screens {
                             if (c2 == null) {
                                 return 1;
                             }
-                            
+
                             if (c1.isTop && !c2.isTop) {
                                 return -1;
                             }
@@ -156,9 +156,8 @@ namespace ConnectApp.screens {
             base.initState();
             this._refreshController = new RefreshController();
             this._pageNumber = 1;
-            this._newNotificationSubId = EventBus.subscribe(sName: EventBusConstant.newNotifications, args => {
-                this.widget.actionModel.updateNewNotification();
-            });
+            this._newNotificationSubId = EventBus.subscribe(sName: EventBusConstant.newNotifications,
+                args => { this.widget.actionModel.updateNewNotification(); });
         }
 
         public override void didChangeDependencies() {
@@ -184,7 +183,7 @@ namespace ConnectApp.screens {
                 child: new Column(
                     children: new List<Widget> {
                         this._buildNavigationBar(),
-                        !this.widget.viewModel.socketConnected
+                        HttpManager.isNetWorkError()
                             ? this._buildNetworkDisconnectedNote()
                             : new Container(color: CColors.Separator2, height: 1),
                         new Flexible(
@@ -221,7 +220,9 @@ namespace ConnectApp.screens {
 
         Widget _buildNavigationBar() {
             return new CustomNavigationBar(
-                new Text("群聊", style: CTextStyle.H2),
+                this.widget.viewModel.socketConnected
+                    ? new Text("群聊", style: CTextStyle.H2)
+                    : new Text("收取中...", style: CTextStyle.H2Body4),
                 new List<Widget> {
                     new CustomButton(
                         onPressed: () => this.widget.actionModel.pushToNotifications(),
@@ -268,7 +269,7 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
+
         Widget _headerInSection(int section) {
             if (section == 0) {
                 return null;
