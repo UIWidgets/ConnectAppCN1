@@ -251,9 +251,7 @@ namespace ConnectApp.screens {
                         )
                     )
                 },
-                backgroundColor: CColors.White,
-                0,
-                EdgeInsets.only(16, bottom: 8)
+                padding: EdgeInsets.only(16, bottom: 8)
             );
         }
 

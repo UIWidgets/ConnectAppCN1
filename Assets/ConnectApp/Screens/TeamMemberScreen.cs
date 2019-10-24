@@ -11,9 +11,7 @@ using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 
@@ -199,7 +197,7 @@ namespace ConnectApp.screens {
                         color: CColors.Background,
                         child: new Column(
                             children: new List<Widget> {
-                                this._buildNavigationBar(context: context),
+                                this._buildNavigationBar(),
                                 new Expanded(
                                     child: content
                                 )
@@ -210,33 +208,13 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildNavigationBar(BuildContext context) {
-            return new Container(
-                color: CColors.White,
-                width: MediaQuery.of(context: context).size.width,
-                height: 94,
-                child: new Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: new List<Widget> {
-                        new CustomButton(
-                            padding: EdgeInsets.symmetric(8, 16),
-                            onPressed: () => this.widget.actionModel.mainRouterPop(),
-                            child: new Icon(
-                                icon: Icons.arrow_back,
-                                size: 24,
-                                color: CColors.Icon
-                            )
-                        ),
-                        new Container(
-                            margin: EdgeInsets.only(16, bottom: 8),
-                            child: new Text(
-                                "公司成员",
-                                style: CTextStyle.H2
-                            )
-                        )
-                    }
-                )
+        Widget _buildNavigationBar() {
+            return new CustomNavigationBar(
+                new Text(
+                    "公司成员",
+                    style: CTextStyle.H2
+                ),
+                onBack: () => this.widget.actionModel.mainRouterPop()
             );
         }
 

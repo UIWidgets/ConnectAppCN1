@@ -306,7 +306,7 @@ namespace ConnectApp.screens {
 
         public void didPopNext() {
             if (this.widget.viewModel.currentTabBarIndex == 3) {
-                StatusBarManager.statusBarStyle(isLight: UserInfoManager.isLogin());
+                StatusBarManager.statusBarStyle( UserInfoManager.isLogin());
             }
         }
 

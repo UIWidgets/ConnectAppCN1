@@ -9,7 +9,6 @@ using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
@@ -26,7 +25,7 @@ namespace ConnectApp.screens {
                         deleteAllArticleHistory = () => dispatcher.dispatch(new DeleteAllArticleHistoryAction()),
                         deleteAllEventHistory = () => dispatcher.dispatch(new DeleteAllEventHistoryAction())
                     };
-                    return new HistoryScreen(viewModel, actionModel);
+                    return new HistoryScreen(viewModel: viewModel, actionModel: actionModel);
                 }
             );
         }
@@ -65,7 +64,7 @@ namespace ConnectApp.screens {
                 items: new List<ActionSheetItem> {
                     new ActionSheetItem(
                         "删除",
-                        ActionType.destructive,
+                        type: ActionType.destructive,
                         () => {
                             if (this._selectedIndex == 0) {
                                 this.widget.actionModel.deleteAllArticleHistory();
@@ -74,7 +73,7 @@ namespace ConnectApp.screens {
                                 this.widget.actionModel.deleteAllEventHistory();
                             }
                         }),
-                    new ActionSheetItem("取消", ActionType.cancel)
+                    new ActionSheetItem("取消", type: ActionType.cancel)
                 }
             ));
         }
@@ -88,7 +87,7 @@ namespace ConnectApp.screens {
                         color: CColors.White,
                         child: new Column(
                             children: new List<Widget> {
-                                this._buildNavigationBar(context),
+                                this._buildNavigationBar(),
                                 new Expanded(
                                     child: this._buildContentView()
                                 )
@@ -99,41 +98,17 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildNavigationBar(BuildContext context) {
-            return new Container(
-                decoration: new BoxDecoration(
-                    CColors.White
+        Widget _buildNavigationBar() {
+            return new CustomNavigationBar(
+                new Text(
+                    "浏览历史",
+                    style: CTextStyle.H2
                 ),
-                width: MediaQuery.of(context).size.width,
-                height: 94,
-                child: new Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: new List<Widget> {
-                        new CustomButton(
-                            padding: EdgeInsets.symmetric(8, 16),
-                            onPressed: () => this.widget.actionModel.mainRouterPop(),
-                            child: new Icon(
-                                Icons.arrow_back,
-                                size: 24,
-                                color: CColors.Icon
-                            )
-                        ),
-                        new Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: new List<Widget> {
-                                new Container(
-                                    margin: EdgeInsets.only(16, bottom: 12),
-                                    child: new Text(
-                                        "浏览历史",
-                                        style: CTextStyle.H2
-                                    )
-                                ),
-                                this._buildDeleteButton()
-                            }
-                        )
-                    }
-                )
+                new List<Widget> {
+                    this._buildDeleteButton()
+                },
+                padding: EdgeInsets.only(16, bottom: 8),
+                onBack: () => this.widget.actionModel.mainRouterPop()
             );
         }
 
@@ -145,7 +120,7 @@ namespace ConnectApp.screens {
                         padding: EdgeInsets.symmetric(12, 16),
                         onPressed: this._deleteAllHistory,
                         child: new Icon(
-                            Icons.delete_outline,
+                            icon: Icons.delete_outline,
                             size: 28,
                             color: CColors.Icon
                         )
@@ -160,7 +135,7 @@ namespace ConnectApp.screens {
                         padding: EdgeInsets.symmetric(12, 16),
                         onPressed: this._deleteAllHistory,
                         child: new Icon(
-                            Icons.delete_outline,
+                            icon: Icons.delete_outline,
                             size: 28,
                             color: CColors.Icon
                         )

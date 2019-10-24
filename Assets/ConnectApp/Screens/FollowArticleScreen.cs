@@ -73,11 +73,9 @@ namespace ConnectApp.screens {
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Login
                         }),
-                        pushToArticleDetail = id => dispatcher.dispatch(
-                            new MainNavigatorPushToArticleDetailAction {
-                                articleId = id
-                            }
-                        ),
+                        pushToArticleDetail = id => dispatcher.dispatch(new MainNavigatorPushToArticleDetailAction {
+                            articleId = id
+                        }),
                         pushToReport = (reportId, reportType) => dispatcher.dispatch(
                             new MainNavigatorPushToReportAction {
                                 reportId = reportId,
@@ -93,19 +91,16 @@ namespace ConnectApp.screens {
                                 userId = userId
                             }
                         ),
-                        pushToUserDetail = userId => dispatcher.dispatch(
-                            new MainNavigatorPushToUserDetailAction {
-                                userId = userId
-                            }
-                        ),
-                        pushToTeamDetail = teamId => dispatcher.dispatch(
-                            new MainNavigatorPushToTeamDetailAction {
-                                teamId = teamId
-                            }
-                        ),
+                        pushToUserDetail = userId => dispatcher.dispatch(new MainNavigatorPushToUserDetailAction {
+                            userId = userId
+                        }),
+                        pushToTeamDetail = teamId => dispatcher.dispatch(new MainNavigatorPushToTeamDetailAction {
+                            teamId = teamId
+                        }),
                         startFollowUser = userId =>
                             dispatcher.dispatch(new StartFollowUserAction {followUserId = userId}),
-                        followUser = userId => dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(userId)),
+                        followUser = userId =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(followUserId: userId)),
                         startUnFollowUser = userId =>
                             dispatcher.dispatch(new StartUnFollowUserAction {unFollowUserId = userId}),
                         unFollowUser = userId => dispatcher.dispatch<IPromise>(Actions.fetchUnFollowUser(userId)),
@@ -121,13 +116,15 @@ namespace ConnectApp.screens {
                                 Actions.sendComment(articleId, channelId, content, nonce, parentMessageId,
                                     upperMessageId));
                         },
-                        likeArticle = articleId => dispatcher.dispatch<IPromise>(Actions.likeArticle(articleId: articleId)),
+                        likeArticle = articleId =>
+                            dispatcher.dispatch<IPromise>(Actions.likeArticle(articleId: articleId)),
                         startFetchFollowing = () => dispatcher.dispatch(new StartFetchFollowingAction()),
                         fetchFollowing = (userId, offset) =>
                             dispatcher.dispatch<IPromise>(Actions.fetchFollowing(userId: userId, offset: offset)),
                         startFetchFollowArticles = () => dispatcher.dispatch(new StartFetchFollowArticlesAction()),
                         fetchFollowArticles = (pageNumber, isFirst, isHot) =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchFollowArticles(pageNumber, viewModel.beforeTime, viewModel.afterTime, isFirst, isHot)),
+                            dispatcher.dispatch<IPromise>(Actions.fetchFollowArticles(pageNumber, viewModel.beforeTime,
+                                viewModel.afterTime, isFirst, isHot)),
                         shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch<IPromise>(
                             Actions.shareToWechat(type, title, description, linkUrl, imageUrl))
                     };
@@ -378,16 +375,22 @@ namespace ConnectApp.screens {
             }
 
             var followButtons = new List<Widget>();
-            if (followings.Count > 5) {
-                followings = followings.GetRange(0, 5);
+            if (followings.Count > 10) {
+                followings = followings.GetRange(0, 10);
             }
 
             for (int i = 0; i < followings.Count; i++) {
                 var following = followings[index: i];
                 var followButton = this._buildFollowButton(following: following);
+                if (i == 0) {
+                    followButtons.Add(new Container(width: 18));
+                }
                 followButtons.Add(item: followButton);
                 if (i < followings.Count - 1) {
                     followButtons.Add(new Container(width: 10));
+                }
+                if (i == followings.Count - 1) {
+                    followButtons.Add(new Container(width: 18));
                 }
             }
 
@@ -413,7 +416,7 @@ namespace ConnectApp.screens {
                                     new Padding(
                                         padding: EdgeInsets.only(top: 16),
                                         child: new Text(
-                                            "最近关注",
+                                            "最近浏览",
                                             style: CTextStyle.PMediumBody2
                                         )
                                     ),
@@ -452,8 +455,11 @@ namespace ConnectApp.screens {
                             )
                         ),
                         new Container(
-                            padding: EdgeInsets.symmetric(horizontal: 18),
-                            child: new Row(
+                            height: this.avatarSize + 25,
+                            color: CColors.White,
+                            child: new ListView(
+                                physics: new AlwaysScrollableScrollPhysics(),
+                                scrollDirection: Axis.horizontal,
                                 children: followButtons
                             )
                         )
