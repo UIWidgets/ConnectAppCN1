@@ -52,13 +52,13 @@ namespace ConnectApp.screens {
                         return channelMessageViews;
                     }
 
-
                     List<ChannelMessageView> newMessages = null;
                     List<ChannelMessageView> messages;
                     ChannelView channel;
-                    var hasChannel = false;
+                    bool hasChannel;
                     if (state.channelState.channelDict.isEmpty() ||
                         !state.channelState.channelDict.ContainsKey(this.channelId)) {
+                        hasChannel = false;
                         messages = new List<ChannelMessageView>();
                         channel = new ChannelView();
                     }
@@ -197,20 +197,28 @@ namespace ConnectApp.screens {
         readonly TextEditingController _textController = new TextEditingController();
         readonly RefreshController _refreshController = new RefreshController();
         readonly GlobalKey _smartRefresherKey = GlobalKey<State<SmartRefresher>>.key("SmartRefresher");
-        FocusNode _focusNode;
-        GlobalKey _focusNodeKey;
-
-        float messageBubbleWidth = 0;
-        bool _showEmojiBoard = false;
-        Dictionary<string, string> headers;
+        readonly FocusNode _focusNode = new FocusNode();
+        readonly GlobalKey _focusNodeKey = GlobalKey.key("_channelFocusNodeKey");
+        readonly Dictionary<string, string> _headers = new Dictionary<string, string> {
+            {HttpManager.COOKIE, HttpManager.getCookie()},
+            {"ConnectAppVersion", Config.versionNumber},
+            {"X-Requested-With", "XmlHttpRequest"}
+        };
+        bool _showEmojiBoard;
+        string _lastMessageEditingContent = "";
+        readonly Dictionary<string, string> mentionMap = new Dictionary<string, string>();
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
             Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(context: this.context));
         }
 
+        float messageBubbleWidth {
+            get { return MediaQuery.of(context: this.context).size.width * 0.7f; }
+        }
+
         float inputBarHeight {
-            get { return 48 + CCommonUtils.getSafeAreaBottomPadding(this.context); }
+            get { return 48 + CCommonUtils.getSafeAreaBottomPadding(context: this.context); }
         }
 
         bool showKeyboard {
@@ -246,13 +254,7 @@ namespace ConnectApp.screens {
                 }
             });
 
-            this._focusNode = new FocusNode();
-            this._focusNodeKey = GlobalKey.key("_channelFocusNodeKey");
-            this.headers = new Dictionary<string, string> {
-                {HttpManager.COOKIE, HttpManager.getCookie()},
-                {"ConnectAppVersion", Config.versionNumber},
-                {"X-Requested-With", "XmlHttpRequest"}
-            };
+            this._showEmojiBoard = false;
             this._textController.addListener(this._onTextChanged);
         }
 
@@ -275,9 +277,6 @@ namespace ConnectApp.screens {
             this._focusNode.dispose();
             base.dispose();
         }
-
-        string _lastMessageEditingContent = "";
-        readonly Dictionary<string, string> mentionMap = new Dictionary<string, string>();
 
         void _onTextChanged() {
             var curTextContent = this._textController.text;
@@ -346,8 +345,6 @@ namespace ConnectApp.screens {
                     CustomDialogUtils.showToast("消息发送失败", Icons.error_outline);
                 });
             }
-
-            this.messageBubbleWidth = MediaQuery.of(context).size.width * 0.7f;
 
             Widget ret = new Stack(
                 children: new List<Widget> {
@@ -498,10 +495,10 @@ namespace ConnectApp.screens {
                 return this._buildErrorPage();
             }
 
-            Widget ret = new Container(
+            Widget content = new Container(
                 color: CColors.White,
                 child: new CustomScrollbar(
-                    child: new SmartRefresher(
+                    new SmartRefresher(
                         key: this._smartRefresherKey,
                         controller: this._refreshController,
                         enablePullDown: false,
@@ -518,13 +515,13 @@ namespace ConnectApp.screens {
             );
 
             if (this.showKeyboard || this.showEmojiBoard) {
-                ret = new GestureDetector(
-                    onTap: () => this.setState(this._dismissKeyboard),
-                    child: ret
+                return new GestureDetector(
+                    onTap: () => this.setState(fn: this._dismissKeyboard),
+                    child: content
                 );
             }
 
-            return ret;
+            return content;
         }
 
         ListView _buildMessageListView() {
@@ -757,7 +754,7 @@ namespace ConnectApp.screens {
                     ratio: 16.0f / 9.0f,
                     srcWidth: message.width,
                     srcHeight: message.height,
-                    headers: this.headers
+                    headers: this._headers
                 )
             );
         }
@@ -983,9 +980,9 @@ namespace ConnectApp.screens {
                 return;
             }
 
-            text = ChannelMessageMentionHelper.parseMention(text, this.mentionMap);
+            text = text.parseMention(replacements: this.mentionMap);
             if (string.IsNullOrWhiteSpace(text)) {
-                CustomDialogUtils.showToast("不能发送空消息", Icons.error_outline);
+                CustomDialogUtils.showToast("不能发送空消息", iconData: Icons.error_outline);
                 return;
             }
 
@@ -993,7 +990,7 @@ namespace ConnectApp.screens {
             this.widget.actionModel.sendMessage(
                     this.widget.viewModel.channel.id,
                     text.Trim(), Snowflake.CreateNonce(), "")
-                .Catch(_ => CustomDialogUtils.showToast("消息发送失败", Icons.error_outline));
+                .Catch(_ => CustomDialogUtils.showToast("消息发送失败", iconData: Icons.error_outline));
             this._refreshController.scrollTo(0);
             FocusScope.of(this.context).requestFocus(this._focusNode);
         }
@@ -1003,10 +1000,9 @@ namespace ConnectApp.screens {
                 string id = this.widget.viewModel.messages.isNotEmpty()
                     ? this.widget.viewModel.messages.first().id
                     : null;
-                this.widget.actionModel.fetchMessages(id, null).Then(
-                    () => this._refreshController.sendBack(false, RefreshStatus.idle)
-                ).Catch(
-                    (error) => this._refreshController.sendBack(false, RefreshStatus.idle)
+                this.widget.actionModel.fetchMessages(arg1: id, null)
+                    .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))
+                    .Catch(error => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed)
                 );
             }
         }
