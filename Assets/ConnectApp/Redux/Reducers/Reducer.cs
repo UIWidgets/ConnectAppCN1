@@ -2618,6 +2618,7 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case StartSendChannelMessageAction action: {
+                    action.message.status = "sending";
                     break;
                 }
 

@@ -40,30 +40,40 @@ namespace ConnectApp.screens {
                 converter: state => {
                     List<ChannelMessageView> newMessages = new List<ChannelMessageView>();
                     List<ChannelMessageView> messages = new List<ChannelMessageView>();
-                    
+
                     ChannelView channel = !state.channelState.channelDict.ContainsKey(this.channelId)
                         ? ChannelView.fromChannel(new Channel())
                         : state.channelState.channelDict[this.channelId];
-                    
+
                     foreach (var messageId in channel.oldMessageIds) {
                         if (state.channelState.messageDict.ContainsKey(key: messageId)) {
                             messages.Add(state.channelState.messageDict[key: messageId]);
                         }
                     }
-                    
+
                     foreach (var messageId in channel.messageIds) {
                         if (state.channelState.messageDict.ContainsKey(key: messageId)) {
                             messages.Add(state.channelState.messageDict[key: messageId]);
                         }
                     }
-                    
+
+                    ChannelMessageView waitingMessage = null;
+                    ChannelMessageView sendingMessage = null;
                     foreach (var messageId in channel.localMessageIds) {
                         var key = $"{state.loginState.loginInfo.userId}:{this.channelId}:{messageId}";
                         if (state.channelState.localMessageDict.ContainsKey(key: key)) {
-                            messages.Add(state.channelState.localMessageDict[key: key]);
+                            var message = state.channelState.localMessageDict[key: key];
+                            if (message.status == "sending") {
+                                sendingMessage = sendingMessage ?? message;
+                            }
+                            else if (message.status == "waiting") {
+                                waitingMessage = waitingMessage ?? message;
+                            }
+
+                            messages.Add(message);
                         }
                     }
-                    
+
                     foreach (var messageId in channel.newMessageIds) {
                         if (state.channelState.messageDict.ContainsKey(key: messageId)) {
                             newMessages.Add(state.channelState.messageDict[key: messageId]);
@@ -76,9 +86,18 @@ namespace ConnectApp.screens {
                             .ToList();
                         if (channel.localMessageIds.isNotEmpty()) {
                             messages.Sort((m1, m2) => {
+                                if (m1.status == "normal" && m2.status != "normal") {
+                                    return -1;
+                                }
+
+                                if (m1.status != "normal" && m2.status == "normal") {
+                                    return 1;
+                                }
+
                                 if (m1.id.hexToLong() < m2.id.hexToLong()) {
                                     return -1;
                                 }
+
                                 if (m1.id.hexToLong() > m2.id.hexToLong()) {
                                     return 1;
                                 }
@@ -111,7 +130,9 @@ namespace ConnectApp.screens {
                         mentionAutoFocus = state.channelState.mentionAutoFocus,
                         mentionUserId = state.channelState.mentionUserId,
                         mentionUserName = state.channelState.mentionUserName,
-                        mentionSuggestion = state.channelState.mentionSuggestions.getOrDefault(this.channelId, null)
+                        mentionSuggestion = state.channelState.mentionSuggestions.getOrDefault(this.channelId, null),
+                        waitingMessage = waitingMessage,
+                        sendingMessage = sendingMessage
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -121,6 +142,27 @@ namespace ConnectApp.screens {
                                 dispatcher.dispatch(new MergeOldChannelMessages {channelId = this.channelId});
                             });
                         }
+                    }
+
+                    if (viewModel.waitingMessage != null && viewModel.sendingMessage == null) {
+                        SchedulerBinding.instance.addPostFrameCallback(_ => {
+                            dispatcher.dispatch(new StartSendChannelMessageAction {
+                                message = viewModel.waitingMessage
+                            });
+                            if (viewModel.waitingMessage.type == ChannelMessageType.text) {
+                                dispatcher.dispatch<IPromise>(Actions.sendChannelMessage(
+                                    this.channelId,
+                                    viewModel.waitingMessage.content,
+                                    nonce: viewModel.waitingMessage.id,
+                                    parentMessageId: ""));
+                            }
+                            else {
+                                dispatcher.dispatch<IPromise>(Actions.sendImage(
+                                    this.channelId,
+                                    nonce: viewModel.waitingMessage.id,
+                                    imageData: viewModel.waitingMessage.content));
+                            }
+                        });
                     }
 
                     var actionModel = new ChannelScreenActionModel {
@@ -152,9 +194,6 @@ namespace ConnectApp.screens {
                         }),
                         sendMessage = (channelId, content, nonce, parentMessageId) => dispatcher.dispatch<IPromise>(
                             Actions.sendChannelMessage(channelId, content, nonce, parentMessageId)),
-                        startSendMessage = () => dispatcher.dispatch(new StartSendChannelMessageAction {
-                            channelId = this.channelId
-                        }),
                         sendImage = (channelId, data, nonce) => dispatcher.dispatch<IPromise>(
                             Actions.sendImage(channelId, nonce, data)),
                         clearUnread = () => dispatcher.dispatch(new ClearChannelUnreadAction {
@@ -208,11 +247,13 @@ namespace ConnectApp.screens {
         readonly GlobalKey _smartRefresherKey = GlobalKey<State<SmartRefresher>>.key("SmartRefresher");
         readonly FocusNode _focusNode = new FocusNode();
         readonly GlobalKey _focusNodeKey = GlobalKey.key("_channelFocusNodeKey");
+
         readonly Dictionary<string, string> _headers = new Dictionary<string, string> {
             {HttpManager.COOKIE, HttpManager.getCookie()},
             {"ConnectAppVersion", Config.versionNumber},
             {"X-Requested-With", "XmlHttpRequest"}
         };
+
         bool _showEmojiBoard;
         string _lastMessageEditingContent = "";
         readonly Dictionary<string, string> mentionMap = new Dictionary<string, string>();
@@ -594,9 +635,9 @@ namespace ConnectApp.screens {
             );
 
             if (message.status != "normal") {
-                Widget symbol = message.status == "sending"
-                        ? (Widget) new CustomActivityIndicator(size: LoadingSize.small)
-                        : new Icon(icon: Icons.error_outline, color: CColors.Error);
+                Widget symbol = message.status == "sending" || message.status == "waiting"
+                    ? (Widget) new CustomActivityIndicator(size: LoadingSize.small)
+                    : new Icon(icon: Icons.error_outline, color: CColors.Error);
                 ret = new Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
@@ -991,9 +1032,9 @@ namespace ConnectApp.screens {
 
             var nonce = Snowflake.CreateNonce();
 
-            this.widget.actionModel.startSendMessage();
-            this.widget.actionModel.sendMessage(this.widget.viewModel.channel.id, text.Trim(), nonce, "")
-                .Catch(_ => CustomDialogUtils.showToast("消息发送失败", iconData: Icons.error_outline));
+//            this.widget.actionModel.startSendMessage();
+//            this.widget.actionModel.sendMessage(this.widget.viewModel.channel.id, text.Trim(), nonce, "")
+//                .Catch(_ => CustomDialogUtils.showToast("消息发送失败", iconData: Icons.error_outline));
             this._refreshController.scrollTo(0);
             this.widget.actionModel.addLocalMessage(new ChannelMessageView {
                 id = nonce,
@@ -1003,7 +1044,7 @@ namespace ConnectApp.screens {
                 type = ChannelMessageType.text,
                 content = text.Trim(),
                 time = DateTime.UtcNow,
-                status = "sending"
+                status = "waiting"
             });
             this._textController.clear();
             this._textController.selection = TextSelection.collapsed(0);
@@ -1016,9 +1057,10 @@ namespace ConnectApp.screens {
                     ? this.widget.viewModel.messages.first().id
                     : null;
                 this.widget.actionModel.fetchMessages(arg1: id, null)
-                    .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))
+                    .Then(() => this._refreshController.sendBack(up: up,
+                        up ? RefreshStatus.completed : RefreshStatus.idle))
                     .Catch(error => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed)
-                );
+                    );
             }
         }
 
@@ -1098,11 +1140,7 @@ namespace ConnectApp.screens {
 
         void _pickImageCallback(string pickImage) {
             var nonce = Snowflake.CreateNonce();
-            this.widget.actionModel.startSendMessage();
-            this.widget.actionModel.sendImage(
-                arg1: this.widget.viewModel.channel.id,
-                arg2: pickImage,
-                Snowflake.CreateNonce());
+            this._refreshController.scrollTo(0);
             this.widget.actionModel.addLocalMessage(new ChannelMessageView {
                 id = nonce,
                 author = this.widget.viewModel.me,
@@ -1111,7 +1149,7 @@ namespace ConnectApp.screens {
                 type = ChannelMessageType.image,
                 content = pickImage,
                 time = DateTime.UtcNow,
-                status = "sending"
+                status = "waiting"
             });
         }
 

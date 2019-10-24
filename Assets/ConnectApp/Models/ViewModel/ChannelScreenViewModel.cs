@@ -16,5 +16,7 @@ namespace ConnectApp.Models.ViewModel {
         public Dictionary<string, ChannelMember> mentionSuggestion;
         public bool hasChannel;
         public bool channelError;
+        public ChannelMessageView waitingMessage;
+        public ChannelMessageView sendingMessage;
     }
 }

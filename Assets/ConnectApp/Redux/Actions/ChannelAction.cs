@@ -515,7 +515,7 @@ namespace ConnectApp.redux.actions {
     }
 
     public class StartSendChannelMessageAction : RequestAction {
-        public string channelId;
+        public ChannelMessageView message;
     }
 
     public class SendChannelMessageSuccessAction : BaseAction {
