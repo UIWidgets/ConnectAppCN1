@@ -2626,11 +2626,12 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case SendChannelMessageFailureAction action: {
-                    if (state.channelState.messageDict.ContainsKey(action.messageId)) {
-                        var message = state.channelState.messageDict[action.messageId];
+                    var key = $"{state.loginState.loginInfo.userId}:{action.channelId}:{action.messageId}";
+                    if (state.channelState.localMessageDict.ContainsKey(key)) {
+                        var message = state.channelState.localMessageDict[key];
                         message.status = "failed";
                     }
-                    
+
                     break;
                 }
 
