@@ -66,7 +66,7 @@ namespace ConnectApp.Models.State {
             this.joinedChannels.ForEach(channelId => {
                 var channel = this.channelDict[key: channelId];
                 this.totalUnread += channel.unread;
-                this.totalMention += channel.unread > 0 && !channel.isMute
+                this.totalMention += channel.unread > 0
                     ? channel.mentioned
                     : 0;
             });

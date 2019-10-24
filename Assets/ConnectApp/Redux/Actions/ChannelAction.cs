@@ -161,6 +161,12 @@ namespace ConnectApp.redux.actions {
                         var userMap = new Dictionary<string, User>();
                         (channelMessagesResponse.items ?? new List<ChannelMessage>()).ForEach(channelMessage => {
                             userMap[key: channelMessage.author.id] = channelMessage.author;
+                            (channelMessage.mentions ?? new List<User>()).ForEach(mention => {
+                                userMap[key: mention.id] = mention;
+                            });
+                            (channelMessage.replyUsers ?? new List<User>()).ForEach(replyUser => {
+                                userMap[key: replyUser.id] = replyUser;
+                            });
                         });
                         dispatcher.dispatch(new UserMapAction {userMap = userMap});
                         dispatcher.dispatch(new FetchChannelMessagesSuccessAction {

@@ -2814,7 +2814,8 @@ namespace ConnectApp.redux.reducers {
 
                 case PushNewMessageAction action: {
                     var message = action.messageData;
-                    if (!state.channelState.channelDict.ContainsKey(message.channelId)) {
+                    if (!state.channelState.joinedChannels.Contains(item: message.channelId) 
+                        || !state.channelState.channelDict.ContainsKey(key: message.channelId)) {
                         break;
                     }
 
@@ -2949,6 +2950,13 @@ namespace ConnectApp.redux.reducers {
 
                 case PushChannelCreateChannelAction action: {
                     var channelData = action.channelData;
+                    // filter project/event/support channel
+                    if (channelData.projectId.isNotEmpty()
+                        || channelData.proposalId.isNotEmpty()
+                        || channelData.ticketId.isNotEmpty()) {
+                        break;
+                    }
+
                     if (state.channelState.channelDict.ContainsKey(channelData.id)) {
                         Debug.LogWarning($"Channel {channelData.id} already exists! Overwrite!");
                         ChannelView channel = state.channelState.channelDict[channelData.id];

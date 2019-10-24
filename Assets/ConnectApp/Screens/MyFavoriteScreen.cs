@@ -12,7 +12,6 @@ using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 
@@ -144,7 +143,7 @@ namespace ConnectApp.screens {
                         color: CColors.White,
                         child: new Column(
                             children: new List<Widget> {
-                                this._buildNavigationBar(context: context),
+                                this._buildNavigationBar(),
                                 new Expanded(
                                     child: content
                                 )
@@ -155,51 +154,21 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildNavigationBar(BuildContext context) {
-            return new Container(
-                width: MediaQuery.of(context: context).size.width,
-                height: 94,
-                decoration: new BoxDecoration(
-                    color: CColors.White,
-                    border: new Border(
-                        bottom: new BorderSide(color: CColors.Separator2)
+        Widget _buildNavigationBar() {
+            return new CustomNavigationBar(
+                new Text(
+                    "我的收藏",
+                    style: CTextStyle.H2
+                ),
+                topRightWidget: new CustomButton(
+                    padding: EdgeInsets.symmetric(8, 16),
+                    onPressed: () => this.widget.actionModel.pushToCreateFavorite(""),
+                    child: new Text(
+                        "新建",
+                        style: CTextStyle.PLargeBlue
                     )
                 ),
-                child: new Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: new List<Widget> {
-                        new Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: new List<Widget> {
-                                new CustomButton(
-                                    padding: EdgeInsets.symmetric(8, 16),
-                                    onPressed: () => this.widget.actionModel.mainRouterPop(),
-                                    child: new Icon(
-                                        icon: Icons.arrow_back,
-                                        size: 24,
-                                        color: CColors.Icon
-                                    )
-                                ),
-                                new CustomButton(
-                                    padding: EdgeInsets.symmetric(8, 16),
-                                    onPressed: () => this.widget.actionModel.pushToCreateFavorite(""),
-                                    child: new Text(
-                                        "新建",
-                                        style: CTextStyle.PLargeBlue
-                                    )
-                                )
-                            }
-                        ),
-                        new Container(
-                            margin: EdgeInsets.only(16, bottom: 8),
-                            child: new Text(
-                                "我的收藏",
-                                style: CTextStyle.H2
-                            )
-                        )
-                    }
-                )
+                onBack: () => this.widget.actionModel.mainRouterPop()
             );
         }
 
