@@ -18,6 +18,10 @@ namespace ConnectApp.Utils {
                 : 0;
         }
 
+        public static bool isIPhone {
+            get { return Application.platform == RuntimePlatform.IPhonePlayer; }
+        }
+
         public static string GetUserLicense(string userId, Dictionary<string, UserLicense> userLicenseMap = null) {
             if (userLicenseMap == null || !userLicenseMap.ContainsKey(key: userId)) {
                 return "";

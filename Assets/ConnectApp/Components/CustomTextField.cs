@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using ConnectApp.Constants;
+using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
 
 namespace ConnectApp.Components {
     public class CustomTextField : StatefulWidget {
@@ -133,7 +133,7 @@ namespace ConnectApp.Components {
                     maxLines: this.widget.maxLines,
                     minLines: this.widget.minLines,
                     cursorColor: CColors.PrimaryBlue,
-                    textInputAction: this._isIphone() ? TextInputAction.send : TextInputAction.newline,
+                    textInputAction: CCommonUtils.isIPhone ? TextInputAction.send : TextInputAction.newline,
                     onSubmitted: this.widget.onSubmitted
                 )
             );
@@ -158,52 +158,19 @@ namespace ConnectApp.Components {
             return textFieldWidget;
         }
 
-        bool _isIphone() {
-            if (Application.platform == RuntimePlatform.IPhonePlayer) {
-                return true;
-            }
-
-            return false;
-        }
-
         Widget _buildPickImageButton() {
-            if (!this._isIphone()) {
+            if (!CCommonUtils.isIPhone) {
                 if (this.widget.isShowImageButton) {
-                    if (this.widget.controller.text.isEmpty()) {
-                        return this.pickImageButton();
-                    }
-                    else {
-                        return new Container(
-                            width: 44,
-                            height: 49,
-                            child: new Center(
-                                child: new Text("发送", style: CTextStyle.PLargeBlue.copyWith(height: 1))
-                            )
-                        );
-                    }
+                    return this.widget.controller.text.isEmpty() ? this._pickImageButton() : this._buildSendButton();
                 }
-                else {
-                    return new Container(
-                        width: 44,
-                        height: 49,
-                        child: new Center(
-                            child: new Text("发送",
-                                style: this.widget.controller.text.isEmpty()
-                                    ? CTextStyle.PLargeDisabled.copyWith(height: 1)
-                                    : CTextStyle.PLargeBlue.copyWith(height: 1))
-                        )
-                    );
-                }
+
+                return this._buildSendButton();
             }
 
-            if (!this.widget.isShowImageButton) {
-                return new Container();
-            }
-
-            return this.pickImageButton();
+            return this.widget.isShowImageButton ? this._pickImageButton() : new Container();
         }
 
-        Widget pickImageButton() {
+        Widget _pickImageButton() {
             return new CustomButton(
                 padding: EdgeInsets.zero,
                 onPressed: this.widget.onPressImage,
@@ -221,6 +188,24 @@ namespace ConnectApp.Components {
             );
         }
 
+        Widget _buildSendButton() {
+            return new CustomButton(
+                padding: EdgeInsets.zero,
+                onPressed: () => this.widget.onSubmitted(value: this._controller.text),
+                child: new Container(
+                    width: 44,
+                    height: 49,
+                    child: new Center(
+                        child: new Text(
+                            "发送",
+                            style: this.widget.controller.text.isEmpty()
+                                ? CTextStyle.PLargeDisabled.copyWith(height: 1)
+                                : CTextStyle.PLargeBlue.copyWith(height: 1)
+                        )
+                    )
+                )
+            );
+        }
 
         Widget _buildShowEmojiBoardButton(BuildContext context) {
             return new CustomButton(
