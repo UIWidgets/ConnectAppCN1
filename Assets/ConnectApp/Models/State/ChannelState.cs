@@ -24,10 +24,10 @@ namespace ConnectApp.Models.State {
         public bool channelError;
 
         public void updateMentionSuggestion(string channelId, User userInfo) {
-            if (this.mentionSuggestions.ContainsKey(channelId)) {
-                var suggestions = this.mentionSuggestions[channelId];
-                if (suggestions.ContainsKey(userInfo.id)) {
-                    suggestions[userInfo.id].user = userInfo;
+            if (this.mentionSuggestions.ContainsKey(key: channelId)) {
+                var suggestions = this.mentionSuggestions[key: channelId];
+                if (suggestions.ContainsKey(key: userInfo.id)) {
+                    suggestions[key: userInfo.id].user = userInfo;
                 }
             }
         }
@@ -63,9 +63,10 @@ namespace ConnectApp.Models.State {
             this.totalUnread = 0;
             this.totalMention = 0;
             this.joinedChannels.ForEach(channelId => {
-                this.totalUnread += this.channelDict[key: channelId].unread;
-                this.totalMention += this.channelDict[key: channelId].unread > 0
-                    ? this.channelDict[key: channelId].mentioned
+                var channel = this.channelDict[key: channelId];
+                this.totalUnread += channel.unread;
+                this.totalMention += channel.unread > 0 && !channel.isMute
+                    ? channel.mentioned
                     : 0;
             });
         }

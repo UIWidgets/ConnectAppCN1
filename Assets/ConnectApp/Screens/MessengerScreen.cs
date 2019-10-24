@@ -31,7 +31,7 @@ namespace ConnectApp.screens {
                     var joinedChannels = state.channelState.joinedChannels.Select(
                         channelId => {
                             ChannelView channel = state.channelState.channelDict[key: channelId];
-                            channel.isTop = state.channelState.channelTop.TryGetValue(channelId, out var isTop) &&
+                            channel.isTop = state.channelState.channelTop.TryGetValue(key: channelId, out var isTop) &&
                                             isTop;
                             return channel;
                         }).ToList();
@@ -379,7 +379,7 @@ namespace ConnectApp.screens {
                 return new JoinedChannelCard(
                     channel: joinedChannel,
                     myUserId: this.widget.viewModel.myUserId,
-                    onTap: () => this.widget.actionModel.pushToChannel(obj: joinedChannel.id)
+                    () => this.widget.actionModel.pushToChannel(obj: joinedChannel.id)
                 );
             }
 
