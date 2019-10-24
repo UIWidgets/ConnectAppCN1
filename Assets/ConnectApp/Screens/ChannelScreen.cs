@@ -1097,11 +1097,22 @@ namespace ConnectApp.screens {
         }
 
         void _pickImageCallback(string pickImage) {
+            var nonce = Snowflake.CreateNonce();
             this.widget.actionModel.startSendMessage();
             this.widget.actionModel.sendImage(
                 arg1: this.widget.viewModel.channel.id,
                 arg2: pickImage,
                 Snowflake.CreateNonce());
+            this.widget.actionModel.addLocalMessage(new ChannelMessageView {
+                id = nonce,
+                author = this.widget.viewModel.me,
+                channelId = this.widget.viewModel.channel.id,
+                nonce = nonce.hexToLong(),
+                type = ChannelMessageType.image,
+                content = pickImage,
+                time = DateTime.UtcNow,
+                status = "sending"
+            });
         }
 
         public void didPop() {
