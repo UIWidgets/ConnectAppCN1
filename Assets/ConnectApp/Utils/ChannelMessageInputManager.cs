@@ -8,8 +8,14 @@ namespace ConnectApp.Utils {
     static class ChannelMessageMentionHelper {
         
         public static string parseMention(string text, Dictionary<string, string> replacements) {
-            var regex = new Regex(String.Join("|",replacements.Keys.Select(k => "@" + Regex.Escape(k))));
-            var replaced = regex.Replace(text,m => "<@" + replacements[m.Value.Substring(1)] + ">");
+            var pattern = String.Join("|", replacements.Keys.Select(k => "@" + Regex.Escape(k)));
+            if (string.IsNullOrEmpty(pattern)) {
+                return text;
+            }
+            var regex = new Regex(pattern);
+            var replaced = regex.Replace(text,m => {
+                return "<@" + replacements[m.Value.Substring(1)] + ">";
+            });
             return replaced;
         }
     }

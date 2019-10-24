@@ -336,7 +336,8 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new SendChannelMessageFailureAction {
-                            channelId = channelId
+                            channelId = channelId,
+                            messageId = nonce
                         });
                         Debug.Log(error);
                     });
@@ -377,7 +378,10 @@ namespace ConnectApp.redux.actions {
                         });
                     })
                     .Catch(error => {
-                        dispatcher.dispatch(new SendChannelMessageFailureAction());
+                        dispatcher.dispatch(new SendChannelMessageFailureAction {
+                            channelId = channelId,
+                            messageId = nonce
+                        });
                         Debug.Log(error);
                     });
             });
@@ -523,6 +527,7 @@ namespace ConnectApp.redux.actions {
 
     public class SendChannelMessageFailureAction : BaseAction {
         public string channelId;
+        public string messageId;
     }
 
     public class DeleteChannelMessageSuccessAction : BaseAction {

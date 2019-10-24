@@ -139,10 +139,6 @@ namespace ConnectApp.Models.Model {
         public bool joinLoading = false;
         public bool atMe = false;
         public bool atAll = false;
-        public bool sendingMessage = false;
-        public bool sentMessageFailed = false;
-        public bool sentMessageSuccess = false;
-        public bool sentImageSuccess = false;
         public bool hasMore = true;
         public bool hasMoreNew = true;
         public List<string> memberIds;
@@ -342,6 +338,7 @@ namespace ConnectApp.Models.Model {
         public bool deleted = false;
         public List<Reaction> reactions;
         public List<Embed> embeds;
+        public string status = "normal";
 
         public bool shouldSkip() {
             return this.deleted || (this.type == ChannelMessageType.text && string.IsNullOrEmpty(this.content));

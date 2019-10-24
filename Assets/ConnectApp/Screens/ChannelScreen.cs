@@ -38,43 +38,36 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ChannelScreenViewModel>(
                 converter: state => {
-                    List<ChannelMessageView> getMessages(List<string> messageIds) {
-                        if (messageIds.isNullOrEmpty()) {
-                            return new List<ChannelMessageView>();
-                        }
 
-                        var channelMessageViews = new List<ChannelMessageView>();
-                        messageIds.ForEach(messageId => {
-                            if (state.channelState.messageDict.ContainsKey(key: messageId)) {
-                                channelMessageViews.Add(state.channelState.messageDict[key: messageId]);
-                            }
-                        });
-                        return channelMessageViews;
+                    List<ChannelMessageView> newMessages = new List<ChannelMessageView>();
+                    List<ChannelMessageView> messages = new List<ChannelMessageView>();
+                    
+                    ChannelView channel = !state.channelState.channelDict.ContainsKey(this.channelId)
+                        ? ChannelView.fromChannel(new Channel())
+                        : state.channelState.channelDict[this.channelId];
+                    
+                    foreach (var messageId in channel.oldMessageIds) {
+                        if (state.channelState.messageDict.ContainsKey(key: messageId)) {
+                            messages.Add(state.channelState.messageDict[key: messageId]);
+                        }
                     }
-
-
-                    List<ChannelMessageView> newMessages = null;
-                    List<ChannelMessageView> messages;
-                    ChannelView channel;
-                    var hasChannel = false;
-                    if (state.channelState.channelDict.isEmpty() ||
-                        !state.channelState.channelDict.ContainsKey(this.channelId)) {
-                        messages = new List<ChannelMessageView>();
-                        channel = new ChannelView();
+                    
+                    foreach (var messageId in channel.messageIds) {
+                        if (state.channelState.messageDict.ContainsKey(key: messageId)) {
+                            messages.Add(state.channelState.messageDict[key: messageId]);
+                        }
                     }
-                    else {
-                        hasChannel = true;
-                        channel = state.channelState.channelDict[this.channelId];
-                        if (channel.newMessageIds.isNotEmpty()) {
-                            messages = getMessages(messageIds: channel.messageIds);
-                            newMessages = getMessages(messageIds: channel.newMessageIds);
+                    
+                    foreach (var messageId in channel.localMessageIds) {
+                        var key = $"{state.loginState.loginInfo.userId}:{this.channelId}:{messageId}";
+                        if (state.channelState.localMessageDict.ContainsKey(key: key)) {
+                            messages.Add(state.channelState.localMessageDict[key: key]);
                         }
-                        else if (channel.oldMessageIds.isNotEmpty()) {
-                            messages = getMessages(messageIds: channel.oldMessageIds);
-                            messages.AddRange(getMessages(messageIds: channel.messageIds));
-                        }
-                        else {
-                            messages = getMessages(messageIds: channel.messageIds);
+                    }
+                    
+                    foreach (var messageId in channel.newMessageIds) {
+                        if (state.channelState.messageDict.ContainsKey(key: messageId)) {
+                            newMessages.Add(state.channelState.messageDict[key: messageId]);
                         }
                     }
 
@@ -82,17 +75,39 @@ namespace ConnectApp.screens {
                         messages = messages
                             .Where(message => message.type != ChannelMessageType.text || message.content != "")
                             .ToList();
+                        if (channel.localMessageIds.isNotEmpty()) {
+                            messages.Sort((m1, m2) => {
+                                if (m1.id.hexToLong() < m2.id.hexToLong()) {
+                                    return -1;
+                                }
+                                if (m1.id.hexToLong() > m2.id.hexToLong()) {
+                                    return 1;
+                                }
+
+                                return 0;
+                            });
+                        }
+                    }
+
+                    if (newMessages.isNotEmpty()) {
+                        newMessages = newMessages
+                            .Where(message => message.type != ChannelMessageType.text || message.content != "")
+                            .ToList();
                     }
 
                     return new ChannelScreenViewModel {
-                        hasChannel = hasChannel,
+                        hasChannel = state.channelState.channelDict.ContainsKey(this.channelId),
                         channelError = state.channelState.channelError,
                         channel = channel,
                         messages = messages,
-                        newMessages = newMessages ?? new List<ChannelMessageView>(),
-                        me = state.loginState.loginInfo.userId,
+                        newMessages = newMessages,
+                        me = new User {
+                            id = state.loginState.loginInfo.userId,
+                            avatar = state.loginState.loginInfo.userAvatar,
+                            fullName = state.loginState.loginInfo.userFullName
+                        },
                         messageLoading = state.channelState.messageLoading,
-                        newMessageCount = hasChannel ? state.channelState.channelDict[this.channelId].unread : 0,
+                        newMessageCount = channel.unread,
                         socketConnected = state.channelState.socketConnected,
                         mentionAutoFocus = state.channelState.mentionAutoFocus,
                         mentionUserId = state.channelState.mentionUserId,
@@ -105,14 +120,6 @@ namespace ConnectApp.screens {
                         if (viewModel.channel.oldMessageIds.isNotEmpty()) {
                             SchedulerBinding.instance.addPostFrameCallback(_ => {
                                 dispatcher.dispatch(new MergeOldChannelMessages {channelId = this.channelId});
-                            });
-                        }
-
-                        if (viewModel.channel.sentMessageFailed ||
-                            viewModel.channel.sentMessageSuccess ||
-                            viewModel.channel.sentImageSuccess) {
-                            SchedulerBinding.instance.addPostFrameCallback(_ => {
-                                dispatcher.dispatch(new ClearSentChannelMessage {channelId = this.channelId});
                             });
                         }
                     }
@@ -135,7 +142,7 @@ namespace ConnectApp.screens {
                         fetchMembers = () => dispatcher.dispatch<IPromise>(
                             Actions.fetchChannelMembers(channelId: this.channelId)),
                         fetchMember = () => dispatcher.dispatch<IPromise>(
-                            Actions.fetchChannelMember(channelId: this.channelId, userId: viewModel.me)),
+                            Actions.fetchChannelMember(channelId: this.channelId, userId: viewModel.me.id)),
                         deleteChannelMessage = messageId => dispatcher.dispatch<IPromise>(
                             Actions.deleteChannelMessage(messageId: messageId)),
                         pushToChannelDetail = () => dispatcher.dispatch(new MainNavigatorPushToChannelDetailAction {
@@ -337,19 +344,6 @@ namespace ConnectApp.screens {
                 SchedulerBinding.instance.addPostFrameCallback(_ => this._refreshController.scrollTo(0));
             }
 
-            if (this.widget.viewModel.channel.sentMessageSuccess) {
-                SchedulerBinding.instance.addPostFrameCallback(_ => {
-                    this._textController.clear();
-                    this._textController.selection = TextSelection.collapsed(0);
-                });
-            }
-
-            if (this.widget.viewModel.channel.sentMessageFailed) {
-                SchedulerBinding.instance.addPostFrameCallback(_ => {
-                    CustomDialogUtils.showToast("消息发送失败", Icons.error_outline);
-                });
-            }
-
             this.messageBubbleWidth = MediaQuery.of(context).size.width * 0.7f;
 
             Widget ret = new Stack(
@@ -548,7 +542,7 @@ namespace ConnectApp.screens {
                         showTime: index == 0 ||
                                   (message.time - this.widget.viewModel.messages[index - 1].time) >
                                   TimeSpan.FromMinutes(5),
-                        left: message.author.id != this.widget.viewModel.me
+                        left: message.author.id != this.widget.viewModel.me.id
                     );
                 }
             );
@@ -603,6 +597,17 @@ namespace ConnectApp.screens {
                 child: this._buildMessageContent(message)
             );
 
+            if (message.status != "normal") {
+                Widget symbol = message.status == "sending"
+                        ? (Widget) new CustomActivityIndicator(size: LoadingSize.small)
+                        : new Icon(icon: Icons.error_outline, color: CColors.Error);
+                ret = new Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: new List<Widget> {symbol, new SizedBox(width: 8), ret}
+                );
+            }
+
             var tipMenuItems = new List<TipMenuItem>();
             if (message.type == ChannelMessageType.text || message.type == ChannelMessageType.embed) {
                 tipMenuItems.Add(new TipMenuItem(
@@ -618,7 +623,7 @@ namespace ConnectApp.screens {
                 ));
             }
 
-            if (message.author.id == this.widget.viewModel.me) {
+            if (message.author.id == this.widget.viewModel.me.id) {
                 tipMenuItems.Add(new TipMenuItem(
                     "删除",
                     () => this._deleteMessage(message: message)
@@ -681,7 +686,7 @@ namespace ConnectApp.screens {
                 child: new GestureDetector(
                     onTap: () => this.widget.actionModel.pushToUserDetail(user.id),
                     onLongPress: () => {
-                        if (user.id == this.widget.viewModel.me) {
+                        if (user.id == this.widget.viewModel.me.id) {
                             return;
                         }
 
@@ -897,7 +902,7 @@ namespace ConnectApp.screens {
                 focusNode: this._focusNode,
                 maxLines: 4,
                 minLines: 1,
-                loading: this.widget.viewModel.channel.sendingMessage,
+                loading: false,
                 showEmojiBoard: this.showEmojiBoard,
                 isShowImageButton: true,
                 onSubmitted: this._handleSubmit,
@@ -982,22 +987,30 @@ namespace ConnectApp.screens {
         }
 
         void _handleSubmit(string text) {
-            if (this.widget.viewModel.channel.sendingMessage) {
-                return;
-            }
-
             text = ChannelMessageMentionHelper.parseMention(text, this.mentionMap);
             if (string.IsNullOrWhiteSpace(text)) {
                 CustomDialogUtils.showToast("不能发送空消息", Icons.error_outline);
                 return;
             }
 
+            var nonce = Snowflake.CreateNonce();
+
             this.widget.actionModel.startSendMessage();
-            this.widget.actionModel.sendMessage(
-                    this.widget.viewModel.channel.id,
-                    text.Trim(), Snowflake.CreateNonce(), "")
+            this.widget.actionModel.sendMessage(this.widget.viewModel.channel.id, text.Trim(), nonce, "")
                 .Catch(_ => CustomDialogUtils.showToast("消息发送失败", Icons.error_outline));
             this._refreshController.scrollTo(0);
+            this.widget.actionModel.addLocalMessage(new ChannelMessageView {
+                id = nonce,
+                author = this.widget.viewModel.me,
+                channelId = this.widget.viewModel.channel.id,
+                nonce = nonce.hexToLong(),
+                type = ChannelMessageType.text,
+                content = text.Trim(),
+                time = DateTime.UtcNow,
+                status = "sending"
+            });
+            this._textController.clear();
+            this._textController.selection = TextSelection.collapsed(0);
             FocusScope.of(this.context).requestFocus(this._focusNode);
         }
 

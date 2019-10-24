@@ -7,7 +7,7 @@ namespace ConnectApp.Models.ViewModel {
         public List<ChannelMessageView> messages;
         public List<ChannelMessageView> newMessages;
         public int newMessageCount;
-        public string me;
+        public User me;
         public bool messageLoading;
         public bool socketConnected;
         public bool mentionAutoFocus;

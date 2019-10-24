@@ -2618,37 +2618,23 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case StartSendChannelMessageAction action: {
-                    var channel = state.channelState.channelDict[action.channelId];
-                    channel.sendingMessage = true;
                     break;
                 }
 
                 case SendChannelMessageSuccessAction action: {
-                    var channel = state.channelState.channelDict[action.channelId];
-                    channel.sendingMessage = false;
-                    if (action.isImage) {
-                        channel.sentImageSuccess = true;
-                    }
-                    else {
-                        channel.sentMessageSuccess = true;
-                    }
-
-
                     break;
                 }
 
                 case SendChannelMessageFailureAction action: {
-                    var channel = state.channelState.channelDict[action.channelId];
-                    channel.sendingMessage = false;
-                    channel.sentMessageFailed = true;
+                    if (state.channelState.messageDict.ContainsKey(action.messageId)) {
+                        var message = state.channelState.messageDict[action.messageId];
+                        message.status = "failed";
+                    }
+                    
                     break;
                 }
 
                 case ClearSentChannelMessage action: {
-                    var channel = state.channelState.channelDict[key: action.channelId];
-                    channel.sentMessageSuccess = false;
-                    channel.sentImageSuccess = false;
-                    channel.sentMessageFailed = false;
                     break;
                 }
 
