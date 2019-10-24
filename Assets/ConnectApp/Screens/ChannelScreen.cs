@@ -320,7 +320,7 @@ namespace ConnectApp.screens {
                         var newContent = this._textController.text + userName + " ";
 
                         this.mentionMap[userName] = this.widget.viewModel.mentionUserId;
-                        
+
                         this._textController.value = new TextEditingValue(
                             text: newContent,
                             TextSelection.collapsed(newContent.Length));
@@ -367,9 +367,9 @@ namespace ConnectApp.screens {
             ret = new Column(
                 children: new List<Widget> {
                     this._buildNavigationBar(),
-                    this.widget.viewModel.socketConnected
-                        ? new Container()
-                        : this._buildNetworkDisconnectedNote(),
+                    HttpManager.isNetWorkError()
+                        ? this._buildNetworkDisconnectedNote()
+                        : new Container(),
                     new Flexible(child: ret),
                     this.showEmojiBoard
                         ? this._buildEmojiBoard()
@@ -460,13 +460,15 @@ namespace ConnectApp.screens {
                         children: new List<Widget> {
                             new Flexible(
                                 child: new Text(
-                                    data: this.widget.viewModel.channel.name,
+                                    this.widget.viewModel.socketConnected
+                                        ? this.widget.viewModel.channel.name
+                                        : "收取中...",
                                     style: CTextStyle.PXLargeMedium,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis
                                 )
                             ),
-                            this.widget.viewModel.channel.isMute 
+                            this.widget.viewModel.channel.isMute
                                 ? new Container(
                                     margin: EdgeInsets.only(4),
                                     child: new Icon(
@@ -474,7 +476,8 @@ namespace ConnectApp.screens {
                                         size: 16,
                                         color: CColors.MuteIcon
                                     )
-                                ) : new Container()
+                                )
+                                : new Container()
                         }
                     )
                 ),
