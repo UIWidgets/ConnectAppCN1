@@ -293,4 +293,9 @@ namespace ConnectApp.Models.Api {
         public List<Favorite> favorites;
         public bool hasMore;
     }
+
+    [Serializable]
+    public class FetchChannelMemberQueryResponse {
+        public List<ChannelMember> searchMembers;
+    }
 }

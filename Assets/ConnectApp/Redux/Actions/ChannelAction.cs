@@ -193,6 +193,23 @@ namespace ConnectApp.redux.actions {
             });
         }
 
+        public static object queryChannelMentionSuggestions(string channelId, string query) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return ChannelApi.FetchChannelMemberQuery(channelId: channelId, query: query)
+                    .Then(channelMemberResponse => {
+                        var searchMembers = channelMemberResponse.searchMembers;
+                        dispatcher.dispatch(new FetchChannelMentionQuerySuccessAction {
+                            channelId = channelId,
+                            members = searchMembers
+                        });
+                    })
+                    .Catch(error => {
+                        dispatcher.dispatch(new FetchChannelMentionQueryFailureAction());
+                        Debug.Log(error);
+                    });
+            });
+        }
+
         public static object joinChannel(string channelId, string groupId = null, bool loading = false) {
             if (HttpManager.isNetWorkError()) {
                 CustomDialogUtils.showToast("请检查网络", iconData: Icons.sentiment_dissatisfied);
@@ -558,6 +575,9 @@ namespace ConnectApp.redux.actions {
     public class StartFetchChannelMentionSuggestionAction : BaseAction {
     }
 
+    public class StartSearchChannelMentionSuggestionAction : BaseAction {
+    }
+
     public class FetchChannelMentionSuggestionsSuccessAction : BaseAction {
         public string channelId;
         public Dictionary<string, ChannelMember> channelMemberMap;
@@ -572,5 +592,20 @@ namespace ConnectApp.redux.actions {
 
     public class PushChannelMessageAckAction : BaseAction {
         public SocketResponseMessageAckData ackData;
+    }
+
+    public class FetchChannelMentionQuerySuccessAction : BaseAction {
+        public string channelId;
+        public List<ChannelMember> members;
+    }
+    
+    public class FetchChannelMentionQueryFailureAction : BaseAction {
+    }
+
+    public class ChannelUpdateMentionQueryAction : BaseAction {
+        public string mentionQuery;
+    }
+
+    public class ChannelClearMentionQueryAction : BaseAction {
     }
 }

@@ -176,7 +176,8 @@ namespace ConnectApp.Models.State {
                     mentionSuggestions = new Dictionary<string, Dictionary<string, ChannelMember>>(),
                     newNotifications = isLogin
                         ? NewNotificationManager.getNewNotification(loginInfo.userId)
-                        : null
+                        : null,
+                    lastMentionQuery = null
                 },
                 tabBarState = new TabBarState {
                     currentTabIndex = 0
