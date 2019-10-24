@@ -8,6 +8,7 @@ using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
+
 #if UNITY_IOS
 using System.Runtime.InteropServices;
 #endif
@@ -96,6 +97,14 @@ namespace ConnectApp.Plugins {
                         }
                         case "UpdateLincese": {
                             Application.OpenURL(Config.unityLearnPremiumUrl);
+                            break;
+                        }
+                        case "LandscapeLeft": {
+                            Screen.orientation = ScreenOrientation.LandscapeLeft;
+                            break;
+                        }
+                        case "Portrait": {
+                            Screen.orientation = ScreenOrientation.Portrait;
                             break;
                         }
                     }
