@@ -86,11 +86,13 @@ namespace ConnectApp.screens {
                             .ToList();
                         if (channel.localMessageIds.isNotEmpty()) {
                             messages.Sort((m1, m2) => {
-                                if (m1.status == "normal" && m2.status != "normal") {
+                                if ((m1.status != "sending" && m1.status != "waiting") &&
+                                    (m2.status == "sending" || m2.status == "waiting")) {
                                     return -1;
                                 }
 
-                                if (m1.status != "normal" && m2.status == "normal") {
+                                if ((m2.status != "sending" && m2.status != "waiting") &&
+                                    (m1.status == "sending" || m1.status == "waiting")) {
                                     return 1;
                                 }
 
