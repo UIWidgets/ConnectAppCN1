@@ -56,6 +56,8 @@ public class CustomVideoController extends StandardVideoController {
         }else if(i == com.dueeeke.videocontroller.R.id.back){
             if (!mMediaPlayer.isFullScreen()){
                 UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("player", "PopPage", null);
+            }else{
+                startStopFullScreen();
             }
         }else if(i == com.dueeeke.videocontroller.R.id.share){
             UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("player", "Share", null);
