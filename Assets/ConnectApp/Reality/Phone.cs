@@ -1,30 +1,27 @@
-﻿using System;
-using ConnectApp.Main;
+﻿using ConnectApp.Main;
 using UnityEngine;
 
 namespace ConnectApp.Reality {
     public class Phone : MonoBehaviour {
         public Transform onTable;
         public Transform inHand;
-
         public Transform shell;
         public Transform screen;
-        public RectTransform screenRect;
         public Canvas screenCanvas;
 
         public Vector2 defaultScreenSize = new Vector2(750f, 1334f);
         public ConnectAppPanel appPanel;
-        
+
         bool m_TowardOnTable = false;
 
         bool m_IsMoving = false;
         float m_LerpDuration = 1f;
         float m_Timer = 0;
 
-        bool m_EnableToCastRay = false;
+        public bool castable = false;
 
         void Start() {
-            Debug.Assert(this.shell && this.screen && this.screenRect);
+            Debug.Assert(this.shell && this.screen);
             Debug.Assert(this.appPanel);
             this.screenCanvas.renderMode = RenderMode.ScreenSpaceCamera;
 
@@ -36,10 +33,10 @@ namespace ConnectApp.Reality {
 
         void SetScreenSize(float width, float height) {
             // Debug.Log($"SetScreenSize ({width}, {height})");
-            
+
             var widthRatio = width / this.defaultScreenSize.x;
             var heightRatio = height / this.defaultScreenSize.y;
-            
+
             // Debug.Log($"W&H Ratio: ({widthRatio}, {heightRatio})");
 
             var shellScale = this.shell.transform.localScale;
@@ -50,7 +47,7 @@ namespace ConnectApp.Reality {
                 shellScale.x *= widthRatio / heightRatio;
                 shellScale.y *= widthRatio / heightRatio;
             }
-            
+
             this.shell.transform.localScale = shellScale;
 
             var inHandLocalPosition = this.inHand.localPosition;
@@ -72,7 +69,7 @@ namespace ConnectApp.Reality {
             if (!this.m_IsMoving) {
                 if (!this.m_TowardOnTable) {
                     this.m_Timer = this.m_LerpDuration;
-                    this.m_EnableToCastRay = false;
+                    this.castable = false;
                     this.appPanel.raycastTarget = true;
                 }
                 else {
@@ -91,38 +88,11 @@ namespace ConnectApp.Reality {
         }
 
         void Update() {
-            if (this.m_EnableToCastRay) {
-                if (Input.touchCount > 0) {
-                    // Debug.Log("Touch");
-                    var touch = Input.GetTouch(0);
-                    Ray mouseDownCheckRay = Camera.main.ScreenPointToRay(touch.position);
-                    RaycastHit hitInfo;
-
-                    if (Physics.Raycast(mouseDownCheckRay, out hitInfo, Mathf.Infinity)) {
-                        // Debug.Log(hitInfo.transform.name);
-                        if (hitInfo.transform.name == "Phone") {
-                            RealityManager.TriggerSwitch();
-                        }
-                    }
-                }
-
-                if (Input.GetMouseButtonDown(0)) {
-                    // Debug.Log("Mouse Down");
-                    Ray mouseDownCheckRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-                    RaycastHit hitInfo;
-
-                    if (Physics.Raycast(mouseDownCheckRay, out hitInfo, Mathf.Infinity)) {
-                        // Debug.Log(hitInfo.transform.name);
-                        if (hitInfo.transform.name == "Phone") {
-                            RealityManager.TriggerSwitch();
-                        }
-                    }
-                }
-            }
-
+#if UNITY_EDITOR
             if (Input.GetKeyDown(KeyCode.Tab)) {
                 this.TriggerSwitch();
             }
+#endif
 
             if (this.m_IsMoving) {
                 if (this.m_TowardOnTable) {
@@ -133,7 +103,7 @@ namespace ConnectApp.Reality {
 
                         this.transform.position = this.onTable.position;
                         this.transform.rotation = this.onTable.rotation;
-                        this.m_EnableToCastRay = true;
+                        this.castable = true;
                     }
                     else {
                         this.transform.position =
