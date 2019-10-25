@@ -3079,6 +3079,34 @@ namespace ConnectApp.redux.reducers {
                     state.channelState.mentionLoading = false;
                     break;
                 }
+
+                case ChannelUpdateMentionQueryAction action: {
+                    state.channelState.lastMentionQuery = action.mentionQuery;
+                    break;
+                }
+
+                case ChannelClearMentionQueryAction _: {
+                    state.channelState.lastMentionQuery = null;
+                    break;
+                }
+
+                case StartSearchChannelMentionSuggestionAction _: {
+                    state.channelState.mentionSearching = true;
+                    state.channelState.lastMentionQuery = null;
+                    break;
+                }
+
+                case FetchChannelMentionQueryFailureAction _: {
+                    state.channelState.queryMentions = null;
+                    state.channelState.mentionSearching = false;
+                    break;
+                }
+
+                case FetchChannelMentionQuerySuccessAction action: {
+                    state.channelState.queryMentions = action.members;
+                    state.channelState.mentionSearching = false;
+                    break;
+                }
             }
 
             return state;
