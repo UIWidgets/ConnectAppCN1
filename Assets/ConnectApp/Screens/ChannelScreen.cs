@@ -829,7 +829,7 @@ namespace ConnectApp.screens {
                     onClickUrl: url => this.widget.actionModel.openUrl(message.embeds[0].embedData.url)).ToList()));
             }
 
-            return this._buildMessageContent(message);
+            return this._buildTextMessageContent(message);
         }
 
         Widget _buildEmbeddedRect(EmbedData embedData) {
