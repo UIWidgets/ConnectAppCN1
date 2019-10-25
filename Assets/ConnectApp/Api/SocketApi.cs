@@ -8,7 +8,6 @@ using UnityEngine;
 
 namespace ConnectApp.Api {
     public static class SocketApi {
-
         const bool DebugSocketApi = true;
 
         static string m_lastSessionId;
@@ -18,11 +17,9 @@ namespace ConnectApp.Api {
         }
 
         static string sessionId {
-            get {
-                return HttpManager.getCookie().isNotEmpty() ? HttpManager.getCookie("LS") : "";
-            }
+            get { return HttpManager.getCookie().isNotEmpty() ? HttpManager.getCookie("LS") : ""; }
         }
-        
+
         public static void OnCookieChanged() {
             var newSessionId = sessionId;
             if (m_lastSessionId == newSessionId) {
@@ -30,7 +27,7 @@ namespace ConnectApp.Api {
             }
 
             m_lastSessionId = newSessionId;
-            
+
             //Logout
             if (m_lastSessionId == "") {
                 DisConnectFromWSS();
@@ -42,11 +39,12 @@ namespace ConnectApp.Api {
         }
 
         public static void OnNetworkConnected() {
+            NetworkStatusManager.isAvailable = true;
             //init session id by default
             if (m_lastSessionId == null) {
                 m_lastSessionId = sessionId;
             }
-            
+
             //Logout
             if (m_lastSessionId == "") {
                 DisConnectFromWSS();
@@ -58,6 +56,7 @@ namespace ConnectApp.Api {
         }
 
         public static void OnNetworkDisconnected() {
+            NetworkStatusManager.isAvailable = false;
             DisConnectFromWSS();
         }
 
@@ -68,7 +67,7 @@ namespace ConnectApp.Api {
 
         static void ReConnectToWSS(string sessionId) {
             DisConnectFromWSS();
-            
+
             try {
                 DoConnectToWSS(sessionId);
             }
@@ -83,18 +82,18 @@ namespace ConnectApp.Api {
             //Ready-state check
             if (DebugSocketApi) {
                 Debug.Assert(SocketGateway.instance != null, "fatal error: socket gateway is null, cannot connect !");
-                Debug.Assert(SocketGateway.instance.readyForConnect, "fatal error: socket gateway is not ready for connection !");
+                Debug.Assert(SocketGateway.instance.readyForConnect,
+                    "fatal error: socket gateway is not ready for connection !");
             }
+
             if (SocketGateway.instance == null || !SocketGateway.instance.readyForConnect) {
                 return;
             }
 
             SocketGateway.instance.Connect(
-                onIdentify: 
-                commitId => {
-                    SocketGateway.instance.Identify(sessionId, commitId);
-                },
-                onMessage: 
+                onIdentify:
+                commitId => { SocketGateway.instance.Identify(sessionId, commitId); },
+                onMessage:
                 (type, data) => {
                     switch (type) {
                         case DispatchMsgType.INVALID_LS:
@@ -157,28 +156,28 @@ namespace ConnectApp.Api {
                             break;
                         case DispatchMsgType.CHANNEL_CREATE:
                             var createChannelData = (SocketResponseUpdateChannelData) data;
-                            
+
                             StoreProvider.store.dispatcher.dispatch(new PushChannelCreateChannelAction {
                                 channelData = createChannelData
                             });
                             break;
                         case DispatchMsgType.CHANNEL_DELETE:
                             var deleteChannelData = (SocketResponseUpdateChannelData) data;
-                            
+
                             StoreProvider.store.dispatcher.dispatch(new PushChannelDeleteChannelAction {
                                 channelData = deleteChannelData
                             });
                             break;
                         case DispatchMsgType.CHANNEL_UPDATE:
                             var updateChannelData = (SocketResponseUpdateChannelData) data;
-                            
+
                             StoreProvider.store.dispatcher.dispatch(new PushChannelUpdateChannelAction {
                                 channelData = updateChannelData
                             });
                             break;
                         case DispatchMsgType.MESSAGE_ACK:
                             var messageAckData = (SocketResponseMessageAckData) data;
-                            
+
                             StoreProvider.store.dispatcher.dispatch(new PushChannelMessageAckAction {
                                 ackData = messageAckData
                             });

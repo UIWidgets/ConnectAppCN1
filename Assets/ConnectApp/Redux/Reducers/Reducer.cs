@@ -5,8 +5,8 @@ using ConnectApp.Components;
 using ConnectApp.Main;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
-using ConnectApp.Reality;
 using ConnectApp.redux.actions;
+using ConnectApp.Reality;
 using ConnectApp.screens;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
@@ -2814,7 +2814,7 @@ namespace ConnectApp.redux.reducers {
 
                 case PushNewMessageAction action: {
                     var message = action.messageData;
-                    if (!state.channelState.joinedChannels.Contains(item: message.channelId) 
+                    if (!state.channelState.joinedChannels.Contains(item: message.channelId)
                         || !state.channelState.channelDict.ContainsKey(key: message.channelId)) {
                         break;
                     }
@@ -3026,6 +3026,11 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case NetWorkStateAction action: {
+                    state.channelState.netWorkConnected = action.available;
+                    break;
+                }
+
                 case SwitchTabBarIndexAction action: {
                     state.tabBarState.currentTabIndex = action.index;
 
@@ -3077,6 +3082,34 @@ namespace ConnectApp.redux.reducers {
 
                 case FetchChannelMentionSuggestionsFailureAction _: {
                     state.channelState.mentionLoading = false;
+                    break;
+                }
+
+                case ChannelUpdateMentionQueryAction action: {
+                    state.channelState.lastMentionQuery = action.mentionQuery;
+                    break;
+                }
+
+                case ChannelClearMentionQueryAction _: {
+                    state.channelState.lastMentionQuery = null;
+                    break;
+                }
+
+                case StartSearchChannelMentionSuggestionAction _: {
+                    state.channelState.mentionSearching = true;
+                    state.channelState.lastMentionQuery = null;
+                    break;
+                }
+
+                case FetchChannelMentionQueryFailureAction _: {
+                    state.channelState.queryMentions = null;
+                    state.channelState.mentionSearching = false;
+                    break;
+                }
+
+                case FetchChannelMentionQuerySuccessAction action: {
+                    state.channelState.queryMentions = action.members;
+                    state.channelState.mentionSearching = false;
                     break;
                 }
             }
