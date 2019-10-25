@@ -183,12 +183,12 @@ namespace ConnectApp.redux.actions {
                                 : loadMessagesFromDB(channelId, before.hexToLong()));
                         }
                         catch (Exception e) {
-                            Debug.LogError(e);
+                            Debug.LogWarning(e);
                         }
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new FetchChannelMessagesFailureAction());
-                        Debug.LogError(error);
+                        Debug.LogWarning(error);
                         dispatcher.dispatch(loadMessagesFromDB(channelId, before.hexToLong()));
                     });
             });
