@@ -136,6 +136,7 @@ namespace ConnectApp.Models.State {
                                      channel.lastMessageId != null
                         ? 1
                         : 0;
+                    channel.lastReadMessageId = readState.lastMessageId;
                     channel.atMe = channel.mentioned > 0 && channel.unread > 0;
                 }
             });

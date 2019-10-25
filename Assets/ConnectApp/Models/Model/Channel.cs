@@ -134,6 +134,7 @@ namespace ConnectApp.Models.Model {
         public List<string> localMessageIds;
         public int unread = 0;
         public int mentioned = 0;
+        public string lastReadMessageId = null;
         public bool isTop = false;
         public bool joined = false;
         public bool joinLoading = false;
@@ -269,6 +270,7 @@ namespace ConnectApp.Models.Model {
         public void clearUnread() {
             this.unread = 0;
             this.mentioned = 0;
+            this.lastReadMessageId = null;
             this.atAll = false;
             this.atMe = false;
         }

@@ -259,6 +259,7 @@ namespace ConnectApp.screens {
         bool _showEmojiBoard;
         string _lastMessageEditingContent = "";
         readonly Dictionary<string, string> mentionMap = new Dictionary<string, string>();
+        string _lastReadMessageId = null;
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
@@ -308,6 +309,7 @@ namespace ConnectApp.screens {
 
             this._showEmojiBoard = false;
             this._textController.addListener(this._onTextChanged);
+            this._lastReadMessageId = this.widget.viewModel.channel.lastReadMessageId;
         }
 
         void fetchMessagesAndMembers() {
