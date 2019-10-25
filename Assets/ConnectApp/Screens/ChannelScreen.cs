@@ -250,6 +250,7 @@ namespace ConnectApp.screens {
         readonly GlobalKey _smartRefresherKey = GlobalKey<State<SmartRefresher>>.key("SmartRefresher");
         readonly FocusNode _focusNode = new FocusNode();
         readonly GlobalKey _focusNodeKey = GlobalKey.key("_channelFocusNodeKey");
+        readonly TimeSpan _showTimeThreshold = TimeSpan.FromMinutes(5);
 
         readonly Dictionary<string, string> _headers = new Dictionary<string, string> {
             {HttpManager.COOKIE, HttpManager.getCookie()},
@@ -295,6 +296,7 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
+            this._lastReadMessageId = this.widget.viewModel.channel.lastReadMessageId;
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 if (this.widget.viewModel.hasChannel) {
                     this.fetchMessagesAndMembers();
@@ -306,15 +308,21 @@ namespace ConnectApp.screens {
                         this.addScrollListener();
                     });
                 }
+
+                this.widget.actionModel.clearUnread();
             });
 
             this._showEmojiBoard = false;
             this._textController.addListener(this._onTextChanged);
-            this._lastReadMessageId = this.widget.viewModel.channel.lastReadMessageId;
         }
 
         void fetchMessagesAndMembers() {
-            this.widget.actionModel.fetchMessages(null, null);
+            this.widget.actionModel.fetchMessages(null, null)
+                .Then(() => {
+                    if (this._lastReadMessageId != null) {
+                        this.jumpToMessage(this._lastReadMessageId);
+                    }
+                });
             this.widget.actionModel.fetchMembers();
             this.widget.actionModel.fetchMember();
             this.widget.actionModel.reportHitBottom();
@@ -322,6 +330,26 @@ namespace ConnectApp.screens {
 
         void addScrollListener() {
             this._refreshController.scrollController.addListener(this._handleScrollListener);
+        }
+
+        void jumpToMessage(string id) {
+            var index = this.widget.viewModel.messages.FindIndex(message => message.id.hexToLong() > id.hexToLong());
+            if (index >= 0) {
+                this.jumpToIndex(index);
+            }
+        }
+
+        void jumpToIndex(int index) {
+            float height = 0;
+            for (int i = index; i < this.widget.viewModel.messages.Count; i++) {
+                var message = this.widget.viewModel.messages[i];
+                height += calculateMessageHeight(message,
+                    i == 0 || message.time - this.widget.viewModel.messages[i - 1].time > this._showTimeThreshold,
+                    this.messageBubbleWidth);
+            }
+
+            float offset = height - (MediaQuery.of(this.context).size.height - CustomAppBarUtil.appBarHeight);
+            this._refreshController.scrollTo(offset.clamp(0, float.PositiveInfinity));
         }
 
         public override void dispose() {
@@ -585,7 +613,7 @@ namespace ConnectApp.screens {
                     return this._buildMessage(message,
                         showTime: index == 0 ||
                                   (message.time - this.widget.viewModel.messages[index - 1].time) >
-                                  TimeSpan.FromMinutes(5),
+                                  this._showTimeThreshold,
                         left: message.author.id != this.widget.viewModel.me.id
                     );
                 }
@@ -1096,9 +1124,9 @@ namespace ConnectApp.screens {
                             offset += calculateMessageHeight(message,
                                 showTime: i == 0
                                     ? message.time - this.widget.viewModel.messages.last().time >
-                                      TimeSpan.FromMinutes(5)
+                                      this._showTimeThreshold
                                     : message.time - this.widget.viewModel.newMessages[i - 1].time >
-                                      TimeSpan.FromMinutes(5),
+                                      this._showTimeThreshold,
                                 this.messageBubbleWidth);
                         }
 
