@@ -325,6 +325,7 @@ namespace ConnectApp.screens {
         public override void dispose() {
             Router.routeObserve.unsubscribe(this);
             this._textController.removeListener(this._onTextChanged);
+            this._refreshController.scrollController.removeListener(this._handleScrollListener);
             this._textController.dispose();
             SchedulerBinding.instance.addPostFrameCallback(_ => { this.widget.actionModel.clearUnread(); });
             this._focusNode.dispose();
@@ -357,6 +358,20 @@ namespace ConnectApp.screens {
                     new ActionSheetItem("取消", type: ActionType.cancel)
                 }
             ));
+        }
+
+        void _browserImage(string imageUrl) {
+            var imageUrls = new List<string>();
+            this.widget.viewModel.messages.ForEach(msg => {
+                if (msg.type == ChannelMessageType.image) {
+                    imageUrls.Add(CImageUtils.SizeToScreenImageUrl(imageUrl: msg.content));
+                }
+                if (msg.type == ChannelMessageType.embedImage) {
+                    imageUrls.Add(CImageUtils.SizeToScreenImageUrl(imageUrl: msg.embeds[0].embedData.imageUrl));
+                }
+            });
+            var url = CImageUtils.SizeToScreenImageUrl(imageUrl: imageUrl);
+            this.widget.actionModel.browserImage(arg1: url, arg2: imageUrls);
         }
 
         public override Widget build(BuildContext context) {
@@ -401,26 +416,24 @@ namespace ConnectApp.screens {
                 }
             );
 
-            ret = new Column(
-                children: new List<Widget> {
-                    this._buildNavigationBar(),
-                    !this.widget.viewModel.netWorkConnected
-                        ? this._buildNetworkDisconnectedNote()
-                        : new Container(),
-                    new Flexible(child: ret),
-                    this.showEmojiBoard
-                        ? this._buildEmojiBoard()
-                        : new Container(height: MediaQuery.of(this.context).viewInsets.bottom)
-                }
-            );
-
             return new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(
                     bottom: false,
                     child: new Container(
                         color: CColors.Background,
-                        child: ret
+                        child: new Column(
+                            children: new List<Widget> {
+                                this._buildNavigationBar(),
+                                !this.widget.viewModel.netWorkConnected
+                                    ? this._buildNetworkDisconnectedNote()
+                                    : new Container(),
+                                new Flexible(child: ret),
+                                this.showEmojiBoard
+                                    ? this._buildEmojiBoard()
+                                    : new Container(height: MediaQuery.of(this.context).viewInsets.bottom)
+                            }
+                        )
                     )
                 )
             );
@@ -633,7 +646,7 @@ namespace ConnectApp.screens {
                     maxWidth: this.messageBubbleWidth
                 ),
                 decoration: this._messageDecoration(message.type, left),
-                child: this._buildMessageContent(message)
+                child: this._buildMessageContent(message: message)
             );
 
             if (message.status != "normal") {
@@ -782,14 +795,7 @@ namespace ConnectApp.screens {
 
         Widget _buildImageMessageContent(ChannelMessageView message) {
             return new GestureDetector(
-                onTap: () => {
-                    var imageUrls = this.widget.viewModel.messages
-                        .Where(msg => msg.type == ChannelMessageType.image)
-                        .Select(msg => CImageUtils.SizeToScreenImageUrl(msg.content))
-                        .ToList();
-                    var url = CImageUtils.SizeToScreenImageUrl(message.content);
-                    this.widget.actionModel.browserImage(url, imageUrls);
-                },
+                onTap: () => this._browserImage(imageUrl: message.content),
                 child: new ImageMessage(
                     url: message.content,
                     size: 140,
@@ -797,132 +803,6 @@ namespace ConnectApp.screens {
                     srcWidth: message.width,
                     srcHeight: message.height,
                     headers: this._headers
-                )
-            );
-        }
-
-        Widget _buildEmbedContent(ChannelMessageView message) {
-            if (message.embeds.isNullOrEmpty()) {
-                return new Container();
-            }
-
-            string embedDataUrl;
-            if (message.type == ChannelMessageType.embedImage) {
-                embedDataUrl = message.embeds[0].embedData.imageUrl;
-            } else if (message.type == ChannelMessageType.embedExternal) {
-                embedDataUrl = message.embeds[0].embedData.url;
-            }
-            else {
-                embedDataUrl = "";
-            }
-
-            if (embedDataUrl.isEmpty()) {
-                return new Container();
-            }
-
-            if (message.content.Contains(value: embedDataUrl)) {
-                return new RichText(text: new TextSpan(children: MessageUtils.messageWithMarkdownToTextSpans(
-                    message.content, message.mentions, message.mentionEveryone,
-                    onTap: userId => this.widget.actionModel.pushToUserDetail(obj: userId),
-                    url: message.embeds[0].embedData.url,
-                    onClickUrl: url => this.widget.actionModel.openUrl(message.embeds[0].embedData.url)).ToList()));
-            }
-
-            return this._buildMessageContent(message);
-        }
-
-        Widget _buildEmbeddedRect(EmbedData embedData) {
-            return new Container(
-                padding: EdgeInsets.all(12),
-                color: CColors.White,
-                child: new Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: new List<Widget> {
-                        this._buildEmbeddedTitle(embedData.title),
-                        new Container(height: 4),
-                        this._buildEmbeddedDescription(embedData.description),
-                        this._buildEmbeddedName(embedData.image,
-                            embedData.name)
-                    }
-                )
-            );
-        }
-
-        Widget _buildEmbeddedTitle(string title) {
-            if (title.isEmpty()) {
-                return new Container();
-            }
-
-            return new Text(data: title, style: CTextStyle.PLargeMediumBlue);
-        }
-
-        Widget _buildEmbeddedDescription(string description) {
-            return description.isEmpty()
-                ? new Container()
-                : new Container(
-                    padding: EdgeInsets.only(bottom: 4),
-                    child: new Text(description ?? "",
-                        style: CTextStyle.PRegularBody3, maxLines: 4,
-                        overflow: TextOverflow.ellipsis));
-        }
-
-        Widget _buildEmbeddedName(string image, string name) {
-            if (image.isEmpty() && name.isEmpty()) {
-                return new Container();
-            }
-
-            return new Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: new List<Widget> {
-                    image == null
-                        ? (Widget) new Container(width: 14, height: 14)
-                        : CachedNetworkImageProvider.cachedNetworkImage(
-                            image ?? "",
-                            width: 14, height: 14, fit: BoxFit.cover),
-                    new Container(width: 4),
-                    new Expanded(
-                        child: new Text(name ?? "",
-                            style: CTextStyle.PMediumBody,
-                            overflow: TextOverflow.ellipsis)
-                    )
-                }
-            );
-        }
-
-        Widget _buildEmbedMessageContent(ChannelMessageView message) {
-            return new Container(
-                padding: EdgeInsets.all(12),
-                child: new Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: new List<Widget> {
-                        this._buildEmbedContent(message),
-                        new Container(height: 12),
-                        new GestureDetector(
-                            child: this._buildEmbeddedRect(message.embeds[0].embedData),
-                            onTap: () => this.widget.actionModel.openUrl(message.embeds[0].embedData.url)
-                        )
-                    }
-                )
-            );
-        }
-
-        Widget _buildEmbedImageMessageContent(ChannelMessageView message) {
-            return new Container(
-                padding: EdgeInsets.all(12),
-                child: new Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: new List<Widget> {
-                        this._buildEmbedContent(message),
-                        new Container(height: 12),
-                        new ImageMessage(
-                            url: message.embeds[0].embedData.imageUrl,
-                            size: 140,
-                            ratio: 16.0f / 9.0f,
-                            srcWidth: message.width,
-                            srcHeight: message.height,
-                            headers: this._headers
-                        )
-                    }
                 )
             );
         }
@@ -937,11 +817,19 @@ namespace ConnectApp.screens {
                 case ChannelMessageType.image:
                     return this._buildImageMessageContent(message);
                 case ChannelMessageType.file:
-                    return new FileMessage();
+                    return new FileMessage(
+                        message: message,
+                        () => this.widget.actionModel.openUrl(obj: message.attachments.first().url)
+                    );
                 case ChannelMessageType.embedExternal:
-                    return this._buildEmbedMessageContent(message);
                 case ChannelMessageType.embedImage:
-                    return this._buildEmbedImageMessageContent(message);
+                    return new EmbedMessage(
+                        message: message,
+                        userId => this.widget.actionModel.pushToUserDetail(obj: userId),
+                        url => this.widget.actionModel.openUrl(obj: url),
+                        onClickImage: this._browserImage,
+                        headers: this._headers
+                    );
                 case ChannelMessageType.skip:
                     return new Container();
                 default:
@@ -1220,21 +1108,11 @@ namespace ConnectApp.screens {
                     height += ImageMessage.CalculateTextHeight(message: message);
                     break;
                 case ChannelMessageType.file:
-                    height += FileMessage.CalculateTextHeight(width: width);
+                    height += FileMessage.CalculateTextHeight(message: message, width: width);
                     break;
                 case ChannelMessageType.embedExternal:
-                    height += 24 + CTextUtils.CalculateTextHeight(
-                                  message.content,
-                                  CTextStyle.PLargeBody,
-                                  width - 24) + 24 +
-                              CTextUtils.CalculateTextHeight(
-                                  message.embeds[0].embedData.title,
-                                  CTextStyle.PLargeMediumBlue,
-                                  width - 48) + 4 +
-                              CTextUtils.CalculateTextHeight(
-                                  message.embeds[0].embedData.description,
-                                  CTextStyle.PRegularBody3,
-                                  width - 48, maxLines: 4) + 4 + 22 + 12;
+                case ChannelMessageType.embedImage:
+                    height += EmbedMessage.CalculateTextHeight(message: message, width: width);
                     break;
             }
 

@@ -70,6 +70,7 @@ namespace ConnectApp.Constants {
         public static readonly IconData camera_alt = new IconData(0xe3b0, "Material Icons");
         public static readonly IconData add = new IconData(0xe145, "Material Icons");
         public static readonly IconData edit = new IconData(0xe3c9, "Material Icons");
+        public static readonly IconData insert_drive_file = new IconData(0xe24d, "Material Icons");
     }
 
     public static class CTextStyle {
@@ -226,6 +227,13 @@ namespace ConnectApp.Constants {
             fontSize: 16,
             fontFamily: "Roboto-Regular",
             color: CColors.Error
+        );
+
+        public static readonly TextStyle PLargeBlack = new TextStyle(
+            height: 1.33f,
+            fontSize: 16,
+            fontFamily: "Roboto-Regular",
+            color: CColors.Black
         );
 
         public static readonly TextStyle PLargeBody = new TextStyle(
