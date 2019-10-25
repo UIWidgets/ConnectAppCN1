@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace ConnectApp.Reality {
@@ -9,8 +8,12 @@ namespace ConnectApp.Reality {
         public Phone phone;
         public RealityViewer viewer;
 
+        public bool useGyro = false;
+
         public bool enterReality = false;
         public List<GameObject> sceneObjects = new List<GameObject>();
+
+        public MiniGameManager miniGame;
 
         void Awake() {
             if (instance == null || instance != this) {
@@ -19,6 +22,7 @@ namespace ConnectApp.Reality {
 
             Debug.Assert(this.phone);
             Debug.Assert(this.viewer);
+            Debug.Assert(this.miniGame);
         }
 
         void Start() {
@@ -27,9 +31,8 @@ namespace ConnectApp.Reality {
 
         public static void TriggerSwitch() {
             if (instance) {
-                
-
                 instance.phone.TriggerSwitch();
+                instance.miniGame.InitGame();
             }
         }
 
