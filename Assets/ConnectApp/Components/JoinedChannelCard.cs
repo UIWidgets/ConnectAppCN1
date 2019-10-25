@@ -54,7 +54,7 @@ namespace ConnectApp.Components {
 
             Widget message = new RichText(
                 text: new TextSpan(
-                    this.channel.atMe || this.channel.atAll
+                    (this.channel.atMe || this.channel.atAll) && this.channel.unread > 0
                         ? "[有人@我] "
                         : "",
                     style: CTextStyle.PRegularError,

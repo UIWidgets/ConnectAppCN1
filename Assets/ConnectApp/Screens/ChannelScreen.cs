@@ -14,6 +14,7 @@ using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
@@ -22,6 +23,7 @@ using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using Config = ConnectApp.Constants.Config;
+using Icons = ConnectApp.Constants.Icons;
 using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.screens {
@@ -262,6 +264,7 @@ namespace ConnectApp.screens {
         string _lastMessageEditingContent = "";
         readonly Dictionary<string, string> mentionMap = new Dictionary<string, string>();
         string _lastReadMessageId = null;
+        bool _showUnreadMessageNotification = true;
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
@@ -297,6 +300,7 @@ namespace ConnectApp.screens {
         public override void initState() {
             base.initState();
             this._lastReadMessageId = this.widget.viewModel.channel.lastReadMessageId;
+            this._showUnreadMessageNotification = this._lastReadMessageId != null;
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 if (this.widget.viewModel.hasChannel) {
                     this.fetchMessagesAndMembers();
@@ -318,18 +322,15 @@ namespace ConnectApp.screens {
 
         void fetchMessagesAndMembers() {
             if (this.widget.viewModel.messages.isNotEmpty() || this.widget.viewModel.newMessages.isNotEmpty()) {
-                this.widget.actionModel.fetchMessages(null, null);
                 SchedulerBinding.instance.addPostFrameCallback(_ => {
                     this.jumpToLastReadMessage();
                 });
             }
-            else {
-                this.widget.actionModel.fetchMessages(null, null).Then(() => {
-                    SchedulerBinding.instance.addPostFrameCallback(_ => {
-                        this.jumpToLastReadMessage();
-                    });
+            this.widget.actionModel.fetchMessages(null, null).Then(() => {
+                SchedulerBinding.instance.addPostFrameCallback(_ => {
+                    this.jumpToLastReadMessage();
                 });
-            }
+            });
 
             this.widget.actionModel.fetchMembers();
             this.widget.actionModel.fetchMember();
@@ -408,6 +409,10 @@ namespace ConnectApp.screens {
                 return this._buildLoadingPage();
             }
 
+            if (this.widget.viewModel.channel.lastMessageId == this._lastReadMessageId) {
+                this._lastReadMessageId = null;
+            }
+
             if (this.widget.viewModel.mentionAutoFocus) {
                 SchedulerBinding.instance.addPostFrameCallback(_ => {
                     FocusScope.of(this.context)?.requestFocus(this._focusNode);
@@ -441,7 +446,10 @@ namespace ConnectApp.screens {
                     this.widget.viewModel.newMessageCount == 0 ||
                     this.widget.viewModel.messageLoading
                         ? new Container()
-                        : this._buildNewMessageNotification()
+                        : this._buildNewMessageNotification(),
+                    this._lastReadMessageId == null || !this._showUnreadMessageNotification
+                        ? new Container()
+                        : this._buildUnreadMessageNotification()
                 }
             );
 
@@ -520,9 +528,75 @@ namespace ConnectApp.screens {
                     child: new GestureDetector(
                         onTap: () => {
                             this.widget.actionModel.reportHitBottom();
+                            if (this.lastReadMessageLoaded()) {
+                                this._showUnreadMessageNotification = false;
+                            }
                             SchedulerBinding.instance.addPostFrameCallback(_ => {
                                 this._refreshController.scrollTo(0);
                             });
+                        },
+                        child: ret
+                    )
+                )
+            );
+
+            return ret;
+        }
+
+        bool lastReadMessageLoaded() {
+            return this.widget.viewModel.messages.isNotEmpty() &&
+                   this.widget.viewModel.messages.first().id.hexToLong() <= this._lastReadMessageId.hexToLong();
+        }
+
+        bool _scrollToLastReadMessageAfterRefresh = false;
+        Widget _buildUnreadMessageNotification() {
+            var index = this.widget.viewModel.messages.FindIndex(message => {
+                return message.id.hexToLong() > this._lastReadMessageId.hexToLong();
+            });
+            if (index < 0) {
+                return new Container();
+            }
+
+            var firstUnreadMessage = this.widget.viewModel.messages[index];
+            Widget ret = new Container(
+                height: 40,
+                decoration: new BoxDecoration(
+                    color: CColors.PrimaryBlue,
+                    borderRadius: BorderRadius.all(5),
+                    boxShadow: new List<BoxShadow> {
+                        new BoxShadow(
+                            color: CColors.Black.withOpacity(0.2f),
+                            blurRadius: 8,
+                            spreadRadius: 0,
+                            offset: new Offset(0, 2))
+                    }
+                ),
+                padding: EdgeInsets.symmetric(9, 16),
+                child: new Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: new List<Widget> {
+                        new Text(
+                            $"{firstUnreadMessage.time.DateTimeString()}起{this.widget.viewModel.messages.Count - index}条新消息未读",
+                            style: CTextStyle.PRegularWhite.copyWith(height: 1f)
+                        )
+                    })
+            );
+
+            ret = new Positioned(
+                top: 16,
+                left: 0,
+                right: 0,
+                height: 40,
+                child: new Align(
+                    alignment: Alignment.center,
+                    child: new GestureDetector(
+                        onTap: () => {
+                            if (index == 0 && this.widget.viewModel.channel.hasMore) {
+                                this._refreshController.requestRefresh(false);
+                                this._scrollToLastReadMessageAfterRefresh = true;
+                            }
                         },
                         child: ret
                     )
@@ -749,11 +823,14 @@ namespace ConnectApp.screens {
                 )
             );
 
-            if (showTime) {
+            if (showTime || message.id == this._lastReadMessageId) {
                 ret = new Column(
                     children: new List<Widget> {
-                        this._buildTime(message.time),
-                        ret
+                        showTime ? this._buildTime(message.time) : new Container(),
+                        ret,
+                        message.id == this._lastReadMessageId
+                            ? this._buildUnreadMessageLine()
+                            : new Container()
                     }
                 );
             }
@@ -978,6 +1055,31 @@ namespace ConnectApp.screens {
             );
         }
 
+        Widget _buildUnreadMessageLine() {
+            return new Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: new List<Widget> {
+                    new Expanded(
+                        flex: 1,
+                        child: new Container(
+                            padding: EdgeInsets.symmetric(0, 16),
+                            child: new Divider(height: 2, color: CColors.TextBody3)
+                        )
+                    ),
+                    new Container(
+                        padding: EdgeInsets.symmetric(16),
+                        child: new Text("新消息", style: CTextStyle.PSmallBody3.copyWith(height: 1))
+                    ),
+                    new Expanded(
+                        flex: 1,
+                        child: new Container(
+                            padding: EdgeInsets.symmetric(0, 16),
+                            child: new Divider(height: 2, color: CColors.TextBody3)
+                        )
+                    ),
+                });
+        }
+
         Widget _buildInputBar() {
             var padding = this.showKeyboard || this.showEmojiBoard ? 0 : MediaQuery.of(this.context).padding.bottom;
             var customTextField = new CustomTextField(
@@ -1115,7 +1217,13 @@ namespace ConnectApp.screens {
                     .Then(() => this._refreshController.sendBack(up: up,
                         up ? RefreshStatus.completed : RefreshStatus.idle))
                     .Catch(error => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed)
-                    );
+                    ).Then(() => {
+                        if (this._scrollToLastReadMessageAfterRefresh) {
+                            SchedulerBinding.instance.addPostFrameCallback(_ => {
+                                this.jumpToLastReadMessage();
+                            });
+                        }
+                    });
             }
         }
 
@@ -1149,6 +1257,9 @@ namespace ConnectApp.screens {
                     }
 
                     this.widget.actionModel.reportHitBottom();
+                    if (this.lastReadMessageLoaded()) {
+                        this._showUnreadMessageNotification = false;
+                    }
                 }
             }
             else if (this._refreshController.offset > bottomThreshold) {

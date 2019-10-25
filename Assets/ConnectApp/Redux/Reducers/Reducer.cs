@@ -2592,6 +2592,7 @@ namespace ConnectApp.redux.reducers {
                     if (channel.atBottom) {
                         channel.clearUnread();
                     }
+                    state.channelState.messageLoading = false;
 
                     break;
                 }
