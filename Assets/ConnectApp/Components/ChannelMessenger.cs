@@ -1,14 +1,351 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using ConnectApp.Constants;
+using ConnectApp.Models.Model;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.Components {
+    public class TextMessage : StatelessWidget {
+        public TextMessage(
+            ChannelMessageView message,
+            MentionTapCallback onTap,
+            Key key = null
+        ) : base(key: key) {
+            this.message = message;
+            this.onTap = onTap;
+        }
+
+        readonly ChannelMessageView message;
+        readonly MentionTapCallback onTap;
+
+        static readonly EdgeInsets _contentPadding = EdgeInsets.symmetric(8, 12);
+        static readonly TextStyle _contentStyle = CTextStyle.PLargeBlack;
+
+        public static float CalculateTextHeight(string content, float width) {
+            var contentHeight = CTextUtils.CalculateTextHeight(text: content, textStyle: _contentStyle,
+                width - _contentPadding.horizontal);
+            return _contentPadding.vertical + contentHeight;
+        }
+
+        public override Widget build(BuildContext context) {
+            if (this.message == null) {
+                return new Container();
+            }
+
+            if (this.message.content.isEmpty()) {
+                return new Container();
+            }
+
+            return new Container(
+                padding: _contentPadding,
+                child: new RichText(
+                    text: new TextSpan(
+                        children: MessageUtils.messageWithMarkdownToTextSpans(
+                            content: this.message.content,
+                            mentions: this.message.mentions,
+                            mentionEveryone: this.message.mentionEveryone,
+                            onTap: this.onTap,
+                            bodyStyle: _contentStyle
+                        ).ToList()
+                    )
+                )
+            );
+        }
+    }
+
+    public class FileMessage : StatelessWidget {
+        public FileMessage(
+            ChannelMessageView message,
+            GestureTapCallback onTap = null,
+            Key key = null
+        ) : base(key: key) {
+            this.message = message;
+            this.onTap = onTap;
+        }
+
+        readonly ChannelMessageView message;
+        readonly GestureTapCallback onTap;
+
+        static readonly EdgeInsets _filePadding = EdgeInsets.symmetric(12, 16);
+        static readonly TextStyle _fileTitleStyle = CTextStyle.PLargeBlack.copyWith(height: 1);
+        static readonly TextStyle _fileSizeStyle = CTextStyle.PSmallBody4.copyWith(height: 1);
+
+        public override Widget build(BuildContext context) {
+            if (this.message == null) {
+                return new Container();
+            }
+
+            if (this.message.attachments.isNullOrEmpty()) {
+                return new Container();
+            }
+
+            var attachment = this.message.attachments.first();
+            var content = new Container(
+                padding: _filePadding,
+                color: CColors.Transparent,
+                child: new Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: new List<Widget> {
+                        new Expanded(
+                            child: new Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: new List<Widget> {
+                                    new Text(
+                                        data: attachment.filename,
+                                        style: _fileTitleStyle
+                                    ),
+                                    new SizedBox(height: 4),
+                                    new Text(
+                                        CStringUtils.FileSize(bytes: attachment.size),
+                                        style: _fileSizeStyle
+                                    )
+                                }
+                            )
+                        ),
+                        new SizedBox(width: 16),
+                        new Icon(
+                            icon: Icons.insert_drive_file,
+                            size: 40,
+                            color: CColors.Icon
+                        )
+                    }
+                )
+            );
+
+            if (this.onTap != null) {
+                return new GestureDetector(
+                    onTap: this.onTap,
+                    child: content
+                );
+            }
+
+            return content;
+        }
+
+        public static float CalculateTextHeight(ChannelMessageView message, float width) {
+            var attachment = message.attachments.first();
+            var fileTitleHeight = CTextUtils.CalculateTextHeight(text: attachment.filename, textStyle: _fileTitleStyle,
+                width - _filePadding.horizontal - 40 - 16);
+            var fileSizeHeight = CTextUtils.CalculateTextHeight(CStringUtils.FileSize(bytes: attachment.size),
+                textStyle: _fileSizeStyle, width - _filePadding.horizontal - 40 - 16);
+            return _filePadding.vertical + fileTitleHeight + fileSizeHeight + 4;
+        }
+    }
+
+    public class EmbedMessage : StatelessWidget {
+        public EmbedMessage(
+            ChannelMessageView message,
+            MentionTapCallback onClickUser,
+            Action<string> onClickUrl,
+            Action<string> onClickImage,
+            Dictionary<string, string> headers = null,
+            Key key = null
+        ) : base(key: key) {
+            this.message = message;
+            this.onClickUser = onClickUser;
+            this.onClickUrl = onClickUrl;
+            this.onClickImage = onClickImage;
+            this.headers = headers;
+        }
+
+        readonly ChannelMessageView message;
+        readonly MentionTapCallback onClickUser;
+        readonly Action<string> onClickUrl;
+        readonly Action<string> onClickImage;
+        readonly Dictionary<string, string> headers;
+
+        static readonly EdgeInsets _contentPadding = EdgeInsets.all(12);
+        static readonly TextStyle _contentStyle = CTextStyle.PLargeBlack;
+        static readonly TextStyle _embedTitleStyle = CTextStyle.PLargeMediumBlue;
+        static readonly TextStyle _embedDescriptionStyle = CTextStyle.PRegularBody3;
+
+        public override Widget build(BuildContext context) {
+            if (this.message == null) {
+                return new Container();
+            }
+
+            if (this.message.embeds.isNullOrEmpty()) {
+                return new Container();
+            }
+
+            return new Container(
+                padding: _contentPadding,
+                child: new Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: new List<Widget> {
+                        this._buildEmbedContent(),
+                        new Container(height: 12),
+                        this._buildEmbedDescription()
+                    }
+                )
+            );
+        }
+
+        Widget _buildEmbedContent() {
+            var embedData = this.message.embeds[0].embedData;
+
+            string embedDataUrl;
+            if (this.message.type == ChannelMessageType.embedImage) {
+                embedDataUrl = embedData.imageUrl;
+            } else if (this.message.type == ChannelMessageType.embedExternal) {
+                embedDataUrl = embedData.url;
+            }
+            else {
+                embedDataUrl = "";
+            }
+
+            if (embedDataUrl.isEmpty()) {
+                return new Container();
+            }
+
+            return new RichText(
+                text: new TextSpan(
+                    children: MessageUtils.messageWithMarkdownToTextSpans(
+                        content: this.message.content,
+                        mentions: this.message.mentions,
+                        mentionEveryone: this.message.mentionEveryone,
+                        onTap: this.onClickUser,
+                        bodyStyle: _contentStyle,
+                        url: this.message.content.Contains(value: embedDataUrl) ? embedDataUrl : null,
+                        onClickUrl: this.onClickUrl
+                    ).ToList()
+                )
+            );
+        }
+
+        Widget _buildEmbedDescription() {
+            if (this.message.type == ChannelMessageType.embedImage) {
+                return this._buildEmbedImage();
+            }
+
+            if (this.message.type == ChannelMessageType.embedExternal) {
+                return this._buildEmbedExternal();
+            }
+
+            return new Container();
+        }
+
+        Widget _buildEmbedImage() {
+            return new GestureDetector(
+                onTap: () => this.onClickImage(obj: this.message.embeds[0].embedData.imageUrl),
+                child: new ImageMessage(
+                    url: this.message.embeds[0].embedData.imageUrl,
+                    size: 140,
+                    ratio: 16.0f / 9.0f,
+                    srcWidth: this.message.width,
+                    srcHeight: this.message.height,
+                    headers: this.headers
+                )
+            );
+        }
+
+        Widget _buildEmbedExternal() {
+            var embedData = this.message.embeds[0].embedData;
+
+            return new GestureDetector(
+                onTap: () => this.onClickUrl(obj: embedData.url),
+                child: new Container(
+                    padding: EdgeInsets.all(12),
+                    decoration: new BoxDecoration(
+                        color: CColors.White,
+                        borderRadius: BorderRadius.all(4)
+                    ),
+                    child: new Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: new List<Widget> {
+                            embedData.title.isEmpty()
+                                ? new Container()
+                                : new Container(
+                                    padding: EdgeInsets.only(bottom: 4),
+                                    child: new Text(
+                                        data: embedData.title,
+                                        style: _embedTitleStyle
+                                    )
+                                ),
+                            embedData.description.isEmpty()
+                                ? new Container()
+                                : new Container(
+                                    padding: EdgeInsets.only(bottom: 4),
+                                    child: new Text(
+                                        data: embedData.description,
+                                        style: _embedDescriptionStyle,
+                                        maxLines: 4,
+                                        overflow: TextOverflow.ellipsis
+                                    )
+                                ),
+                            _buildEmbeddedName(image: embedData.image, name: embedData.name)
+                        }
+                    )
+                )
+            );
+        }
+
+        static Widget _buildEmbeddedName(string image, string name) {
+            if (image.isEmpty() && name.isEmpty()) {
+                return new Container();
+            }
+
+            return new Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: new List<Widget> {
+                    image == null
+                        ? (Widget) new Container(width: 14, height: 14)
+                        : CachedNetworkImageProvider.cachedNetworkImage(
+                            src: image,
+                            width: 14, height: 14, fit: BoxFit.cover
+                        ),
+                    new Container(width: 4),
+                    new Expanded(
+                        child: new Text(
+                            name ?? "",
+                            style: CTextStyle.PMediumBody.copyWith(height: 1),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis
+                        )
+                    )
+                }
+            );
+        }
+
+        public static float CalculateTextHeight(ChannelMessageView message, float width) {
+            var contentHeight = CTextUtils.CalculateTextHeight(text: message.content, textStyle: _contentStyle,
+                width - _contentPadding.horizontal);
+            float descriptionHeight;
+            if (message.type == ChannelMessageType.embedImage) {
+                descriptionHeight = ImageMessage.CalculateTextHeight(message: message);
+            }
+            else if (message.type == ChannelMessageType.embedExternal) {
+                var embedData = message.embeds[0].embedData;
+                var embedDataTitleHeight = CTextUtils.CalculateTextHeight(text: embedData.title,
+                    textStyle: _embedTitleStyle, width - 48);
+                var embedDescriptionHeight = CTextUtils.CalculateTextHeight(text: embedData.description,
+                    textStyle: _embedDescriptionStyle, width - 48, 4);
+                float embedNameHeight;
+                if (embedData.image.isEmpty() && embedData.name.isEmpty()) {
+                    embedNameHeight = 0;
+                }
+                else {
+                    embedNameHeight = 22;
+                }
+
+                descriptionHeight = embedDataTitleHeight + 4 + embedDescriptionHeight + 4 + embedNameHeight;
+            }
+            else {
+                descriptionHeight = 0;
+            }
+
+            return contentHeight + descriptionHeight + _contentPadding.vertical + _contentPadding.vertical;
+        }
+    }
+
     public class ImageMessage : StatefulWidget {
         public ImageMessage(
             string url,
@@ -36,6 +373,16 @@ namespace ConnectApp.Components {
         public readonly float srcWidth;
         public readonly float srcHeight;
         public readonly Dictionary<string, string> headers;
+
+        public static float CalculateTextHeight(ChannelMessageView message) {
+            if (message.width > message.height * 16.0f / 9.0f) {
+                return 140.0f * 9.0f / 16.0f;
+            }
+
+            return message.width > message.height
+                    ? 140.0f * message.height / message.width
+                    : 140.0f;
+        }
 
         public Size srcSize {
             get {
