@@ -220,9 +220,11 @@ namespace ConnectApp.screens {
 
         Widget _buildNavigationBar() {
             return new CustomNavigationBar(
-                this.widget.viewModel.socketConnected
-                    ? new Text("群聊", style: CTextStyle.H2)
-                    : new Text("收取中...", style: CTextStyle.H2Body4),
+                HttpManager.isNetWorkError()
+                    ? new Text("群聊(未连接)", style: CTextStyle.H2)
+                    : this.widget.viewModel.socketConnected
+                        ? new Text("群聊", style: CTextStyle.H2)
+                        : new Text("收取中...", style: CTextStyle.H2Body4),
                 new List<Widget> {
                     new CustomButton(
                         onPressed: () => this.widget.actionModel.pushToNotifications(),

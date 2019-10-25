@@ -460,9 +460,11 @@ namespace ConnectApp.screens {
                         children: new List<Widget> {
                             new Flexible(
                                 child: new Text(
-                                    this.widget.viewModel.socketConnected
-                                        ? this.widget.viewModel.channel.name
-                                        : "收取中...",
+                                    HttpManager.isNetWorkError()
+                                        ? "群聊(未连接)"
+                                        : this.widget.viewModel.socketConnected
+                                            ? this.widget.viewModel.channel.name
+                                            : "收取中...",
                                     style: CTextStyle.PXLargeMedium,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis
