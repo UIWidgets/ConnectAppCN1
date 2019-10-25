@@ -32,8 +32,8 @@ namespace ConnectApp.Utils {
         static bool _isConnected = true;
         static bool _isConnectedInState = true;
 
-        static bool _isAvailable = true;
-        static bool _isAvailableInState = true;
+        static bool _isAvailable;
+        static bool _isAvailableInState;
 
         static void _update() {
             if (_isConnectedInState != _isConnected) {
