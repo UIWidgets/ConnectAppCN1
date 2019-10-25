@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ConnectApp.Models.Api;
 using ConnectApp.Models.Model;
+using ConnectApp.Utils;
 
 namespace ConnectApp.Models.State {
     public class ChannelState {
@@ -136,8 +137,9 @@ namespace ConnectApp.Models.State {
                 var channelId = readState.channelId;
                 if (this.channelDict.TryGetValue(key: channelId, out var channel)) {
                     channel.mentioned = readState.mentionCount;
-                    channel.unread = readState.lastMessageId != channel.lastMessageId &&
-                                     channel.lastMessageId != null
+                    channel.unread = channel.lastMessageId != null && readState.lastMessageId != null &&
+                                     readState.lastMessageId.hexToLong() < channel.lastMessageId.hexToLong()
+                                     
                         ? 1
                         : 0;
                     channel.lastReadMessageId = readState.lastMessageId;
