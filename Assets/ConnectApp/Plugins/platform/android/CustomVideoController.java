@@ -56,6 +56,8 @@ public class CustomVideoController extends StandardVideoController {
         }else if(i == com.dueeeke.videocontroller.R.id.back){
             if (!mMediaPlayer.isFullScreen()){
                 UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("player", "PopPage", null);
+            }else{
+                startStopFullScreen();
             }
         }else if(i == com.dueeeke.videocontroller.R.id.share){
             UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("player", "Share", null);
@@ -84,11 +86,11 @@ public class CustomVideoController extends StandardVideoController {
         if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
             //如果屏幕当前是横屏显示，则设置屏幕锁死为竖屏显示
             mMediaPlayer.stopFullScreen();
-            activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("player", "Portrait", null);
         } else if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
             //如果屏幕当前是竖屏显示，则设置屏幕锁死为横屏显示
+            UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("player", "LandscapeLeft", null);
             mMediaPlayer.startFullScreen();
-            activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         }
     }
 

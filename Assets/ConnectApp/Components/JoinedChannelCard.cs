@@ -54,9 +54,9 @@ namespace ConnectApp.Components {
 
             Widget message = new RichText(
                 text: new TextSpan(
-                    this.channel.atMe
+                    this.channel.atMe || this.channel.atAll
                         ? "[有人@我] "
-                        : this.channel.atAll ? "[@所有人] " : "",
+                        : "",
                     style: CTextStyle.PRegularError,
                     children: MessageUtils.messageWithMarkdownToTextSpans(
                         content: text,
@@ -102,11 +102,7 @@ namespace ConnectApp.Components {
 
             Widget icon = new Align(
                 alignment: Alignment.centerRight,
-                child: this.channel.isMute
-                    ? (Widget) new Icon(
-                        icon: Icons.notifications_off,
-                        size: 16, color: CColors.MuteIcon)
-                    : new NotificationDot(
+                child: new NotificationDot(
                         this.channel.unread > 0
                             ? this.channel.mentioned > 0 ? $"{this.channel.mentioned}" : ""
                             : null

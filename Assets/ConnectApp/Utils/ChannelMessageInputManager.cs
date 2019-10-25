@@ -21,6 +21,10 @@ namespace ConnectApp.Utils {
                     return "";
                 }
 
+                if (m.Value == "@所有人") {
+                    return "@everyone";
+                }
+
                 if (replacements.ContainsKey(m.Value.Substring(1))) {
                     return "<@" + replacements[m.Value.Substring(1)] + ">";
                 }
