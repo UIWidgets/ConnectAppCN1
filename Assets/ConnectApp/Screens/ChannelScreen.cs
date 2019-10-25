@@ -364,7 +364,14 @@ namespace ConnectApp.screens {
             }
 
             float offset = height - (MediaQuery.of(this.context).size.height - CustomAppBarUtil.appBarHeight - 50);
-            this._refreshController.scrollTo(offset.clamp(0, float.PositiveInfinity));
+            if (offset < 0) {
+                this.setState(() => {
+                    this._showUnreadMessageNotification = false;
+                });
+            }
+            else {
+                this._refreshController.scrollTo(offset);
+            }
         }
 
         public override void dispose() {
