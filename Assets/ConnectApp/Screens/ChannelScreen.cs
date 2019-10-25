@@ -317,12 +317,20 @@ namespace ConnectApp.screens {
         }
 
         void fetchMessagesAndMembers() {
-            this.widget.actionModel.fetchMessages(null, null)
-                .Then(() => {
-                    if (this._lastReadMessageId != null) {
-                        this.jumpToMessage(this._lastReadMessageId);
-                    }
+            if (this.widget.viewModel.messages.isNotEmpty() || this.widget.viewModel.newMessages.isNotEmpty()) {
+                this.widget.actionModel.fetchMessages(null, null);
+                SchedulerBinding.instance.addPostFrameCallback(_ => {
+                    this.jumpToLastReadMessage();
                 });
+            }
+            else {
+                this.widget.actionModel.fetchMessages(null, null).Then(() => {
+                    SchedulerBinding.instance.addPostFrameCallback(_ => {
+                        this.jumpToLastReadMessage();
+                    });
+                });
+            }
+
             this.widget.actionModel.fetchMembers();
             this.widget.actionModel.fetchMember();
             this.widget.actionModel.reportHitBottom();
@@ -330,6 +338,12 @@ namespace ConnectApp.screens {
 
         void addScrollListener() {
             this._refreshController.scrollController.addListener(this._handleScrollListener);
+        }
+
+        void jumpToLastReadMessage() {
+            if (this._lastReadMessageId != null) {
+                this.jumpToMessage(this._lastReadMessageId);
+            }
         }
 
         void jumpToMessage(string id) {
@@ -348,7 +362,7 @@ namespace ConnectApp.screens {
                     this.messageBubbleWidth);
             }
 
-            float offset = height - (MediaQuery.of(this.context).size.height - CustomAppBarUtil.appBarHeight);
+            float offset = height - (MediaQuery.of(this.context).size.height - CustomAppBarUtil.appBarHeight - 50);
             this._refreshController.scrollTo(offset.clamp(0, float.PositiveInfinity));
         }
 

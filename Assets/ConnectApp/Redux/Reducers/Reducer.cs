@@ -2832,12 +2832,16 @@ namespace ConnectApp.redux.reducers {
                             channel.newMessageIds.Add(channelMessage.id);
                         }
 
+                        channel.lastReadMessageId = channel.lastReadMessageId ?? channel.lastMessageId;
                         channel.lastMessageId = channelMessage.id;
                         channel.lastMessage = channelMessage;
                         if (state.loginState.isLoggedIn &&
                             channelMessage.author.id != state.loginState.loginInfo.userId &&
                             !channel.atBottom) {
                             channel.handleUnreadMessage(channelMessage, state.loginState.loginInfo.userId);
+                        }
+                        else {
+                            channel.lastReadMessageId = null;
                         }
 
                         if (channelMessage.author.id == state.loginState.loginInfo.userId) {
