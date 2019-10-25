@@ -649,6 +649,10 @@ namespace ConnectApp.redux.actions {
         public bool connected;
     }
 
+    public class NetWorkStateAction : BaseAction {
+        public bool available;
+    }
+
     public class ChannelChooseMentionConfirmAction : BaseAction {
         public string mentionUserId;
         public string mentionUserName;

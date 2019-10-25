@@ -7,6 +7,7 @@ namespace ConnectApp.Models.ViewModel {
         public int currentTabBarIndex;
         public bool hasUnreadNotifications;
         public bool socketConnected;
+        public bool netWorkConnected;
         public Dictionary<string, string> lastMessageMap;
         public List<ChannelView> joinedChannels;
         public List<ChannelView> popularChannels;
