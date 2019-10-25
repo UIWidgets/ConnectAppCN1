@@ -25,10 +25,7 @@ namespace ConnectApp.screens {
                 child: new Column(
                     children: new List<Widget> {
                         new CustomNavigationBar(
-                            new Text("活动", style: CTextStyle.H2),
-                            null,
-                            backgroundColor: CColors.White,
-                            0
+                            new Text("活动", style: CTextStyle.H2)
                         ),
                         new Expanded(
                             child: new CustomSegmentedControl(

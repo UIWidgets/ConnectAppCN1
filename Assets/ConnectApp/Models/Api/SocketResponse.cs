@@ -340,6 +340,9 @@ namespace ConnectApp.Models.Api {
         public string workspaceId;
         public string type;
         public string liveChannelId;
+        public string projectId;
+        public string ticketId;
+        public string proposalId;
         public bool live;
         public string groupId;
         public string thumbnail;

@@ -171,6 +171,7 @@ namespace ConnectApp.Models.State {
                     totalMention = 0,
                     channelDict = new Dictionary<string, ChannelView>(),
                     messageDict = new Dictionary<string, ChannelMessageView>(),
+                    localMessageDict = new Dictionary<string, ChannelMessageView>(),
                     channelTop = new Dictionary<string, bool>(),
                     socketConnected = true,
                     mentionSuggestions = new Dictionary<string, Dictionary<string, ChannelMember>>(),

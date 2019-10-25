@@ -13,6 +13,7 @@ namespace ConnectApp.Models.State {
         public int totalMention;
         public Dictionary<string, ChannelView> channelDict;
         public Dictionary<string, ChannelMessageView> messageDict;
+        public Dictionary<string, ChannelMessageView> localMessageDict;
         public Dictionary<string, bool> channelTop;
         public bool socketConnected;
         public string mentionUserId;
@@ -68,7 +69,7 @@ namespace ConnectApp.Models.State {
             this.joinedChannels.ForEach(channelId => {
                 var channel = this.channelDict[key: channelId];
                 this.totalUnread += channel.unread;
-                this.totalMention += channel.unread > 0 && !channel.isMute
+                this.totalMention += channel.unread > 0
                     ? channel.mentioned
                     : 0;
             });
@@ -80,6 +81,15 @@ namespace ConnectApp.Models.State {
                     ? $"{this.totalMention}"
                     : ""
                 : null;
+        }
+
+        public void removeLocalMessage(ChannelMessageView channelMessage) {
+            var channel = this.channelDict[channelMessage.channelId];
+            if (channel.localMessageIds.Contains($"{channelMessage.nonce:x16}")) {
+                this.localMessageDict.Remove(
+                    $"{channelMessage.author.id}:{channel.id}:{channelMessage.id}");
+                channel.localMessageIds.Remove($"{channelMessage.nonce:x16}");
+            }
         }
 
         public void updateSessionReadyData(SocketResponseSessionData sessionReadyData) {

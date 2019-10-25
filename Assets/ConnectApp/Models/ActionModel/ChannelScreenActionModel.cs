@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
+using ConnectApp.Models.Model;
 using RSG;
 
 namespace ConnectApp.Models.ActionModel {
     public class ChannelScreenActionModel : BaseActionModel {
         public Action<string> pushToUserDetail;
         public Action pushToChannelDetail;
-        public Action startSendMessage;
         public Action clearUnread;
         public Action reportLeaveBottom;
         public Action reportHitBottom;
@@ -21,5 +21,6 @@ namespace ConnectApp.Models.ActionModel {
         public Func<string, IPromise> deleteChannelMessage;
         public Action pushToChannelMention;
         public Action clearLastChannelMention;
+        public Action<ChannelMessageView> addLocalMessage;
     }
 }
