@@ -10,6 +10,7 @@ namespace ConnectApp.Models.ViewModel {
         public User me;
         public bool messageLoading;
         public bool socketConnected;
+        public bool netWorkConnected;
         public bool mentionAutoFocus;
         public string mentionUserId;
         public string mentionUserName;

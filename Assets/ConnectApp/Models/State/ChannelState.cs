@@ -16,6 +16,7 @@ namespace ConnectApp.Models.State {
         public Dictionary<string, ChannelMessageView> localMessageDict;
         public Dictionary<string, bool> channelTop;
         public bool socketConnected;
+        public bool netWorkConnected;
         public string mentionUserId;
         public string mentionUserName;
         public bool mentionAutoFocus;
@@ -23,6 +24,9 @@ namespace ConnectApp.Models.State {
         public bool mentionLoading;
         public string newNotifications;
         public bool channelError;
+        public string lastMentionQuery;
+        public bool mentionSearching;
+        public List<ChannelMember> queryMentions;
 
         public void updateMentionSuggestion(string channelId, User userInfo) {
             if (this.mentionSuggestions.ContainsKey(key: channelId)) {

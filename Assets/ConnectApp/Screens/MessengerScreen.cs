@@ -80,7 +80,8 @@ namespace ConnectApp.screens {
                                 : state.channelState.publicChannels.Count)
                             .ToList(),
                         currentTabBarIndex = state.tabBarState.currentTabIndex,
-                        socketConnected = state.channelState.socketConnected
+                        socketConnected = state.channelState.socketConnected,
+                        netWorkConnected = state.channelState.netWorkConnected
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -183,7 +184,7 @@ namespace ConnectApp.screens {
                 child: new Column(
                     children: new List<Widget> {
                         this._buildNavigationBar(),
-                        HttpManager.isNetWorkError()
+                        !this.widget.viewModel.netWorkConnected
                             ? this._buildNetworkDisconnectedNote()
                             : new Container(color: CColors.Separator2, height: 1),
                         new Flexible(
@@ -220,9 +221,11 @@ namespace ConnectApp.screens {
 
         Widget _buildNavigationBar() {
             return new CustomNavigationBar(
-                this.widget.viewModel.socketConnected
-                    ? new Text("群聊", style: CTextStyle.H2)
-                    : new Text("收取中...", style: CTextStyle.H2Body4),
+                !this.widget.viewModel.netWorkConnected
+                    ? new Text("群聊(未连接)", style: CTextStyle.H2)
+                    : this.widget.viewModel.socketConnected
+                        ? new Text("群聊", style: CTextStyle.H2)
+                        : new Text("收取中...", style: CTextStyle.H2Body4),
                 new List<Widget> {
                     new CustomButton(
                         onPressed: () => this.widget.actionModel.pushToNotifications(),
