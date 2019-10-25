@@ -15,8 +15,8 @@ using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -129,6 +129,7 @@ namespace ConnectApp.screens {
                         messageLoading = state.channelState.messageLoading,
                         newMessageCount = channel.unread,
                         socketConnected = state.channelState.socketConnected,
+                        netWorkConnected = state.channelState.netWorkConnected,
                         mentionAutoFocus = state.channelState.mentionAutoFocus,
                         mentionUserId = state.channelState.mentionUserId,
                         mentionUserName = state.channelState.mentionUserName,
@@ -403,7 +404,7 @@ namespace ConnectApp.screens {
             ret = new Column(
                 children: new List<Widget> {
                     this._buildNavigationBar(),
-                    HttpManager.isNetWorkError()
+                    !this.widget.viewModel.netWorkConnected
                         ? this._buildNetworkDisconnectedNote()
                         : new Container(),
                     new Flexible(child: ret),
@@ -496,7 +497,7 @@ namespace ConnectApp.screens {
                         children: new List<Widget> {
                             new Flexible(
                                 child: new Text(
-                                    HttpManager.isNetWorkError()
+                                    !this.widget.viewModel.netWorkConnected
                                         ? "群聊(未连接)"
                                         : this.widget.viewModel.socketConnected
                                             ? this.widget.viewModel.channel.name

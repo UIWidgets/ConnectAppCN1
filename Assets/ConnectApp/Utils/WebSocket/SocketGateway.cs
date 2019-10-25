@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Text;
 using ConnectApp.Constants;
 using ConnectApp.Models.Api;
-using ConnectApp.redux;
-using ConnectApp.redux.actions;
 using Newtonsoft.Json;
 using UnityEngine;
 
@@ -57,11 +55,11 @@ namespace ConnectApp.Utils {
         }
 
         GatewayState m_ReadyState;
-        
+
         readonly List<string> m_PayloadQueue;
         readonly WebSocketHost m_Host;
         readonly BackOff m_BackOff;
-        
+
         //Gateway Data
         List<string> m_CandidateURLs;
         string m_GatewayUrl;
@@ -79,7 +77,7 @@ namespace ConnectApp.Utils {
         int m_HeartBeater = -1;
         bool m_SslHandShakeError = false;
 
-        
+
         bool connected {
             get { return this.m_ReadyState == GatewayState.OPEN; }
         }
@@ -100,20 +98,20 @@ namespace ConnectApp.Utils {
 
             m_Instance = this;
             this.m_Host = host;
-            
+
             this.m_CandidateURLs = new List<string>();
             this.m_PayloadQueue = new List<string>();
             this.m_BackOff = new BackOff(host, 1000, 30000);
             this.m_CommitId = null;
             this.m_Socket = null;
-            
+
             this._Reset(isInit: true);
         }
 
         public void Close() {
             this.m_CandidateURLs.Clear();
             this.m_GatewayUrl = null;
-            
+
             this.m_CommitId = null;
             this.m_CloseRequired = true;
             this.m_Socket?.Close();
@@ -154,7 +152,6 @@ namespace ConnectApp.Utils {
 
             bool reset = !this.resumable || this.m_BackOff.fail > 0;
             var delay = this._OnFail(reset);
-
             NetworkStatusManager.isConnected = false;
             DebugAssert(false, $"connection failed, retry in {delay / 1000f} seconds");
         }
@@ -224,7 +221,7 @@ namespace ConnectApp.Utils {
                             var messageAckResponse = (SocketResponseMessageAck) response;
                             data = messageAckResponse.data;
                             break;
-                        
+
                         default:
                             data = null;
                             break;
@@ -263,9 +260,10 @@ namespace ConnectApp.Utils {
                             OnError: msg => { this._OnClose(); },
                             OnClose: this._OnClose,
                             OnConnected: () => {
+                                NetworkStatusManager.isConnected = true;
                                 DebugAssert(this.m_CommitId != null,
                                     "fatal error: commit Id is not correctly set before connection!");
-                                
+
                                 this.m_ReadyState = GatewayState.OPEN;
                                 if (!this._Resume()) {
                                     this.m_OnIdentify.Invoke(this.m_CommitId);
@@ -274,6 +272,7 @@ namespace ConnectApp.Utils {
                                 this._StartHeartBeat();
                             },
                             OnMessage: bytes => {
+                                NetworkStatusManager.isConnected = true;
                                 string type = "";
                                 var data = this._OnMessage(bytes, ref type);
                                 if (data != null) {
@@ -281,11 +280,10 @@ namespace ConnectApp.Utils {
                                 }
                             }
                         );
-                        NetworkStatusManager.isConnected = true;
                     }
                     else {
-                        var delay = this._OnFail();
                         NetworkStatusManager.isConnected = false;
+                        var delay = this._OnFail();
                         DebugAssert(false, $"gateway discovery failed, retry in {delay / 1000f} seconds");
                     }
                 });
@@ -334,7 +332,6 @@ namespace ConnectApp.Utils {
             };
             this._Send(requestPayload);
             return true;
-
         }
 
         void _Reset(bool isInit, bool reset = true) {

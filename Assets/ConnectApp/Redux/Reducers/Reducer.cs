@@ -5,8 +5,8 @@ using ConnectApp.Components;
 using ConnectApp.Main;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
-using ConnectApp.Reality;
 using ConnectApp.redux.actions;
+using ConnectApp.Reality;
 using ConnectApp.screens;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
@@ -2814,7 +2814,7 @@ namespace ConnectApp.redux.reducers {
 
                 case PushNewMessageAction action: {
                     var message = action.messageData;
-                    if (!state.channelState.joinedChannels.Contains(item: message.channelId) 
+                    if (!state.channelState.joinedChannels.Contains(item: message.channelId)
                         || !state.channelState.channelDict.ContainsKey(key: message.channelId)) {
                         break;
                     }
@@ -3023,6 +3023,11 @@ namespace ConnectApp.redux.reducers {
 
                 case SocketConnectStateAction action: {
                     state.channelState.socketConnected = action.connected;
+                    break;
+                }
+
+                case NetWorkStateAction action: {
+                    state.channelState.netWorkConnected = action.available;
                     break;
                 }
 
