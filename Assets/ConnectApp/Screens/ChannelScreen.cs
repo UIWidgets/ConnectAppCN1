@@ -621,7 +621,7 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildMessage(ChannelMessageView message, bool showTime, bool left) {
-            if (message.shouldSkip()) {
+            if (message.shouldSkip() || message.type == ChannelMessageType.skip) {
                 return new Container();
             }
 
@@ -629,9 +629,6 @@ namespace ConnectApp.screens {
                 constraints: new BoxConstraints(
                     maxWidth: this.messageBubbleWidth
                 ),
-                padding: message.type == ChannelMessageType.text
-                    ? EdgeInsets.symmetric(8, 12)
-                    : EdgeInsets.zero,
                 decoration: this._messageDecoration(message.type, left),
                 child: this._buildMessageContent(message)
             );
@@ -648,7 +645,9 @@ namespace ConnectApp.screens {
             }
 
             var tipMenuItems = new List<TipMenuItem>();
-            if (message.type == ChannelMessageType.text || message.type == ChannelMessageType.embed) {
+            if (message.type == ChannelMessageType.text
+                || message.type == ChannelMessageType.embedExternal
+                || message.type == ChannelMessageType.embedImage) {
                 tipMenuItems.Add(new TipMenuItem(
                     "复制",
                     () => {
@@ -778,16 +777,6 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildTextMessageContent(ChannelMessageView message) {
-            if (string.IsNullOrEmpty(message.content)) {
-                return new Container();
-            }
-
-            return new RichText(text: new TextSpan(children: MessageUtils.messageWithMarkdownToTextSpans(
-                message.content, message.mentions, message.mentionEveryone,
-                onTap: userId => this.widget.actionModel.pushToUserDetail(obj: userId)).ToList()));
-        }
-
         Widget _buildImageMessageContent(ChannelMessageView message) {
             return new GestureDetector(
                 onTap: () => {
@@ -809,15 +798,26 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildFileMessageContent() {
-            return new Container(
-                padding: EdgeInsets.symmetric(12, 16),
-                child: new Text("[你收到一个文件，请在浏览器上查看]", style: CTextStyle.PLargeBody5)
-            );
-        }
-
         Widget _buildEmbedContent(ChannelMessageView message) {
-            if (message.embeds[0].embedData.url != null && message.content.Contains(message.embeds[0].embedData.url)) {
+            if (message.embeds.isNullOrEmpty()) {
+                return new Container();
+            }
+
+            string embedDataUrl;
+            if (message.type == ChannelMessageType.embedImage) {
+                embedDataUrl = message.embeds[0].embedData.imageUrl;
+            } else if (message.type == ChannelMessageType.embedExternal) {
+                embedDataUrl = message.embeds[0].embedData.url;
+            }
+            else {
+                embedDataUrl = "";
+            }
+
+            if (embedDataUrl.isEmpty()) {
+                return new Container();
+            }
+
+            if (message.content.Contains(value: embedDataUrl)) {
                 return new RichText(text: new TextSpan(children: MessageUtils.messageWithMarkdownToTextSpans(
                     message.content, message.mentions, message.mentionEveryone,
                     onTap: userId => this.widget.actionModel.pushToUserDetail(obj: userId),
@@ -846,11 +846,15 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildEmbeddedTitle(string title) {
-            return new Text(title ?? "", style: CTextStyle.PLargeMediumBlue);
+            if (title.isEmpty()) {
+                return new Container();
+            }
+
+            return new Text(data: title, style: CTextStyle.PLargeMediumBlue);
         }
 
         Widget _buildEmbeddedDescription(string description) {
-            return description == null
+            return description.isEmpty()
                 ? new Container()
                 : new Container(
                     padding: EdgeInsets.only(bottom: 4),
@@ -899,16 +903,44 @@ namespace ConnectApp.screens {
             );
         }
 
+        Widget _buildEmbedImageMessageContent(ChannelMessageView message) {
+            return new Container(
+                padding: EdgeInsets.all(12),
+                child: new Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: new List<Widget> {
+                        this._buildEmbedContent(message),
+                        new Container(height: 12),
+                        new ImageMessage(
+                            url: message.embeds[0].embedData.imageUrl,
+                            size: 140,
+                            ratio: 16.0f / 9.0f,
+                            srcWidth: message.width,
+                            srcHeight: message.height,
+                            headers: this._headers
+                        )
+                    }
+                )
+            );
+        }
+
         Widget _buildMessageContent(ChannelMessageView message) {
             switch (message.type) {
                 case ChannelMessageType.text:
-                    return this._buildTextMessageContent(message);
+                    return new TextMessage(
+                        message: message,
+                        userId => this.widget.actionModel.pushToUserDetail(obj: userId)
+                    );
                 case ChannelMessageType.image:
                     return this._buildImageMessageContent(message);
                 case ChannelMessageType.file:
-                    return this._buildFileMessageContent();
-                case ChannelMessageType.embed:
+                    return new FileMessage();
+                case ChannelMessageType.embedExternal:
                     return this._buildEmbedMessageContent(message);
+                case ChannelMessageType.embedImage:
+                    return this._buildEmbedImageMessageContent(message);
+                case ChannelMessageType.skip:
+                    return new Container();
                 default:
                     return new Container();
             }
@@ -1175,37 +1207,27 @@ namespace ConnectApp.screens {
             }
         }
 
-        public static float calculateMessageHeight(ChannelMessageView message, bool showTime, float width) {
+        static float calculateMessageHeight(ChannelMessageView message, bool showTime, float width) {
             float height = 20 + 6 + 16 + (showTime ? 36 : 0); // Name + Internal + Bottom padding + time
             switch (message.type) {
                 case ChannelMessageType.text:
-                    height += 16 + CTextUtils.CalculateTextHeight(
-                                  message.content,
-                                  CTextStyle.PLargeBody,
-                                  width - 24, maxLines: null);
+                    height += TextMessage.CalculateTextHeight(content: message.content, width: width);
                     break;
                 case ChannelMessageType.image:
-                    height += message.width > message.height * 16.0f / 9.0f
-                        ? 140.0f * 9.0f / 16.0f
-                        : message.width > message.height
-                            ? 140.0f * message.height / message.width
-                            : 140.0f;
+                    height += ImageMessage.CalculateTextHeight(message: message);
                     break;
                 case ChannelMessageType.file:
-                    height += 16 + CTextUtils.CalculateTextHeight(
-                                  "[你收到一个文件，请在浏览器上查看]",
-                                  CTextStyle.PLargeBody5,
-                                  width - 24, maxLines: null);
+                    height += FileMessage.CalculateTextHeight(width: width);
                     break;
-                case ChannelMessageType.embed:
+                case ChannelMessageType.embedExternal:
                     height += 24 + CTextUtils.CalculateTextHeight(
                                   message.content,
                                   CTextStyle.PLargeBody,
-                                  width - 24, maxLines: null) + 24 +
+                                  width - 24) + 24 +
                               CTextUtils.CalculateTextHeight(
                                   message.embeds[0].embedData.title,
                                   CTextStyle.PLargeMediumBlue,
-                                  width - 48, maxLines: null) + 4 +
+                                  width - 48) + 4 +
                               CTextUtils.CalculateTextHeight(
                                   message.embeds[0].embedData.description,
                                   CTextStyle.PRegularBody3,
