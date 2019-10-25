@@ -131,6 +131,7 @@ namespace ConnectApp.Models.Model {
         public List<string> messageIds;
         public List<string> oldMessageIds;
         public List<string> newMessageIds;
+        public List<string> localMessageIds;
         public int unread = 0;
         public int mentioned = 0;
         public bool isTop = false;
@@ -138,10 +139,6 @@ namespace ConnectApp.Models.Model {
         public bool joinLoading = false;
         public bool atMe = false;
         public bool atAll = false;
-        public bool sendingMessage = false;
-        public bool sentMessageFailed = false;
-        public bool sentMessageSuccess = false;
-        public bool sentImageSuccess = false;
         public bool hasMore = true;
         public bool hasMoreNew = true;
         public List<string> memberIds;
@@ -166,6 +163,7 @@ namespace ConnectApp.Models.Model {
                 lastMessageId = channel?.lastMessage?.id,
                 lastMessage = ChannelMessageView.fromChannelMessage(channel?.lastMessage),
                 messageIds = new List<string>(),
+                localMessageIds = new List<string>(),
                 oldMessageIds = new List<string>(),
                 newMessageIds = new List<string>(),
                 currentMember = new ChannelMember()
@@ -190,9 +188,6 @@ namespace ConnectApp.Models.Model {
 
         public static ChannelView fromNormalChannelLite(NormalChannelLite channel) {
             return new ChannelView {
-                atAll = false,
-                memberIds = new List<string>(),
-                membersDict = new Dictionary<string, ChannelMember>(),
                 id = channel?.id,
                 groupId = channel?.groupId,
                 thumbnail = channel?.thumbnail,
@@ -202,7 +197,11 @@ namespace ConnectApp.Models.Model {
                 isMute = channel?.isMute ?? false,
                 live = channel?.live ?? false,
                 lastMessageId = channel?.lastMessageId,
+                atAll = false,
+                memberIds = new List<string>(),
+                membersDict = new Dictionary<string, ChannelMember>(),
                 messageIds = new List<string>(),
+                localMessageIds = new List<string>(),
                 oldMessageIds = new List<string>(),
                 newMessageIds = new List<string>(),
                 currentMember = new ChannelMember()
@@ -236,7 +235,16 @@ namespace ConnectApp.Models.Model {
         }
 
         public static ChannelView fromSocketResponseUpdateChannelData(SocketResponseUpdateChannelData channel) {
-            ChannelView channelView = new ChannelView();
+            ChannelView channelView = new ChannelView {
+                atAll = false,
+                memberIds = new List<string>(),
+                membersDict = new Dictionary<string, ChannelMember>(),
+                messageIds = new List<string>(),
+                localMessageIds = new List<string>(),
+                oldMessageIds = new List<string>(),
+                newMessageIds = new List<string>(),
+                currentMember = new ChannelMember()
+            };
             channelView.updateFromSocketResponseUpdateChannelData(channel);
             return channelView;
         }
@@ -330,6 +338,7 @@ namespace ConnectApp.Models.Model {
         public bool deleted = false;
         public List<Reaction> reactions;
         public List<Embed> embeds;
+        public string status = "normal";
 
         public bool shouldSkip() {
             return this.deleted || (this.type == ChannelMessageType.text && string.IsNullOrEmpty(this.content));

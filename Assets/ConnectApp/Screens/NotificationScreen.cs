@@ -11,9 +11,7 @@ using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 
@@ -162,32 +160,12 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildNavigationBar() {
-            return new Container(
-                color: CColors.White,
-                width: MediaQuery.of(context: this.context).size.width,
-                height: 94,
-                child: new Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: new List<Widget> {
-                        new CustomButton(
-                            padding: EdgeInsets.symmetric(8, 16),
-                            onPressed: () => this.widget.actionModel.mainRouterPop(),
-                            child: new Icon(
-                                icon: Icons.arrow_back,
-                                size: 24,
-                                color: CColors.Icon
-                            )
-                        ),
-                        new Container(
-                            margin: EdgeInsets.only(16, bottom: 8),
-                            child: new Text(
-                                "通知",
-                                style: CTextStyle.H2
-                            )
-                        )
-                    }
-                )
+            return new CustomNavigationBar(
+                new Text(
+                    "通知",
+                    style: CTextStyle.H2
+                ),
+                onBack: () => this.widget.actionModel.mainRouterPop()
             );
         }
 
