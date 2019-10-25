@@ -14,7 +14,6 @@ using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
@@ -1070,7 +1069,7 @@ namespace ConnectApp.screens {
                         flex: 1,
                         child: new Container(
                             padding: EdgeInsets.symmetric(0, 16),
-                            child: new Divider(height: 2, color: CColors.TextBody3)
+                            child: new Container(height: 1, color: CColors.TextBody3)
                         )
                     ),
                     new Container(
@@ -1081,7 +1080,7 @@ namespace ConnectApp.screens {
                         flex: 1,
                         child: new Container(
                             padding: EdgeInsets.symmetric(0, 16),
-                            child: new Divider(height: 2, color: CColors.TextBody3)
+                            child: new Container(height: 1, color: CColors.TextBody3)
                         )
                     ),
                 });
