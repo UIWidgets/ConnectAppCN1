@@ -783,8 +783,12 @@ namespace ConnectApp.screens {
                 return new Container();
             }
 
+            var content = message.status == "normal" || message.plainText == null
+                ? message.content
+                : message.plainText;
+
             return new RichText(text: new TextSpan(children: MessageUtils.messageWithMarkdownToTextSpans(
-                message.content, message.mentions, message.mentionEveryone,
+                content, message.mentions, message.mentionEveryone,
                 onTap: userId => this.widget.actionModel.pushToUserDetail(obj: userId)).ToList()));
         }
 
@@ -1026,6 +1030,7 @@ namespace ConnectApp.screens {
         }
 
         void _handleSubmit(string text) {
+            var plainText = text;
             text = text.parseMention(replacements: this.mentionMap);
             if (string.IsNullOrWhiteSpace(text)) {
                 CustomDialogUtils.showToast("不能发送空消息", iconData: Icons.error_outline);
@@ -1045,6 +1050,7 @@ namespace ConnectApp.screens {
                 nonce = nonce.hexToLong(),
                 type = ChannelMessageType.text,
                 content = text.Trim(),
+                plainText = plainText,
                 time = DateTime.UtcNow,
                 status = "waiting"
             });
