@@ -367,7 +367,8 @@ namespace ConnectApp.Models.Model {
                 }
             }
 
-            return attachments.First().contentType.StartsWith("image")
+            return attachments.First().contentType.StartsWith("image") &&
+                   !attachments.First().filename.EndsWith(".svg")
                 ? ChannelMessageType.image
                 : ChannelMessageType.file;
         }

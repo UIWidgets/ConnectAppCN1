@@ -13,6 +13,7 @@ using ConnectApp.Plugins;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using RSG;
+using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -172,8 +173,6 @@ namespace ConnectApp.screens {
                     var actionModel = new ChannelScreenActionModel {
                         mainRouterPop = () => {
                             dispatcher.dispatch(new MainNavigatorPopAction());
-                            dispatcher.dispatch(Actions.ackChannelMessage(viewModel.channel.lastMessageId));
-                            dispatcher.dispatch(new ChannelScreenLeaveBottom {channelId = this.channelId});
                         },
                         openUrl = url => OpenUrlUtil.OpenUrl(url: url, dispatcher: dispatcher),
                         browserImage = (url, imageUrls) => dispatcher.dispatch(new MainNavigatorPushToPhotoViewAction {
@@ -198,6 +197,7 @@ namespace ConnectApp.screens {
                         }),
                         sendMessage = (channelId, content, nonce, parentMessageId) => dispatcher.dispatch<IPromise>(
                             Actions.sendChannelMessage(channelId, content, nonce, parentMessageId)),
+                        ackMessage = () => dispatcher.dispatch(Actions.ackChannelMessage(viewModel.channel.lastMessageId)),
                         sendImage = (channelId, data, nonce) => dispatcher.dispatch<IPromise>(
                             Actions.sendImage(channelId, nonce, data)),
                         clearUnread = () => dispatcher.dispatch(new ClearChannelUnreadAction {
@@ -266,7 +266,23 @@ namespace ConnectApp.screens {
         string _lastMessageEditingContent = "";
         readonly Dictionary<string, string> mentionMap = new Dictionary<string, string>();
         string _lastReadMessageId = null;
+        AnimationController _unreadNotificationController;
+
         bool _showUnreadMessageNotification = true;
+        public bool showUnreadMessageNotification {
+            get { return this._showUnreadMessageNotification; }
+            set {
+                this._showUnreadMessageNotification = value;
+                if (this._showUnreadMessageNotification) {
+                    Promise.Delayed(TimeSpan.FromMilliseconds(500)).Then(() => {
+                        this._unreadNotificationController.animateTo(1.0f);
+                    });
+                }
+                else {
+                    this._unreadNotificationController.animateBack(0.0f, TimeSpan.FromMilliseconds(100));
+                }
+            }
+        }
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
@@ -302,7 +318,6 @@ namespace ConnectApp.screens {
         public override void initState() {
             base.initState();
             this._lastReadMessageId = this.widget.viewModel.channel.lastReadMessageId;
-            this._showUnreadMessageNotification = this._lastReadMessageId != null;
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 if (this.widget.viewModel.hasChannel) {
                     this.fetchMessagesAndMembers();
@@ -320,6 +335,24 @@ namespace ConnectApp.screens {
 
             this._showEmojiBoard = false;
             this._textController.addListener(this._onTextChanged);
+            this._unreadNotificationController = new AnimationController(
+                duration: TimeSpan.FromMilliseconds(100),
+                vsync: this
+            );
+            this._unreadNotificationController.addListener(() => {
+                this.setState(() => {});
+            });
+        }
+
+        bool _onMessageLoadedCalled = false;
+        void _onMessageLoaded() {
+            if (this._onMessageLoadedCalled) {
+                return;
+            }
+
+            this._onMessageLoadedCalled = true;
+            
+            this.showUnreadMessageNotification = this._lastReadMessageId != null;
         }
 
         void fetchMessagesAndMembers() {
@@ -367,9 +400,7 @@ namespace ConnectApp.screens {
 
             float offset = height - (MediaQuery.of(this.context).size.height - CustomAppBarUtil.appBarHeight - 50);
             if (offset < 0) {
-                this.setState(() => {
-                    this._showUnreadMessageNotification = false;
-                });
+                this.showUnreadMessageNotification = false;
             }
             else {
                 this._refreshController.scrollTo(offset);
@@ -378,11 +409,10 @@ namespace ConnectApp.screens {
 
         public override void dispose() {
             Router.routeObserve.unsubscribe(this);
-            this._textController.removeListener(this._onTextChanged);
-            this._refreshController.scrollController.removeListener(this._handleScrollListener);
             this._textController.dispose();
             SchedulerBinding.instance.addPostFrameCallback(_ => { this.widget.actionModel.clearUnread(); });
             this._focusNode.dispose();
+            this._unreadNotificationController.dispose();
             base.dispose();
         }
 
@@ -471,7 +501,7 @@ namespace ConnectApp.screens {
                     this.widget.viewModel.messageLoading
                         ? new Container()
                         : this._buildNewMessageNotification(),
-                    this._lastReadMessageId == null || !this._showUnreadMessageNotification
+                    this._lastReadMessageId == null
                         ? new Container()
                         : this._buildUnreadMessageNotification()
                 }
@@ -551,7 +581,7 @@ namespace ConnectApp.screens {
                         onTap: () => {
                             this.widget.actionModel.reportHitBottom();
                             if (this.lastReadMessageLoaded()) {
-                                this._showUnreadMessageNotification = false;
+                                this.showUnreadMessageNotification = false;
                             }
                             SchedulerBinding.instance.addPostFrameCallback(_ => {
                                 this._refreshController.scrollTo(0);
@@ -572,6 +602,10 @@ namespace ConnectApp.screens {
 
         bool _scrollToLastReadMessageAfterRefresh = false;
         Widget _buildUnreadMessageNotification() {
+            if (this._unreadNotificationController.value < 0.1f) {
+                return new Container();
+            }
+            
             var index = this.widget.viewModel.messages.FindIndex(message => {
                 return message.id.hexToLong() > this._lastReadMessageId.hexToLong();
             });
@@ -593,7 +627,7 @@ namespace ConnectApp.screens {
                             offset: new Offset(0, 1))
                     }
                 ),
-                padding: EdgeInsets.only(left: 16, top: 12, right: 10, 12),
+                padding: EdgeInsets.only(left: 16, top: 9, right: 10, 9),
                 child: new Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
@@ -604,12 +638,18 @@ namespace ConnectApp.screens {
                         ),
                         new SizedBox(width: 4),
                         new Icon(
-                            icon: Icons.arrow_forward,
+                            icon: Icons.keyboard_arrow_up,
                             color: CColors.PrimaryBlue,
-                            size: 14
+                            size: 20
                         )
                     }
                 )
+            );
+            
+            ret = new FractionalTranslation(
+                translation: new OffsetTween(new Offset(1.0f, 0.0f), Offset.zero)
+                    .animate(this._unreadNotificationController).value,
+                child: ret
             );
 
             ret = new Positioned(
@@ -720,6 +760,8 @@ namespace ConnectApp.screens {
                     });
             }
 
+            this._onMessageLoaded();
+
             return ListView.builder(
                 padding: EdgeInsets.only(top: 16, bottom: this.inputBarHeight),
                 itemCount: this.widget.viewModel.messages.Count,
@@ -730,7 +772,8 @@ namespace ConnectApp.screens {
                         showTime: index == 0 ||
                                   (message.time - this.widget.viewModel.messages[index - 1].time) >
                                   this._showTimeThreshold,
-                        left: message.author.id != this.widget.viewModel.me.id
+                        left: message.author.id != this.widget.viewModel.me.id,
+                        isBottom: index == 0
                     );
                 }
             );
@@ -769,7 +812,7 @@ namespace ConnectApp.screens {
                 );
         }
 
-        Widget _buildMessage(ChannelMessageView message, bool showTime, bool left) {
+        Widget _buildMessage(ChannelMessageView message, bool showTime, bool left, bool isBottom = false) {
             if (message.shouldSkip() || message.type == ChannelMessageType.skip) {
                 return new Container();
             }
@@ -853,12 +896,12 @@ namespace ConnectApp.screens {
                 )
             );
 
-            if (showTime || message.id == this._lastReadMessageId) {
+            if (showTime || (message.id == this._lastReadMessageId && !isBottom)) {
                 ret = new Column(
                     children: new List<Widget> {
                         showTime ? this._buildTime(message.time) : new Container(),
                         ret,
-                        message.id == this._lastReadMessageId
+                        message.id == this._lastReadMessageId && !isBottom
                             ? this._buildUnreadMessageLine()
                             : new Container()
                     }
@@ -932,20 +975,6 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildTextMessageContent(ChannelMessageView message) {
-            if (string.IsNullOrEmpty(message.content)) {
-                return new Container();
-            }
-
-            var content = message.status == "normal" || message.plainText == null
-                ? message.content
-                : message.plainText;
-
-            return new RichText(text: new TextSpan(children: MessageUtils.messageWithMarkdownToTextSpans(
-                content, message.mentions, message.mentionEveryone,
-                onTap: userId => this.widget.actionModel.pushToUserDetail(obj: userId)).ToList()));
-        }
-
         Widget _buildImageMessageContent(ChannelMessageView message) {
             return new GestureDetector(
                 onTap: () => this._browserImage(imageUrl: message.content),
@@ -957,72 +986,6 @@ namespace ConnectApp.screens {
                     srcHeight: message.height,
                     headers: this._headers
                 )
-            );
-        }
-
-        Widget _buildEmbedContent(ChannelMessageView message) {
-            if (message.embeds[0].embedData.url != null && message.content.Contains(message.embeds[0].embedData.url)) {
-                return new RichText(text: new TextSpan(children: MessageUtils.messageWithMarkdownToTextSpans(
-                    message.content, message.mentions, message.mentionEveryone,
-                    onTap: userId => this.widget.actionModel.pushToUserDetail(obj: userId),
-                    url: message.embeds[0].embedData.url,
-                    onClickUrl: url => this.widget.actionModel.openUrl(message.embeds[0].embedData.url)).ToList()));
-            }
-
-            return this._buildTextMessageContent(message);
-        }
-
-        Widget _buildEmbeddedRect(EmbedData embedData) {
-            return new Container(
-                padding: EdgeInsets.all(12),
-                color: CColors.White,
-                child: new Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: new List<Widget> {
-                        this._buildEmbeddedTitle(embedData.title),
-                        new Container(height: 4),
-                        this._buildEmbeddedDescription(embedData.description),
-                        this._buildEmbeddedName(embedData.image,
-                            embedData.name)
-                    }
-                )
-            );
-        }
-
-        Widget _buildEmbeddedTitle(string title) {
-            return new Text(title ?? "", style: CTextStyle.PLargeMediumBlue);
-        }
-
-        Widget _buildEmbeddedDescription(string description) {
-            return description == null
-                ? new Container()
-                : new Container(
-                    padding: EdgeInsets.only(bottom: 4),
-                    child: new Text(description ?? "",
-                        style: CTextStyle.PRegularBody3, maxLines: 4,
-                        overflow: TextOverflow.ellipsis));
-        }
-
-        Widget _buildEmbeddedName(string image, string name) {
-            if (image.isEmpty() && name.isEmpty()) {
-                return new Container();
-            }
-
-            return new Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: new List<Widget> {
-                    image == null
-                        ? (Widget) new Container(width: 14, height: 14)
-                        : CachedNetworkImageProvider.cachedNetworkImage(
-                            image ?? "",
-                            width: 14, height: 14, fit: BoxFit.cover),
-                    new Container(width: 4),
-                    new Expanded(
-                        child: new Text(name ?? "",
-                            style: CTextStyle.PMediumBody,
-                            overflow: TextOverflow.ellipsis)
-                    )
-                }
             );
         }
 
@@ -1187,7 +1150,7 @@ namespace ConnectApp.screens {
         }
 
         void _handleSubmit(string text) {
-            var plainText = text;
+            var plainText = text.Trim();
             text = text.parseMention(replacements: this.mentionMap);
             if (string.IsNullOrWhiteSpace(text)) {
                 CustomDialogUtils.showToast("不能发送空消息", iconData: Icons.error_outline);
@@ -1266,7 +1229,7 @@ namespace ConnectApp.screens {
 
                     this.widget.actionModel.reportHitBottom();
                     if (this.lastReadMessageLoaded()) {
-                        this._showUnreadMessageNotification = false;
+                        this.showUnreadMessageNotification = false;
                     }
                 }
             }
@@ -1332,6 +1295,9 @@ namespace ConnectApp.screens {
             if (this._focusNode.hasFocus) {
                 this._focusNode.unfocus();
             }
+
+            this.widget.actionModel.reportLeaveBottom();
+            this.widget.actionModel.ackMessage();
         }
 
         public void didPopNext() {
