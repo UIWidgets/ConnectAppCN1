@@ -933,6 +933,19 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case ResendMessageAction action: {
+                    var key = $"{action.message.author.id}:{action.message.channelId}:{action.message.id}";
+                    if (state.channelState.channelDict.ContainsKey(action.message.channelId) &&
+                        state.channelState.localMessageDict.ContainsKey(key)) {
+                        var message = state.channelState.localMessageDict[key];
+                        if (message.status == "failed") {
+                            message.status = "waiting";
+                        }
+                    }
+                    
+                    break;
+                }
+
                 case ArticleMapAction action: {
                     if (action.articleMap.isNotNullAndEmpty()) {
                         var articleDict = state.articleState.articleDict;

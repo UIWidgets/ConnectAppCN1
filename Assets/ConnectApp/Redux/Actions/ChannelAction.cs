@@ -690,6 +690,10 @@ namespace ConnectApp.redux.actions {
         public ChannelMessageView message;
     }
 
+    public class ResendMessageAction : BaseAction {
+        public ChannelMessageView message;
+    }
+
     public class FetchChannelMentionQuerySuccessAction : BaseAction {
         public string channelId;
         public List<ChannelMember> members;

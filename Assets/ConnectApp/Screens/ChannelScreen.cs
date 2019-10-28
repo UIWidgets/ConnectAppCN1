@@ -219,6 +219,9 @@ namespace ConnectApp.screens {
                         clearLastChannelMention = () => dispatcher.dispatch(new ChannelClearMentionAction()),
                         addLocalMessage = message => dispatcher.dispatch(new AddLocalMessageAction {
                             message = message
+                        }),
+                        resendMessage = message => dispatcher.dispatch(new ResendMessageAction {
+                            message = message
                         })
                     };
                     return new ChannelScreen(viewModel: viewModel, actionModel: actionModel);
@@ -782,7 +785,10 @@ namespace ConnectApp.screens {
             if (message.status != "normal") {
                 Widget symbol = message.status == "sending" || message.status == "waiting"
                     ? (Widget) new CustomActivityIndicator(size: LoadingSize.small)
-                    : new Icon(icon: Icons.error, color: CColors.Error);
+                    : new GestureDetector(
+                        onTap: () => { this.widget.actionModel.resendMessage(message); },
+                        child: new Icon(icon: Icons.error, color: CColors.Error, size: 24)
+                    );
                 ret = new Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
