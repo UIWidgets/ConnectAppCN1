@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using ConnectApp.Constants;
 using ConnectApp.Models.Model;
 using ConnectApp.Utils;
@@ -42,30 +41,35 @@ namespace ConnectApp.Components {
                 else {
                     text = this.channel.lastMessage.content ?? "";
                 }
-                if (!string.IsNullOrEmpty(value: this.channel.lastMessage.author?.fullName) &&
-                    !string.IsNullOrEmpty(value: text) &&
-                    this.channel.lastMessage.author.id != this.myUserId) {
-                    text = $"{this.channel.lastMessage.author?.fullName}: {text}";
-                }
             }
             else {
                 text = "";
             }
 
+            var contentTextSpans = new List<TextSpan>();
+            if (this.channel.lastMessage.author?.fullName.isNotEmpty() ?? true &&
+                text.isNotEmpty() &&
+                this.channel.lastMessage.author.id != this.myUserId) {
+                contentTextSpans.Add(new TextSpan(
+                    $"{this.channel.lastMessage.author?.fullName}: ",
+                    style: CTextStyle.PRegularBody4
+                ));
+            }
+            contentTextSpans.AddRange(MessageUtils.messageWithMarkdownToTextSpans(
+                content: text,
+                mentions: this.channel.lastMessage?.mentions,
+                this.channel.lastMessage?.mentionEveryone ?? false,
+                null,
+                bodyStyle: CTextStyle.PRegularBody4,
+                linkStyle: CTextStyle.PRegularBody4
+            ));
             Widget message = new RichText(
                 text: new TextSpan(
                     (this.channel.atMe || this.channel.atAll) && this.channel.unread > 0
                         ? "[有人@我] "
                         : "",
                     style: CTextStyle.PRegularError,
-                    children: MessageUtils.messageWithMarkdownToTextSpans(
-                        content: text,
-                        mentions: this.channel.lastMessage?.mentions,
-                        mentionEveryone: this.channel.lastMessage?.mentionEveryone ?? false,
-                        onTap: null,
-                        bodyStyle: CTextStyle.PRegularBody4,
-                        linkStyle: CTextStyle.PRegularBody4
-                    ).ToList()
+                    children: contentTextSpans
                     
                 ),
                 overflow: TextOverflow.ellipsis,

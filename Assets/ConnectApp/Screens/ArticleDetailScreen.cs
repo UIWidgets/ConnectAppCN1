@@ -291,8 +291,7 @@ namespace ConnectApp.screens {
                 this._titleHeight = CTextUtils.CalculateTextHeight(
                                         text: this._article.title,
                                         textStyle: CTextStyle.H3,
-                                        MediaQuery.of(context).size.width - 16 * 2, // 16 is horizontal padding
-                                        null
+                                        MediaQuery.of(context).size.width - 16 * 2 // 16 is horizontal padding
                                     ) + 16; // 16 is top padding
             }
 
@@ -848,8 +847,7 @@ namespace ConnectApp.screens {
             var titleHeight = CTextUtils.CalculateTextHeight(
                                   "评论",
                                   CTextStyle.H5,
-                                  mediaQuery.size.width - 16 * 2, // 16 is horizontal padding
-                                  null
+                                  mediaQuery.size.width - 16 * 2 // 16 is horizontal padding
                               ) + 16; // 16 is top padding
 
             float safeAreaPadding = 0;
@@ -904,8 +902,7 @@ namespace ConnectApp.screens {
                                         content,
                                         CTextStyle.PLargeBody,
                                         // 16 is horizontal padding, 24 is avatar size, 8 is content left margin to avatar
-                                        mediaQuery.size.width - 16 * 2 - 24 - 8,
-                                        null
+                                        mediaQuery.size.width - 16 * 2 - 24 - 8
                                     ) + 16 + 24 + 3 + 5 + 22 + 12;
                 // 16 is top padding, 24 is avatar size, 3 is content top margin to avatar, 5 is content bottom margin to commentTime
                 // 22 is commentTime height, 12 is commentTime bottom margin

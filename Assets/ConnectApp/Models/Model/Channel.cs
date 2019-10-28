@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ConnectApp.Models.Api;
 using ConnectApp.Utils;
+using Unity.UIWidgets.foundation;
 
 namespace ConnectApp.Models.Model {
     [Serializable]
@@ -66,6 +67,7 @@ namespace ConnectApp.Models.Model {
         public string name;
         public string title;
         public string url;
+        public string imageUrl;
     }
 
     [Serializable]
@@ -251,10 +253,10 @@ namespace ConnectApp.Models.Model {
         }
 
         public void completeMissingFieldsFromGroup(Group group) {
-            this.groupId = string.IsNullOrEmpty(group.id) ? this.groupId : group.id;
-            this.thumbnail = string.IsNullOrEmpty(this.thumbnail) ? group.avatar : this.thumbnail;
-            this.topic = string.IsNullOrEmpty(this.topic) ? group.description : this.topic;
-            this.name = string.IsNullOrEmpty(this.name) ? group.name : this.name;
+            this.groupId = group.id.isEmpty() ? this.groupId : group.id;
+            this.thumbnail = this.thumbnail.isEmpty()? group.avatar : this.thumbnail;
+            this.topic = this.topic.isEmpty() ? group.description : this.topic;
+            this.name = this.name.isEmpty() ? group.name : this.name;
         }
 
         public void handleUnreadMessage(ChannelMessageView message, string userId) {
@@ -314,7 +316,9 @@ namespace ConnectApp.Models.Model {
         text,
         image,
         file,
-        embed
+        embedExternal,
+        embedImage,
+        skip
     }
 
     public class ChannelMessageView {
@@ -344,36 +348,49 @@ namespace ConnectApp.Models.Model {
         public string status = "normal";
 
         public bool shouldSkip() {
-            return this.deleted || (this.type == ChannelMessageType.text && string.IsNullOrEmpty(this.content));
+            return this.deleted || (this.type == ChannelMessageType.text && this.content.isEmpty());
         }
 
-        static ChannelMessageType getType(
-            string content,
-            List<Attachment> attachments = null,
+        static ChannelMessageType getType(string content, List<Attachment> attachments = null, 
             List<Embed> embeds = null) {
-            return content != null || (attachments?.Count ?? 0) == 0
-                ? (embeds?.Count ?? 0) == 0 ? ChannelMessageType.text : ChannelMessageType.embed
-                : attachments[0].contentType.StartsWith("image")
-                    ? ChannelMessageType.image
-                    : ChannelMessageType.file;
+            if (content != null || (attachments?.Count ?? 0) == 0) {
+                if ((embeds?.Count ?? 0) == 0) {
+                    return ChannelMessageType.text;
+                }
+                switch (embeds.First().embedType) {
+                    case "image":
+                        return ChannelMessageType.embedImage;
+                    case "external":
+                        return ChannelMessageType.embedExternal;
+                    default:
+                        return ChannelMessageType.skip;
+                }
+            }
+
+            return attachments.First().contentType.StartsWith("image")
+                ? ChannelMessageType.image
+                : ChannelMessageType.file;
         }
 
         static long getNonce(string nonce) {
-            return string.IsNullOrEmpty(nonce) ? 0 : Convert.ToInt64(nonce, 16);
+            return nonce.isEmpty() ? 0 : Convert.ToInt64(nonce, 16);
         }
 
         static string getContent(string content, List<Attachment> attachments = null, List<Embed> embeds = null) {
             switch (getType(content, attachments, embeds)) {
                 case ChannelMessageType.text:
-                case ChannelMessageType.embed:
+                case ChannelMessageType.embedExternal:
+                case ChannelMessageType.embedImage:
                     return content ?? "";
                 case ChannelMessageType.image:
                     return attachments[0].url;
                 case ChannelMessageType.file:
                     return attachments[0].filename;
+                case ChannelMessageType.skip:
+                    return "";
+                default:
+                    return "";
             }
-
-            return "";
         }
 
         static int getFileSize(string content, List<Attachment> attachments = null, List<Embed> embeds = null) {

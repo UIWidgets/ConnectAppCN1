@@ -164,7 +164,7 @@ namespace ConnectApp.Components {
                 var maxHeight = CTextUtils.CalculateTextHeight(
                     text: this.message, textStyle: this._messageStyle, textWidth: width, 7);
                 var totalHeight = CTextUtils.CalculateTextHeight(
-                    text: this.message, textStyle: this._messageStyle, textWidth: width, null);
+                    text: this.message, textStyle: this._messageStyle, textWidth: width);
                 if (maxHeight < totalHeight) {
                     maxHeight += 16;
                 }
