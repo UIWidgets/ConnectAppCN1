@@ -34,6 +34,7 @@ namespace ConnectApp.Constants {
         public static readonly IconData chevron_right = new IconData(0xe5cc, "Material Icons");
         public static readonly IconData arrow_forward = new IconData(0xe601, "iconfont");
         public static readonly IconData arrow_back = new IconData(0xe600, "iconfont");
+        public static readonly IconData keyboard_arrow_up = new IconData(0xe316, fontFamily: "Material Icons");
         public static readonly IconData arrow_upward = new IconData(0xe5d8, "Material Icons");
         public static readonly IconData share = new IconData(0xe61a, "iconfont");
         public static readonly IconData settings = new IconData(0xe61c, "iconfont");

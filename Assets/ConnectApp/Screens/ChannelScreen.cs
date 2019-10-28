@@ -591,7 +591,7 @@ namespace ConnectApp.screens {
                             offset: new Offset(0, 1))
                     }
                 ),
-                padding: EdgeInsets.only(left: 16, top: 12, right: 10, 12),
+                padding: EdgeInsets.only(left: 16, top: 9, right: 10, 9),
                 child: new Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
@@ -602,9 +602,9 @@ namespace ConnectApp.screens {
                         ),
                         new SizedBox(width: 4),
                         new Icon(
-                            icon: Icons.arrow_forward,
+                            icon: Icons.keyboard_arrow_up,
                             color: CColors.PrimaryBlue,
-                            size: 14
+                            size: 20
                         )
                     }
                 )
