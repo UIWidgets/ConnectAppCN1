@@ -976,20 +976,6 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildTextMessageContent(ChannelMessageView message) {
-            if (string.IsNullOrEmpty(message.content)) {
-                return new Container();
-            }
-
-            var content = message.status == "normal" || message.plainText == null
-                ? message.content
-                : message.plainText;
-
-            return new RichText(text: new TextSpan(children: MessageUtils.messageWithMarkdownToTextSpans(
-                content, message.mentions, message.mentionEveryone,
-                onTap: userId => this.widget.actionModel.pushToUserDetail(obj: userId)).ToList()));
-        }
-
         Widget _buildImageMessageContent(ChannelMessageView message) {
             return new GestureDetector(
                 onTap: () => this._browserImage(imageUrl: message.content),
@@ -1001,72 +987,6 @@ namespace ConnectApp.screens {
                     srcHeight: message.height,
                     headers: this._headers
                 )
-            );
-        }
-
-        Widget _buildEmbedContent(ChannelMessageView message) {
-            if (message.embeds[0].embedData.url != null && message.content.Contains(message.embeds[0].embedData.url)) {
-                return new RichText(text: new TextSpan(children: MessageUtils.messageWithMarkdownToTextSpans(
-                    message.content, message.mentions, message.mentionEveryone,
-                    onTap: userId => this.widget.actionModel.pushToUserDetail(obj: userId),
-                    url: message.embeds[0].embedData.url,
-                    onClickUrl: url => this.widget.actionModel.openUrl(message.embeds[0].embedData.url)).ToList()));
-            }
-
-            return this._buildTextMessageContent(message);
-        }
-
-        Widget _buildEmbeddedRect(EmbedData embedData) {
-            return new Container(
-                padding: EdgeInsets.all(12),
-                color: CColors.White,
-                child: new Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: new List<Widget> {
-                        this._buildEmbeddedTitle(embedData.title),
-                        new Container(height: 4),
-                        this._buildEmbeddedDescription(embedData.description),
-                        this._buildEmbeddedName(embedData.image,
-                            embedData.name)
-                    }
-                )
-            );
-        }
-
-        Widget _buildEmbeddedTitle(string title) {
-            return new Text(title ?? "", style: CTextStyle.PLargeMediumBlue);
-        }
-
-        Widget _buildEmbeddedDescription(string description) {
-            return description == null
-                ? new Container()
-                : new Container(
-                    padding: EdgeInsets.only(bottom: 4),
-                    child: new Text(description ?? "",
-                        style: CTextStyle.PRegularBody3, maxLines: 4,
-                        overflow: TextOverflow.ellipsis));
-        }
-
-        Widget _buildEmbeddedName(string image, string name) {
-            if (image.isEmpty() && name.isEmpty()) {
-                return new Container();
-            }
-
-            return new Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: new List<Widget> {
-                    image == null
-                        ? (Widget) new Container(width: 14, height: 14)
-                        : CachedNetworkImageProvider.cachedNetworkImage(
-                            image ?? "",
-                            width: 14, height: 14, fit: BoxFit.cover),
-                    new Container(width: 4),
-                    new Expanded(
-                        child: new Text(name ?? "",
-                            style: CTextStyle.PMediumBody,
-                            overflow: TextOverflow.ellipsis)
-                    )
-                }
             );
         }
 
@@ -1231,7 +1151,7 @@ namespace ConnectApp.screens {
         }
 
         void _handleSubmit(string text) {
-            var plainText = text;
+            var plainText = text.Trim();
             text = text.parseMention(replacements: this.mentionMap);
             if (string.IsNullOrWhiteSpace(text)) {
                 CustomDialogUtils.showToast("不能发送空消息", iconData: Icons.error_outline);

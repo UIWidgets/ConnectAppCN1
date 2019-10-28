@@ -49,7 +49,9 @@ namespace ConnectApp.Components {
                 child: new RichText(
                     text: new TextSpan(
                         children: MessageUtils.messageWithMarkdownToTextSpans(
-                            content: this.message.content,
+                            content: this.message.status == "normal"
+                                ? this.message.content
+                                : this.message.plainText,
                             mentions: this.message.mentions,
                             mentionEveryone: this.message.mentionEveryone,
                             onTap: this.onTap,
