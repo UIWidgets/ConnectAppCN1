@@ -211,6 +211,10 @@ namespace ConnectApp.screens {
                         reportLeaveBottom = () => dispatcher.dispatch(new ChannelScreenLeaveBottom {
                             channelId = this.channelId
                         }),
+                        popFromScreen = () => {
+                            dispatcher.dispatch(Actions.ackChannelMessage(viewModel.channel.lastMessageId));
+                            dispatcher.dispatch(new SetChannelInactive {channelId = this.channelId});
+                        },
                         pushToChannelMention = () => {
                             dispatcher.dispatch(new MainNavigatorPushToChannelMentionAction {
                                 channelId = this.channelId
@@ -268,10 +272,13 @@ namespace ConnectApp.screens {
         string _lastReadMessageId = null;
         AnimationController _unreadNotificationController;
 
-        bool _showUnreadMessageNotification = true;
+        bool _showUnreadMessageNotification = false;
         public bool showUnreadMessageNotification {
             get { return this._showUnreadMessageNotification; }
             set {
+                if (this._showUnreadMessageNotification == value) {
+                    return;
+                }
                 this._showUnreadMessageNotification = value;
                 if (this._showUnreadMessageNotification) {
                     Promise.Delayed(TimeSpan.FromMilliseconds(500)).Then(() => {
@@ -352,21 +359,12 @@ namespace ConnectApp.screens {
 
             this._onMessageLoadedCalled = true;
             
-            this.showUnreadMessageNotification = this._lastReadMessageId != null;
+            this.showUnreadMessageNotification = this._lastReadMessageId != null &&
+                                                 this.calculateOffsetFromMessage(this._lastReadMessageId) > 0;
         }
 
         void fetchMessagesAndMembers() {
-            if (this.widget.viewModel.messages.isNotEmpty() || this.widget.viewModel.newMessages.isNotEmpty()) {
-                SchedulerBinding.instance.addPostFrameCallback(_ => {
-                    this.jumpToLastReadMessage();
-                });
-            }
-            this.widget.actionModel.fetchMessages(null, null).Then(() => {
-                SchedulerBinding.instance.addPostFrameCallback(_ => {
-                    this.jumpToLastReadMessage();
-                });
-            });
-
+            this.widget.actionModel.fetchMessages(null, null);
             this.widget.actionModel.fetchMembers();
             this.widget.actionModel.fetchMember();
             this.widget.actionModel.reportHitBottom();
@@ -383,13 +381,37 @@ namespace ConnectApp.screens {
         }
 
         void jumpToMessage(string id) {
-            var index = this.widget.viewModel.messages.FindIndex(message => message.id.hexToLong() > id.hexToLong());
+            var index = this.widget.viewModel.messages.FindIndex(message => {
+                return message.id.hexToLong() > id.hexToLong();
+            });
             if (index >= 0) {
                 this.jumpToIndex(index);
             }
         }
 
-        void jumpToIndex(int index) {
+        float calculateTotalHeightFromMessage(string id) {
+            var index = this.widget.viewModel.messages.FindIndex(message => {
+                return message.id.hexToLong() > id.hexToLong();
+            });
+            if (index >= 0) {
+                return this.calculateMessageHeightFromIndex(index);
+            }
+
+            return 0;
+        }
+
+        float calculateOffsetFromMessage(string id) {
+            var index = this.widget.viewModel.messages.FindIndex(message => {
+                return message.id.hexToLong() > id.hexToLong();
+            });
+            if (index >= 0) {
+                return this.calculateOffsetFromIndex(index);
+            }
+
+            return 0;
+        }
+
+        float calculateMessageHeightFromIndex(int index) {
             float height = 0;
             for (int i = index; i < this.widget.viewModel.messages.Count; i++) {
                 var message = this.widget.viewModel.messages[i];
@@ -398,7 +420,16 @@ namespace ConnectApp.screens {
                     this.messageBubbleWidth);
             }
 
-            float offset = height - (MediaQuery.of(this.context).size.height - CustomAppBarUtil.appBarHeight - 50);
+            return height;
+        }
+
+        float calculateOffsetFromIndex(int index) {
+            return this.calculateMessageHeightFromIndex(index) -
+                   (MediaQuery.of(this.context).size.height - CustomAppBarUtil.appBarHeight - 80);
+        }
+
+        void jumpToIndex(int index) {
+            float offset = this.calculateOffsetFromIndex(index);
             if (offset < 0) {
                 this.showUnreadMessageNotification = false;
             }
@@ -600,7 +631,6 @@ namespace ConnectApp.screens {
                    this.widget.viewModel.messages.first().id.hexToLong() <= this._lastReadMessageId.hexToLong();
         }
 
-        bool _scrollToLastReadMessageAfterRefresh = false;
         Widget _buildUnreadMessageNotification() {
             if (this._unreadNotificationController.value < 0.1f) {
                 return new Container();
@@ -661,9 +691,12 @@ namespace ConnectApp.screens {
                     alignment: Alignment.topRight,
                     child: new GestureDetector(
                         onTap: () => {
+                            this.jumpToLastReadMessage();
                             if (index == 0 && this.widget.viewModel.channel.hasMore) {
                                 this._refreshController.requestRefresh(false);
-                                this._scrollToLastReadMessageAfterRefresh = true;
+                            }
+                            else {
+                                this.showUnreadMessageNotification = false;
                             }
                         },
                         child: ret
@@ -1187,13 +1220,13 @@ namespace ConnectApp.screens {
                 this.widget.actionModel.fetchMessages(arg1: id, null)
                     .Then(() => this._refreshController.sendBack(up: up,
                         up ? RefreshStatus.completed : RefreshStatus.idle))
-                    .Catch(error => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed)
-                    ).Then(() => {
-                        if (this._scrollToLastReadMessageAfterRefresh) {
-                            SchedulerBinding.instance.addPostFrameCallback(_ => {
-                                this.jumpToLastReadMessage();
-                            });
-                        }
+                    .Catch(error => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed))
+                    .Then(() => { Promise.Delayed(TimeSpan.FromMilliseconds(500)).Then(() => {
+                            if (this._lastReadMessageId != null &&
+                            this.calculateOffsetFromMessage(this._lastReadMessageId) < this._refreshController.offset + 10) {
+                            this.showUnreadMessageNotification = false;
+                            }
+                        });
                     });
             }
         }
@@ -1228,9 +1261,6 @@ namespace ConnectApp.screens {
                     }
 
                     this.widget.actionModel.reportHitBottom();
-                    if (this.lastReadMessageLoaded()) {
-                        this.showUnreadMessageNotification = false;
-                    }
                 }
             }
             else if (this._refreshController.offset > bottomThreshold) {
@@ -1295,9 +1325,7 @@ namespace ConnectApp.screens {
             if (this._focusNode.hasFocus) {
                 this._focusNode.unfocus();
             }
-
-            this.widget.actionModel.reportLeaveBottom();
-            this.widget.actionModel.ackMessage();
+            this.widget.actionModel.popFromScreen();
         }
 
         public void didPopNext() {
