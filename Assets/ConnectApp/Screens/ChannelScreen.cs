@@ -378,8 +378,6 @@ namespace ConnectApp.screens {
 
         public override void dispose() {
             Router.routeObserve.unsubscribe(this);
-            this._textController.removeListener(this._onTextChanged);
-            this._refreshController.scrollController.removeListener(this._handleScrollListener);
             this._textController.dispose();
             SchedulerBinding.instance.addPostFrameCallback(_ => { this.widget.actionModel.clearUnread(); });
             this._focusNode.dispose();
