@@ -8,9 +8,9 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 
 namespace ConnectApp.Utils {
-    public static class MessageUtils {
-        public delegate void MentionTapCallback(string userId);
+    public delegate void MentionTapCallback(string userId);
 
+    public static class MessageUtils {
         public static string AnalyzeMessage(string content, List<User> mentions, bool mentionEveryone) {
             if (content.isEmpty()) {
                 return "";
@@ -154,7 +154,7 @@ namespace ConnectApp.Utils {
             while (true) {
                 var first = text.IndexOf(symbol, StringComparison.Ordinal);
                 var last = text.LastIndexOf(symbol, StringComparison.Ordinal);
-                if (first >= 0 && last >= 0 && first <= last + symbol.Length) {
+                if (first >= 0 && last >= 0 && first + symbol.Length <= last) {
                     text = (first > 0 ? text.Substring(0, first) : "") +
                            (first + symbol.Length < last
                                 ? text.Substring(first + symbol.Length, last - first - symbol.Length)

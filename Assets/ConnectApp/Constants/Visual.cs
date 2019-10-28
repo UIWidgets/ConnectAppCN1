@@ -34,6 +34,8 @@ namespace ConnectApp.Constants {
         public static readonly IconData chevron_right = new IconData(0xe5cc, "Material Icons");
         public static readonly IconData arrow_forward = new IconData(0xe601, "iconfont");
         public static readonly IconData arrow_back = new IconData(0xe600, "iconfont");
+        public static readonly IconData keyboard_arrow_up = new IconData(0xe316, fontFamily: "Material Icons");
+        public static readonly IconData arrow_upward = new IconData(0xe5d8, "Material Icons");
         public static readonly IconData share = new IconData(0xe61a, "iconfont");
         public static readonly IconData settings = new IconData(0xe61c, "iconfont");
         public static readonly IconData ellipsis = new IconData(0xe60c, "iconfont");
@@ -48,6 +50,7 @@ namespace ConnectApp.Constants {
         public static readonly IconData replay = new IconData(0xe042, "Material Icons");
         public static readonly IconData expand_less = new IconData(0xe5ce, "Material Icons");
         public static readonly IconData expand_more = new IconData(0xe5cf, "Material Icons");
+        public static readonly IconData error = new IconData(0xe000, fontFamily: "Material Icons");
         public static readonly IconData error_outline = new IconData(0xe609, "iconfont");
         public static readonly IconData sentiment_satisfied = new IconData(0xe617, "iconfont");
         public static readonly IconData sentiment_dissatisfied = new IconData(0xe619, "iconfont");
@@ -70,6 +73,7 @@ namespace ConnectApp.Constants {
         public static readonly IconData camera_alt = new IconData(0xe3b0, "Material Icons");
         public static readonly IconData add = new IconData(0xe145, "Material Icons");
         public static readonly IconData edit = new IconData(0xe3c9, "Material Icons");
+        public static readonly IconData insert_drive_file = new IconData(0xe24d, "Material Icons");
     }
 
     public static class CTextStyle {
@@ -226,6 +230,13 @@ namespace ConnectApp.Constants {
             fontSize: 16,
             fontFamily: "Roboto-Regular",
             color: CColors.Error
+        );
+
+        public static readonly TextStyle PLargeBlack = new TextStyle(
+            height: 1.33f,
+            fontSize: 16,
+            fontFamily: "Roboto-Regular",
+            color: CColors.Black
         );
 
         public static readonly TextStyle PLargeBody = new TextStyle(

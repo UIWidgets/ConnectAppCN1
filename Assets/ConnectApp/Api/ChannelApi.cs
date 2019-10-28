@@ -203,5 +203,19 @@ namespace ConnectApp.Api {
             }).Catch(exception => promise.Reject(ex: exception));
             return promise;
         }
+
+        public static Promise<FetchChannelMemberQueryResponse> FetchChannelMemberQuery(string channelId,
+            string query) {
+            var promise = new Promise<FetchChannelMemberQueryResponse>();
+            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/searchMembers", 
+                parameter: new Dictionary<string, object> {
+                    {"q", query}
+                });
+            HttpManager.resume(request: request).Then(responseText => {
+                var members = JsonConvert.DeserializeObject<FetchChannelMemberQueryResponse>(value: responseText);
+                promise.Resolve(value: members);
+            }).Catch(exception => promise.Reject(ex: exception));
+            return promise;
+        }
     }
 }
