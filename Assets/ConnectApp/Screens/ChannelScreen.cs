@@ -173,8 +173,6 @@ namespace ConnectApp.screens {
                     var actionModel = new ChannelScreenActionModel {
                         mainRouterPop = () => {
                             dispatcher.dispatch(new MainNavigatorPopAction());
-                            dispatcher.dispatch(Actions.ackChannelMessage(viewModel.channel.lastMessageId));
-                            dispatcher.dispatch(new ChannelScreenLeaveBottom {channelId = this.channelId});
                         },
                         openUrl = url => OpenUrlUtil.OpenUrl(url: url, dispatcher: dispatcher),
                         browserImage = (url, imageUrls) => dispatcher.dispatch(new MainNavigatorPushToPhotoViewAction {
@@ -199,6 +197,7 @@ namespace ConnectApp.screens {
                         }),
                         sendMessage = (channelId, content, nonce, parentMessageId) => dispatcher.dispatch<IPromise>(
                             Actions.sendChannelMessage(channelId, content, nonce, parentMessageId)),
+                        ackMessage = () => dispatcher.dispatch(Actions.ackChannelMessage(viewModel.channel.lastMessageId)),
                         sendImage = (channelId, data, nonce) => dispatcher.dispatch<IPromise>(
                             Actions.sendImage(channelId, nonce, data)),
                         clearUnread = () => dispatcher.dispatch(new ClearChannelUnreadAction {
@@ -1296,6 +1295,9 @@ namespace ConnectApp.screens {
             if (this._focusNode.hasFocus) {
                 this._focusNode.unfocus();
             }
+
+            this.widget.actionModel.reportLeaveBottom();
+            this.widget.actionModel.ackMessage();
         }
 
         public void didPopNext() {
