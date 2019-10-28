@@ -576,31 +576,37 @@ namespace ConnectApp.screens {
                 return new Container();
             }
 
-            var firstUnreadMessage = this.widget.viewModel.messages[index];
             Widget ret = new Container(
                 height: 40,
                 decoration: new BoxDecoration(
-                    color: CColors.PrimaryBlue,
-                    borderRadius: BorderRadius.all(5),
+                    color: CColors.White,
+                    border: Border.all(color: CColors.Separator2, width: 1),
+                    borderRadius: BorderRadius.only(topLeft: 20, bottomLeft: 20),
                     boxShadow: new List<BoxShadow> {
                         new BoxShadow(
-                            color: CColors.Black.withOpacity(0.2f),
-                            blurRadius: 8,
+                            color: CColors.Black.withOpacity(0.08f),
+                            blurRadius: 6,
                             spreadRadius: 0,
-                            offset: new Offset(0, 2))
+                            offset: new Offset(0, 1))
                     }
                 ),
-                padding: EdgeInsets.symmetric(9, 16),
-                child: new Column(
+                padding: EdgeInsets.only(left: 16, top: 12, right: 10, 12),
+                child: new Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
                     children: new List<Widget> {
                         new Text(
-                            $"{firstUnreadMessage.time.DateTimeString()}起{this.widget.viewModel.messages.Count - index}条新消息未读",
-                            style: CTextStyle.PRegularWhite.copyWith(height: 1f)
+                            $"{this.widget.viewModel.messages.Count - index} 条新消息",
+                            style: CTextStyle.PRegularBlue.copyWith(height: 1f)
+                        ),
+                        new SizedBox(width: 4),
+                        new Icon(
+                            icon: Icons.arrow_forward,
+                            color: CColors.PrimaryBlue,
+                            size: 14
                         )
-                    })
+                    }
+                )
             );
 
             ret = new Positioned(
@@ -609,7 +615,7 @@ namespace ConnectApp.screens {
                 right: 0,
                 height: 40,
                 child: new Align(
-                    alignment: Alignment.center,
+                    alignment: Alignment.topRight,
                     child: new GestureDetector(
                         onTap: () => {
                             if (index == 0 && this.widget.viewModel.channel.hasMore) {
@@ -776,7 +782,7 @@ namespace ConnectApp.screens {
             if (message.status != "normal") {
                 Widget symbol = message.status == "sending" || message.status == "waiting"
                     ? (Widget) new CustomActivityIndicator(size: LoadingSize.small)
-                    : new Icon(icon: Icons.error_outline, color: CColors.Error);
+                    : new Icon(icon: Icons.error, color: CColors.Error);
                 ret = new Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
