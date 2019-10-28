@@ -22,5 +22,6 @@ namespace ConnectApp.Models.ActionModel {
         public Action pushToChannelMention;
         public Action clearLastChannelMention;
         public Action<ChannelMessageView> addLocalMessage;
+        public Action<ChannelMessageView> resendMessage;
     }
 }

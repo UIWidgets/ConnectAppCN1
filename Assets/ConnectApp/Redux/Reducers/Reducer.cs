@@ -933,6 +933,19 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case ResendMessageAction action: {
+                    var key = $"{action.message.author.id}:{action.message.channelId}:{action.message.id}";
+                    if (state.channelState.channelDict.ContainsKey(action.message.channelId) &&
+                        state.channelState.localMessageDict.ContainsKey(key)) {
+                        var message = state.channelState.localMessageDict[key];
+                        if (message.status == "failed") {
+                            message.status = "waiting";
+                        }
+                    }
+                    
+                    break;
+                }
+
                 case ArticleMapAction action: {
                     if (action.articleMap.isNotNullAndEmpty()) {
                         var articleDict = state.articleState.articleDict;
@@ -2592,6 +2605,7 @@ namespace ConnectApp.redux.reducers {
                     if (channel.atBottom) {
                         channel.clearUnread();
                     }
+                    state.channelState.messageLoading = false;
 
                     break;
                 }
@@ -2832,12 +2846,16 @@ namespace ConnectApp.redux.reducers {
                             channel.newMessageIds.Add(channelMessage.id);
                         }
 
+                        channel.lastReadMessageId = channel.lastReadMessageId ?? channel.lastMessageId;
                         channel.lastMessageId = channelMessage.id;
                         channel.lastMessage = channelMessage;
                         if (state.loginState.isLoggedIn &&
                             channelMessage.author.id != state.loginState.loginInfo.userId &&
                             !channel.atBottom) {
                             channel.handleUnreadMessage(channelMessage, state.loginState.loginInfo.userId);
+                        }
+                        else {
+                            channel.lastReadMessageId = null;
                         }
 
                         if (channelMessage.author.id == state.loginState.loginInfo.userId) {
