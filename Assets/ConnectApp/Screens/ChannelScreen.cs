@@ -13,6 +13,7 @@ using ConnectApp.Plugins;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using RSG;
+using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -266,7 +267,23 @@ namespace ConnectApp.screens {
         string _lastMessageEditingContent = "";
         readonly Dictionary<string, string> mentionMap = new Dictionary<string, string>();
         string _lastReadMessageId = null;
+        AnimationController _unreadNotificationController;
+
         bool _showUnreadMessageNotification = true;
+        public bool showUnreadMessageNotification {
+            get { return this._showUnreadMessageNotification; }
+            set {
+                this._showUnreadMessageNotification = value;
+                if (this._showUnreadMessageNotification) {
+                    Promise.Delayed(TimeSpan.FromMilliseconds(500)).Then(() => {
+                        this._unreadNotificationController.animateTo(1.0f);
+                    });
+                }
+                else {
+                    this._unreadNotificationController.animateBack(0.0f, TimeSpan.FromMilliseconds(100));
+                }
+            }
+        }
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
@@ -302,7 +319,6 @@ namespace ConnectApp.screens {
         public override void initState() {
             base.initState();
             this._lastReadMessageId = this.widget.viewModel.channel.lastReadMessageId;
-            this._showUnreadMessageNotification = this._lastReadMessageId != null;
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 if (this.widget.viewModel.hasChannel) {
                     this.fetchMessagesAndMembers();
@@ -320,6 +336,24 @@ namespace ConnectApp.screens {
 
             this._showEmojiBoard = false;
             this._textController.addListener(this._onTextChanged);
+            this._unreadNotificationController = new AnimationController(
+                duration: TimeSpan.FromMilliseconds(100),
+                vsync: this
+            );
+            this._unreadNotificationController.addListener(() => {
+                this.setState(() => {});
+            });
+        }
+
+        bool _onMessageLoadedCalled = false;
+        void _onMessageLoaded() {
+            if (this._onMessageLoadedCalled) {
+                return;
+            }
+
+            this._onMessageLoadedCalled = true;
+            
+            this.showUnreadMessageNotification = this._lastReadMessageId != null;
         }
 
         void fetchMessagesAndMembers() {
@@ -367,9 +401,7 @@ namespace ConnectApp.screens {
 
             float offset = height - (MediaQuery.of(this.context).size.height - CustomAppBarUtil.appBarHeight - 50);
             if (offset < 0) {
-                this.setState(() => {
-                    this._showUnreadMessageNotification = false;
-                });
+                this.showUnreadMessageNotification = false;
             }
             else {
                 this._refreshController.scrollTo(offset);
@@ -381,6 +413,7 @@ namespace ConnectApp.screens {
             this._textController.dispose();
             SchedulerBinding.instance.addPostFrameCallback(_ => { this.widget.actionModel.clearUnread(); });
             this._focusNode.dispose();
+            this._unreadNotificationController.dispose();
             base.dispose();
         }
 
@@ -469,7 +502,7 @@ namespace ConnectApp.screens {
                     this.widget.viewModel.messageLoading
                         ? new Container()
                         : this._buildNewMessageNotification(),
-                    this._lastReadMessageId == null || !this._showUnreadMessageNotification
+                    this._lastReadMessageId == null
                         ? new Container()
                         : this._buildUnreadMessageNotification()
                 }
@@ -549,7 +582,7 @@ namespace ConnectApp.screens {
                         onTap: () => {
                             this.widget.actionModel.reportHitBottom();
                             if (this.lastReadMessageLoaded()) {
-                                this._showUnreadMessageNotification = false;
+                                this.showUnreadMessageNotification = false;
                             }
                             SchedulerBinding.instance.addPostFrameCallback(_ => {
                                 this._refreshController.scrollTo(0);
@@ -570,6 +603,10 @@ namespace ConnectApp.screens {
 
         bool _scrollToLastReadMessageAfterRefresh = false;
         Widget _buildUnreadMessageNotification() {
+            if (this._unreadNotificationController.value < 0.1f) {
+                return new Container();
+            }
+            
             var index = this.widget.viewModel.messages.FindIndex(message => {
                 return message.id.hexToLong() > this._lastReadMessageId.hexToLong();
             });
@@ -608,6 +645,12 @@ namespace ConnectApp.screens {
                         )
                     }
                 )
+            );
+            
+            ret = new FractionalTranslation(
+                translation: new OffsetTween(new Offset(1.0f, 0.0f), Offset.zero)
+                    .animate(this._unreadNotificationController).value,
+                child: ret
             );
 
             ret = new Positioned(
@@ -718,6 +761,8 @@ namespace ConnectApp.screens {
                     });
             }
 
+            this._onMessageLoaded();
+
             return ListView.builder(
                 padding: EdgeInsets.only(top: 16, bottom: this.inputBarHeight),
                 itemCount: this.widget.viewModel.messages.Count,
@@ -728,7 +773,8 @@ namespace ConnectApp.screens {
                         showTime: index == 0 ||
                                   (message.time - this.widget.viewModel.messages[index - 1].time) >
                                   this._showTimeThreshold,
-                        left: message.author.id != this.widget.viewModel.me.id
+                        left: message.author.id != this.widget.viewModel.me.id,
+                        isBottom: index == 0
                     );
                 }
             );
@@ -767,7 +813,7 @@ namespace ConnectApp.screens {
                 );
         }
 
-        Widget _buildMessage(ChannelMessageView message, bool showTime, bool left) {
+        Widget _buildMessage(ChannelMessageView message, bool showTime, bool left, bool isBottom = false) {
             if (message.shouldSkip() || message.type == ChannelMessageType.skip) {
                 return new Container();
             }
@@ -851,12 +897,12 @@ namespace ConnectApp.screens {
                 )
             );
 
-            if (showTime || message.id == this._lastReadMessageId) {
+            if (showTime || (message.id == this._lastReadMessageId && !isBottom)) {
                 ret = new Column(
                     children: new List<Widget> {
                         showTime ? this._buildTime(message.time) : new Container(),
                         ret,
-                        message.id == this._lastReadMessageId
+                        message.id == this._lastReadMessageId && !isBottom
                             ? this._buildUnreadMessageLine()
                             : new Container()
                     }
@@ -1264,7 +1310,7 @@ namespace ConnectApp.screens {
 
                     this.widget.actionModel.reportHitBottom();
                     if (this.lastReadMessageLoaded()) {
-                        this._showUnreadMessageNotification = false;
+                        this.showUnreadMessageNotification = false;
                     }
                 }
             }
