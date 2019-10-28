@@ -1063,21 +1063,15 @@ namespace ConnectApp.screens {
                 children: new List<Widget> {
                     new Expanded(
                         flex: 1,
-                        child: new Container(
-                            padding: EdgeInsets.symmetric(0, 16),
-                            child: new Container(height: 1, color: CColors.TextBody3)
-                        )
+                        child: new Container()
                     ),
                     new Container(
-                        padding: EdgeInsets.symmetric(16),
-                        child: new Text("新消息", style: CTextStyle.PSmallBody3.copyWith(height: 1))
+                        padding: EdgeInsets.only(top: 8, bottom: 16),
+                        child: new Text("- 以下为新消息 -", style: CTextStyle.PSmallBody5.copyWith(height: 1))
                     ),
                     new Expanded(
                         flex: 1,
-                        child: new Container(
-                            padding: EdgeInsets.symmetric(0, 16),
-                            child: new Container(height: 1, color: CColors.TextBody3)
-                        )
+                        child: new Container()
                     ),
                 });
         }
