@@ -272,6 +272,8 @@ namespace ConnectApp.Models.Api {
     public class FetchChannelInfoResponse {
         public Channel channel;
         public ChannelMember channelMember;
+        public Group groupFull;
+        public GroupMember groupMember;
     }
 
     [Serializable]

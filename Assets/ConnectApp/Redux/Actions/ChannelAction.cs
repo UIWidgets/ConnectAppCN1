@@ -135,11 +135,11 @@ namespace ConnectApp.redux.actions {
             });
         }
 
-        public static object fetchChannelInfo(string channelId) {
+        public static object fetchChannelInfo(string channelId, bool ignoreError = false) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ChannelApi.FetchChannelInfo(channelId: channelId)
                     .Then(channelInfoResponse => {
-                        if (channelInfoResponse.channelMember == null) {
+                        if (channelInfoResponse.channelMember == null && !ignoreError) {
                             dispatcher.dispatch(new FetchChannelInfoErrorAction());
                         }
 
