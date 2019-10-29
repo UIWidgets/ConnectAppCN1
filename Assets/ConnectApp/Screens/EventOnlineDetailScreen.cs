@@ -855,7 +855,7 @@ namespace ConnectApp.screens {
         }
 
         void _showShareView(IEvent eventObj) {
-            ShareUtils.showShareView(
+            ActionSheetUtils.showModalActionSheet(
                 new ShareView(
                     projectType: ProjectType.iEvent,
                     onPressed: type => {

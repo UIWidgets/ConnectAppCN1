@@ -20,9 +20,14 @@ namespace ConnectApp.redux.actions {
 
     public class MainNavigatorPushToChannelAction : BaseAction {
         public string channelId;
+        public bool pushReplace = false;
     }
 
     public class MainNavigatorPushToChannelDetailAction : BaseAction {
+        public string channelId;
+    }
+
+    public class MainNavigatorPushToChannelShareAction : BaseAction {
         public string channelId;
     }
 

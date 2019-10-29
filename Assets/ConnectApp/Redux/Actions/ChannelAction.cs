@@ -135,11 +135,11 @@ namespace ConnectApp.redux.actions {
             });
         }
 
-        public static object fetchChannelInfo(string channelId) {
+        public static object fetchChannelInfo(string channelId, bool ignoreError = false) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ChannelApi.FetchChannelInfo(channelId: channelId)
                     .Then(channelInfoResponse => {
-                        if (channelInfoResponse.channelMember == null) {
+                        if (channelInfoResponse.channelMember == null && !ignoreError) {
                             dispatcher.dispatch(new FetchChannelInfoErrorAction());
                         }
 
@@ -183,12 +183,12 @@ namespace ConnectApp.redux.actions {
                                 : loadMessagesFromDB(channelId, before.hexToLong()));
                         }
                         catch (Exception e) {
-                            Debug.LogError(e);
+                            Debug.LogWarning(e);
                         }
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new FetchChannelMessagesFailureAction());
-                        Debug.LogError(error);
+                        Debug.LogWarning(error);
                         dispatcher.dispatch(loadMessagesFromDB(channelId, before.hexToLong()));
                     });
             });

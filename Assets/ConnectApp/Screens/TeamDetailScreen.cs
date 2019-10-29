@@ -247,7 +247,7 @@ namespace ConnectApp.screens {
         }
 
         void _share(Article article) {
-            ShareUtils.showShareView(new ShareView(
+            ActionSheetUtils.showModalActionSheet(new ShareView(
                 projectType: ProjectType.article,
                 onPressed: type => {
                     var linkUrl = CStringUtils.JointProjectShareLink(projectId: article.id);
