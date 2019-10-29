@@ -159,6 +159,12 @@ namespace ConnectApp.screens {
                                     nonce: viewModel.waitingMessage.id,
                                     parentMessageId: ""));
                             }
+                            else if (viewModel.waitingMessage.type == ChannelMessageType.file) {
+                                dispatcher.dispatch<IPromise>(Actions.sendVideo(
+                                    this.channelId,
+                                    viewModel.waitingMessage.id,
+                                    viewModel.waitingMessage.content));
+                            }
                             else {
                                 dispatcher.dispatch<IPromise>(Actions.sendImage(
                                     this.channelId,
@@ -1094,7 +1100,15 @@ namespace ConnectApp.screens {
                 case ChannelMessageType.file:
                     return new FileMessage(
                         message: message,
-                        () => this.widget.actionModel.openUrl(obj: message.attachments.first().url)
+                        () => {
+                            var attachment = message.attachments.first();
+                            if (attachment.filename.EndsWith("mp4")) {
+                                this.widget.actionModel.playVideo(obj: attachment.url);
+                            }
+                            else {
+                                this.widget.actionModel.openUrl(obj: attachment.url);
+                            }
+                        }
                     );
                 case ChannelMessageType.embedExternal:
                 case ChannelMessageType.embedImage:
@@ -1351,18 +1365,25 @@ namespace ConnectApp.screens {
                     )
                 ),
                 new ActionSheetItem(
-                    "从相册选择",
+                    "从相册选择照片",
                     onTap: () => PickImagePlugin.PickImage(
                         source: ImageSource.gallery,
                         imageCallBack: this._pickImageCallback,
                         false
                     )
                 ),
+                new ActionSheetItem(
+                    "从相册选择视频",
+                    onTap: () => PickImagePlugin.PickVideo(
+                        source: ImageSource.gallery,
+                        videoCallBack: this._pickVideoCallback
+                    )
+                ),
                 new ActionSheetItem("取消", type: ActionType.cancel)
             };
 
             ActionSheetUtils.showModalActionSheet(new ActionSheet(
-                title: "发送图片",
+                title: "发送图片或视频",
                 items: items
             ));
         }
@@ -1377,6 +1398,28 @@ namespace ConnectApp.screens {
                 nonce = nonce.hexToLong(),
                 type = ChannelMessageType.image,
                 content = pickImage,
+                time = DateTime.UtcNow,
+                status = "waiting"
+            });
+        }
+
+        void _pickVideoCallback(byte[] videoData) {
+            var nonce = Snowflake.CreateNonce();
+            this._refreshController.scrollTo(0);
+            this.widget.actionModel.addLocalMessage(new ChannelMessageView {
+                id = nonce,
+                author = this.widget.viewModel.me,
+                channelId = this.widget.viewModel.channel.id,
+                nonce = nonce.hexToLong(),
+                type = ChannelMessageType.file,
+                content = Convert.ToBase64String(inArray: videoData),
+                attachments = new List<Attachment> {
+                    new Attachment {
+                        filename = $"{nonce}.mp4",
+                        contentType = "video/mp4",
+                        size = videoData.Length
+                    }
+                },
                 time = DateTime.UtcNow,
                 status = "waiting"
             });

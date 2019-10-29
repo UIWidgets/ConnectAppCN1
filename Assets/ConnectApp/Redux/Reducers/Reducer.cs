@@ -2496,7 +2496,13 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case StartFetchChannelsAction _: {
+                    state.channelState.channelLoading = true;
+                    break;
+                }
+
                 case FetchChannelsSuccessAction action: {
+                    state.channelState.channelLoading = false;
                     action.discoverList.ForEach(discoverId => {
                         if (!state.channelState.publicChannels.Contains(item: discoverId)) {
                             state.channelState.publicChannels.Add(item: discoverId);
@@ -2535,6 +2541,7 @@ namespace ConnectApp.redux.reducers {
 
                 case FetchChannelsFailureAction _: {
                     NetworkStatusManager.isConnected = false;
+                    state.channelState.channelLoading = false;
                     break;
                 }
 

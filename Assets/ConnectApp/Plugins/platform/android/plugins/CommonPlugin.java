@@ -64,6 +64,7 @@ public class CommonPlugin {
 
     public static void pickImage(String source, boolean cropped, int maxSize){
         Intent intent = new Intent(mContext, PickImageActivity.class);
+        intent.putExtra("type", "image");
         intent.putExtra("source", source);
         intent.putExtra("cropped", cropped);
         intent.putExtra("maxSize", maxSize);
@@ -72,7 +73,9 @@ public class CommonPlugin {
     }
 
     public static void pickVideo(String source){
-        Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+        Intent intent = new Intent(mContext, PickImageActivity.class);
+        intent.putExtra("type", "video");
+        intent.putExtra("source", source);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         mContext.startActivity(intent);
     }

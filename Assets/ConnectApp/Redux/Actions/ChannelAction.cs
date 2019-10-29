@@ -16,6 +16,7 @@ namespace ConnectApp.redux.actions {
     public static partial class Actions {
         public static object fetchChannels(int page, bool fetchMessagesAfterSuccess = false) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
+                dispatcher.dispatch(new StartFetchChannelsAction());
                 return ChannelApi.FetchChannels(page: page).Then(channelResponse => {
                         dispatcher.dispatch(new FetchChannelsSuccessAction {
                             discoverList = channelResponse.discoverList ?? new List<string>(),
@@ -410,6 +411,27 @@ namespace ConnectApp.redux.actions {
             });
         }
 
+        public static object sendVideo(string channelId, string nonce, string videoData) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return ChannelApi.SendVideo(channelId: channelId, "", nonce: nonce, videoData: videoData)
+                    .Then(responseText => {
+                        dispatcher.dispatch(new SendChannelMessageSuccessAction {
+                            channelId = channelId,
+                            content = "",
+                            nonce = nonce,
+                            isImage = false
+                        });
+                    })
+                    .Catch(error => {
+                        dispatcher.dispatch(new SendChannelMessageFailureAction {
+                            channelId = channelId,
+                            messageId = nonce
+                        });
+                        Debug.Log(error);
+                    });
+            });
+        }
+
         public static object saveMessagesToDB(List<ChannelMessage> messages) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 MessengerDBApi.SyncSaveMessages(messages);
@@ -446,6 +468,9 @@ namespace ConnectApp.redux.actions {
                 return Promise.Resolved();
             });
         }
+    }
+
+    public class StartFetchChannelsAction : BaseAction {
     }
 
     public class FetchChannelsSuccessAction : BaseAction {

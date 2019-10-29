@@ -6,6 +6,7 @@ using ConnectApp.Utils;
 
 namespace ConnectApp.Models.State {
     public class ChannelState {
+        public bool channelLoading;
         public List<string> publicChannels;
         public List<string> joinedChannels;
         public int discoverPage;

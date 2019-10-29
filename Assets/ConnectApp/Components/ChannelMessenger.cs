@@ -113,11 +113,7 @@ namespace ConnectApp.Components {
                             )
                         ),
                         new SizedBox(width: 16),
-                        new Icon(
-                            icon: Icons.insert_drive_file,
-                            size: 40,
-                            color: CColors.Icon
-                        )
+                        this._buildFileIcon()
                     }
                 )
             );
@@ -132,12 +128,32 @@ namespace ConnectApp.Components {
             return content;
         }
 
+        Widget _buildFileIcon() {
+            var attachment = this.message.attachments.first();
+            string imageName;
+            if (attachment.filename.EndsWith(".pdf")) {
+                imageName = "image/pdf-file-icon";
+            } else if (attachment.filename.EndsWith(".mp4")) {
+                imageName = "image/video-file-icon";
+            }
+            else {
+                imageName = "image/file-general-icon";
+            }
+
+            return Image.asset(
+                name: imageName,
+                width: 42,
+                height: 48,
+                fit: BoxFit.fill
+            );
+        }
+
         public static float CalculateTextHeight(ChannelMessageView message, float width) {
             var attachment = message.attachments.first();
             var fileTitleHeight = CTextUtils.CalculateTextHeight(text: attachment.filename, textStyle: _fileTitleStyle,
-                width - _filePadding.horizontal - 40 - 16);
+                width - _filePadding.horizontal - 42 - 16);
             var fileSizeHeight = CTextUtils.CalculateTextHeight(CStringUtils.FileSize(bytes: attachment.size),
-                textStyle: _fileSizeStyle, width - _filePadding.horizontal - 40 - 16);
+                textStyle: _fileSizeStyle, width - _filePadding.horizontal - 42 - 16);
             return _filePadding.vertical + fileTitleHeight + fileSizeHeight + 4;
         }
     }
