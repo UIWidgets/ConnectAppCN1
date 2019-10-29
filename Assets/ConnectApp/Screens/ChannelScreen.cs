@@ -253,7 +253,7 @@ namespace ConnectApp.screens {
         readonly RefreshController _refreshController = new RefreshController();
         readonly GlobalKey _smartRefresherKey = GlobalKey<State<SmartRefresher>>.key("SmartRefresher");
         readonly FocusNode _focusNode = new FocusNode();
-        readonly GlobalKey _focusNodeKey = GlobalKey.key("_channelFocusNodeKey");
+        readonly GlobalKey _textFieldKey = GlobalKey.key("_channelFocusNodeKey");
         readonly TimeSpan _showTimeThreshold = TimeSpan.FromMinutes(5);
 
         readonly Dictionary<string, string> _headers = new Dictionary<string, string> {
@@ -269,6 +269,8 @@ namespace ConnectApp.screens {
         AnimationController _unreadNotificationController;
 
         bool _showUnreadMessageNotification = true;
+        float _inputFieldHeight;
+
         public bool showUnreadMessageNotification {
             get { return this._showUnreadMessageNotification; }
             set {
@@ -294,7 +296,7 @@ namespace ConnectApp.screens {
         }
 
         float inputBarHeight {
-            get { return 48 + CCommonUtils.getSafeAreaBottomPadding(context: this.context); }
+            get { return this._inputFieldHeight + 24 + CCommonUtils.getSafeAreaBottomPadding(context: this.context); }
         }
 
         bool showKeyboard {
@@ -334,6 +336,7 @@ namespace ConnectApp.screens {
             });
 
             this._showEmojiBoard = false;
+            this._inputFieldHeight = 24;
             this._textController.addListener(this._onTextChanged);
             this._unreadNotificationController = new AnimationController(
                 duration: TimeSpan.FromMilliseconds(100),
@@ -426,6 +429,20 @@ namespace ConnectApp.screens {
                     this._lastMessageEditingContent.isNotEmpty() &&
                     this._lastMessageEditingContent[this._lastMessageEditingContent.Length - 1] == '@') {
                     this.widget.actionModel.pushToChannelMention();
+                }
+            }
+
+            var inputFieldWidth = this._textFieldKey.currentContext.size.width;
+            if (curTextContent.isNotEmpty()) {
+                var inputFieldHeight = CTextUtils.CalculateTextHeight(
+                    text: curTextContent, textStyle: CTextStyle.PLargeBody, textWidth: inputFieldWidth, 4);
+                if (this._inputFieldHeight != inputFieldHeight) {
+                    this.setState(() => this._inputFieldHeight = inputFieldHeight);
+                }
+            }
+            else {
+                if (this._inputFieldHeight != 24) {
+                    this.setState(() => this._inputFieldHeight = 24);
                 }
             }
         }
@@ -1047,8 +1064,9 @@ namespace ConnectApp.screens {
                     new Expanded(
                         flex: 1,
                         child: new Container()
-                    ),
-                });
+                    )
+                }
+            );
         }
 
         Widget _buildInputBar() {
@@ -1059,7 +1077,7 @@ namespace ConnectApp.screens {
                     border: new Border(new BorderSide(color: CColors.Separator)),
                     color: this.showEmojiBoard ? CColors.White : CColors.TabBarBg
                 ),
-                textFieldKey: this._focusNodeKey,
+                textFieldKey: this._textFieldKey,
                 "说点想法…",
                 controller: this._textController,
                 focusNode: this._focusNode,
