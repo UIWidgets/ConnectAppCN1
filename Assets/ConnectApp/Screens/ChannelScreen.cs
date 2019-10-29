@@ -111,7 +111,7 @@ namespace ConnectApp.screens {
 
                     if (newMessages.isNotEmpty()) {
                         newMessages = newMessages
-                            .Where(message => message.type != ChannelMessageType.text || message.content != "")
+                            .Where(message => !message.shouldSkip())
                             .ToList();
                     }
 
@@ -269,8 +269,10 @@ namespace ConnectApp.screens {
         readonly Dictionary<string, string> mentionMap = new Dictionary<string, string>();
         string _lastReadMessageId = null;
         AnimationController _unreadNotificationController;
+        AnimationController _newMessageNotificationController;
 
         bool _showUnreadMessageNotification = false;
+        bool _showNewMessageNotification = false;
         float _inputFieldHeight;
 
         public bool showUnreadMessageNotification {
@@ -290,6 +292,25 @@ namespace ConnectApp.screens {
                 }
             }
         }
+        
+        public bool showNewMessageNotification {
+            get { return this._showNewMessageNotification; }
+            set {
+                if (this._showNewMessageNotification == value) {
+                    return;
+                }
+                this._showNewMessageNotification = value;
+                if (this._showNewMessageNotification) {
+                    Promise.Delayed(TimeSpan.FromMilliseconds(100)).Then(() => {
+                        this._newMessageNotificationController.animateTo(1.0f);
+                    });
+                }
+                else {
+                    this._newMessageNotificationController.animateBack(0.0f, TimeSpan.FromMilliseconds(100));
+                }
+            }
+        }
+        
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
@@ -347,7 +368,14 @@ namespace ConnectApp.screens {
                 duration: TimeSpan.FromMilliseconds(100),
                 vsync: this
             );
+            this._newMessageNotificationController = new AnimationController(
+                duration: TimeSpan.FromMilliseconds(100),
+                vsync: this
+            );
             this._unreadNotificationController.addListener(() => {
+                this.setState(() => {});
+            });
+            this._newMessageNotificationController.addListener(() => {
                 this.setState(() => {});
             });
         }
@@ -513,6 +541,8 @@ namespace ConnectApp.screens {
                 this._lastReadMessageId = null;
             }
 
+            this.showNewMessageNotification = this.widget.viewModel.newMessageCount > 0;
+
             if (this.widget.viewModel.mentionAutoFocus) {
                 SchedulerBinding.instance.addPostFrameCallback(_ => {
                     FocusScope.of(this.context)?.requestFocus(this._focusNode);
@@ -543,7 +573,6 @@ namespace ConnectApp.screens {
                         ? (Widget) new GlobalLoading()
                         : new Container(),
                     this._buildInputBar(),
-                    this.widget.viewModel.newMessageCount == 0 ||
                     this.widget.viewModel.messageLoading
                         ? new Container()
                         : this._buildNewMessageNotification(),
@@ -590,6 +619,9 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildNewMessageNotification() {
+            if (this._newMessageNotificationController.value < 0.1f) {
+                return new Container();
+            }
             Widget ret = new Container(
                 height: 40,
                 decoration: new BoxDecoration(
@@ -615,6 +647,11 @@ namespace ConnectApp.screens {
                         )
                     })
             );
+            
+            ret = new FractionalTranslation(
+                translation: new OffsetTween(new Offset(0, 1), Offset.zero)
+                    .animate(this._newMessageNotificationController).value,
+                child: ret);
 
             ret = new Positioned(
                 bottom: this.inputBarHeight + 16,
@@ -1277,6 +1314,7 @@ namespace ConnectApp.screens {
                     }
 
                     this.widget.actionModel.reportHitBottom();
+                    this.showNewMessageNotification = false;
                 }
             }
             else if (this._refreshController.offset > bottomThreshold) {
