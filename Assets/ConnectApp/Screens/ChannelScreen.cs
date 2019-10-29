@@ -715,7 +715,8 @@ namespace ConnectApp.screens {
                     mainAxisSize: MainAxisSize.min,
                     children: new List<Widget> {
                         new Text(
-                            $"{this.widget.viewModel.messages.Count - index} 条新消息",
+                            $"{this.widget.viewModel.messages.Count - index}" +
+                            $"{(index == 0 && this.widget.viewModel.channel.hasMore ? "+" : "")} 条新消息",
                             style: CTextStyle.PRegularBlue.copyWith(height: 1f)
                         ),
                         new SizedBox(width: 4),
