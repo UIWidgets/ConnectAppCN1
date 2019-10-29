@@ -255,7 +255,7 @@ namespace ConnectApp.Models.Model {
         public void completeMissingFieldsFromGroup(Group group) {
             this.groupId = group.id.isEmpty() ? this.groupId : group.id;
             this.thumbnail = this.thumbnail.isEmpty()? group.avatar : this.thumbnail;
-            this.topic = this.topic.isEmpty() ? group.description : this.topic;
+            this.topic = group.id.isEmpty() ? this.topic : group.description;
             this.name = this.name.isEmpty() ? group.name : this.name;
         }
 

@@ -13,6 +13,7 @@ namespace ConnectApp.Models.ActionModel {
         public Action ackMessage;
         public Action<string> openUrl;
         public Action<string, List<string>> browserImage;
+        public Action<string> playVideo;
         public Func<string, string, string, string, IPromise> sendMessage;
         public Func<string, string, string, IPromise> sendImage;
         public Func<IPromise> fetchChannelInfo;
