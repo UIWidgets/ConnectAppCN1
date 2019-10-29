@@ -148,6 +148,7 @@ namespace ConnectApp.Models.Model {
         public Dictionary<string, ChannelMember> membersDict;
         public int memberOffset;
         public bool atBottom = false;
+        public bool active = false;
         public ChannelMember currentMember;
 
         public static ChannelView fromChannel(Channel channel) {

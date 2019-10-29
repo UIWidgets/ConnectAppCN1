@@ -10,6 +10,7 @@ namespace ConnectApp.Models.ActionModel {
         public Action clearUnread;
         public Action reportLeaveBottom;
         public Action reportHitBottom;
+        public Action popFromScreen;
         public Action ackMessage;
         public Action<string> openUrl;
         public Action<string, List<string>> browserImage;
