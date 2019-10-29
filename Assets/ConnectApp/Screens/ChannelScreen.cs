@@ -83,9 +83,7 @@ namespace ConnectApp.screens {
                     }
 
                     if (messages.isNotEmpty()) {
-                        messages = messages
-                            .Where(message => message.type != ChannelMessageType.text || message.content != "")
-                            .ToList();
+                        messages = messages.Where(message => !message.shouldSkip()).ToList();
                         if (channel.localMessageIds.isNotEmpty()) {
                             messages.Sort((m1, m2) => {
                                 if ((m1.status != "sending" && m1.status != "waiting") &&
