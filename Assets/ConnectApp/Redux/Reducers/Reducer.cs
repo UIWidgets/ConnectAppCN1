@@ -1335,9 +1335,16 @@ namespace ConnectApp.redux.reducers {
                     }
 
                     if (action.channelId.isNotEmpty()) {
-                        Router.navigator.push(new CustomPageRoute(
-                            context => new ChannelScreenConnector(channelId: action.channelId)
-                        ));
+                        if (action.pushReplace) {
+                            Router.navigator.pushReplacement(new CustomPageRoute(
+                                context => new ChannelScreenConnector(channelId: action.channelId)
+                            ));
+                        }
+                        else {
+                            Router.navigator.push(new CustomPageRoute(
+                                context => new ChannelScreenConnector(channelId: action.channelId)
+                            ));
+                        }
                     }
 
                     break;
@@ -1347,6 +1354,16 @@ namespace ConnectApp.redux.reducers {
                     if (action.channelId.isNotEmpty()) {
                         Router.navigator.push(new CustomPageRoute(
                             context => new ChannelDetailScreenConnector(channelId: action.channelId)
+                        ));
+                    }
+
+                    break;
+                }
+
+                case MainNavigatorPushToChannelShareAction action: {
+                    if (action.channelId.isNotEmpty()) {
+                        Router.navigator.push(new CustomPageRoute(
+                            context => new ChannelShareScreenConnector(channelId: action.channelId)
                         ));
                     }
 

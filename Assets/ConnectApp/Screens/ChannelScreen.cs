@@ -684,7 +684,7 @@ namespace ConnectApp.screens {
                             new Flexible(
                                 child: new Text(
                                     !this.widget.viewModel.netWorkConnected
-                                        ? "群聊(未连接)"
+                                        ? this.widget.viewModel.channel.name + "(未连接)"
                                         : this.widget.viewModel.socketConnected
                                             ? this.widget.viewModel.channel.name
                                             : "收取中...",
