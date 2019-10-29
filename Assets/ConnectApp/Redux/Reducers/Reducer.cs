@@ -2642,6 +2642,12 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case SendChannelMessageSuccessAction action: {
+                    var channel = state.channelState.channelDict[action.channelId];
+                    var key = $"{state.loginState.loginInfo.userId}:{action.channelId}:{action.nonce}";
+                    if (channel.localMessageIds.Contains(action.nonce) &&
+                        state.channelState.localMessageDict.ContainsKey(key)) {
+                        state.channelState.localMessageDict[key].status = "normal";
+                    }
                     break;
                 }
 
