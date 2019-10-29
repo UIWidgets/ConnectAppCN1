@@ -606,6 +606,10 @@ namespace ConnectApp.redux.actions {
         public string channelId;
     }
 
+    public class SetChannelInactive : BaseAction {
+        public string channelId;
+    }
+
     public class PushReadyAction : BaseAction {
         public SocketResponseSessionData readyData;
     }

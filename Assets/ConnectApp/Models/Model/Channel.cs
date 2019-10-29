@@ -148,6 +148,7 @@ namespace ConnectApp.Models.Model {
         public Dictionary<string, ChannelMember> membersDict;
         public int memberOffset;
         public bool atBottom = false;
+        public bool active = false;
         public ChannelMember currentMember;
 
         public static ChannelView fromChannel(Channel channel) {
@@ -157,8 +158,8 @@ namespace ConnectApp.Models.Model {
                 membersDict = new Dictionary<string, ChannelMember>(),
                 id = channel?.id,
                 groupId = channel?.groupId,
-                thumbnail = channel?.thumbnail,
-                name = channel?.name,
+                thumbnail = channel?.thumbnail ?? "",
+                name = channel?.name ?? "未命名",
                 topic = channel?.topic,
                 memberCount = channel?.memberCount ?? 0,
                 isMute = channel?.isMute ?? false,
@@ -254,9 +255,7 @@ namespace ConnectApp.Models.Model {
 
         public void completeMissingFieldsFromGroup(Group group) {
             this.groupId = group.id.isEmpty() ? this.groupId : group.id;
-            this.thumbnail = this.thumbnail.isEmpty()? group.avatar : this.thumbnail;
-            this.topic = this.topic.isEmpty() ? group.description : this.topic;
-            this.name = this.name.isEmpty() ? group.name : this.name;
+            this.topic = group.id.isEmpty() ? this.topic : group.description;
         }
 
         public void handleUnreadMessage(ChannelMessageView message, string userId) {
@@ -351,12 +350,13 @@ namespace ConnectApp.Models.Model {
             return this.deleted || (this.type == ChannelMessageType.text && this.content.isEmpty());
         }
 
-        static ChannelMessageType getType(string content, List<Attachment> attachments = null, 
+        static ChannelMessageType getType(string content, List<Attachment> attachments = null,
             List<Embed> embeds = null) {
             if (content != null || (attachments?.Count ?? 0) == 0) {
                 if ((embeds?.Count ?? 0) == 0) {
                     return ChannelMessageType.text;
                 }
+
                 switch (embeds.First().embedType) {
                     case "image":
                         return ChannelMessageType.embedImage;
