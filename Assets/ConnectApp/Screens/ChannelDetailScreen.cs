@@ -342,7 +342,7 @@ namespace ConnectApp.screens {
         }
 
         void share() {
-            ShareUtils.showShareView(
+            ActionSheetUtils.showModalActionSheet(
                 new ShareView(
                     projectType: ProjectType.iEvent,
                     onPressed: type => {
