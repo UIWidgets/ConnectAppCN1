@@ -253,7 +253,7 @@ namespace ConnectApp.screens {
         readonly RefreshController _refreshController = new RefreshController();
         readonly GlobalKey _smartRefresherKey = GlobalKey<State<SmartRefresher>>.key("SmartRefresher");
         readonly FocusNode _focusNode = new FocusNode();
-        readonly GlobalKey _textFieldKey = GlobalKey.key("_channelFocusNodeKey");
+        readonly GlobalKey _textFieldKey = GlobalKey.key("_channelTextFieldKey");
         readonly TimeSpan _showTimeThreshold = TimeSpan.FromMinutes(5);
 
         readonly Dictionary<string, string> _headers = new Dictionary<string, string> {
