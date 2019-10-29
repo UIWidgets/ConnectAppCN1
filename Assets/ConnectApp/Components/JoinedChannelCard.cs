@@ -104,27 +104,6 @@ namespace ConnectApp.Components {
                 )
             );
 
-            Widget icon = new Align(
-                alignment: Alignment.centerRight,
-                child: new NotificationDot(
-                        this.channel.unread > 0
-                            ? this.channel.mentioned > 0 ? $"{this.channel.mentioned}" : ""
-                            : null
-                    )
-            );
-
-            var messageIcon = new Row(
-                children: new List<Widget> {
-                    new Expanded(
-                        child: new Container(
-                            padding: EdgeInsets.symmetric(0, 16),
-                            child: message
-                        )
-                    ),
-                    icon
-                }
-            );
-
             return new GestureDetector(
                 onTap: this.onTap,
                 child: new Container(
@@ -145,8 +124,19 @@ namespace ConnectApp.Components {
                                 child: new Column(
                                     children: new List<Widget> {
                                         titleLine,
-                                        new Expanded(
-                                            child: messageIcon
+                                        new Row(
+                                            children: new List<Widget> {
+                                                new Container(width: 16),
+                                                new Expanded(
+                                                    child: message
+                                                ),
+                                                new NotificationDot(
+                                                    this.channel.unread > 0
+                                                        ? this.channel.mentioned > 0 ? $"{this.channel.mentioned}" : ""
+                                                        : null,
+                                                    margin: EdgeInsets.only(16)
+                                                )
+                                            }
                                         )
                                     }
                                 )

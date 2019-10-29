@@ -264,7 +264,7 @@ namespace ConnectApp.screens {
 
         Widget _buildHeadTop(IEvent eventObj) {
             Widget shareWidget = new CustomButton(
-                onPressed: () => ShareUtils.showShareView(new ShareView(
+                onPressed: () => ActionSheetUtils.showModalActionSheet(new ShareView(
                     projectType: ProjectType.iEvent,
                     onPressed: type => {
                         AnalyticsManager.ClickShare(type, "Event", "Event_" + eventObj.id, eventObj.title);

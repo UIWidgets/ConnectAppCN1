@@ -13,14 +13,12 @@ namespace ConnectApp.Utils {
             OnShareType shareToWechat,
             VoidCallback mainRouterPop = null
         ) {
-            ShareUtils.showShareView(new ShareView(
+            ActionSheetUtils.showModalActionSheet(new ShareView(
                 projectType: ProjectType.article,
                 showReportAndBlock: showReportAndBlock,
                 onPressed: type => {
                     if (type == ShareType.clipBoard) {
-                        if (pushToCopy != null) {
-                            pushToCopy();
-                        }
+                        pushToCopy?.Invoke();
                     }
                     else if (type == ShareType.block) {
                         ReportManager.block(
@@ -38,9 +36,7 @@ namespace ConnectApp.Utils {
                         );
                     }
                     else {
-                        if (shareToWechat != null) {
-                            shareToWechat(type: type);
-                        }
+                        shareToWechat?.Invoke(type: type);
                     }
                 }
             ));
