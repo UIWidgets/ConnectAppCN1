@@ -625,7 +625,7 @@ namespace ConnectApp.screens {
             Widget ret = new Container(
                 height: 40,
                 decoration: new BoxDecoration(
-                    color: CColors.Error,
+                    color: CColors.White,
                     borderRadius: BorderRadius.all(20),
                     boxShadow: new List<BoxShadow> {
                         new BoxShadow(
@@ -643,7 +643,7 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         new Text(
                             $"{CStringUtils.CountToString(this.widget.viewModel.newMessageCount)}条新消息未读",
-                            style: CTextStyle.PRegularWhite.copyWith(height: 1f)
+                            style: CTextStyle.PRegularBlue.copyWith(height: 1f)
                         )
                     })
             );
