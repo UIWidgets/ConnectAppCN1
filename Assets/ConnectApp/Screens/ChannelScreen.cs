@@ -1100,7 +1100,15 @@ namespace ConnectApp.screens {
                 case ChannelMessageType.file:
                     return new FileMessage(
                         message: message,
-                        () => this.widget.actionModel.openUrl(obj: message.attachments.first().url)
+                        () => {
+                            var attachment = message.attachments.first();
+                            if (attachment.filename.EndsWith("mp4")) {
+                                this.widget.actionModel.playVideo(obj: attachment.url);
+                            }
+                            else {
+                                this.widget.actionModel.openUrl(obj: attachment.url);
+                            }
+                        }
                     );
                 case ChannelMessageType.embedExternal:
                 case ChannelMessageType.embedImage:
