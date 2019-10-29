@@ -804,7 +804,7 @@ namespace ConnectApp.screens {
                                   (message.time - this.widget.viewModel.messages[index - 1].time) >
                                   this._showTimeThreshold,
                         left: message.author.id != this.widget.viewModel.me.id,
-                        isBottom: index == 0
+                        isBottom: index == this.widget.viewModel.messages.Count - 1
                     );
                 }
             );
