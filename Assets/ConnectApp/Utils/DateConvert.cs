@@ -13,8 +13,8 @@ namespace ConnectApp.Utils {
         static readonly DateTime startTime =
             new DateTime(2016, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         
-        public static string DateStringFromNow(DateTime dt, bool isLocal = false) {
-            TimeSpan span = isLocal ? DateTime.Now - dt : DateTime.UtcNow - dt;
+        public static string DateStringFromNow(DateTime dt) {
+            TimeSpan span = DateTime.UtcNow - dt;
             if (span.TotalDays > 3) {
                 return dt.ToString("yyyy-MM-dd");
             }
@@ -63,7 +63,7 @@ namespace ConnectApp.Utils {
         }
 
         public static string DateStringFromNonce(string nonce) {
-            return DateStringFromNow(DateTimeFromNonce(nonce), true);
+            return DateStringFromNow(DateTimeFromNonce(nonce));
         }
         
         public static DateTime DateTimeFromNonce(string nonce) {

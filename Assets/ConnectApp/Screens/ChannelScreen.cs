@@ -177,6 +177,13 @@ namespace ConnectApp.screens {
                             url = url,
                             urls = imageUrls
                         }),
+                        playVideo = url => {
+                            dispatcher.dispatch(new MainNavigatorPushToVideoPlayerAction {
+                                url = url,
+                                needUpdate = false,
+                                limitSeconds = 0
+                            });
+                        },
                         fetchChannelInfo = () => dispatcher.dispatch<IPromise>(
                             Actions.fetchChannelInfo(channelId: this.channelId)),
                         fetchMessages = (before, after) => dispatcher.dispatch<IPromise>(
