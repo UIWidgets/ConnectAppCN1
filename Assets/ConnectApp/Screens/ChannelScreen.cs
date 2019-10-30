@@ -501,7 +501,7 @@ namespace ConnectApp.screens {
 
         float calculateOffsetFromIndex(int index) {
             return this.calculateMessageHeightFromIndex(index) -
-                   (MediaQuery.of(this.context).size.height - CustomAppBarUtil.appBarHeight - 80);
+                   (MediaQuery.of(this.context).size.height - CustomAppBarUtil.appBarHeight - 120);
         }
 
         void jumpToIndex(int index) {
@@ -794,11 +794,14 @@ namespace ConnectApp.screens {
                     alignment: Alignment.topRight,
                     child: new GestureDetector(
                         onTap: () => {
-                            this.jumpToLastReadMessage();
                             if (index == 0 && this.widget.viewModel.channel.hasMore) {
                                 this._refreshController.requestRefresh(false);
+                                SchedulerBinding.instance.addPostFrameCallback(_ => {
+                                    this._refreshController.scrollTo(this.calculateOffsetFromIndex(index) + 100);
+                                });
                             }
                             else {
+                                this.jumpToLastReadMessage();
                                 this.showUnreadMessageNotification = false;
                             }
                         },
