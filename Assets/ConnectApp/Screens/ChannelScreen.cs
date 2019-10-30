@@ -668,7 +668,11 @@ namespace ConnectApp.screens {
             );
         }
 
+        int _newMessageCount = 0;
         Widget _buildNewMessageNotification() {
+            if (this.widget.viewModel.newMessageCount > 0) {
+                this._newMessageCount = this.widget.viewModel.newMessageCount;
+            }
             if (this._newMessageNotificationController.value < 0.1f) {
                 return new Container();
             }
@@ -692,7 +696,7 @@ namespace ConnectApp.screens {
                     mainAxisSize: MainAxisSize.min,
                     children: new List<Widget> {
                         new Text(
-                            $"{CStringUtils.CountToString(this.widget.viewModel.newMessageCount)}条新消息未读",
+                            $"{CStringUtils.CountToString(this._newMessageCount, "0")}条新消息未读",
                             style: CTextStyle.PRegularBlue.copyWith(height: 1f)
                         )
                     })
