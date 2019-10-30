@@ -1277,8 +1277,8 @@ namespace ConnectApp.screens {
                     .Catch(error => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed))
                     .Then(() => { Promise.Delayed(TimeSpan.FromMilliseconds(500)).Then(() => {
                             if (this._lastReadMessageId != null &&
-                            this.calculateOffsetFromMessage(this._lastReadMessageId) < this._refreshController.offset + 10) {
-                            this.showUnreadMessageNotification = false;
+                                this.calculateOffsetFromMessage(this._lastReadMessageId) < this._refreshController.offset + 10) {
+                                this.showUnreadMessageNotification = false;
                             }
                         });
                     });
@@ -1327,6 +1327,15 @@ namespace ConnectApp.screens {
             if (this._lastScrollPosition == null || this._lastScrollPosition < this._refreshController.offset) {
                 if (this.showEmojiBoard || this.showKeyboard) {
                     this.setState(this._dismissKeyboard);
+                }
+            }
+
+            if (this._lastReadMessageId != null && this.showUnreadMessageNotification) {
+                var index = this.widget.viewModel.messages.FindIndex(message => {
+                    return message.id.hexToLong() > this._lastReadMessageId.hexToLong();
+                });
+                if (index > 0 && this.calculateOffsetFromIndex(index) < this._refreshController.offset + 10) {
+                    this.showUnreadMessageNotification = false;
                 }
             }
 
