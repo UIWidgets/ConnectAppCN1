@@ -23,7 +23,6 @@ using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using Config = ConnectApp.Constants.Config;
-using Icons = ConnectApp.Constants.Icons;
 using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.screens {
@@ -175,9 +174,7 @@ namespace ConnectApp.screens {
                     }
 
                     var actionModel = new ChannelScreenActionModel {
-                        mainRouterPop = () => {
-                            dispatcher.dispatch(new MainNavigatorPopAction());
-                        },
+                        mainRouterPop = () => { dispatcher.dispatch(new MainNavigatorPopAction()); },
                         openUrl = url => OpenUrlUtil.OpenUrl(url: url, dispatcher: dispatcher),
                         browserImage = (url, imageUrls) => dispatcher.dispatch(new MainNavigatorPushToPhotoViewAction {
                             url = url,
@@ -208,7 +205,8 @@ namespace ConnectApp.screens {
                         }),
                         sendMessage = (channelId, content, nonce, parentMessageId) => dispatcher.dispatch<IPromise>(
                             Actions.sendChannelMessage(channelId, content, nonce, parentMessageId)),
-                        ackMessage = () => dispatcher.dispatch(Actions.ackChannelMessage(viewModel.channel.lastMessageId)),
+                        ackMessage = () =>
+                            dispatcher.dispatch(Actions.ackChannelMessage(viewModel.channel.lastMessageId)),
                         sendImage = (channelId, data, nonce) => dispatcher.dispatch<IPromise>(
                             Actions.sendImage(channelId, nonce, data)),
                         clearUnread = () => dispatcher.dispatch(new ClearChannelUnreadAction {
@@ -294,6 +292,7 @@ namespace ConnectApp.screens {
                 if (this._showUnreadMessageNotification == value) {
                     return;
                 }
+
                 this._showUnreadMessageNotification = value;
                 if (this._showUnreadMessageNotification) {
                     Promise.Delayed(TimeSpan.FromMilliseconds(500)).Then(() => {
@@ -305,13 +304,14 @@ namespace ConnectApp.screens {
                 }
             }
         }
-        
+
         public bool showNewMessageNotification {
             get { return this._showNewMessageNotification; }
             set {
                 if (this._showNewMessageNotification == value) {
                     return;
                 }
+
                 this._showNewMessageNotification = value;
                 if (this._showNewMessageNotification) {
                     Promise.Delayed(TimeSpan.FromMilliseconds(100)).Then(() => {
@@ -323,7 +323,7 @@ namespace ConnectApp.screens {
                 }
             }
         }
-        
+
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
@@ -385,22 +385,19 @@ namespace ConnectApp.screens {
                 duration: TimeSpan.FromMilliseconds(100),
                 vsync: this
             );
-            this._unreadNotificationController.addListener(() => {
-                this.setState(() => {});
-            });
-            this._newMessageNotificationController.addListener(() => {
-                this.setState(() => {});
-            });
+            this._unreadNotificationController.addListener(() => { this.setState(() => { }); });
+            this._newMessageNotificationController.addListener(() => { this.setState(() => { }); });
         }
 
         bool _onMessageLoadedCalled = false;
+
         void _onMessageLoaded() {
             if (this._onMessageLoadedCalled) {
                 return;
             }
 
             this._onMessageLoadedCalled = true;
-            
+
             this.showUnreadMessageNotification = this._lastReadMessageId != null &&
                                                  this.calculateOffsetFromMessage(this._lastReadMessageId) > 0;
         }
@@ -537,6 +534,7 @@ namespace ConnectApp.screens {
                 if (msg.type == ChannelMessageType.image) {
                     imageUrls.Add(CImageUtils.SizeToScreenImageUrl(imageUrl: msg.content));
                 }
+
                 if (msg.type == ChannelMessageType.embedImage) {
                     imageUrls.Add(CImageUtils.SizeToScreenImageUrl(imageUrl: msg.embeds[0].embedData.imageUrl));
                 }
@@ -581,10 +579,6 @@ namespace ConnectApp.screens {
             Widget ret = new Stack(
                 children: new List<Widget> {
                     this._buildContent(),
-                    this.widget.viewModel.messageLoading &&
-                    this.widget.viewModel.messages.isEmpty()
-                        ? (Widget) new GlobalLoading()
-                        : new Container(),
                     this._buildInputBar(),
                     this.widget.viewModel.messageLoading
                         ? new Container()
@@ -635,6 +629,7 @@ namespace ConnectApp.screens {
             if (this._newMessageNotificationController.value < 0.1f) {
                 return new Container();
             }
+
             Widget ret = new Container(
                 height: 40,
                 decoration: new BoxDecoration(
@@ -660,7 +655,7 @@ namespace ConnectApp.screens {
                         )
                     })
             );
-            
+
             ret = new FractionalTranslation(
                 translation: new OffsetTween(new Offset(0, 1), Offset.zero)
                     .animate(this._newMessageNotificationController).value,
@@ -679,6 +674,7 @@ namespace ConnectApp.screens {
                             if (this.lastReadMessageLoaded()) {
                                 this.showUnreadMessageNotification = false;
                             }
+
                             SchedulerBinding.instance.addPostFrameCallback(_ => {
                                 this._refreshController.scrollTo(0);
                             });
@@ -700,7 +696,7 @@ namespace ConnectApp.screens {
             if (this._unreadNotificationController.value < 0.1f) {
                 return new Container();
             }
-            
+
             var index = this.widget.viewModel.messages.FindIndex(message => {
                 return message.id.hexToLong() > this._lastReadMessageId.hexToLong();
             });
@@ -741,7 +737,7 @@ namespace ConnectApp.screens {
                     }
                 )
             );
-            
+
             ret = new FractionalTranslation(
                 translation: new OffsetTween(new Offset(1.0f, 0.0f), Offset.zero)
                     .animate(this._unreadNotificationController).value,
@@ -1296,10 +1292,12 @@ namespace ConnectApp.screens {
                     .Then(() => this._refreshController.sendBack(up: up,
                         up ? RefreshStatus.completed : RefreshStatus.idle))
                     .Catch(error => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed))
-                    .Then(() => { Promise.Delayed(TimeSpan.FromMilliseconds(500)).Then(() => {
+                    .Then(() => {
+                        Promise.Delayed(TimeSpan.FromMilliseconds(500)).Then(() => {
                             if (this._lastReadMessageId != null &&
-                            this.calculateOffsetFromMessage(this._lastReadMessageId) < this._refreshController.offset + 10) {
-                            this.showUnreadMessageNotification = false;
+                                this.calculateOffsetFromMessage(this._lastReadMessageId) <
+                                this._refreshController.offset + 10) {
+                                this.showUnreadMessageNotification = false;
                             }
                         });
                     });
@@ -1430,6 +1428,7 @@ namespace ConnectApp.screens {
             if (this._focusNode.hasFocus) {
                 this._focusNode.unfocus();
             }
+
             this.widget.actionModel.popFromScreen();
         }
 

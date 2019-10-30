@@ -57,6 +57,7 @@ namespace ConnectApp.screens {
                                 return (c2.lastMessage.time - c1.lastMessage.time).Milliseconds;
                             });
                     }
+
                     var lastMessageMap = new Dictionary<string, string>();
                     foreach (var channel in joinedChannels) {
                         if (!string.IsNullOrEmpty(value: channel.lastMessageId)) {
@@ -183,7 +184,11 @@ namespace ConnectApp.screens {
             base.build(context: context);
             Widget content;
             if (this.widget.viewModel.publicChannels.isNullOrEmpty() && this.widget.viewModel.channelLoading) {
-                content = new GlobalLoading();
+                content = new Container(
+                    child: new GlobalLoading(),
+                    padding: EdgeInsets.only(bottom: CConstant.TabBarHeight +
+                                                     CCommonUtils.getSafeAreaBottomPadding(context: context))
+                );
             }
             else {
                 content = new NotificationListener<ScrollNotification>(
