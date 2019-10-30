@@ -334,30 +334,20 @@ namespace ConnectApp.screens {
 
         bool showEmojiBoard {
             get {
-                if (this.showKeyboard && this._showEmojiBoard) {
-                    Promise.Delayed(TimeSpan.FromMilliseconds(300)).Then(() => {
-                        if (this.showKeyboard && this._showEmojiBoard) {
-                            this._showEmojiBoard = false;
-                        }
-                    });
-                }
-
-                return (this._showEmojiBoard || this._emojiBoardController.value > 0.1f) && !this.showKeyboard;
+                return this._showEmojiBoard || this._emojiBoardController.value > 0.01f;
             }
 
             set {
-                if (this.showEmojiBoard == value) {
+                if (this._showEmojiBoard == value) {
                     return;
                 }
 
                 this._showEmojiBoard = value;
-                if (this._showEmojiBoard == value) {
-                    if (value) {
-                        this._emojiBoardController.animateTo(1);
-                    }
-                    else {
-                        this._emojiBoardController.animateBack(0, TimeSpan.FromMilliseconds(200));
-                    }
+                if (value) {
+                    this._emojiBoardController.animateTo(1);
+                }
+                else {
+                    this._emojiBoardController.animateBack(0, TimeSpan.FromMilliseconds(200));
                 }
             }
         }
@@ -371,7 +361,12 @@ namespace ConnectApp.screens {
                     this._viewInsetsBottomAnimation = new FloatTween(begin: this._viewInsetsBottom, end: target)
                         .animate(this._viewInsetsBottomController);
                     this._viewInsetsBottomController.reset();
-                    this._viewInsetsBottomController.animateTo(1);
+                    this._viewInsetsBottomController.animateTo(1).Finally(() => {
+                        if (target > 50 && this._showEmojiBoard) {
+                            this._showEmojiBoard = false;
+                            this._emojiBoardController.setValue(0);
+                        }
+                    });
                 }
 
                 this._viewInsetsBottom = target;
@@ -1217,23 +1212,21 @@ namespace ConnectApp.screens {
                     FocusScope.of(context: this.context).requestFocus(node: this._focusNode);
                     if (this.showEmojiBoard) {
                         TextInputPlugin.TextInputShow();
-                        Promise.Delayed(TimeSpan.FromMilliseconds(300)).Then(
-                            onResolved: () => {
-                                this._showEmojiBoard = false;
-                                this._emojiBoardController.setValue(0);
-                            }
-                        );
                     }
                     else {
-                        this.showEmojiBoard = true;
                         // If keyboard is present now, just hide it. If keyboard is not present now,
                         // it may pop out later (because of the focus), wait for a while and pop it
                         if (!this.showKeyboard) {
+                            this.showEmojiBoard = true;
                             Promise.Delayed(TimeSpan.FromMilliseconds(100)).Then(
-                                onResolved: TextInputPlugin.TextInputHide
-                            );
+                                onResolved: () => {
+                                    TextInputPlugin.TextInputHide();
+                                    this.showEmojiBoard = true;
+                                });
                         }
                         else {
+                            this._showEmojiBoard = true;
+                            this._emojiBoardController.setValue(1);
                             TextInputPlugin.TextInputHide();
                         }
                     }
