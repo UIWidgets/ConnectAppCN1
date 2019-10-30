@@ -153,7 +153,10 @@ public class PickImageActivity extends TakePhotoActivity {
             Uri imageUri = Uri.fromFile(file);
 
             // 压缩图片
-            takePhoto.onEnableCompress(compressConfig(), true);
+            int maxSize = this.getIntent().getIntExtra("maxSize", 0);
+            if (maxSize > 0) {
+                takePhoto.onEnableCompress(compressConfig(), true);
+            }
 
             TakePhotoOptions takePhotoOptions = new TakePhotoOptions.Builder().create();
             takePhotoOptions.setCorrectImage(true);

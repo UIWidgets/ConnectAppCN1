@@ -612,12 +612,15 @@ namespace ConnectApp.screens {
             }
 
             var time = this._article.publishedTime;
-            Widget descriptionWidget = new Container();
+            Widget descriptionWidget;
             if (description.isNotEmpty()) {
                 descriptionWidget = new Text(
                     data: description,
                     style: CTextStyle.PSmallBody3
                 );
+            }
+            else {
+                descriptionWidget = new Container();
             }
 
             return new Container(
@@ -626,9 +629,20 @@ namespace ConnectApp.screens {
                 child: new Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
-                        new Text(
-                            data: this._article.title,
-                            style: CTextStyle.H3
+                        new TipMenu(
+                            new List<TipMenuItem> {
+                                new TipMenuItem(
+                                    "复制",
+                                    () => Clipboard.setData(new ClipboardData(text: this._article.title))
+                                )
+                            },
+                            new Container(
+                                color: CColors.Transparent,
+                                child: new Text(
+                                    data: this._article.title,
+                                    style: CTextStyle.H3
+                                )
+                            )
                         ),
                         new Container(
                             margin: EdgeInsets.only(top: 8),
@@ -693,15 +707,23 @@ namespace ConnectApp.screens {
                         ),
                         this._article.subTitle.isEmpty()
                             ? new Container()
-                            : new Container(
-                                margin: EdgeInsets.only(bottom: 24),
-                                decoration: new BoxDecoration(
-                                    color: CColors.Separator2,
-                                    borderRadius: BorderRadius.all(4)
-                                ),
-                                padding: EdgeInsets.only(16, 12, 16, 12),
-                                width: Screen.width - 32,
-                                child: new Text($"{this._article.subTitle}", style: CTextStyle.PLargeBody4)
+                            : (Widget)new TipMenu(
+                                new List<TipMenuItem> {
+                                    new TipMenuItem(
+                                        "复制", 
+                                        () => Clipboard.setData(new ClipboardData(text: this._article.subTitle))
+                                    )
+                                },
+                                new Container(
+                                    margin: EdgeInsets.only(bottom: 24),
+                                    decoration: new BoxDecoration(
+                                        color: CColors.Separator2,
+                                        borderRadius: BorderRadius.all(4)
+                                    ),
+                                    padding: EdgeInsets.only(16, 12, 16, 12),
+                                    width: Screen.width - 32,
+                                    child: new Text($"{this._article.subTitle}", style: CTextStyle.PLargeBody4)
+                                )
                             )
                     }
                 )

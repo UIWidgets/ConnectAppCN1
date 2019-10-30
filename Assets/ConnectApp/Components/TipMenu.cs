@@ -105,19 +105,24 @@ namespace ConnectApp.Components {
 
             return new GestureDetector(
                 onLongPress: () => {
+                    var height = MediaQuery.of(context: context).size.height;
                     var renderBox = (RenderBox) this._tipMenuKey.currentContext.findRenderObject();
                     var position = renderBox.localToGlobal(point: Offset.zero);
                     ArrowDirection arrowDirection;
-                    if (position.dy <= 
+                    if (position.dy > 
                         44 
                         + CCommonUtils.getSafeAreaTopPadding(context: context) 
                         + CustomTextSelectionControlsUtils._kToolbarTriangleSize.height
                         + this._getTipMenuHeight(context: context)) {
+                        arrowDirection = ArrowDirection.down;
+                    }
+                    else if (position.dy + renderBox.size.height < height - 44) {
                         position = new Offset(dx: position.dx, position.dy + renderBox.size.height);
                         arrowDirection = ArrowDirection.up;
                     }
                     else {
-                        arrowDirection = ArrowDirection.down;
+                        position = new Offset(dx: position.dx, height / 2.0f);
+                        arrowDirection = ArrowDirection.up;
                     }
                     // var position = renderBox.localToGlobal(new Offset(0, dy: renderBox.size.height));
                     this._createTipMenu(
