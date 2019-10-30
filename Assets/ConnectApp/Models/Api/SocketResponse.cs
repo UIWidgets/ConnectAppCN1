@@ -333,6 +333,12 @@ namespace ConnectApp.Models.Api {
     public class SocketResponseMessageAck : Frame<SocketResponseMessageAckData> {
         
     }
+
+    [Serializable]
+    public class OnlineMemberCount {
+        public int count;
+        public int slot;
+    }
     
     [Serializable]
     public class SocketResponseUpdateChannelData : SocketResponseDataBase {
@@ -352,7 +358,7 @@ namespace ConnectApp.Models.Api {
         public List<ChannelTag> tags;
         public ChannelMessageLite lastMessage;
         public int memberCount;
-        public int? onlineMemberCount;
+        public List<OnlineMemberCount> onlineMemberCount;
         public bool isArchived;
         public bool isHidden;
         [JsonProperty("readonly")] public bool Readonly;
