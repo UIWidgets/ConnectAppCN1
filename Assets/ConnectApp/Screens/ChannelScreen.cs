@@ -961,7 +961,7 @@ namespace ConnectApp.screens {
                 child: this._buildMessageContent(message: message)
             );
 
-            if (message.status != "normal") {
+            if (message.status != "normal" && message.status != "local") {
                 Widget symbol = message.status == "sending" || message.status == "waiting"
                     ? (Widget) new CustomActivityIndicator(size: LoadingSize.small)
                     : new GestureDetector(
