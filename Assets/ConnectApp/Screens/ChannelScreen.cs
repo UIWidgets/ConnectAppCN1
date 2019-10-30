@@ -270,6 +270,7 @@ namespace ConnectApp.screens {
         string _lastReadMessageId = null;
         AnimationController _unreadNotificationController;
         AnimationController _newMessageNotificationController;
+        AnimationController _emojiBoardController;
 
         bool _showUnreadMessageNotification = false;
         bool _showNewMessageNotification = false;
@@ -339,7 +340,23 @@ namespace ConnectApp.screens {
                     });
                 }
 
-                return this._showEmojiBoard && !this.showKeyboard;
+                return (this._showEmojiBoard || this._emojiBoardController.value > 0.1f) && !this.showKeyboard;
+            }
+
+            set {
+                if (this.showEmojiBoard == value) {
+                    return;
+                }
+
+                this._showEmojiBoard = value;
+                if (this._showEmojiBoard == value) {
+                    if (value) {
+                        this._emojiBoardController.animateTo(1);
+                    }
+                    else {
+                        this._emojiBoardController.animateBack(0, TimeSpan.FromMilliseconds(200));
+                    }
+                }
             }
         }
 
@@ -372,10 +389,17 @@ namespace ConnectApp.screens {
                 duration: TimeSpan.FromMilliseconds(100),
                 vsync: this
             );
+            this._emojiBoardController = new AnimationController(
+                duration: TimeSpan.FromMilliseconds(100),
+                vsync: this
+            );
             this._unreadNotificationController.addListener(() => {
                 this.setState(() => {});
             });
             this._newMessageNotificationController.addListener(() => {
+                this.setState(() => {});
+            });
+            this._emojiBoardController.addListener(() => {
                 this.setState(() => {});
             });
         }
@@ -473,6 +497,8 @@ namespace ConnectApp.screens {
             SchedulerBinding.instance.addPostFrameCallback(_ => { this.widget.actionModel.clearUnread(); });
             this._focusNode.dispose();
             this._unreadNotificationController.dispose();
+            this._newMessageNotificationController.dispose();
+            this._emojiBoardController.dispose();
             base.dispose();
         }
 
@@ -1024,7 +1050,7 @@ namespace ConnectApp.screens {
                             FocusScope.of(this.context).requestFocus(this._focusNode);
                             TextInputPlugin.TextInputShow();
                             Promise.Delayed(TimeSpan.FromMilliseconds(200)).Then(
-                                () => { this.setState(() => { this._showEmojiBoard = false; }); });
+                                () => { this.setState(() => { this.showEmojiBoard = false; }); });
                         }
                     },
                     child: new Container(
@@ -1162,14 +1188,25 @@ namespace ConnectApp.screens {
                     FocusScope.of(context: this.context).requestFocus(node: this._focusNode);
                     if (this.showEmojiBoard) {
                         TextInputPlugin.TextInputShow();
-                        Promise.Delayed(TimeSpan.FromMilliseconds(200)).Then(
-                            () => this.setState(() => this._showEmojiBoard = false));
+                        Promise.Delayed(TimeSpan.FromMilliseconds(300)).Then(
+                            onResolved: () => {
+                                this._showEmojiBoard = false;
+                                this._emojiBoardController.setValue(0);
+                            }
+                        );
                     }
                     else {
-                        this.setState(() => this._showEmojiBoard = true);
-                        Promise.Delayed(TimeSpan.FromMilliseconds(100)).Then(
-                            onResolved: TextInputPlugin.TextInputHide
-                        );
+                        this.showEmojiBoard = true;
+                        // If keyboard is present now, just hide it. If keyboard is not present now,
+                        // it may pop out later (because of the focus), wait for a while and pop it
+                        if (!this.showKeyboard) {
+                            Promise.Delayed(TimeSpan.FromMilliseconds(100)).Then(
+                                onResolved: TextInputPlugin.TextInputHide
+                            );
+                        }
+                        else {
+                            TextInputPlugin.TextInputHide();
+                        }
                     }
                 }
             );
@@ -1194,10 +1231,16 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildEmojiBoard() {
-            return new EmojiBoard(
-                handleEmoji: this._handleEmoji,
-                handleDelete: this._handleDelete,
-                () => this._handleSubmit(text: this._textController.text)
+            return new ClipRect(
+                child: new Align(
+                    alignment: Alignment.topCenter,
+                    heightFactor: this._emojiBoardController.value,
+                    child: new EmojiBoard(
+                        handleEmoji: this._handleEmoji,
+                        handleDelete: this._handleDelete,
+                        () => this._handleSubmit(text: this._textController.text)
+                    )
+                )
             );
         }
 
@@ -1290,7 +1333,10 @@ namespace ConnectApp.screens {
         const float bottomThreshold = 50;
 
         void _dismissKeyboard() {
-            this._showEmojiBoard = false;
+            if (this._showEmojiBoard && !this.showKeyboard) {
+                this.showEmojiBoard = false;
+            }
+
             TextInputPlugin.TextInputHide();
         }
 
@@ -1326,7 +1372,7 @@ namespace ConnectApp.screens {
 
             if (this._lastScrollPosition == null || this._lastScrollPosition < this._refreshController.offset) {
                 if (this.showEmojiBoard || this.showKeyboard) {
-                    this.setState(this._dismissKeyboard);
+                    this._dismissKeyboard();
                 }
             }
 
