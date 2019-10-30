@@ -38,7 +38,7 @@ namespace ConnectApp.Components {
             Key key = null,
             string title = null,
             List<ActionSheetItem> items = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.title = title;
             this.items = items;
         }
@@ -52,10 +52,10 @@ namespace ConnectApp.Components {
                 child: new Column(
                     mainAxisSize: MainAxisSize.min,
                     children: new List<Widget> {
-                        _buildTitle(this.title),
-                        _buildButtons(this.items),
+                        _buildTitle(title: this.title),
+                        _buildButtons(items: this.items),
                         new Container(
-                            height: MediaQuery.of(context).padding.bottom
+                            height: MediaQuery.of(context: context).padding.bottom
                         )
                     }
                 )
@@ -63,7 +63,7 @@ namespace ConnectApp.Components {
         }
 
         static Widget _buildTitle(string title) {
-            if (title == null || title.Length <= 0) {
+            if (title.isEmpty()) {
                 return new Container();
             }
 
@@ -73,7 +73,7 @@ namespace ConnectApp.Components {
                         alignment: Alignment.center,
                         height: 54,
                         child: new Text(
-                            title,
+                            data: title,
                             style: CTextStyle.PRegularBody4
                         )
                     ),
@@ -95,57 +95,57 @@ namespace ConnectApp.Components {
             List<Widget> destructiveWidgets = new List<Widget>();
             List<Widget> cancelWidgets = new List<Widget>();
             items.ForEach(item => {
-                ActionType type = item.type;
-                Color titleColor = CColors.TextBody;
-                if (type == ActionType.destructive) {
-                    titleColor = CColors.Error;
+                Color titleColor;
+                switch (item.type) {
+                    case ActionType.normal:
+                        titleColor = CColors.TextBody;
+                        break;
+                    case ActionType.cancel:
+                        titleColor = CColors.Cancel;
+                        break;
+                    case ActionType.destructive:
+                        titleColor = CColors.Error;
+                        break;
+                    default:
+                        titleColor = CColors.TextBody;
+                        break;
                 }
 
-                if (type == ActionType.cancel) {
-                    titleColor = CColors.Cancel;
-                }
-
-                Widget widget = new Column(
-                    children: new List<Widget> {
-                        new GestureDetector(
-                            onTap: () => {
-                                ActionSheetUtils.hiddenModalPopup();
-                                if (item.onTap != null) {
-                                    item.onTap();
-                                }
-                            },
-                            child: new Container(
-                                alignment: Alignment.center,
-                                height: 49,
-                                color: CColors.White,
-                                child: new Text(
-                                    item.title,
-                                    style: CTextStyle.PLargeBody.copyWith(color: titleColor)
-                                )
-                            )
+                Widget widget = new GestureDetector(
+                    onTap: () => {
+                        ActionSheetUtils.hiddenModalPopup();
+                        item.onTap?.Invoke();
+                    },
+                    child: new Container(
+                        alignment: Alignment.center,
+                        height: 49,
+                        color: CColors.White,
+                        child: new Text(
+                            data: item.title,
+                            style: CTextStyle.PLargeBody.copyWith(color: titleColor)
                         )
-                    }
+                    )
                 );
                 var divider = new CustomDivider(
                     height: 1,
                     color: CColors.Separator2
                 );
-                if (type == ActionType.destructive) {
-                    destructiveWidgets.Add(widget);
-                    destructiveWidgets.Add(divider);
+                if (item.type == ActionType.destructive) {
+                    destructiveWidgets.Add(item: widget);
+                    destructiveWidgets.Add(item: divider);
                 }
-                else if (type == ActionType.cancel) {
+                else if (item.type == ActionType.cancel) {
                     cancelWidgets.Add(new CustomDivider(height: 4, color: CColors.Separator2));
-                    cancelWidgets.Add(widget);
+                    cancelWidgets.Add(item: widget);
                 }
                 else {
-                    normalWidgets.Add(widget);
-                    normalWidgets.Add(divider);
+                    normalWidgets.Add(item: widget);
+                    normalWidgets.Add(item: divider);
                 }
             });
-            widgets.AddRange(normalWidgets);
-            widgets.AddRange(destructiveWidgets);
-            widgets.AddRange(cancelWidgets);
+            widgets.AddRange(collection: normalWidgets);
+            widgets.AddRange(collection: destructiveWidgets);
+            widgets.AddRange(collection: cancelWidgets);
             return new Column(
                 children: widgets
             );
@@ -160,7 +160,7 @@ namespace ConnectApp.Components {
                 cxt => child,
                 "Dismiss"
             );
-            Router.navigator.push(route);
+            Router.navigator.push(route: route);
         }
 
         public static void hiddenModalPopup() {
@@ -175,7 +175,7 @@ namespace ConnectApp.Components {
             WidgetBuilder builder = null,
             string barrierLabel = "",
             RouteSettings settings = null
-        ) : base(settings) {
+        ) : base(settings: settings) {
             this.builder = builder;
             this.barrierLabel = barrierLabel;
         }
@@ -206,8 +206,8 @@ namespace ConnectApp.Components {
             D.assert(this._animation == null);
             this._animation = new CurvedAnimation(
                 base.createAnimation(),
-                Curves.ease,
-                Curves.ease.flipped
+                curve: Curves.linearToEaseOut,
+                reverseCurve: Curves.linearToEaseOut.flipped
             );
             this._offsetTween = new OffsetTween(
                 new Offset(0, 1),
@@ -218,7 +218,7 @@ namespace ConnectApp.Components {
 
         public override Widget buildPage(BuildContext context, Animation<float> animation,
             Animation<float> secondaryAnimation) {
-            return this.builder(context);
+            return this.builder(context: context);
         }
 
         public override Widget buildTransitions(BuildContext context, Animation<float> animation,
@@ -226,7 +226,7 @@ namespace ConnectApp.Components {
             return new Align(
                 alignment: Alignment.bottomCenter,
                 child: new FractionalTranslation(
-                    translation: this._offsetTween.evaluate(this._animation),
+                    translation: this._offsetTween.evaluate(animation: this._animation),
                     child: child
                 )
             );
