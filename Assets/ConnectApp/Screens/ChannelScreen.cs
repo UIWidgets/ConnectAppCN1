@@ -631,10 +631,6 @@ namespace ConnectApp.screens {
             Widget ret = new Stack(
                 children: new List<Widget> {
                     this._buildContent(),
-                    this.widget.viewModel.messageLoading &&
-                    this.widget.viewModel.messages.isEmpty()
-                        ? (Widget) new GlobalLoading()
-                        : new Container(),
                     this._buildInputBar(),
                     this.widget.viewModel.messageLoading
                         ? new Container()

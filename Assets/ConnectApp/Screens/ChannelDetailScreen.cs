@@ -331,7 +331,7 @@ namespace ConnectApp.screens {
                             color: CColors.White,
                             height: 60,
                             child: new Center(
-                                child: new Text("分享群", style: CTextStyle.PLargeBlue)
+                                child: new Text("分享群聊", style: CTextStyle.PLargeBlue)
                             )
                         )
                     ),

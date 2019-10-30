@@ -384,9 +384,9 @@ namespace ConnectApp.Models.Model {
                 case ChannelMessageType.embedImage:
                     return content ?? "";
                 case ChannelMessageType.image:
-                    return attachments[0].url;
+                    return attachments.FirstOrDefault().url;
                 case ChannelMessageType.file:
-                    return attachments[0].filename;
+                    return attachments.FirstOrDefault().filename;
                 case ChannelMessageType.skip:
                     return "";
                 default:
