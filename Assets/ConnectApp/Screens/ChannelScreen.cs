@@ -912,7 +912,10 @@ namespace ConnectApp.screens {
                                   (message.time - this.widget.viewModel.messages[index - 1].time) >
                                   this._showTimeThreshold,
                         left: message.author.id != this.widget.viewModel.me.id,
-                        isBottom: index == this.widget.viewModel.messages.Count - 1
+                        showUnreadLine: index < this.widget.viewModel.messages.Count - 1 &&
+                                        this._lastReadMessageId != null &&
+                                        message.id.hexToLong() <= this._lastReadMessageId.hexToLong() &&
+                                        this.widget.viewModel.messages[index+1].id.hexToLong() > this._lastReadMessageId.hexToLong()
                     );
                 }
             );
@@ -951,7 +954,7 @@ namespace ConnectApp.screens {
                 );
         }
 
-        Widget _buildMessage(ChannelMessageView message, bool showTime, bool left, bool isBottom = false) {
+        Widget _buildMessage(ChannelMessageView message, bool showTime, bool left, bool showUnreadLine = false) {
             if (message.shouldSkip() || message.type == ChannelMessageType.skip) {
                 return new Container();
             }
@@ -1035,14 +1038,12 @@ namespace ConnectApp.screens {
                 )
             );
 
-            if (showTime || (message.id == this._lastReadMessageId && !isBottom)) {
+            if (showTime || showUnreadLine) {
                 ret = new Column(
                     children: new List<Widget> {
                         showTime ? this._buildTime(message.time) : new Container(),
                         ret,
-                        message.id == this._lastReadMessageId && !isBottom
-                            ? this._buildUnreadMessageLine()
-                            : new Container()
+                        showUnreadLine ? this._buildUnreadMessageLine() : new Container()
                     }
                 );
             }
