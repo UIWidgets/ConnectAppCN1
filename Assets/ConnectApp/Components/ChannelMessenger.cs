@@ -440,6 +440,7 @@ namespace ConnectApp.Components {
             return content.StartsWith("http")
                 ? CachedNetworkImageProvider.cachedNetworkImage(
                     src: CImageUtils.SizeToScreenImageUrl(content),
+                    fit: BoxFit.cover,
                     headers: headers)
                 : Image.memory(Convert.FromBase64String(s: content));
         }
