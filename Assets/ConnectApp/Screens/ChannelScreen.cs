@@ -271,6 +271,8 @@ namespace ConnectApp.screens {
         AnimationController _unreadNotificationController;
         AnimationController _newMessageNotificationController;
         AnimationController _emojiBoardController;
+        AnimationController _viewInsetsBottomController;
+        Animation<float> _viewInsetsBottomAnimation;
 
         bool _showUnreadMessageNotification = false;
         bool _showNewMessageNotification = false;
@@ -327,7 +329,7 @@ namespace ConnectApp.screens {
         }
 
         bool showKeyboard {
-            get { return MediaQuery.of(this.context).viewInsets.bottom > 50; }
+            get { return this.viewInsetsBottom > 50; }
         }
 
         bool showEmojiBoard {
@@ -357,6 +359,23 @@ namespace ConnectApp.screens {
                         this._emojiBoardController.animateBack(0, TimeSpan.FromMilliseconds(200));
                     }
                 }
+            }
+        }
+
+        float _viewInsetsBottom = 0;
+
+        public float viewInsetsBottom {
+            get {
+                var target = MediaQuery.of(this.context).viewInsets.bottom;
+                if (this._viewInsetsBottom != target) {
+                    this._viewInsetsBottomAnimation = new FloatTween(begin: this._viewInsetsBottom, end: target)
+                        .animate(this._viewInsetsBottomController);
+                    this._viewInsetsBottomController.reset();
+                    this._viewInsetsBottomController.animateTo(1);
+                }
+
+                this._viewInsetsBottom = target;
+                return this._viewInsetsBottomAnimation.value;
             }
         }
 
@@ -393,6 +412,12 @@ namespace ConnectApp.screens {
                 duration: TimeSpan.FromMilliseconds(100),
                 vsync: this
             );
+            this._viewInsetsBottomController = new AnimationController(
+                duration: TimeSpan.FromMilliseconds(100),
+                vsync: this
+            );
+            this._viewInsetsBottomAnimation =
+                new FloatTween(begin: 0, end: 0).animate(this._viewInsetsBottomController);
             this._unreadNotificationController.addListener(() => {
                 this.setState(() => {});
             });
@@ -400,6 +425,9 @@ namespace ConnectApp.screens {
                 this.setState(() => {});
             });
             this._emojiBoardController.addListener(() => {
+                this.setState(() => {});
+            });
+            this._viewInsetsBottomController.addListener(() => {
                 this.setState(() => {});
             });
         }
@@ -499,6 +527,7 @@ namespace ConnectApp.screens {
             this._unreadNotificationController.dispose();
             this._newMessageNotificationController.dispose();
             this._emojiBoardController.dispose();
+            this._viewInsetsBottomController.dispose();
             base.dispose();
         }
 
@@ -623,7 +652,7 @@ namespace ConnectApp.screens {
                                 new Flexible(child: ret),
                                 this.showEmojiBoard
                                     ? this._buildEmojiBoard()
-                                    : new Container(height: MediaQuery.of(this.context).viewInsets.bottom)
+                                    : new Container(height: this.viewInsetsBottom)
                             }
                         )
                     )
