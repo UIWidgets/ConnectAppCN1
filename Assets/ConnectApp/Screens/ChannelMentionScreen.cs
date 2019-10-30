@@ -125,22 +125,66 @@ namespace ConnectApp.screens {
             base.dispose();
         }
 
-        void updateMentionList() {
+
+        void updateMentionListLocal(string query, Dictionary<string ,ChannelMember> memberDict, 
+            Dictionary<string, ChannelMember> suggestions) {
+
+            //search in memberDict
+            if (memberDict != null) {
+                foreach (var memberKey in memberDict.Keys) {
+                    var member = memberDict[key: memberKey];
+                    if (query == "" || member.user.fullName.Contains(query)) {
+                        this.mentionList.Add(item: member);
+                    }
+                }
+            }
+
+            //search in suggestionDict
+            if (suggestions != null) {
+                foreach (var memberKey in suggestions.Keys) {
+                    if (memberDict != null && memberDict.ContainsKey(memberKey)) {
+                        continue;
+                    }
+                    
+                    var member = suggestions[key: memberKey];
+                    if (query == "" || member.user.fullName.Contains(query)) {
+                        this.mentionList.Add(item: member);
+                    }
+                }
+            }
+        }
+
+        void updateMentionListRemote(List<ChannelMember> queryList, Dictionary<string, ChannelMember> memberDict,
+            Dictionary<string, ChannelMember> suggestions) {
+            foreach (var member in queryList) {
+                if ((memberDict != null && memberDict.ContainsKey(member.user.id)) ||
+                    (suggestions != null && suggestions.ContainsKey(member.user.id))) {
+                    continue;
+                }
+                this.mentionList.Add(member);
+            }
+        }
+
+        bool updateMentionList(bool needSearching) {
             this.mentionList.Clear();
-            if (this.curQuery != "" && this.widget.viewModel.queryMentions != null) {
-                foreach (var member in this.widget.viewModel.queryMentions) {
-                    this.mentionList.Add(member);
+            
+            if (this.curQuery != "") {
+                this.updateMentionListLocal(this.curQuery, this.widget.viewModel.channel.membersDict,
+                    this.widget.viewModel.mentionSuggestions);
+
+                if (!this.widget.viewModel.mentionSearching && !needSearching && this.widget.viewModel.queryMentions != null) {
+                    this.updateMentionListRemote(this.widget.viewModel.queryMentions,
+                        this.widget.viewModel.channel.membersDict,
+                        this.widget.viewModel.mentionSuggestions);
+
+                    if (this.mentionList.Count == 0) {
+                        return true;
+                    }
                 }
             }
             else if (this.curQuery == "") {
-                var allMentions =
-                    this.widget.viewModel.mentionSuggestions ??
-                    this.widget.viewModel.channel.membersDict;
-
-                foreach (var memberKey in allMentions.Keys) {
-                    var member = allMentions[key: memberKey];
-                    this.mentionList.Add(item: member);
-                }
+                this.updateMentionListLocal(this.curQuery, this.widget.viewModel.channel.membersDict,
+                    this.widget.viewModel.mentionSuggestions);
                 
                 var myMemberInfo = this.widget.viewModel.channel.currentMember;
                 if (myMemberInfo.role == "admin" ||
@@ -149,6 +193,8 @@ namespace ConnectApp.screens {
                     this.mentionList.Insert(0, new AtAllMention());
                 }
             }
+
+            return false;
         }
 
         public override Widget build(BuildContext context) {
@@ -164,7 +210,7 @@ namespace ConnectApp.screens {
                 });
             }
             
-            this.updateMentionList();
+            bool showEmpty = this.updateMentionList(needSearching);
             return new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(
@@ -175,8 +221,11 @@ namespace ConnectApp.screens {
                                 this._buildNavigationBar(),
                                 this._buildSearchBar(),
                                 new Expanded(
-                                    child: this.widget.viewModel.mentionLoading || needSearching || this.widget.viewModel.mentionSearching ? 
-                                        new GlobalLoading() : this._buildMentionList()
+                                    child: showEmpty ? new BlankView(
+                                        "不存在符合需求的用户！",
+                                        "image/default-search"
+                                    ) :
+                                    this._buildMentionList()
                                 )
                             }
                         )
