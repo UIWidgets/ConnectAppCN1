@@ -224,7 +224,7 @@ namespace ConnectApp.screens {
                                 new Expanded(
                                     child: showEmpty
                                         ? new BlankView(
-                                            "不存在符合需求的用户！",
+                                            "未找到相关用户！",
                                             "image/default-search"
                                         )
                                         : this._buildMentionList()
