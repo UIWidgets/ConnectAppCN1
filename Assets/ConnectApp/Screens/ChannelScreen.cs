@@ -514,7 +514,7 @@ namespace ConnectApp.screens {
 
         float calculateOffsetFromIndex(int index) {
             return this.calculateMessageHeightFromIndex(index) -
-                   (MediaQuery.of(this.context).size.height - CustomAppBarUtil.appBarHeight - 80);
+                   (MediaQuery.of(this.context).size.height - CustomAppBarUtil.appBarHeight - 120);
         }
 
         void jumpToIndex(int index) {
@@ -677,7 +677,11 @@ namespace ConnectApp.screens {
             );
         }
 
+        int _newMessageCount = 0;
         Widget _buildNewMessageNotification() {
+            if (this.widget.viewModel.newMessageCount > 0) {
+                this._newMessageCount = this.widget.viewModel.newMessageCount;
+            }
             if (this._newMessageNotificationController.value < 0.1f) {
                 return new Container();
             }
@@ -701,7 +705,7 @@ namespace ConnectApp.screens {
                     mainAxisSize: MainAxisSize.min,
                     children: new List<Widget> {
                         new Text(
-                            $"{CStringUtils.CountToString(this.widget.viewModel.newMessageCount)}条新消息未读",
+                            $"{CStringUtils.CountToString(this._newMessageCount, "0")}条新消息未读",
                             style: CTextStyle.PRegularBlue.copyWith(height: 1f)
                         )
                     })
@@ -803,11 +807,14 @@ namespace ConnectApp.screens {
                     alignment: Alignment.topRight,
                     child: new GestureDetector(
                         onTap: () => {
-                            this.jumpToLastReadMessage();
                             if (index == 0 && this.widget.viewModel.channel.hasMore) {
                                 this._refreshController.requestRefresh(false);
+                                SchedulerBinding.instance.addPostFrameCallback(_ => {
+                                    this._refreshController.scrollTo(this.calculateOffsetFromIndex(index) + 100);
+                                });
                             }
                             else {
+                                this.jumpToLastReadMessage();
                                 this.showUnreadMessageNotification = false;
                             }
                         },
@@ -918,7 +925,10 @@ namespace ConnectApp.screens {
                                   (message.time - this.widget.viewModel.messages[index - 1].time) >
                                   this._showTimeThreshold,
                         left: message.author.id != this.widget.viewModel.me.id,
-                        isBottom: index == this.widget.viewModel.messages.Count - 1
+                        showUnreadLine: index < this.widget.viewModel.messages.Count - 1 &&
+                                        this._lastReadMessageId != null &&
+                                        message.id.hexToLong() <= this._lastReadMessageId.hexToLong() &&
+                                        this.widget.viewModel.messages[index+1].id.hexToLong() > this._lastReadMessageId.hexToLong()
                     );
                 }
             );
@@ -957,7 +967,7 @@ namespace ConnectApp.screens {
                 );
         }
 
-        Widget _buildMessage(ChannelMessageView message, bool showTime, bool left, bool isBottom = false) {
+        Widget _buildMessage(ChannelMessageView message, bool showTime, bool left, bool showUnreadLine = false) {
             if (message.shouldSkip() || message.type == ChannelMessageType.skip) {
                 return new Container();
             }
@@ -970,7 +980,7 @@ namespace ConnectApp.screens {
                 child: this._buildMessageContent(message: message)
             );
 
-            if (message.status != "normal") {
+            if (message.status != "normal" && message.status != "local") {
                 Widget symbol = message.status == "sending" || message.status == "waiting"
                     ? (Widget) new CustomActivityIndicator(size: LoadingSize.small)
                     : new GestureDetector(
@@ -1041,14 +1051,12 @@ namespace ConnectApp.screens {
                 )
             );
 
-            if (showTime || (message.id == this._lastReadMessageId && !isBottom)) {
+            if (showTime || showUnreadLine) {
                 ret = new Column(
                     children: new List<Widget> {
                         showTime ? this._buildTime(message.time) : new Container(),
                         ret,
-                        message.id == this._lastReadMessageId && !isBottom
-                            ? this._buildUnreadMessageLine()
-                            : new Container()
+                        showUnreadLine ? this._buildUnreadMessageLine() : new Container()
                     }
                 );
             }
