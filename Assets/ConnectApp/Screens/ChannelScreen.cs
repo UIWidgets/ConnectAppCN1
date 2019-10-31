@@ -579,9 +579,9 @@ namespace ConnectApp.screens {
                     imageUrls.Add(CImageUtils.SizeToScreenImageUrl(imageUrl: msg.content));
                 }
 
-                if (msg.type == ChannelMessageType.embedImage) {
-                    imageUrls.Add(CImageUtils.SizeToScreenImageUrl(imageUrl: msg.embeds[0].embedData.imageUrl));
-                }
+//                if (msg.type == ChannelMessageType.embedImage) {
+//                    imageUrls.Add(CImageUtils.SizeToScreenImageUrl(imageUrl: msg.embeds[0].embedData.imageUrl));
+//                }
             });
             var url = CImageUtils.SizeToScreenImageUrl(imageUrl: imageUrl);
             this.widget.actionModel.browserImage(arg1: url, arg2: imageUrls);
