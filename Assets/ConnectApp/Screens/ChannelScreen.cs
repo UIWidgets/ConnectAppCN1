@@ -279,6 +279,7 @@ namespace ConnectApp.screens {
         string _lastMessageEditingContent = "";
         readonly Dictionary<string, string> mentionMap = new Dictionary<string, string>();
         string _lastReadMessageId = null;
+        string _lastMessageWhenScreenIsOpened = null;
         AnimationController _unreadNotificationController;
         AnimationController _newMessageNotificationController;
         AnimationController _emojiBoardController;
@@ -438,6 +439,9 @@ namespace ConnectApp.screens {
             }
 
             this._onMessageLoadedCalled = true;
+            if (this._lastMessageWhenScreenIsOpened == null) {
+                this._lastMessageWhenScreenIsOpened = this.widget.viewModel.messages.last().id;
+            }
 
             this.showUnreadMessageNotification = this._lastReadMessageId != null &&
                                                  this.calculateOffsetFromMessage(this._lastReadMessageId) > 0;
@@ -754,6 +758,12 @@ namespace ConnectApp.screens {
                 return new Container();
             }
 
+            var lastMessageIndex =
+                this.widget.viewModel.messages.FindIndex(message => message.id == this._lastMessageWhenScreenIsOpened);
+            if (lastMessageIndex == -1) {
+                lastMessageIndex = this.widget.viewModel.messages.Count - 1;
+            }
+
             Widget ret = new Container(
                 height: 40,
                 decoration: new BoxDecoration(
@@ -774,7 +784,7 @@ namespace ConnectApp.screens {
                     mainAxisSize: MainAxisSize.min,
                     children: new List<Widget> {
                         new Text(
-                            $"{this.widget.viewModel.messages.Count - index}" +
+                            $"{lastMessageIndex - index + 1}" +
                             $"{(index == 0 && this.widget.viewModel.channel.hasMore ? "+" : "")} 条新消息",
                             style: CTextStyle.PRegularBlue.copyWith(height: 1f)
                         ),
