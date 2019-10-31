@@ -5,15 +5,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
-import android.util.Base64;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.zxing.android.FinishListener;
@@ -25,9 +23,7 @@ import com.jph.takephoto.model.TResult;
 import com.jph.takephoto.model.TakePhotoOptions;
 import com.unity.uiwidgets.plugin.UIWidgetsMessageManager;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -61,11 +57,10 @@ public class PickImageActivity extends TakePhotoActivity {
     @Override
     public void takeSuccess(TResult result) {
         super.takeSuccess(result);
-        String path = result.getImage().getCompressPath();
-        Bitmap bm = BitmapFactory.decodeFile(path);
-        String imageStr = bitmapToBase64(bm);
+        int maxSize = this.getIntent().getIntExtra("maxSize", 0);
+        String path = maxSize > 0 ? result.getImage().getCompressPath() : result.getImage().getOriginalPath();
         Map<String, String> map = new HashMap<String, String>();
-        map.put("image", imageStr);
+        map.put("imagePath", path);
         UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("pickImage","pickImageSuccess",Arrays.asList(new Gson().toJson(map)));
         finish();
     }
@@ -102,11 +97,17 @@ public class PickImageActivity extends TakePhotoActivity {
                     int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
                     String videoPath = cursor.getString(columnIndex);
 
-                    cursor.close();
-                    Map<String, String> map = new HashMap<String, String>();
-                    map.put("videoPath", videoPath);
-                    UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("pickImage","pickVideoSuccess", Arrays.asList(new Gson().toJson(map)));
+                    File file = new File(videoPath);
+                    if (file.length()>30*1024*1024){
+                        Toast.makeText(this,"该视频过大，无法上传",Toast.LENGTH_LONG).show();
+                    }else{
+                        cursor.close();
+                        Map<String, String> map = new HashMap<String, String>();
+                        map.put("videoPath", videoPath);
+                        UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("pickImage","pickVideoSuccess", Arrays.asList(new Gson().toJson(map)));
+                    }
                     finish();
+
                 }
             }
             if (resultCode == RESULT_CANCELED) {
@@ -152,9 +153,9 @@ public class PickImageActivity extends TakePhotoActivity {
             }
             Uri imageUri = Uri.fromFile(file);
 
-            // 压缩图片
             int maxSize = this.getIntent().getIntExtra("maxSize", 0);
             if (maxSize > 0) {
+                // 压缩图片
                 takePhoto.onEnableCompress(compressConfig(), true);
             }
 
@@ -220,35 +221,4 @@ public class PickImageActivity extends TakePhotoActivity {
         });
         builder.show();
     }
-
-    public String bitmapToBase64(Bitmap bitmap) {
-
-        String result = null;
-        ByteArrayOutputStream baos = null;
-        try {
-            if (bitmap != null) {
-                baos = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-
-                baos.flush();
-                baos.close();
-
-                byte[] bitmapBytes = baos.toByteArray();
-                result = Base64.encodeToString(bitmapBytes, Base64.DEFAULT);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (baos != null) {
-                    baos.flush();
-                    baos.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return result;
-    }
-
 }

@@ -18,7 +18,7 @@ namespace ConnectApp.Plugins {
     }
 
     public static class PickImagePlugin {
-        static Action<string> _imageCallBack;
+        static Action<byte[]> _imageCallBack;
         static Action<byte[]> _videoCallBack;
 
         static void addListener() {
@@ -44,9 +44,16 @@ namespace ConnectApp.Plugins {
                         case "pickImageSuccess": {
                             var node = args[0];
                             var dict = JSON.Parse(aJSON: node);
-                            var image = (string) dict["image"];
-                            if (image != null) {
-                                _imageCallBack?.Invoke(obj: image);
+                            if (dict["image"]) {
+                                var image = (string) dict["image"];
+                                var imageData = Convert.FromBase64String(s: image);
+                                _imageCallBack?.Invoke(obj: imageData);
+                            }
+
+                            if (dict["imagePath"]) {
+                                var imagePath = (string) dict["imagePath"];
+                                var data = CImageUtils.readImage(path: imagePath);
+                                _imageCallBack?.Invoke(obj: data);
                             }
 
                             removeListener();
@@ -57,14 +64,14 @@ namespace ConnectApp.Plugins {
                         case "pickVideoSuccess": {
                             var node = args[0];
                             var dict = JSON.Parse(aJSON: node);
-                            var videoData = (string) dict["videoData"];
-                            if (videoData.isNotEmpty()) {
+                            if (dict["videoData"]) {
+                                var videoData = (string) dict["videoData"];
                                 var data = Convert.FromBase64String(s: videoData);
                                 _videoCallBack?.Invoke(obj: data);
                             }
 
-                            var videoPath = (string) dict["videoPath"];
-                            if (videoPath.isNotEmpty()) {
+                            if (dict["videoPath"]) {
+                                var videoPath = (string) dict["videoPath"];
                                 var data = CImageUtils.readImage(path: videoPath);
                                 _videoCallBack?.Invoke(obj: data);
                             }
@@ -86,7 +93,7 @@ namespace ConnectApp.Plugins {
 
         public static void PickImage(
             ImageSource source,
-            Action<string> imageCallBack = null,
+            Action<byte[]> imageCallBack = null,
             bool cropped = true,
             int? maxSize = null
         ) {
