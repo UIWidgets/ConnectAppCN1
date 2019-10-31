@@ -29,59 +29,24 @@ namespace ConnectApp.screens {
 
         readonly string channelId;
 
-        static int _compareMember(ChannelMember m1, ChannelMember m2) {
-            if (m1.role == m2.role) {
-                return 0;
-            }
-
-            if (m1.role == "admin") {
-                return 1;
-            }
-
-            if (m2.role == "admin") {
-                return -1;
-            }
-
-            if (m1.role == "moderator") {
-                return -1;
-            }
-
-            if (m2.role == "moderator") {
-                return 1;
-            }
-
-            if (m1.role == "owner") {
-                return -1;
-            }
-
-            if (m2.role == "owner") {
-                return 1;
-            }
-
-            return 0;
-        }
-
         public override Widget build(BuildContext context) {
-            Dictionary<string, bool> followDict = new Dictionary<string, bool>();
             return new StoreConnector<AppState, ChannelMembersScreenViewModel>(
                 converter: state => {
-                    var members = state.channelState.channelDict[key: this.channelId].memberIds.Select(
-                        memberId => state.channelState.channelDict[key: this.channelId].membersDict[key: memberId]
+                    var channel = state.channelState.channelDict[key: this.channelId];
+                    var members = channel.memberIds.Select(
+                        memberId => channel.membersDict[key: memberId]
                     ).ToList();
-                    List<ChannelMember> specialMembers = members.Where(member => member.role != "member").ToList();
-                    List<ChannelMember> normalMembers = members.Where(member => member.role == "member").ToList();
-                    specialMembers.Sort(comparison: _compareMember);
+                    Dictionary<string, bool> followDict = new Dictionary<string, bool>();
                     if (state.loginState.isLoggedIn) {
                         state.followState.followDict.TryGetValue(key: state.loginState.loginInfo.userId,
                             value: out followDict);
                     }
 
                     return new ChannelMembersScreenViewModel {
-                        channel = state.channelState.channelDict[key: this.channelId],
+                        channel = channel,
                         followed = followDict,
                         userDict = state.userState.userDict,
-                        normalMembers = normalMembers,
-                        specialMembers = specialMembers,
+                        members = members,
                         isLoggedIn = state.loginState.isLoggedIn,
                         currentUserId = state.loginState.loginInfo.userId ?? ""
                     };
@@ -140,7 +105,7 @@ namespace ConnectApp.screens {
             base.initState();
             this._refreshController = new RefreshController();
             this._memberOffset = 0;
-            SchedulerBinding.instance.addPostFrameCallback(_ => { this.widget.actionModel.fetchMembers(0); });
+            SchedulerBinding.instance.addPostFrameCallback(_ => this.widget.actionModel.fetchMembers(0));
         }
 
         public override void didChangeDependencies() {
@@ -198,8 +163,7 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildContent() {
-            var enablePullUp = this.widget.viewModel.normalMembers.Count + this.widget.viewModel.specialMembers.Count
-                               < this.widget.viewModel.channel.memberCount;
+            var enablePullUp = this.widget.viewModel.members.Count < this.widget.viewModel.channel.memberCount;
             return new Container(
                 color: CColors.Background,
                 child: new SectionView(
@@ -207,15 +171,9 @@ namespace ConnectApp.screens {
                     enablePullDown: false,
                     enablePullUp: enablePullUp,
                     onRefresh: this._onRefresh,
-                    sectionCount: 2,
-                    numOfRowInSection: section => section == 0
-                        ? this.widget.viewModel.specialMembers.Count
-                        : this.widget.viewModel.normalMembers.Count,
-                    headerInSection: section => section == 0
-                        ? null
-                        : this.widget.viewModel.specialMembers.Count == 0
-                            ? null
-                            : new Container(height: 16),
+                    sectionCount: 1,
+                    numOfRowInSection: section => this.widget.viewModel.members.Count,
+                    headerInSection: section => null,
                     cellAtIndexPath: this._buildMemberItem,
                     footerWidget: enablePullUp ? null : CustomListViewConstant.defaultFooterWidget
                 )
@@ -223,9 +181,7 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildMemberItem(BuildContext context, int section, int row) {
-            ChannelMember member = section == 0
-                ? this.widget.viewModel.specialMembers[index: row]
-                : this.widget.viewModel.normalMembers[index: row];
+            ChannelMember member = this.widget.viewModel.members[index: row];
 
             var userDict = this.widget.viewModel.userDict;
             if (!userDict.ContainsKey(key: member.user.id)) {
@@ -292,7 +248,7 @@ namespace ConnectApp.screens {
         void _onRefresh(bool up) {
             this._memberOffset = up
                 ? 0
-                : this.widget.viewModel.normalMembers.Count + this.widget.viewModel.specialMembers.Count;
+                : this.widget.viewModel.members.Count;
 
             this.widget.actionModel.fetchMembers(arg: this._memberOffset)
                 .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))

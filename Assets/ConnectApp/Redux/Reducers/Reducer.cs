@@ -1553,7 +1553,8 @@ namespace ConnectApp.redux.reducers {
                 case MainNavigatorPushToWebViewAction action: {
                     if (action.url != null) {
                         Router.navigator.push(new CustomPageRoute(
-                            context => new WebViewScreen(url: action.url)
+                            context => new WebViewScreen(url: action.url),
+                            push: true
                         ));
                     }
 
@@ -1564,7 +1565,8 @@ namespace ConnectApp.redux.reducers {
                     if (action.url != null) {
                         Router.navigator.push(new CustomPageRoute(
                             context => new VideoViewScreen(url: action.url, needUpdate: action.needUpdate,
-                                limitSeconds: action.limitSeconds)
+                                limitSeconds: action.limitSeconds),
+                            push: true
                         ));
                     }
 

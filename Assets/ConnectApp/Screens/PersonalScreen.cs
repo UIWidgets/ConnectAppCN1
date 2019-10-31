@@ -229,7 +229,7 @@ namespace ConnectApp.screens {
                 onTap: () => this.widget.actionModel.pushToUserDetail(obj: user.id),
                 child: new Stack(
                     children: new List<Widget> {
-                        Positioned.fill(child: new Stack(
+                        Positioned.fill(new Stack(
                             children: new List<Widget> {
                                 new Stack(
                                     children: new List<Widget> {
@@ -237,7 +237,7 @@ namespace ConnectApp.screens {
                                         new Positioned(
                                             top: 30,
                                             right: 30,
-                                            child: new Icon(Icons.UnityLogo, null, 210, new Color(0xFF2b2b2b))),
+                                            child: new Icon(Icons.UnityLogo, size: 210, color: new Color(0xFF2b2b2b)))
                                     })
                             })),
                         content
@@ -267,41 +267,42 @@ namespace ConnectApp.screens {
         }
 
         List<Widget> _buildItems() {
-            var personalCardItems = new List<PersonalCardItem> {
-                new PersonalCardItem(
-                    icon: Icons.book,
+            return new List<Widget> {
+                new CustomListTile(
+                    new Icon(icon: Icons.book, size: 24, color: CColors.TextBody2),
                     "我的收藏",
-                    () => {
+                    trailing: CustomListTileConstant.defaultTrailing,
+                    onTap: () => {
                         var routeName = this.widget.viewModel.isLoggedIn
                             ? MainNavigatorRoutes.MyFavorite
                             : MainNavigatorRoutes.Login;
                         this.widget.actionModel.mainRouterPushTo(obj: routeName);
                     }
                 ),
-                new PersonalCardItem(
-                    icon: Icons.outline_event,
+                new CustomListTile(
+                    new Icon(icon: Icons.outline_event, size: 24, color: CColors.TextBody2),
                     "我的活动",
-                    () => {
+                    trailing: CustomListTileConstant.defaultTrailing,
+                    onTap: () => {
                         var routeName = this.widget.viewModel.isLoggedIn
                             ? MainNavigatorRoutes.MyEvent
                             : MainNavigatorRoutes.Login;
                         this.widget.actionModel.mainRouterPushTo(obj: routeName);
                     }
                 ),
-                new PersonalCardItem(
-                    icon: Icons.eye,
+                new CustomListTile(
+                    new Icon(icon: Icons.eye, size: 24, color: CColors.TextBody2),
                     "浏览历史",
-                    () => this.widget.actionModel.mainRouterPushTo(obj: MainNavigatorRoutes.History)
+                    trailing: CustomListTileConstant.defaultTrailing,
+                    onTap: () => this.widget.actionModel.mainRouterPushTo(obj: MainNavigatorRoutes.History)
                 ),
-                new PersonalCardItem(
-                    icon: Icons.settings,
+                new CustomListTile(
+                    new Icon(icon: Icons.settings, size: 24, color: CColors.TextBody2),
                     "设置",
-                    () => this.widget.actionModel.mainRouterPushTo(obj: MainNavigatorRoutes.Setting)
+                    trailing: CustomListTileConstant.defaultTrailing,
+                    onTap: () => this.widget.actionModel.mainRouterPushTo(obj: MainNavigatorRoutes.Setting)
                 )
             };
-            var widgets = new List<Widget>();
-            personalCardItems.ForEach(item => widgets.Add(new PersonalCard(personalItem: item)));
-            return widgets;
         }
 
         public void didPopNext() {

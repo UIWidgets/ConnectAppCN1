@@ -32,6 +32,13 @@ namespace ConnectApp.Utils {
                         isSlug = true
                     });
                 }
+                else if ((uri.Host.Equals("connect.unity.com") || uri.Host.Equals("connect-test.unity.com")) &&
+                         uri.AbsolutePath.StartsWith("/mconnect/channels/")) {
+                    var channelId = uri.AbsolutePath.Remove(0, "/mconnect/channels/".Length);
+                    dispatcher.dispatch(new MainNavigatorPushToChannelDetailAction {
+                        channelId = channelId
+                    });
+                }
                 else {
                     dispatcher.dispatch(new MainNavigatorPushToWebViewAction {
                         url = url
