@@ -2511,7 +2511,7 @@ namespace ConnectApp.redux.reducers {
                     state.channelState.discoverPage = action.discoverList.isNotEmpty()
                         ? action.discoverPage + 1
                         : action.discoverPage;
-                    state.channelState.discoverHasMore = action.discoverList.isNotEmpty();
+                    state.channelState.discoverHasMore = action.discoverHasMore;
                     if (action.updateJoined) {
                         state.channelState.joinedChannels = action.joinedList;
                     }

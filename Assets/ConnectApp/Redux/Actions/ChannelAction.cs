@@ -26,7 +26,8 @@ namespace ConnectApp.redux.actions {
                                 channelResponse.joinedMemberMap ?? new Dictionary<string, ChannelMember>(),
                             groupMap = channelResponse.groupFullMap ?? new Dictionary<string, Group>(),
                             groupMemberMap = channelResponse.groupMemberMap ?? new Dictionary<string, GroupMember>(),
-                            updateJoined = joined
+                            updateJoined = joined,
+                            discoverHasMore = channelResponse.discoverHasMore
                         });
                         if (fetchMessagesAfterSuccess) {
                             channelResponse.joinedList.ForEach(joinedChannelId => {
@@ -458,6 +459,7 @@ namespace ConnectApp.redux.actions {
         public Dictionary<string, Group> groupMap;
         public Dictionary<string, GroupMember> groupMemberMap;
         public bool updateJoined;
+        public bool discoverHasMore;
     }
 
     public class FetchChannelsFailureAction : BaseAction {
