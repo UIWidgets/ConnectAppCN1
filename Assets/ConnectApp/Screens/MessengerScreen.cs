@@ -215,8 +215,7 @@ namespace ConnectApp.screens {
                             },
                             headerInSection: this._headerInSection,
                             cellAtIndexPath: this._buildMessageItem,
-                            footerWidget: !this.widget.viewModel.hasMore &&
-                                          this.widget.viewModel.joinedChannels.isEmpty()
+                            footerWidget: !this.widget.viewModel.hasMore
                                 ? new EndView(hasBottomMargin: true)
                                 : null
                         )
