@@ -133,7 +133,8 @@ namespace ConnectApp.Components {
             string imageName;
             if (attachment.filename.EndsWith(".pdf")) {
                 imageName = "image/pdf-file-icon";
-            } else if (attachment.filename.EndsWith(".mp4")) {
+            }
+            else if (attachment.filename.EndsWith(".mp4")) {
                 imageName = "image/video-file-icon";
             }
             else {
@@ -213,7 +214,8 @@ namespace ConnectApp.Components {
             string embedDataUrl;
             if (this.message.type == ChannelMessageType.embedImage) {
                 embedDataUrl = embedData.imageUrl;
-            } else if (this.message.type == ChannelMessageType.embedExternal) {
+            }
+            else if (this.message.type == ChannelMessageType.embedExternal) {
                 embedDataUrl = embedData.url;
             }
             else {
@@ -402,8 +404,8 @@ namespace ConnectApp.Components {
             }
 
             return message.width > message.height
-                    ? 140.0f * message.height / message.width
-                    : 140.0f;
+                ? 140.0f * message.height / message.width
+                : 140.0f;
         }
 
         public Size srcSize {
@@ -460,6 +462,7 @@ namespace ConnectApp.Components {
             return content.StartsWith("http")
                 ? CachedNetworkImageProvider.cachedNetworkImage(
                     this.widget.isOriginalImage ? content : CImageUtils.SizeToScreenImageUrl(content),
+                    fit: BoxFit.cover,
                     headers: headers)
                 : Image.memory(Convert.FromBase64String(s: content));
         }

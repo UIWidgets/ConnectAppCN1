@@ -5,8 +5,8 @@ using ConnectApp.Components;
 using ConnectApp.Main;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
-using ConnectApp.redux.actions;
 using ConnectApp.Reality;
+using ConnectApp.redux.actions;
 using ConnectApp.screens;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
@@ -942,7 +942,7 @@ namespace ConnectApp.redux.reducers {
                             message.status = "waiting";
                         }
                     }
-                    
+
                     break;
                 }
 
@@ -2504,17 +2504,29 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case FetchChannelsSuccessAction action: {
-                    state.channelState.channelLoading = false;
-                    action.discoverList.ForEach(discoverId => {
-                        if (!state.channelState.publicChannels.Contains(item: discoverId)) {
-                            state.channelState.publicChannels.Add(item: discoverId);
-                        }
-                    });
+                    if (action.discoverList.isNotEmpty() && action.discoverPage == 1) {
+                        state.channelState.publicChannels = action.discoverList;
+                    }
+                    else {
+                        action.discoverList.ForEach(discoverId => {
+                            if (!state.channelState.publicChannels.Contains(item: discoverId)) {
+                                state.channelState.publicChannels.Add(item: discoverId);
+                            }
+                        });
+                    }
 
-                    state.channelState.discoverPage = action.discoverPage;
-                    state.channelState.joinedChannels = action.joinedList;
+                    state.channelState.discoverPage = action.discoverList.isNotEmpty()
+                        ? action.discoverPage + 1
+                        : action.discoverPage;
+                    state.channelState.discoverHasMore = action.discoverHasMore;
+                    if (action.updateJoined) {
+                        state.channelState.joinedChannels = action.joinedList;
+                    }
+
+                    state.channelState.channelLoading = false;
+
                     var joinedChannelMap = new Dictionary<string, bool>();
-                    foreach (var channelId in action.joinedList) {
+                    foreach (var channelId in state.channelState.joinedChannels) {
                         joinedChannelMap[key: channelId] = true;
                     }
 
@@ -2544,6 +2556,11 @@ namespace ConnectApp.redux.reducers {
                 case FetchChannelsFailureAction _: {
                     NetworkStatusManager.isConnected = false;
                     state.channelState.channelLoading = false;
+                    break;
+                }
+
+                case FetchDiscoverChannelFilterSuccessAction action: {
+                    state.channelState.createChannelFilterIds = action.discoverList;
                     break;
                 }
 
@@ -2619,6 +2636,7 @@ namespace ConnectApp.redux.reducers {
                     if (channel.atBottom) {
                         channel.clearUnread();
                     }
+
                     state.channelState.messageLoading = false;
 
                     break;
@@ -2655,8 +2673,9 @@ namespace ConnectApp.redux.reducers {
                     var key = $"{state.loginState.loginInfo.userId}:{action.channelId}:{action.nonce}";
                     if (channel.localMessageIds.Contains(action.nonce) &&
                         state.channelState.localMessageDict.ContainsKey(key)) {
-                        state.channelState.localMessageDict[key].status = "normal";
+                        state.channelState.localMessageDict[key].status = "local";
                     }
+
                     break;
                 }
 
@@ -2998,6 +3017,10 @@ namespace ConnectApp.redux.reducers {
                     if (channelData.projectId.isNotEmpty()
                         || channelData.proposalId.isNotEmpty()
                         || channelData.ticketId.isNotEmpty()) {
+                        break;
+                    }
+
+                    if (!state.channelState.createChannelFilterIds.Contains(channelData.id)) {
                         break;
                     }
 

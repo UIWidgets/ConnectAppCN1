@@ -46,6 +46,7 @@ namespace ConnectApp.screens {
                             AnalyticsManager.AnalyticsClickEgg(1);
                         },
                         fetchChannels = () => dispatcher.dispatch<IPromise>(Actions.fetchChannels(1)),
+                        fetchCreateChannelFilter = () => dispatcher.dispatch<IPromise>(Actions.fetchCreateChannelFilter())
                     };
                     return new ArticlesScreen(viewModel: viewModel, actionModel: actionModel);
                 }
@@ -101,6 +102,7 @@ namespace ConnectApp.screens {
                 this.widget.actionModel.fetchReviewUrl();
                 if (this.widget.viewModel.isLoggedIn) {
                     this.widget.actionModel.fetchChannels();
+                    this.widget.actionModel.fetchCreateChannelFilter();
                 }
             });
             this._loginSubId = EventBus.subscribe(sName: EventBusConstant.login_success, args => {

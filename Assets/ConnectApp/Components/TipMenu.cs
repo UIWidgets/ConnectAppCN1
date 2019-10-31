@@ -57,7 +57,7 @@ namespace ConnectApp.Components {
 
         void _createTipMenu(BuildContext context, ArrowDirection arrowDirection, Offset position, Size size) {
             dismiss();
-            float triangleY = arrowDirection == ArrowDirection.up 
+            float triangleY = arrowDirection == ArrowDirection.up
                 ? position.dy
                 : position.dy - CustomTextSelectionControlsUtils._kToolbarTriangleSize.height
                               - this._getTipMenuHeight(context: context);
@@ -109,9 +109,9 @@ namespace ConnectApp.Components {
                     var renderBox = (RenderBox) this._tipMenuKey.currentContext.findRenderObject();
                     var position = renderBox.localToGlobal(point: Offset.zero);
                     ArrowDirection arrowDirection;
-                    if (position.dy > 
-                        44 
-                        + CCommonUtils.getSafeAreaTopPadding(context: context) 
+                    if (position.dy >
+                        44
+                        + CCommonUtils.getSafeAreaTopPadding(context: context)
                         + CustomTextSelectionControlsUtils._kToolbarTriangleSize.height
                         + this._getTipMenuHeight(context: context)) {
                         arrowDirection = ArrowDirection.down;
@@ -124,6 +124,7 @@ namespace ConnectApp.Components {
                         position = new Offset(dx: position.dx, height / 2.0f);
                         arrowDirection = ArrowDirection.up;
                     }
+
                     // var position = renderBox.localToGlobal(new Offset(0, dy: renderBox.size.height));
                     this._createTipMenu(
                         context: context,
@@ -196,7 +197,7 @@ namespace ConnectApp.Components {
                 children: menus
             );
         }
-        
+
         static CustomButton _buildToolbarButton(string text, VoidCallback onPressed) {
             return new CustomButton(
                 child: new Text(data: text, style: CustomTextSelectionControlsUtils._kToolbarButtonFontStyle),

@@ -32,5 +32,6 @@ namespace ConnectApp.Models.ActionModel {
         public Func<int, bool, bool, IPromise> fetchFollowArticles;
         public Func<IPromise> fetchReviewUrl;
         public Func<IPromise> fetchChannels;
+        public Func<IPromise> fetchCreateChannelFilter;
     }
 }

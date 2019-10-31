@@ -316,7 +316,7 @@ namespace ConnectApp.Components {
                                 "复制",
                                 () => Clipboard.setData(new ClipboardData(text: codeBlockGroup))
                             )
-                        }, 
+                        },
                         new Container(
                             color: codeBlockBackgroundColor,
                             padding: EdgeInsets.symmetric(horizontal: 16),
