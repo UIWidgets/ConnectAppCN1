@@ -22,6 +22,8 @@ public class CommonPlugin {
 
     public static Context mContext;
 
+    public static boolean isPushNative;
+
     public static void pauseAudioSession(){
 
         AudioManager.OnAudioFocusChangeListener afChangeListener = new AudioManager.OnAudioFocusChangeListener() {
@@ -63,6 +65,7 @@ public class CommonPlugin {
     }
 
     public static void pickImage(String source, boolean cropped, int maxSize){
+        isPushNative = true;
         Intent intent = new Intent(mContext, PickImageActivity.class);
         intent.putExtra("type", "image");
         intent.putExtra("source", source);
@@ -73,6 +76,7 @@ public class CommonPlugin {
     }
 
     public static void pickVideo(String source){
+        isPushNative = true;
         Intent intent = new Intent(mContext, PickImageActivity.class);
         intent.putExtra("type", "video");
         intent.putExtra("source", source);
