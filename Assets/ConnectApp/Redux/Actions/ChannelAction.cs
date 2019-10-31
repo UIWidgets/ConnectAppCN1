@@ -271,7 +271,7 @@ namespace ConnectApp.redux.actions {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ChannelApi.FetchChannelMemberQuery(channelId: channelId, query: query)
                     .Then(channelMemberResponse => {
-                        var searchMembers = channelMemberResponse.searchMembers;
+                        var searchMembers = channelMemberResponse.searchMembers ?? new List<ChannelMember>();
                         dispatcher.dispatch(new FetchChannelMentionQuerySuccessAction {
                             channelId = channelId,
                             members = searchMembers

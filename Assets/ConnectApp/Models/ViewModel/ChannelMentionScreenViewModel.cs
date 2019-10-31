@@ -3,7 +3,9 @@ using ConnectApp.Models.Model;
 
 namespace ConnectApp.Models.ViewModel {
     public class ChannelMentionScreenViewModel {
-        public ChannelView channel;
+        public Dictionary<string, ChannelMember> channelMembers;
+        public string me;
+        public ChannelMember currentMember;
         public Dictionary<string, ChannelMember> mentionSuggestions;
         public Dictionary<string, User> userDict;
         public bool mentionLoading;
