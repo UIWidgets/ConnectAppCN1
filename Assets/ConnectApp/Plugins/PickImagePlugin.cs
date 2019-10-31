@@ -44,14 +44,14 @@ namespace ConnectApp.Plugins {
                         case "pickImageSuccess": {
                             var node = args[0];
                             var dict = JSON.Parse(aJSON: node);
-                            var image = (string) dict["image"];
-                            if (image.isNotEmpty()) {
+                            if (dict["image"]) {
+                                var image = (string) dict["image"];
                                 var imageData = Convert.FromBase64String(s: image);
                                 _imageCallBack?.Invoke(obj: imageData);
                             }
 
-                            var imagePath = (string) dict["imagePath"];
-                            if (imagePath.isNotEmpty()) {
+                            if (dict["imagePath"]) {
+                                var imagePath = (string) dict["imagePath"];
                                 var data = CImageUtils.readImage(path: imagePath);
                                 _imageCallBack?.Invoke(obj: data);
                             }
@@ -64,14 +64,14 @@ namespace ConnectApp.Plugins {
                         case "pickVideoSuccess": {
                             var node = args[0];
                             var dict = JSON.Parse(aJSON: node);
-                            var videoData = (string) dict["videoData"];
-                            if (videoData.isNotEmpty()) {
+                            if (dict["videoData"]) {
+                                var videoData = (string) dict["videoData"];
                                 var data = Convert.FromBase64String(s: videoData);
                                 _videoCallBack?.Invoke(obj: data);
                             }
 
-                            var videoPath = (string) dict["videoPath"];
-                            if (videoPath.isNotEmpty()) {
+                            if (dict["videoPath"]) {
+                                var videoPath = (string) dict["videoPath"];
                                 var data = CImageUtils.readImage(path: videoPath);
                                 _videoCallBack?.Invoke(obj: data);
                             }

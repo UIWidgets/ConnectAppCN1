@@ -5,15 +5,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
-import android.util.Base64;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -26,9 +23,7 @@ import com.jph.takephoto.model.TResult;
 import com.jph.takephoto.model.TakePhotoOptions;
 import com.unity.uiwidgets.plugin.UIWidgetsMessageManager;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -62,7 +57,8 @@ public class PickImageActivity extends TakePhotoActivity {
     @Override
     public void takeSuccess(TResult result) {
         super.takeSuccess(result);
-        String path = result.getImage().getCompressPath();
+        int maxSize = this.getIntent().getIntExtra("maxSize", 0);
+        String path = maxSize > 0 ? result.getImage().getCompressPath() : result.getImage().getOriginalPath();
         Map<String, String> map = new HashMap<String, String>();
         map.put("imagePath", path);
         UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("pickImage","pickImageSuccess",Arrays.asList(new Gson().toJson(map)));
@@ -103,14 +99,15 @@ public class PickImageActivity extends TakePhotoActivity {
 
                     File file = new File(videoPath);
                     if (file.length()>30*1024*1024){
-                        Toast.makeText(this,"该视频过大，无法上传",Toast.LENGTH_SHORT);
+                        Toast.makeText(this,"该视频过大，无法上传",Toast.LENGTH_LONG).show();
                     }else{
                         cursor.close();
                         Map<String, String> map = new HashMap<String, String>();
                         map.put("videoPath", videoPath);
                         UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("pickImage","pickVideoSuccess", Arrays.asList(new Gson().toJson(map)));
-                        finish();
                     }
+                    finish();
+
                 }
             }
             if (resultCode == RESULT_CANCELED) {
@@ -156,8 +153,11 @@ public class PickImageActivity extends TakePhotoActivity {
             }
             Uri imageUri = Uri.fromFile(file);
 
-            // 压缩图片
-            takePhoto.onEnableCompress(compressConfig(), true);
+            int maxSize = this.getIntent().getIntExtra("maxSize", 0);
+            if (maxSize > 0) {
+                // 压缩图片
+                takePhoto.onEnableCompress(compressConfig(), true);
+            }
 
             TakePhotoOptions takePhotoOptions = new TakePhotoOptions.Builder().create();
             takePhotoOptions.setCorrectImage(true);
@@ -221,5 +221,4 @@ public class PickImageActivity extends TakePhotoActivity {
         });
         builder.show();
     }
-
 }
