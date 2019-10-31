@@ -166,22 +166,20 @@ namespace ConnectApp.screens {
             var enablePullUp = this.widget.viewModel.members.Count < this.widget.viewModel.channel.memberCount;
             return new Container(
                 color: CColors.Background,
-                child: new SectionView(
+                child: new CustomListView(
                     controller: this._refreshController,
                     enablePullDown: false,
                     enablePullUp: enablePullUp,
                     onRefresh: this._onRefresh,
-                    sectionCount: 1,
-                    numOfRowInSection: section => this.widget.viewModel.members.Count,
-                    headerInSection: section => null,
-                    cellAtIndexPath: this._buildMemberItem,
+                    itemCount: this.widget.viewModel.members.Count,
+                    itemBuilder: this._buildMemberItem,
                     footerWidget: enablePullUp ? null : CustomListViewConstant.defaultFooterWidget
                 )
             );
         }
 
-        Widget _buildMemberItem(BuildContext context, int section, int row) {
-            ChannelMember member = this.widget.viewModel.members[index: row];
+        Widget _buildMemberItem(BuildContext context, int index) {
+            ChannelMember member = this.widget.viewModel.members[index: index];
 
             var userDict = this.widget.viewModel.userDict;
             if (!userDict.ContainsKey(key: member.user.id)) {
