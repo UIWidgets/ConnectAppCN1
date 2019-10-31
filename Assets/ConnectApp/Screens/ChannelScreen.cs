@@ -16,8 +16,8 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -1468,7 +1468,7 @@ namespace ConnectApp.screens {
             ));
         }
 
-        void _pickImageCallback(string pickImage) {
+        void _pickImageCallback(byte[] pickImage) {
             var nonce = Snowflake.CreateNonce();
             this._refreshController.scrollTo(0);
             this.widget.actionModel.addLocalMessage(new ChannelMessageView {
@@ -1477,7 +1477,7 @@ namespace ConnectApp.screens {
                 channelId = this.widget.viewModel.channel.id,
                 nonce = nonce.hexToLong(),
                 type = ChannelMessageType.image,
-                content = pickImage,
+                content = Convert.ToBase64String(inArray: pickImage),
                 time = DateTime.UtcNow,
                 status = "waiting"
             });

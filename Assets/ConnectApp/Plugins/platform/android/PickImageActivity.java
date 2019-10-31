@@ -14,6 +14,7 @@ import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.util.Base64;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.zxing.android.FinishListener;
@@ -62,10 +63,8 @@ public class PickImageActivity extends TakePhotoActivity {
     public void takeSuccess(TResult result) {
         super.takeSuccess(result);
         String path = result.getImage().getCompressPath();
-        Bitmap bm = BitmapFactory.decodeFile(path);
-        String imageStr = bitmapToBase64(bm);
         Map<String, String> map = new HashMap<String, String>();
-        map.put("image", imageStr);
+        map.put("imagePath", path);
         UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("pickImage","pickImageSuccess",Arrays.asList(new Gson().toJson(map)));
         finish();
     }
@@ -102,11 +101,16 @@ public class PickImageActivity extends TakePhotoActivity {
                     int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
                     String videoPath = cursor.getString(columnIndex);
 
-                    cursor.close();
-                    Map<String, String> map = new HashMap<String, String>();
-                    map.put("videoPath", videoPath);
-                    UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("pickImage","pickVideoSuccess", Arrays.asList(new Gson().toJson(map)));
-                    finish();
+                    File file = new File(videoPath);
+                    if (file.length()>30*1024*1024){
+                        Toast.makeText(this,"该视频过大，无法上传",Toast.LENGTH_SHORT);
+                    }else{
+                        cursor.close();
+                        Map<String, String> map = new HashMap<String, String>();
+                        map.put("videoPath", videoPath);
+                        UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("pickImage","pickVideoSuccess", Arrays.asList(new Gson().toJson(map)));
+                        finish();
+                    }
                 }
             }
             if (resultCode == RESULT_CANCELED) {
@@ -153,10 +157,7 @@ public class PickImageActivity extends TakePhotoActivity {
             Uri imageUri = Uri.fromFile(file);
 
             // 压缩图片
-            int maxSize = this.getIntent().getIntExtra("maxSize", 0);
-            if (maxSize > 0) {
-                takePhoto.onEnableCompress(compressConfig(), true);
-            }
+            takePhoto.onEnableCompress(compressConfig(), true);
 
             TakePhotoOptions takePhotoOptions = new TakePhotoOptions.Builder().create();
             takePhotoOptions.setCorrectImage(true);
@@ -219,36 +220,6 @@ public class PickImageActivity extends TakePhotoActivity {
             }
         });
         builder.show();
-    }
-
-    public String bitmapToBase64(Bitmap bitmap) {
-
-        String result = null;
-        ByteArrayOutputStream baos = null;
-        try {
-            if (bitmap != null) {
-                baos = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-
-                baos.flush();
-                baos.close();
-
-                byte[] bitmapBytes = baos.toByteArray();
-                result = Base64.encodeToString(bitmapBytes, Base64.DEFAULT);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (baos != null) {
-                    baos.flush();
-                    baos.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return result;
     }
 
 }

@@ -18,7 +18,7 @@ namespace ConnectApp.Plugins {
     }
 
     public static class PickImagePlugin {
-        static Action<string> _imageCallBack;
+        static Action<byte[]> _imageCallBack;
         static Action<byte[]> _videoCallBack;
 
         static void addListener() {
@@ -45,8 +45,15 @@ namespace ConnectApp.Plugins {
                             var node = args[0];
                             var dict = JSON.Parse(aJSON: node);
                             var image = (string) dict["image"];
-                            if (image != null) {
-                                _imageCallBack?.Invoke(obj: image);
+                            if (image.isNotEmpty()) {
+                                var imageData = Convert.FromBase64String(s: image);
+                                _imageCallBack?.Invoke(obj: imageData);
+                            }
+
+                            var imagePath = (string) dict["imagePath"];
+                            if (imagePath.isNotEmpty()) {
+                                var data = CImageUtils.readImage(path: imagePath);
+                                _imageCallBack?.Invoke(obj: data);
                             }
 
                             removeListener();
@@ -86,7 +93,7 @@ namespace ConnectApp.Plugins {
 
         public static void PickImage(
             ImageSource source,
-            Action<string> imageCallBack = null,
+            Action<byte[]> imageCallBack = null,
             bool cropped = true,
             int? maxSize = null
         ) {
