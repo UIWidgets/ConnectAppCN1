@@ -176,8 +176,7 @@ namespace ConnectApp.screens {
                                 this.widget.actionModel.joinChannel(arg1: channel.id, arg2: channel.groupId);
                             }
                         );
-                    }, 
-                    headerWidget: CustomListViewConstant.defaultHeaderWidget,
+                    },
                     footerWidget: this.widget.viewModel.hasMore ? null : CustomListViewConstant.defaultFooterWidget
                 )
             );

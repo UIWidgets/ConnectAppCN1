@@ -255,7 +255,7 @@ namespace ConnectApp.Components {
 
         Widget _buildEmbedImage() {
             return new GestureDetector(
-                onTap: () => this.onClickImage(obj: this.message.embeds[0].embedData.imageUrl),
+                // onTap: () => this.onClickImage(obj: this.message.embeds[0].embedData.imageUrl),
                 child: new ImageMessage(
                     url: this.message.embeds[0].embedData.imageUrl,
                     size: 140,
