@@ -13,6 +13,7 @@
 
 @property (nonatomic, assign) BOOL allowsEditing;
 @property (nonatomic, assign) NSInteger maxSize;
+@property (nonatomic, assign) BOOL isPickFinish;
 
 @end
 
@@ -35,7 +36,7 @@ static PickImageController *controller = nil;
 {
     _allowsEditing = cropped;
     _maxSize = maxSize;
-    
+    _isPickFinish = false;
     _picker = [[UIImagePickerController alloc] init];
     _picker.delegate = self;
     if (source.integerValue == 0) {
@@ -53,6 +54,7 @@ static PickImageController *controller = nil;
 
 - (void)pickVideoWithSource:(NSString *)source
 {
+    _isPickFinish = false;
     _picker = [[UIImagePickerController alloc] init];
     _picker.delegate = self;
     if (source.integerValue == 0) {
@@ -91,10 +93,12 @@ static PickImageController *controller = nil;
 }
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary<UIImagePickerControllerInfoKey,id> *)info{
-    
+    if (_isPickFinish) return;
+    _isPickFinish = true;
     NSString *type = [info objectForKey:UIImagePickerControllerMediaType];
     //当选择的类型是图片
     if ([type isEqualToString:@"public.image"]) {
+        
         //获取图片
         UIImage *image = [self fixOrientationWithImage:[info objectForKey:UIImagePickerControllerOriginalImage]];
         if (_allowsEditing) {
