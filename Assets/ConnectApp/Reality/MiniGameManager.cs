@@ -4,24 +4,19 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class MiniGameManager : MonoBehaviour {
-    [Header("Game Status")]
-    public bool duringGame = false;
+    [Header("Game Status")] public bool duringGame = false;
 
     public bool isPause = false;
     public bool isOver = false;
 
-    public int score {
-        get { return (int) this._score; }
-    }
+    public int score;
 
-    public float _score = 0f;
+    [Header("Game Settings")] public float timerCountdown;
 
-    [Header("Game Settings")]
-    public float timerCountdown;
     public float timePerRound = 60f;
 
-    [Header("Object Settings")]
-    public Text timerText;
+    [Header("Object Settings")] public Text timerText;
+
     public Text scoreText;
 
     public GameObject startText;
@@ -31,8 +26,7 @@ public class MiniGameManager : MonoBehaviour {
 
     public UnityChanController unityChan;
 
-    [Header("Camera Settings")]
-    public Camera mainCamera;
+    [Header("Camera Settings")] public Camera mainCamera;
 
     public Transform defaultCameraAnchor;
     public Transform miniGameCameraAnchor;
@@ -42,14 +36,20 @@ public class MiniGameManager : MonoBehaviour {
     float timer = 0f;
     bool towardDefault = true;
 
-    [Header("Coin Spawn Settings")]
-    public float timePerCoin = 10f;
+    [Header("Coin Spawn Settings")] public float timePerCoin = 10f;
 
     public GameObject coinPrefab;
     public List<Transform> coinSpawnPoints = new List<Transform>();
     Transform lastCoinSpawnPoint;
 
-    public void TriggerSwitchCamera() {
+    int m_DelayFrames = -1;
+
+    public void TriggerSwitchCamera(int? delayFrames = null) {
+        if (delayFrames != null) {
+            this.m_DelayFrames = (int) delayFrames;
+            return;
+        }
+
         this.towardDefault = !this.towardDefault;
         if (this.towardDefault) {
             this.mainCamera.transform.parent = this.defaultCameraAnchor;
@@ -63,6 +63,7 @@ public class MiniGameManager : MonoBehaviour {
 
     public void AddTime() {
         this.timerCountdown += this.timePerCoin;
+        this.score++;
 
         int randomIndex = 0;
         do {
@@ -107,7 +108,7 @@ public class MiniGameManager : MonoBehaviour {
         this.scoreText.gameObject.SetActive(true);
 
         this.timerCountdown = this.timePerRound;
-        this._score = 0f;
+        this.score = 0;
         this.isOver = false;
         this.isPause = false;
         this.unityChan.enableToMove = true;
@@ -126,9 +127,10 @@ public class MiniGameManager : MonoBehaviour {
         this.scoreText.text = $"TIME : {(int) this.timerCountdown}\nSCORE : {this.score}";
 
         this.unityChan.isMoving = false;
-        
-        RealityManager.instance.viewer.ResetGyro(-4f);
-        this.TriggerSwitchCamera();
+
+        RealityManager.instance.viewer.ResetGyro();
+
+        this.TriggerSwitchCamera(10);
     }
 
     public void ResumeGame() {
@@ -154,8 +156,9 @@ public class MiniGameManager : MonoBehaviour {
         this.unityChan.isMoving = false;
         this.overlayCanvas.SetActive(false);
 
-        RealityManager.instance.viewer.ResetGyro(-4f);
-        this.TriggerSwitchCamera();
+        RealityManager.instance.viewer.ResetGyro();
+
+        this.TriggerSwitchCamera(10);
     }
 
     void ProcessCameraSwitch() {
@@ -168,6 +171,14 @@ public class MiniGameManager : MonoBehaviour {
     }
 
     void Update() {
+        if (this.m_DelayFrames >= 0) {
+            this.m_DelayFrames--;
+        }
+
+        if (this.m_DelayFrames == 0) {
+            this.TriggerSwitchCamera();
+        }
+
         var timeDelta = Time.deltaTime;
         // Camera Switch
         if (this.towardDefault) {
@@ -200,7 +211,6 @@ public class MiniGameManager : MonoBehaviour {
 
         if (!this.isPause) {
             this.timerCountdown -= timeDelta;
-            this._score += timeDelta;
             this.timerText.text = $"Time : {(int) this.timerCountdown}";
             this.scoreText.text = $"SCORE\n{this.score}";
         }

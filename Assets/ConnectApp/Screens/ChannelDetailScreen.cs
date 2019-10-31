@@ -12,8 +12,8 @@ using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
@@ -331,7 +331,7 @@ namespace ConnectApp.screens {
                             color: CColors.White,
                             height: 60,
                             child: new Center(
-                                child: new Text("分享群", style: CTextStyle.PLargeBlue)
+                                child: new Text("分享群聊", style: CTextStyle.PLargeBlue)
                             )
                         )
                     ),

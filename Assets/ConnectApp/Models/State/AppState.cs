@@ -163,6 +163,7 @@ namespace ConnectApp.Models.State {
                     loading = false
                 },
                 channelState = new ChannelState {
+                    channelLoading = false,
                     publicChannels = new List<string>(),
                     joinedChannels = new List<string>(),
                     createChannelFilterIds = new List<string>(),

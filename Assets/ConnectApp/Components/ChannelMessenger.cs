@@ -113,11 +113,7 @@ namespace ConnectApp.Components {
                             )
                         ),
                         new SizedBox(width: 16),
-                        new Icon(
-                            icon: Icons.insert_drive_file,
-                            size: 40,
-                            color: CColors.Icon
-                        )
+                        this._buildFileIcon()
                     }
                 )
             );
@@ -132,12 +128,33 @@ namespace ConnectApp.Components {
             return content;
         }
 
+        Widget _buildFileIcon() {
+            var attachment = this.message.attachments.first();
+            string imageName;
+            if (attachment.filename.EndsWith(".pdf")) {
+                imageName = "image/pdf-file-icon";
+            }
+            else if (attachment.filename.EndsWith(".mp4")) {
+                imageName = "image/video-file-icon";
+            }
+            else {
+                imageName = "image/file-general-icon";
+            }
+
+            return Image.asset(
+                name: imageName,
+                width: 42,
+                height: 48,
+                fit: BoxFit.fill
+            );
+        }
+
         public static float CalculateTextHeight(ChannelMessageView message, float width) {
             var attachment = message.attachments.first();
             var fileTitleHeight = CTextUtils.CalculateTextHeight(text: attachment.filename, textStyle: _fileTitleStyle,
-                width - _filePadding.horizontal - 40 - 16);
+                width - _filePadding.horizontal - 42 - 16);
             var fileSizeHeight = CTextUtils.CalculateTextHeight(CStringUtils.FileSize(bytes: attachment.size),
-                textStyle: _fileSizeStyle, width - _filePadding.horizontal - 40 - 16);
+                textStyle: _fileSizeStyle, width - _filePadding.horizontal - 42 - 16);
             return _filePadding.vertical + fileTitleHeight + fileSizeHeight + 4;
         }
     }
@@ -197,7 +214,8 @@ namespace ConnectApp.Components {
             string embedDataUrl;
             if (this.message.type == ChannelMessageType.embedImage) {
                 embedDataUrl = embedData.imageUrl;
-            } else if (this.message.type == ChannelMessageType.embedExternal) {
+            }
+            else if (this.message.type == ChannelMessageType.embedExternal) {
                 embedDataUrl = embedData.url;
             }
             else {
@@ -382,8 +400,8 @@ namespace ConnectApp.Components {
             }
 
             return message.width > message.height
-                    ? 140.0f * message.height / message.width
-                    : 140.0f;
+                ? 140.0f * message.height / message.width
+                : 140.0f;
         }
 
         public Size srcSize {

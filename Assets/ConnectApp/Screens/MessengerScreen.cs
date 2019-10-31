@@ -13,8 +13,8 @@ using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
@@ -35,26 +35,29 @@ namespace ConnectApp.screens {
                                             isTop;
                             return channel;
                         }).ToList();
-                    joinedChannels.Sort(
-                        (c1, c2) => {
-                            if (c1 == null) {
-                                return -1;
-                            }
+                    if (joinedChannels.isNotNullAndEmpty() && joinedChannels.Count > 1) {
+                        joinedChannels.Sort(
+                            (c1, c2) => {
+                                if (c1 == null) {
+                                    return -1;
+                                }
 
-                            if (c2 == null) {
-                                return 1;
-                            }
+                                if (c2 == null) {
+                                    return 1;
+                                }
 
-                            if (c1.isTop && !c2.isTop) {
-                                return -1;
-                            }
+                                if (c1.isTop && !c2.isTop) {
+                                    return -1;
+                                }
 
-                            if (!c1.isTop && c2.isTop) {
-                                return 1;
-                            }
+                                if (!c1.isTop && c2.isTop) {
+                                    return 1;
+                                }
 
-                            return (c2.lastMessage.time - c1.lastMessage.time).Milliseconds;
-                        });
+                                return (c2.lastMessage.time - c1.lastMessage.time).Milliseconds;
+                            });
+                    }
+
                     var lastMessageMap = new Dictionary<string, string>();
                     foreach (var channel in joinedChannels) {
                         if (!string.IsNullOrEmpty(value: channel.lastMessageId)) {
@@ -63,6 +66,7 @@ namespace ConnectApp.screens {
                     }
 
                     return new MessengerScreenViewModel {
+                        channelLoading = state.channelState.channelLoading,
                         myUserId = state.loginState.loginInfo.userId,
                         joinedChannels = joinedChannels,
                         lastMessageMap = lastMessageMap,
@@ -180,6 +184,46 @@ namespace ConnectApp.screens {
 
         public override Widget build(BuildContext context) {
             base.build(context: context);
+            Widget content;
+            if (this.widget.viewModel.publicChannels.isNullOrEmpty() && this.widget.viewModel.channelLoading) {
+                content = new Container(
+                    child: new GlobalLoading(),
+                    padding: EdgeInsets.only(bottom: CConstant.TabBarHeight +
+                                                     CCommonUtils.getSafeAreaBottomPadding(context: context))
+                );
+            }
+            else {
+                content = new NotificationListener<ScrollNotification>(
+                    child: new Container(
+                        color: CColors.Background,
+                        child: new SectionView(
+                            controller: this._refreshController,
+                            enablePullDown: true,
+                            enablePullUp: this.widget.viewModel.hasMore &&
+                                          this.widget.viewModel.joinedChannels.isEmpty(),
+                            onRefresh: this._onRefresh,
+                            hasBottomMargin: true,
+                            sectionCount: 2,
+                            numOfRowInSection: section => {
+                                if (section == 0) {
+                                    return !this._hasJoinedChannel()
+                                        ? 1
+                                        : this.widget.viewModel.joinedChannels.Count;
+                                }
+
+                                return this.widget.viewModel.publicChannels.Count;
+                            },
+                            headerInSection: this._headerInSection,
+                            cellAtIndexPath: this._buildMessageItem,
+                            footerWidget: !this.widget.viewModel.hasMore &&
+                                          this.widget.viewModel.joinedChannels.isEmpty()
+                                ? new EndView(hasBottomMargin: true)
+                                : null
+                        )
+                    )
+                );
+            }
+
             return new Container(
                 padding: EdgeInsets.only(top: CCommonUtils.getSafeAreaTopPadding(context: context)),
                 color: CColors.White,
@@ -189,37 +233,7 @@ namespace ConnectApp.screens {
                         !this.widget.viewModel.netWorkConnected
                             ? this._buildNetworkDisconnectedNote()
                             : new Container(color: CColors.Separator2, height: 1),
-                        new Flexible(
-                            child: new NotificationListener<ScrollNotification>(
-                                child: new Container(
-                                    color: CColors.Background,
-                                    child: new SectionView(
-                                        controller: this._refreshController,
-                                        enablePullDown: true,
-                                        enablePullUp: this.widget.viewModel.hasMore &&
-                                                      this.widget.viewModel.joinedChannels.isEmpty(),
-                                        onRefresh: this._onRefresh,
-                                        hasBottomMargin: true,
-                                        sectionCount: 2,
-                                        numOfRowInSection: section => {
-                                            if (section == 0) {
-                                                return !this._hasJoinedChannel()
-                                                    ? 1
-                                                    : this.widget.viewModel.joinedChannels.Count;
-                                            }
-
-                                            return this.widget.viewModel.publicChannels.Count;
-                                        },
-                                        headerInSection: this._headerInSection,
-                                        cellAtIndexPath: this._buildMessageItem,
-                                        footerWidget: !this.widget.viewModel.hasMore &&
-                                                      this.widget.viewModel.joinedChannels.isEmpty()
-                                            ? new EndView(hasBottomMargin: true)
-                                            : null
-                                    )
-                                )
-                            )
-                        )
+                        new Flexible(child: content)
                     }
                 )
             );

@@ -19,9 +19,8 @@ using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
     public class AtAllMention {
-        
     }
-    
+
     public class ChannelMentionScreenConnector : StatelessWidget {
         public ChannelMentionScreenConnector(
             string channelId,
@@ -34,14 +33,27 @@ namespace ConnectApp.screens {
 
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ChannelMentionScreenViewModel>(
-                converter: state => new ChannelMentionScreenViewModel {
-                    channel = state.channelState.channelDict[key: this.channelId],
-                    mentionSuggestions = state.channelState.mentionSuggestions.getOrDefault(key: this.channelId, null),
-                    userDict = state.userState.userDict,
-                    mentionLoading = state.channelState.mentionLoading,
-                    lastMentionQuery = state.channelState.lastMentionQuery,
-                    mentionSearching = state.channelState.mentionSearching,
-                    queryMentions = state.channelState.queryMentions
+                converter: state => {
+                    var channel = state.channelState.channelDict[key: this.channelId];
+                    var memberDict = new Dictionary<string, ChannelMember>();
+                    foreach (var memberKey in channel.memberIds) {
+                        if (channel.membersDict.ContainsKey(memberKey)) {
+                            memberDict[memberKey] = channel.membersDict[memberKey];
+                        }
+                    }
+
+                    return new ChannelMentionScreenViewModel {
+                        channelMembers = memberDict,
+                        me = state.loginState.loginInfo.userId,
+                        currentMember = channel.currentMember,
+                        mentionSuggestions =
+                            state.channelState.mentionSuggestions.getOrDefault(key: this.channelId, null),
+                        userDict = state.userState.userDict,
+                        mentionLoading = state.channelState.mentionLoading,
+                        lastMentionQuery = state.channelState.lastMentionQuery,
+                        mentionSearching = state.channelState.mentionSearching,
+                        queryMentions = state.channelState.queryMentions
+                    };
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new ChannelMentionScreenActionModel {
@@ -72,9 +84,7 @@ namespace ConnectApp.screens {
                                 mentionQuery = query
                             });
                         },
-                        clearQueryMention = () => {
-                            dispatcher.dispatch(new ChannelClearMentionQueryAction());
-                        }
+                        clearQueryMention = () => { dispatcher.dispatch(new ChannelClearMentionQueryAction()); }
                     };
                     return new ChannelMentionScreen(viewModel: viewModel, actionModel: actionModel);
                 }
@@ -111,7 +121,7 @@ namespace ConnectApp.screens {
             if (this.widget.viewModel.mentionSuggestions == null) {
                 SchedulerBinding.instance.addPostFrameCallback(_ => { this.widget.actionModel.startLoadingMention(); });
             }
-            
+
             base.initState();
         }
 
@@ -125,30 +135,80 @@ namespace ConnectApp.screens {
             base.dispose();
         }
 
-        void updateMentionList() {
+
+        void updateMentionListLocal(string query, Dictionary<string, ChannelMember> memberDict,
+            Dictionary<string, ChannelMember> suggestions, HashSet<string> mentionKeys) {
+            //search in memberDict
+            if (memberDict != null) {
+                foreach (var memberKey in memberDict.Keys) {
+                    var member = memberDict[key: memberKey];
+                    if (mentionKeys.Contains(member.user.id) || member.user.id == this.widget.viewModel.me) {
+                        continue;
+                    }
+
+                    if (query == "" || member.user.fullName.Contains(query)) {
+                        this.mentionList.Add(item: member);
+                        mentionKeys.Add(member.user.id);
+                    }
+                }
+            }
+
+            //search in suggestionDict
+            if (suggestions != null) {
+                foreach (var memberKey in suggestions.Keys) {
+                    var member = suggestions[key: memberKey];
+                    if (mentionKeys.Contains(member.user.id) || member.user.id == this.widget.viewModel.me) {
+                        continue;
+                    }
+
+                    if (query == "" || member.user.fullName.Contains(query)) {
+                        this.mentionList.Add(item: member);
+                        mentionKeys.Add(member.user.id);
+                    }
+                }
+            }
+        }
+
+        void updateMentionListRemote(List<ChannelMember> queryList, HashSet<string> mentionKeys) {
+            foreach (var member in queryList) {
+                if (mentionKeys.Contains(member.user.id) || member.user.id == this.widget.viewModel.me) {
+                    continue;
+                }
+
+                this.mentionList.Add(member);
+            }
+        }
+
+        bool updateMentionList(bool needSearching) {
             this.mentionList.Clear();
-            if (this.curQuery != "" && this.widget.viewModel.queryMentions != null) {
-                foreach (var member in this.widget.viewModel.queryMentions) {
-                    this.mentionList.Add(member);
+            var mentionKeys = new HashSet<string>();
+
+            if (this.curQuery != "") {
+                this.updateMentionListLocal(this.curQuery, this.widget.viewModel.channelMembers,
+                    this.widget.viewModel.mentionSuggestions, mentionKeys);
+
+                if (!this.widget.viewModel.mentionSearching && !needSearching &&
+                    this.widget.viewModel.queryMentions != null) {
+                    this.updateMentionListRemote(this.widget.viewModel.queryMentions, mentionKeys);
+
+                    if (this.mentionList.Count == 0) {
+                        return true;
+                    }
                 }
             }
             else if (this.curQuery == "") {
-                var allMentions =
-                    this.widget.viewModel.mentionSuggestions ??
-                    this.widget.viewModel.channel.membersDict;
+                this.updateMentionListLocal(this.curQuery, this.widget.viewModel.channelMembers,
+                    this.widget.viewModel.mentionSuggestions, mentionKeys);
 
-                foreach (var memberKey in allMentions.Keys) {
-                    var member = allMentions[key: memberKey];
-                    this.mentionList.Add(item: member);
-                }
-                
-                var myMemberInfo = this.widget.viewModel.channel.currentMember;
+                var myMemberInfo = this.widget.viewModel.currentMember;
                 if (myMemberInfo.role == "admin" ||
                     myMemberInfo.role == "owner" ||
                     myMemberInfo.role == "moderator") {
                     this.mentionList.Insert(0, new AtAllMention());
                 }
             }
+
+            return false;
         }
 
         public override Widget build(BuildContext context) {
@@ -160,11 +220,12 @@ namespace ConnectApp.screens {
                     if (this.widget.viewModel.mentionSearching) {
                         return;
                     }
+
                     this.widget.actionModel.startQueryMention(this.widget.viewModel.lastMentionQuery);
                 });
             }
-            
-            this.updateMentionList();
+
+            bool showEmpty = this.updateMentionList(needSearching);
             return new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(
@@ -175,8 +236,12 @@ namespace ConnectApp.screens {
                                 this._buildNavigationBar(),
                                 this._buildSearchBar(),
                                 new Expanded(
-                                    child: this.widget.viewModel.mentionLoading || needSearching || this.widget.viewModel.mentionSearching ? 
-                                        new GlobalLoading() : this._buildMentionList()
+                                    child: showEmpty
+                                        ? new BlankView(
+                                            "未找到相关用户！",
+                                            "image/default-search"
+                                        )
+                                        : this._buildMentionList()
                                 )
                             }
                         )
@@ -188,7 +253,7 @@ namespace ConnectApp.screens {
         void _onSearch(string query) {
             this.curQuery = query;
             this.widget.actionModel.updateMentionQuery(this.curQuery);
-            
+
             this.setState(() => {
                 if (this._scrollController.hasClients) {
                     this._scrollController.jumpTo(0);
@@ -202,6 +267,7 @@ namespace ConnectApp.screens {
                     color: CColors.Background
                 );
             }
+
             return new Container(
                 color: CColors.Background,
                 child: new CustomScrollbar(
@@ -219,7 +285,7 @@ namespace ConnectApp.screens {
             var mentionObj = this.mentionList[index: index];
 
             if (mentionObj is ChannelMember) {
-                ChannelMember member = (ChannelMember)this.mentionList[index: index];
+                ChannelMember member = (ChannelMember) this.mentionList[index: index];
                 var user = member.user;
                 return new GestureDetector(
                     onTap: () => this.widget.actionModel.chooseMentionConfirm(member.user.id, member.user.fullName),
@@ -252,7 +318,7 @@ namespace ConnectApp.screens {
                     )
                 );
             }
-            
+
             if (mentionObj is AtAllMention) {
                 return new GestureDetector(
                     onTap: () => this.widget.actionModel.chooseMentionConfirm("everyone", "所有人"),

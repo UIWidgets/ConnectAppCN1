@@ -6,6 +6,7 @@ using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
+
 #if UNITY_IOS
 using System.Runtime.InteropServices;
 #endif
@@ -18,6 +19,7 @@ namespace ConnectApp.Plugins {
 
     public static class PickImagePlugin {
         static Action<string> _imageCallBack;
+        static Action<byte[]> _videoCallBack;
 
         static void addListener() {
             if (Application.isEditor) {
@@ -39,7 +41,7 @@ namespace ConnectApp.Plugins {
             if (GlobalContext.context != null) {
                 using (WindowProvider.of(context: GlobalContext.context).getScope()) {
                     switch (method) {
-                        case "success": {
+                        case "pickImageSuccess": {
                             var node = args[0];
                             var dict = JSON.Parse(aJSON: node);
                             var image = (string) dict["image"];
@@ -51,6 +53,27 @@ namespace ConnectApp.Plugins {
                             StatusBarManager.hideStatusBar(false);
                             break;
                         }
+
+                        case "pickVideoSuccess": {
+                            var node = args[0];
+                            var dict = JSON.Parse(aJSON: node);
+                            var videoData = (string) dict["videoData"];
+                            if (videoData.isNotEmpty()) {
+                                var data = Convert.FromBase64String(s: videoData);
+                                _videoCallBack?.Invoke(obj: data);
+                            }
+
+                            var videoPath = (string) dict["videoPath"];
+                            if (videoPath.isNotEmpty()) {
+                                var data = CImageUtils.readImage(path: videoPath);
+                                _videoCallBack?.Invoke(obj: data);
+                            }
+
+                            removeListener();
+                            StatusBarManager.hideStatusBar(false);
+                            break;
+                        }
+
                         case "cancel": {
                             removeListener();
                             StatusBarManager.hideStatusBar(false);
@@ -77,12 +100,16 @@ namespace ConnectApp.Plugins {
             pickImage(sourceInt.ToString(), cropped: cropped, maxSize ?? 0);
         }
 
-        public static void PickVideo(ImageSource source) {
+        public static void PickVideo(
+            ImageSource source,
+            Action<byte[]> videoCallBack = null
+        ) {
             if (Application.isEditor) {
                 return;
             }
 
             addListener();
+            _videoCallBack = videoCallBack;
             var sourceInt = (int) source;
             pickVideo(sourceInt.ToString());
         }
@@ -91,9 +118,11 @@ namespace ConnectApp.Plugins {
             if (Application.isEditor) {
                 return;
             }
+
             if (image.isEmpty()) {
                 return;
             }
+
             if (Application.platform == RuntimePlatform.Android) {
                 var imageBase64String = Convert.ToBase64String(image);
                 saveImage(imageBase64String);

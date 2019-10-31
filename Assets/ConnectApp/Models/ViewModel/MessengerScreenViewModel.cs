@@ -3,6 +3,7 @@ using ConnectApp.Models.Model;
 
 namespace ConnectApp.Models.ViewModel {
     public class MessengerScreenViewModel {
+        public bool channelLoading;
         public string myUserId;
         public int currentTabBarIndex;
         public int page;

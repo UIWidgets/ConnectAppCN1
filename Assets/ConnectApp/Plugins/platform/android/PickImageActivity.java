@@ -4,11 +4,13 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.util.Base64;
@@ -64,7 +66,7 @@ public class PickImageActivity extends TakePhotoActivity {
         String imageStr = bitmapToBase64(bm);
         Map<String, String> map = new HashMap<String, String>();
         map.put("image", imageStr);
-        UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("pickImage","success",Arrays.asList(new Gson().toJson(map)));
+        UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("pickImage","pickImageSuccess",Arrays.asList(new Gson().toJson(map)));
         finish();
     }
 
@@ -85,6 +87,32 @@ public class PickImageActivity extends TakePhotoActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 66) {
+            if (resultCode == RESULT_OK) {
+                if (data == null) {
+                    finish();
+                } else {
+                    Uri selectedVideo = data.getData();
+                    String[] filePathColumn = {MediaStore.Video.Media.DATA};
+
+                    Cursor cursor = getContentResolver().query(selectedVideo,
+                            filePathColumn, null, null, null);
+                    cursor.moveToFirst();
+
+                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                    String videoPath = cursor.getString(columnIndex);
+
+                    cursor.close();
+                    Map<String, String> map = new HashMap<String, String>();
+                    map.put("videoPath", videoPath);
+                    UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("pickImage","pickVideoSuccess", Arrays.asList(new Gson().toJson(map)));
+                    finish();
+                }
+            }
+            if (resultCode == RESULT_CANCELED) {
+                finish();
+            }
+        }
     }
 
     @Override
@@ -109,40 +137,50 @@ public class PickImageActivity extends TakePhotoActivity {
     }
 
     private void startPick(){
-        String source = this.getIntent().getStringExtra("source");
-        boolean cropped = this.getIntent().getBooleanExtra("cropped", false);
-        
-        TakePhoto takePhoto = getTakePhoto();
-        File file = new File(Environment.getExternalStorageDirectory(),
-                "/temp/" + System.currentTimeMillis() + ".jpg");
-        if (!file.getParentFile().exists()) {
-            boolean mkdirs = file.getParentFile().mkdirs();
-            if (!mkdirs) {
+        String type = this.getIntent().getStringExtra("type");
+        if (type.equals("image")) {
+            String source = this.getIntent().getStringExtra("source");
+            boolean cropped = this.getIntent().getBooleanExtra("cropped", false);
+
+            TakePhoto takePhoto = getTakePhoto();
+            File file = new File(Environment.getExternalStorageDirectory(),
+                    "/temp/" + System.currentTimeMillis() + ".jpg");
+            if (!file.getParentFile().exists()) {
+                boolean mkdirs = file.getParentFile().mkdirs();
+                if (!mkdirs) {
+                }
+            }
+            Uri imageUri = Uri.fromFile(file);
+
+            // 压缩图片
+            int maxSize = this.getIntent().getIntExtra("maxSize", 0);
+            if (maxSize > 0) {
+                takePhoto.onEnableCompress(compressConfig(), true);
+            }
+
+            TakePhotoOptions takePhotoOptions = new TakePhotoOptions.Builder().create();
+            takePhotoOptions.setCorrectImage(true);
+            takePhotoOptions.setWithOwnGallery(false);
+            takePhoto.setTakePhotoOptions(takePhotoOptions);
+
+            if (source.equals("0")) {
+                if (cropped) {
+                    takePhoto.onPickFromCaptureWithCrop(imageUri, cropOptions());
+                } else {
+                    takePhoto.onPickFromCapture(imageUri);
+                }
+
+            } else {
+                if (cropped) {
+                    takePhoto.onPickFromGalleryWithCrop(imageUri, cropOptions());
+                } else {
+                    takePhoto.onPickFromGallery();
+                }
             }
         }
-        Uri imageUri = Uri.fromFile(file);
-
-        // 压缩图片
-        takePhoto.onEnableCompress(compressConfig(), true);
-
-        TakePhotoOptions takePhotoOptions = new TakePhotoOptions.Builder().create();
-        takePhotoOptions.setCorrectImage(true);
-        takePhotoOptions.setWithOwnGallery(false);
-        takePhoto.setTakePhotoOptions(takePhotoOptions);
-
-        if (source.equals("0")) {
-            if (cropped) {
-                takePhoto.onPickFromCaptureWithCrop(imageUri, cropOptions());
-            } else {
-                takePhoto.onPickFromCapture(imageUri);
-            }
-            
-        } else {
-            if (cropped) {
-                takePhoto.onPickFromGalleryWithCrop(imageUri, cropOptions());
-            } else {
-                takePhoto.onPickFromGallery();
-            }
+        if (type.equals("video")) {
+            Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+            startActivityForResult(intent, 66);
         }
     }
 

@@ -10,7 +10,8 @@ using UnityEngine.Networking;
 
 namespace ConnectApp.Api {
     public static class ChannelApi {
-        public static Promise<FetchChannelsResponse> FetchChannels(int page, bool joined = true, bool discoverAll = false) {
+        public static Promise<FetchChannelsResponse> FetchChannels(int page, bool joined = true,
+            bool discoverAll = false) {
             var promise = new Promise<FetchChannelsResponse>();
             var para = new Dictionary<string, object> {
                 {"discoverPage", page},
@@ -139,6 +140,7 @@ namespace ConnectApp.Api {
             else {
                 request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/groups/{groupId}/join");
             }
+
             HttpManager.resume(request: request).Then(responseText => {
                 promise.Resolve(JsonConvert.DeserializeObject<JoinChannelResponse>(value: responseText));
             }).Catch(exception => promise.Reject(ex: exception));
@@ -158,6 +160,7 @@ namespace ConnectApp.Api {
                         {"memberId", memberId}
                     });
             }
+
             HttpManager.resume(request: request).Then(responseText => {
                 promise.Resolve(JsonConvert.DeserializeObject<LeaveChannelResponse>(value: responseText));
             }).Catch(exception => promise.Reject(ex: exception));
@@ -191,6 +194,33 @@ namespace ConnectApp.Api {
             return promise;
         }
 
+        public static Promise<FetchSendMessageResponse> SendVideo(string channelId, string content, string nonce,
+            string videoData, string parentMessageId = "") {
+            var data = Convert.FromBase64String(s: videoData);
+            var promise = new Promise<FetchSendMessageResponse>();
+            var request = HttpManager.POST(
+                $"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/messages/attachments",
+                parameter: new List<List<object>> {
+                    new List<object> {"channel", channelId},
+                    new List<object> {"content", content},
+                    new List<object> {"parentMessageId", parentMessageId},
+                    new List<object> {"nonce", nonce},
+                    new List<object> {"size", $"{data.Length}"},
+                    new List<object> {"file", data}
+                },
+                multipart: true,
+                filename: $"{nonce}.mp4",
+                fileType: "video/mp4");
+            HttpManager.resume(request: request).Then(responseText => {
+                promise.Resolve(new FetchSendMessageResponse {
+                    channelId = channelId,
+                    content = content,
+                    nonce = nonce
+                });
+            }).Catch(exception => promise.Reject(ex: exception));
+            return promise;
+        }
+
         public static Promise<FetchChannelMembersResponse> FetchChannelMemberSuggestions(string channelId) {
             var promise = new Promise<FetchChannelMembersResponse>();
             var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/members",
@@ -207,7 +237,7 @@ namespace ConnectApp.Api {
         public static Promise<FetchChannelMemberQueryResponse> FetchChannelMemberQuery(string channelId,
             string query) {
             var promise = new Promise<FetchChannelMemberQueryResponse>();
-            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/searchMembers", 
+            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/searchMembers",
                 parameter: new Dictionary<string, object> {
                     {"q", query}
                 });

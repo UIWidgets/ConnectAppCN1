@@ -5,8 +5,8 @@ using ConnectApp.Components;
 using ConnectApp.Main;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
-using ConnectApp.redux.actions;
 using ConnectApp.Reality;
+using ConnectApp.redux.actions;
 using ConnectApp.screens;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
@@ -942,7 +942,7 @@ namespace ConnectApp.redux.reducers {
                             message.status = "waiting";
                         }
                     }
-                    
+
                     break;
                 }
 
@@ -2496,6 +2496,11 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case StartFetchChannelsAction _: {
+                    state.channelState.channelLoading = true;
+                    break;
+                }
+
                 case FetchChannelsSuccessAction action: {
                     if (action.discoverList.isNotEmpty() && action.discoverPage == 1) {
                         state.channelState.publicChannels = action.discoverList;
@@ -2507,7 +2512,7 @@ namespace ConnectApp.redux.reducers {
                             }
                         });
                     }
-                    
+
                     state.channelState.discoverPage = action.discoverList.isNotEmpty()
                         ? action.discoverPage + 1
                         : action.discoverPage;
@@ -2515,6 +2520,8 @@ namespace ConnectApp.redux.reducers {
                     if (action.updateJoined) {
                         state.channelState.joinedChannels = action.joinedList;
                     }
+
+                    state.channelState.channelLoading = false;
 
                     var joinedChannelMap = new Dictionary<string, bool>();
                     foreach (var channelId in state.channelState.joinedChannels) {
@@ -2546,6 +2553,7 @@ namespace ConnectApp.redux.reducers {
 
                 case FetchChannelsFailureAction _: {
                     NetworkStatusManager.isConnected = false;
+                    state.channelState.channelLoading = false;
                     break;
                 }
 
@@ -2626,6 +2634,7 @@ namespace ConnectApp.redux.reducers {
                     if (channel.atBottom) {
                         channel.clearUnread();
                     }
+
                     state.channelState.messageLoading = false;
 
                     break;
@@ -2664,6 +2673,7 @@ namespace ConnectApp.redux.reducers {
                         state.channelState.localMessageDict.ContainsKey(key)) {
                         state.channelState.localMessageDict[key].status = "local";
                     }
+
                     break;
                 }
 

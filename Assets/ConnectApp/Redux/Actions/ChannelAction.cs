@@ -14,8 +14,10 @@ using UnityEngine;
 
 namespace ConnectApp.redux.actions {
     public static partial class Actions {
-        public static object fetchChannels(int page, bool fetchMessagesAfterSuccess = false, bool joined = true, bool discoverAll = false) {
+        public static object fetchChannels(int page, bool fetchMessagesAfterSuccess = false, bool joined = true,
+            bool discoverAll = false) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
+                dispatcher.dispatch(new StartFetchChannelsAction());
                 return ChannelApi.FetchChannels(page: page, joined: joined, discoverAll: discoverAll)
                     .Then(channelResponse => {
                         dispatcher.dispatch(new FetchChannelsSuccessAction {
@@ -44,8 +46,8 @@ namespace ConnectApp.redux.actions {
                     });
             });
         }
-        
-        
+
+
         public static object fetchCreateChannelFilter() {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ChannelApi.FetchChannels(page: 1, joined: false, discoverAll: true)
@@ -289,7 +291,7 @@ namespace ConnectApp.redux.actions {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ChannelApi.FetchChannelMemberQuery(channelId: channelId, query: query)
                     .Then(channelMemberResponse => {
-                        var searchMembers = channelMemberResponse.searchMembers;
+                        var searchMembers = channelMemberResponse.searchMembers ?? new List<ChannelMember>();
                         dispatcher.dispatch(new FetchChannelMentionQuerySuccessAction {
                             channelId = channelId,
                             members = searchMembers
@@ -429,6 +431,27 @@ namespace ConnectApp.redux.actions {
             });
         }
 
+        public static object sendVideo(string channelId, string nonce, string videoData) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return ChannelApi.SendVideo(channelId: channelId, "", nonce: nonce, videoData: videoData)
+                    .Then(responseText => {
+                        dispatcher.dispatch(new SendChannelMessageSuccessAction {
+                            channelId = channelId,
+                            content = "",
+                            nonce = nonce,
+                            isImage = false
+                        });
+                    })
+                    .Catch(error => {
+                        dispatcher.dispatch(new SendChannelMessageFailureAction {
+                            channelId = channelId,
+                            messageId = nonce
+                        });
+                        Debug.Log(error);
+                    });
+            });
+        }
+
         public static object saveMessagesToDB(List<ChannelMessage> messages) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 MessengerDBApi.SyncSaveMessages(messages);
@@ -467,6 +490,9 @@ namespace ConnectApp.redux.actions {
         }
     }
 
+    public class StartFetchChannelsAction : BaseAction {
+    }
+
     public class FetchChannelsSuccessAction : BaseAction {
         public List<string> discoverList;
         public List<string> joinedList;
@@ -487,7 +513,6 @@ namespace ConnectApp.redux.actions {
     }
 
     public class FetchDiscoverChannelFilterFailureAction : BaseAction {
-        
     }
 
     public class FetchStickChannelSuccessAction : BaseAction {
@@ -731,7 +756,7 @@ namespace ConnectApp.redux.actions {
         public string channelId;
         public List<ChannelMember> members;
     }
-    
+
     public class FetchChannelMentionQueryFailureAction : BaseAction {
     }
 
