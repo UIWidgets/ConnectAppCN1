@@ -9,7 +9,9 @@ namespace ConnectApp.Models.State {
         public bool channelLoading;
         public List<string> publicChannels;
         public List<string> joinedChannels;
+        public List<string> createChannelFilterIds;
         public int discoverPage;
+        public bool discoverHasMore;
         public bool messageLoading;
         public int totalUnread;
         public int totalMention;
@@ -140,7 +142,6 @@ namespace ConnectApp.Models.State {
                     channel.mentioned = readState.mentionCount;
                     channel.unread = channel.lastMessageId != null && readState.lastMessageId != null &&
                                      readState.lastMessageId.hexToLong() < channel.lastMessageId.hexToLong()
-                                     
                         ? 1
                         : 0;
                     channel.lastReadMessageId = readState.lastMessageId;

@@ -6,6 +6,8 @@ namespace ConnectApp.Models.ViewModel {
         public bool channelLoading;
         public string myUserId;
         public int currentTabBarIndex;
+        public int page;
+        public bool hasMore;
         public bool hasUnreadNotifications;
         public bool socketConnected;
         public bool netWorkConnected;

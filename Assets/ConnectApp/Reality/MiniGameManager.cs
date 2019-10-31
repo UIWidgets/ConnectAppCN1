@@ -4,21 +4,18 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class MiniGameManager : MonoBehaviour {
-    [Header("Game Status")]
-    public bool duringGame = false;
+    [Header("Game Status")] public bool duringGame = false;
 
     public bool isPause = false;
     public bool isOver = false;
 
     public int score;
 
-    [Header("Game Settings")]
-    public float timerCountdown;
+    [Header("Game Settings")] public float timerCountdown;
 
     public float timePerRound = 60f;
 
-    [Header("Object Settings")]
-    public Text timerText;
+    [Header("Object Settings")] public Text timerText;
 
     public Text scoreText;
 
@@ -29,8 +26,7 @@ public class MiniGameManager : MonoBehaviour {
 
     public UnityChanController unityChan;
 
-    [Header("Camera Settings")]
-    public Camera mainCamera;
+    [Header("Camera Settings")] public Camera mainCamera;
 
     public Transform defaultCameraAnchor;
     public Transform miniGameCameraAnchor;
@@ -40,8 +36,7 @@ public class MiniGameManager : MonoBehaviour {
     float timer = 0f;
     bool towardDefault = true;
 
-    [Header("Coin Spawn Settings")]
-    public float timePerCoin = 10f;
+    [Header("Coin Spawn Settings")] public float timePerCoin = 10f;
 
     public GameObject coinPrefab;
     public List<Transform> coinSpawnPoints = new List<Transform>();

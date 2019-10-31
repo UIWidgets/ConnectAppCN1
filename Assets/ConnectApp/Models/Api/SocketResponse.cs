@@ -6,7 +6,6 @@ using Newtonsoft.Json.Linq;
 using UnityEngine.Scripting;
 
 namespace ConnectApp.Models.Api {
-    
     public static class DispatchMsgType {
         public const string INVALID_LS = "INVALID_LS";
         public const string READY = "READY";
@@ -22,15 +21,13 @@ namespace ConnectApp.Models.Api {
         public const string CHANNEL_CREATE = "CHANNEL_CREATE";
         public const string CHANNEL_DELETE = "CHANNEL_DELETE";
         public const string CHANNEL_UPDATE = "CHANNEL_UPDATE";
-
     }
 
     public class FrameConverter : JsonConverter {
         [Preserve]
         public FrameConverter() {
-            
         }
-        
+
         public override bool CanConvert(Type objectType) {
             return objectType.IsSubclassOf(typeof(Frame<>));
         }
@@ -151,7 +148,7 @@ namespace ConnectApp.Models.Api {
         public string url;
         public List<string> urls;
     }
-    
+
     [Serializable]
     public class SocketResponseDataBase {
     }
@@ -159,7 +156,7 @@ namespace ConnectApp.Models.Api {
     [Serializable]
     public class SocketResponseNullData : SocketResponseDataBase {
     }
-    
+
     [Serializable]
     public class SocketResponseNull : Frame<SocketResponseNullData> {
     }
@@ -246,7 +243,7 @@ namespace ConnectApp.Models.Api {
         public bool isStaff;
         public bool isBot;
     }
-    
+
     [Serializable]
     public class SocketResponseSession : Frame<SocketResponseSessionData> {
     }
@@ -296,7 +293,6 @@ namespace ConnectApp.Models.Api {
 
     [Serializable]
     public class SocketResponsePing : Frame<SocketResponsePingData> {
-        
     }
 
     [Serializable]
@@ -318,7 +314,6 @@ namespace ConnectApp.Models.Api {
 
     [Serializable]
     public class SocketResponseChannelMemberChange : Frame<SocketResponseChannelMemberChangeData> {
-        
     }
 
     [Serializable]
@@ -331,7 +326,6 @@ namespace ConnectApp.Models.Api {
 
     [Serializable]
     public class SocketResponseMessageAck : Frame<SocketResponseMessageAckData> {
-        
     }
 
     [Serializable]
@@ -339,7 +333,7 @@ namespace ConnectApp.Models.Api {
         public int count;
         public int slot;
     }
-    
+
     [Serializable]
     public class SocketResponseUpdateChannelData : SocketResponseDataBase {
         public string id;
@@ -364,9 +358,8 @@ namespace ConnectApp.Models.Api {
         [JsonProperty("readonly")] public bool Readonly;
         public bool isMute;
     }
-    
+
     [Serializable]
     public class SocketResponseUpdateChannel : Frame<SocketResponseUpdateChannelData> {
-        
     }
 }

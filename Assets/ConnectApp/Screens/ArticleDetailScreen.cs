@@ -14,8 +14,8 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -483,8 +483,8 @@ namespace ConnectApp.screens {
         Widget _buildArticleTabBar() {
             return new ArticleTabBar(
                 this._article.like && this.widget.viewModel.isLoggedIn,
-                this.widget.viewModel.isLoggedIn 
-                        && this._article.favorites.isNotNullAndEmpty(),
+                this.widget.viewModel.isLoggedIn
+                && this._article.favorites.isNotNullAndEmpty(),
                 () => this._sendComment("Article"),
                 () => this._sendComment("Article"),
                 () => {
@@ -707,10 +707,10 @@ namespace ConnectApp.screens {
                         ),
                         this._article.subTitle.isEmpty()
                             ? new Container()
-                            : (Widget)new TipMenu(
+                            : (Widget) new TipMenu(
                                 new List<TipMenuItem> {
                                     new TipMenuItem(
-                                        "复制", 
+                                        "复制",
                                         () => Clipboard.setData(new ClipboardData(text: this._article.subTitle))
                                     )
                                 },

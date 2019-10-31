@@ -42,7 +42,8 @@ namespace ConnectApp.screens {
                             channelId => state.channelState.channelDict[key: channelId]
                         ).ToList(),
                         lastMessageMap = lastMessageMap,
-                        page = state.channelState.discoverPage
+                        page = state.channelState.discoverPage,
+                        hasMore = state.channelState.discoverHasMore
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -64,7 +65,9 @@ namespace ConnectApp.screens {
                         }),
                         joinChannel = (channelId, groupId) => dispatcher.dispatch<IPromise>(
                             Actions.joinChannel(channelId: channelId, groupId: groupId)),
-                        fetchChannels = pageNumber => dispatcher.dispatch<IPromise>(Actions.fetchChannels(page: pageNumber))
+                        fetchChannels = pageNumber => {
+                            return dispatcher.dispatch<IPromise>(Actions.fetchChannels(page: pageNumber, joined: false));
+                        }
                     };
                     return new DiscoverChannelsScreen(viewModel: viewModel, actionModel: actionModel);
                 }
@@ -97,18 +100,10 @@ namespace ConnectApp.screens {
         public override void initState() {
             base.initState();
             this._refreshController = new RefreshController();
-            this._pageNumber = 1;
         }
 
         void _onRefresh(bool up) {
-            if (up) {
-                this._pageNumber = 1;
-            }
-            else {
-                this._pageNumber++;
-            }
-
-            this.widget.actionModel.fetchChannels(arg: this._pageNumber)
+            this.widget.actionModel.fetchChannels(arg: up ? 1 : this.widget.viewModel.page)
                 .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(e => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed));
         }
@@ -160,8 +155,8 @@ namespace ConnectApp.screens {
                 color: CColors.Background,
                 child: new CustomListView(
                     controller: this._refreshController,
-                    enablePullDown: false,
-                    enablePullUp: false,
+                    enablePullDown: true,
+                    enablePullUp: this.widget.viewModel.hasMore,
                     onRefresh: this._onRefresh,
                     itemCount: this.widget.viewModel.publicChannels.Count,
                     itemBuilder: (cxt, index) => {
@@ -183,7 +178,7 @@ namespace ConnectApp.screens {
                         );
                     }, 
                     headerWidget: CustomListViewConstant.defaultHeaderWidget,
-                    footerWidget: CustomListViewConstant.defaultFooterWidget
+                    footerWidget: this.widget.viewModel.hasMore ? null : CustomListViewConstant.defaultFooterWidget
                 )
             );
         }

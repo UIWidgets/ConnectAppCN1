@@ -10,12 +10,13 @@ using UnityEngine.Networking;
 
 namespace ConnectApp.Api {
     public static class ChannelApi {
-        public static Promise<FetchChannelsResponse> FetchChannels(int page) {
+        public static Promise<FetchChannelsResponse> FetchChannels(int page, bool joined = true,
+            bool discoverAll = false) {
             var promise = new Promise<FetchChannelsResponse>();
             var para = new Dictionary<string, object> {
-                {"discover", "true"},
                 {"discoverPage", page},
-                {"joined", "true"}
+                {"joined", joined ? "true" : "false"},
+                {discoverAll ? "discoverAll" : "discover", "true"}
             };
             var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/channels", parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
@@ -139,6 +140,7 @@ namespace ConnectApp.Api {
             else {
                 request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/groups/{groupId}/join");
             }
+
             HttpManager.resume(request: request).Then(responseText => {
                 promise.Resolve(JsonConvert.DeserializeObject<JoinChannelResponse>(value: responseText));
             }).Catch(exception => promise.Reject(ex: exception));
@@ -158,6 +160,7 @@ namespace ConnectApp.Api {
                         {"memberId", memberId}
                     });
             }
+
             HttpManager.resume(request: request).Then(responseText => {
                 promise.Resolve(JsonConvert.DeserializeObject<LeaveChannelResponse>(value: responseText));
             }).Catch(exception => promise.Reject(ex: exception));
@@ -236,7 +239,7 @@ namespace ConnectApp.Api {
         public static Promise<FetchChannelMemberQueryResponse> FetchChannelMemberQuery(string channelId,
             string query) {
             var promise = new Promise<FetchChannelMemberQueryResponse>();
-            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/searchMembers", 
+            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/searchMembers",
                 parameter: new Dictionary<string, object> {
                     {"q", query}
                 });

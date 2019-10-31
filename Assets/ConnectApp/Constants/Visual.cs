@@ -21,7 +21,10 @@ namespace ConnectApp.Constants {
         public static readonly IconData outline_question_answer = new IconData(0xeaa4, "Outline Material Icons");
         public static readonly IconData outline_time = new IconData(0xebed, "Outline Material Icons");
         public static readonly IconData whatshot = new IconData(0xe80e, "Material Icons");
-        public static readonly IconData outline_photo_size_select_actual = new IconData(0xebca, "Outline Material Icons");
+
+        public static readonly IconData outline_photo_size_select_actual =
+            new IconData(0xebca, "Outline Material Icons");
+
         public static readonly IconData notifications_off = new IconData(0xe7f6, "Material Icons");
         public static readonly IconData outline_description = new IconData(0xe621, "iconfont");
         public static readonly IconData eventIcon = new IconData(0xe60b, "iconfont");
@@ -389,7 +392,7 @@ namespace ConnectApp.Constants {
             fontFamily: "Roboto-Regular",
             color: CColors.PrimaryBlue
         );
-        
+
         public static readonly TextStyle Caption = new TextStyle(
             height: 1.53f,
             fontSize: 12,
