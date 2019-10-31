@@ -33,14 +33,27 @@ namespace ConnectApp.screens {
 
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ChannelMentionScreenViewModel>(
-                converter: state => new ChannelMentionScreenViewModel {
-                    channel = state.channelState.channelDict[key: this.channelId],
-                    mentionSuggestions = state.channelState.mentionSuggestions.getOrDefault(key: this.channelId, null),
-                    userDict = state.userState.userDict,
-                    mentionLoading = state.channelState.mentionLoading,
-                    lastMentionQuery = state.channelState.lastMentionQuery,
-                    mentionSearching = state.channelState.mentionSearching,
-                    queryMentions = state.channelState.queryMentions
+                converter: state => {
+                    var channel = state.channelState.channelDict[key: this.channelId];
+                    var memberDict = new Dictionary<string, ChannelMember>();
+                    foreach (var memberKey in channel.memberIds) {
+                        if (channel.membersDict.ContainsKey(memberKey)) {
+                            memberDict[memberKey] = channel.membersDict[memberKey];
+                        }
+                    }
+
+                    return new ChannelMentionScreenViewModel {
+                        channelMembers = memberDict,
+                        me = state.loginState.loginInfo.userId,
+                        currentMember = channel.currentMember,
+                        mentionSuggestions =
+                            state.channelState.mentionSuggestions.getOrDefault(key: this.channelId, null),
+                        userDict = state.userState.userDict,
+                        mentionLoading = state.channelState.mentionLoading,
+                        lastMentionQuery = state.channelState.lastMentionQuery,
+                        mentionSearching = state.channelState.mentionSearching,
+                        queryMentions = state.channelState.queryMentions
+                    };
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new ChannelMentionScreenActionModel {
@@ -129,7 +142,7 @@ namespace ConnectApp.screens {
             if (memberDict != null) {
                 foreach (var memberKey in memberDict.Keys) {
                     var member = memberDict[key: memberKey];
-                    if (mentionKeys.Contains(member.user.id)) {
+                    if (mentionKeys.Contains(member.user.id) || member.user.id == this.widget.viewModel.me) {
                         continue;
                     }
 
@@ -144,7 +157,7 @@ namespace ConnectApp.screens {
             if (suggestions != null) {
                 foreach (var memberKey in suggestions.Keys) {
                     var member = suggestions[key: memberKey];
-                    if (mentionKeys.Contains(member.user.id)) {
+                    if (mentionKeys.Contains(member.user.id) || member.user.id == this.widget.viewModel.me) {
                         continue;
                     }
 
@@ -158,7 +171,7 @@ namespace ConnectApp.screens {
 
         void updateMentionListRemote(List<ChannelMember> queryList, HashSet<string> mentionKeys) {
             foreach (var member in queryList) {
-                if (mentionKeys.Contains(member.user.id)) {
+                if (mentionKeys.Contains(member.user.id) || member.user.id == this.widget.viewModel.me) {
                     continue;
                 }
 
@@ -169,8 +182,9 @@ namespace ConnectApp.screens {
         bool updateMentionList(bool needSearching) {
             this.mentionList.Clear();
             var mentionKeys = new HashSet<string>();
+
             if (this.curQuery != "") {
-                this.updateMentionListLocal(this.curQuery, this.widget.viewModel.channel.membersDict,
+                this.updateMentionListLocal(this.curQuery, this.widget.viewModel.channelMembers,
                     this.widget.viewModel.mentionSuggestions, mentionKeys);
 
                 if (!this.widget.viewModel.mentionSearching && !needSearching &&
@@ -183,10 +197,10 @@ namespace ConnectApp.screens {
                 }
             }
             else if (this.curQuery == "") {
-                this.updateMentionListLocal(this.curQuery, this.widget.viewModel.channel.membersDict,
+                this.updateMentionListLocal(this.curQuery, this.widget.viewModel.channelMembers,
                     this.widget.viewModel.mentionSuggestions, mentionKeys);
 
-                var myMemberInfo = this.widget.viewModel.channel.currentMember;
+                var myMemberInfo = this.widget.viewModel.currentMember;
                 if (myMemberInfo.role == "admin" ||
                     myMemberInfo.role == "owner" ||
                     myMemberInfo.role == "moderator") {
