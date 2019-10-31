@@ -225,7 +225,9 @@ namespace ConnectApp.Api {
             var promise = new Promise<FetchChannelMembersResponse>();
             var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/members",
                 parameter: new Dictionary<string, object> {
-                    {"get", "active"}
+                    {"get", "testLimit"},
+                    {"offset", 0},
+                    {"testLimit", 200}
                 });
             HttpManager.resume(request: request).Then(responseText => {
                 var members = JsonConvert.DeserializeObject<FetchChannelMembersResponse>(value: responseText);
