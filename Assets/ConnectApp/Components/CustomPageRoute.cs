@@ -59,20 +59,22 @@ namespace ConnectApp.Components {
             string title = "",
             bool maintainState = true,
             bool fullscreenDialog = false,
+            bool push = false,
             RouteTransitionsBuilder overrideTransitionsBuilder = null
-        ) :
-            base(settings: settings, fullscreenDialog: fullscreenDialog) {
+        ) : base(settings: settings, fullscreenDialog: fullscreenDialog) {
             D.assert(builder != null);
             D.assert(this.opaque);
             this.builder = builder;
             this.title = title;
             this.maintainState = maintainState;
+            this.push = push;
             this.overrideTransitionsBuilder = overrideTransitionsBuilder;
         }
 
-        public readonly WidgetBuilder builder;
-        public readonly string title;
-        public readonly RouteTransitionsBuilder overrideTransitionsBuilder;
+        readonly WidgetBuilder builder;
+        readonly string title;
+        readonly RouteTransitionsBuilder overrideTransitionsBuilder;
+        readonly bool push;
         ValueNotifier<string> _previousTitle;
 
         public ValueListenable<string> previousTitle {
@@ -183,7 +185,6 @@ namespace ConnectApp.Components {
             return result;
         }
 
-
         static _CustomPageRouteBackGestureController _startPopGesture(PageRoute route) {
             D.assert(_isPopGestureEnabled(route));
             return new _CustomPageRouteBackGestureController(
@@ -192,7 +193,7 @@ namespace ConnectApp.Components {
             );
         }
 
-        public static Widget buildPageTransitions(
+        Widget buildPageTransitions(
             PageRoute route,
             BuildContext context,
             Animation<float> animation,
@@ -201,6 +202,13 @@ namespace ConnectApp.Components {
         ) {
             if (route.fullscreenDialog) {
                 return new CustomFullscreenDialogTransition(
+                    animation: animation,
+                    child: child
+                );
+            }
+
+            if (this.push) {
+                return new PushPageTransition(
                     animation: animation,
                     child: child
                 );
@@ -224,7 +232,7 @@ namespace ConnectApp.Components {
                 return this.overrideTransitionsBuilder(context, animation, secondaryAnimation, child);
             }
 
-            return buildPageTransitions(this, context, animation, secondaryAnimation, child);
+            return this.buildPageTransitions(this, context, animation, secondaryAnimation, child);
         }
 
         public new string debugLabel {
@@ -486,6 +494,34 @@ namespace ConnectApp.Components {
             this.child = child;
         }
 
+        readonly Animation<Offset> _positionAnimation;
+        readonly Widget child;
+
+        public override Widget build(BuildContext context) {
+            return new SlideTransition(
+                position: this._positionAnimation,
+                child: this.child
+            );
+        }
+    }
+
+    class PushPageTransition : StatelessWidget {
+        public PushPageTransition(
+            Animation<float> animation,
+            Widget child,
+            Key key = null
+        ) : base(key: key) {
+            this._positionAnimation = this._leftPushTween.chain(parent: this._fastOutSlowInTween)
+                .animate(parent: animation);
+            this.child = child;
+        }
+
+        readonly Tween<Offset> _leftPushTween = new OffsetTween(
+            new Offset(1.0f, 0.0f),
+            end: Offset.zero
+        );
+
+        readonly Animatable<float> _fastOutSlowInTween = new CurveTween(curve: Curves.fastOutSlowIn);
         readonly Animation<Offset> _positionAnimation;
         readonly Widget child;
 

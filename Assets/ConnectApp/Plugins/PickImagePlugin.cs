@@ -6,6 +6,7 @@ using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
+
 #if UNITY_IOS
 using System.Runtime.InteropServices;
 #endif
@@ -52,6 +53,7 @@ namespace ConnectApp.Plugins {
                             StatusBarManager.hideStatusBar(false);
                             break;
                         }
+
                         case "pickVideoSuccess": {
                             var node = args[0];
                             var dict = JSON.Parse(aJSON: node);
@@ -60,6 +62,7 @@ namespace ConnectApp.Plugins {
                                 var data = Convert.FromBase64String(s: videoData);
                                 _videoCallBack?.Invoke(obj: data);
                             }
+
                             var videoPath = (string) dict["videoPath"];
                             if (videoPath.isNotEmpty()) {
                                 var data = CImageUtils.readImage(path: videoPath);
@@ -70,6 +73,7 @@ namespace ConnectApp.Plugins {
                             StatusBarManager.hideStatusBar(false);
                             break;
                         }
+
                         case "cancel": {
                             removeListener();
                             StatusBarManager.hideStatusBar(false);
@@ -114,9 +118,11 @@ namespace ConnectApp.Plugins {
             if (Application.isEditor) {
                 return;
             }
+
             if (image.isEmpty()) {
                 return;
             }
+
             if (Application.platform == RuntimePlatform.Android) {
                 var imageBase64String = Convert.ToBase64String(image);
                 saveImage(imageBase64String);

@@ -133,7 +133,8 @@ namespace ConnectApp.Components {
             string imageName;
             if (attachment.filename.EndsWith(".pdf")) {
                 imageName = "image/pdf-file-icon";
-            } else if (attachment.filename.EndsWith(".mp4")) {
+            }
+            else if (attachment.filename.EndsWith(".mp4")) {
                 imageName = "image/video-file-icon";
             }
             else {
@@ -213,7 +214,8 @@ namespace ConnectApp.Components {
             string embedDataUrl;
             if (this.message.type == ChannelMessageType.embedImage) {
                 embedDataUrl = embedData.imageUrl;
-            } else if (this.message.type == ChannelMessageType.embedExternal) {
+            }
+            else if (this.message.type == ChannelMessageType.embedExternal) {
                 embedDataUrl = embedData.url;
             }
             else {
@@ -260,7 +262,8 @@ namespace ConnectApp.Components {
                     ratio: 16.0f / 9.0f,
                     srcWidth: this.message.width,
                     srcHeight: this.message.height,
-                    headers: this.headers
+                    headers: this.headers,
+                    isOriginalImage: true
                 )
             );
         }
@@ -373,6 +376,7 @@ namespace ConnectApp.Components {
             float srcHeight = 0,
             Dictionary<string, string> headers = null,
             float radius = 10,
+            bool isOriginalImage = false,
             Key key = null
         ) : base(key: key) {
             this.url = url;
@@ -382,6 +386,7 @@ namespace ConnectApp.Components {
             this.headers = headers;
             this.srcWidth = srcWidth;
             this.srcHeight = srcHeight;
+            this.isOriginalImage = isOriginalImage;
         }
 
         public readonly string url;
@@ -391,6 +396,7 @@ namespace ConnectApp.Components {
         public readonly float srcWidth;
         public readonly float srcHeight;
         public readonly Dictionary<string, string> headers;
+        public bool isOriginalImage;
 
         public static float CalculateTextHeight(ChannelMessageView message) {
             if (message.width > message.height * 16.0f / 9.0f) {
@@ -398,8 +404,8 @@ namespace ConnectApp.Components {
             }
 
             return message.width > message.height
-                    ? 140.0f * message.height / message.width
-                    : 140.0f;
+                ? 140.0f * message.height / message.width
+                : 140.0f;
         }
 
         public Size srcSize {
@@ -452,10 +458,10 @@ namespace ConnectApp.Components {
             this.setState(() => { });
         }
 
-        static Image _getImage(string content, Dictionary<string, string> headers = null) {
+        Image _getImage(string content, Dictionary<string, string> headers = null) {
             return content.StartsWith("http")
                 ? CachedNetworkImageProvider.cachedNetworkImage(
-                    src: CImageUtils.SizeToScreenImageUrl(content),
+                    this.widget.isOriginalImage ? content : CImageUtils.SizeToScreenImageUrl(content),
                     fit: BoxFit.cover,
                     headers: headers)
                 : Image.memory(Convert.FromBase64String(s: content));
@@ -464,7 +470,7 @@ namespace ConnectApp.Components {
         public override void initState() {
             base.initState();
             if (this.widget.srcSize == null) {
-                this.image = _getImage(this.widget.url, this.widget.headers);
+                this.image = this._getImage(this.widget.url, this.widget.headers);
                 this.stream = this.image.image
                     .resolve(new ImageConfiguration());
                 this.stream.addListener(this._updateSize);
@@ -494,7 +500,7 @@ namespace ConnectApp.Components {
                         width: this.size.width,
                         height: this.size.height,
                         color: CColors.Disable,
-                        child: _getImage(this.widget.url, this.widget.headers))
+                        child: this._getImage(this.widget.url, this.widget.headers))
                 );
         }
     }

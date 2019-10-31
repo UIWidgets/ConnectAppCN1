@@ -65,6 +65,7 @@ namespace ConnectApp.redux.actions {
                             loginInfo = loginInfo
                         });
                         dispatcher.dispatch(fetchChannels(1));
+                        dispatcher.dispatch(fetchCreateChannelFilter());
                         dispatcher.dispatch<IPromise>(fetchUserProfile(loginInfo.userId));
                         dispatcher.dispatch(new MainNavigatorPopAction());
                         dispatcher.dispatch(new CleanEmailAndPasswordAction());
@@ -105,6 +106,7 @@ namespace ConnectApp.redux.actions {
                             loginInfo = loginInfo
                         });
                         dispatcher.dispatch(fetchChannels(1));
+                        dispatcher.dispatch(fetchCreateChannelFilter());
                         UserInfoManager.saveUserInfo(loginInfo);
                         AnalyticsManager.LoginEvent("wechat");
                         AnalyticsManager.AnalyticsLogin("wechat", loginInfo.userId);

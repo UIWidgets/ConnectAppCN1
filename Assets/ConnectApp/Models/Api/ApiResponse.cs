@@ -222,6 +222,7 @@ namespace ConnectApp.Models.Api {
         public List<string> discoverList;
         public List<string> joinedList;
         public int discoverPage;
+        public bool discoverHasMore;
         public Dictionary<string, Channel> channelMap;
         public Dictionary<string, ChannelMember> joinedMemberMap;
         public Dictionary<string, Group> groupFullMap;
