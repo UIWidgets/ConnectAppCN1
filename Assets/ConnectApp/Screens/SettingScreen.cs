@@ -198,30 +198,10 @@ namespace ConnectApp.screens {
         }
 
         static Widget _buildCellView(string title, GestureTapCallback onTap) {
-            return new GestureDetector(
-                onTap: onTap,
-                child: new Container(
-                    height: 60,
-                    padding: EdgeInsets.symmetric(0, 16),
-                    decoration: new BoxDecoration(
-                        CColors.White
-                    ),
-                    child: new Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: new List<Widget> {
-                            new Text(
-                                title,
-                                style: CTextStyle.PLargeBody
-                            ),
-                            new Flexible(child: new Container()),
-                            new Icon(
-                                Icons.chevron_right,
-                                size: 24,
-                                color: Color.fromRGBO(199, 203, 207, 1)
-                            )
-                        }
-                    )
-                )
+            return new CustomListTile(
+                title: title,
+                trailing: CustomListTileConstant.defaultTrailing,
+                onTap: onTap
             );
         }
     }
