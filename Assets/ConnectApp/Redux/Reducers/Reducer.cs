@@ -2549,6 +2549,11 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case FetchDiscoverChannelFilterSuccessAction action: {
+                    state.channelState.createChannelFilterIds = action.discoverList;
+                    break;
+                }
+
                 case FetchStickChannelSuccessAction action: {
                     state.channelState.channelTop[key: action.channelId] = true;
                     break;
@@ -3000,6 +3005,10 @@ namespace ConnectApp.redux.reducers {
                     if (channelData.projectId.isNotEmpty()
                         || channelData.proposalId.isNotEmpty()
                         || channelData.ticketId.isNotEmpty()) {
+                        break;
+                    }
+
+                    if (!state.channelState.createChannelFilterIds.Contains(channelData.id)) {
                         break;
                     }
 

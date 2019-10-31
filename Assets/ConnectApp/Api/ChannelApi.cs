@@ -10,12 +10,12 @@ using UnityEngine.Networking;
 
 namespace ConnectApp.Api {
     public static class ChannelApi {
-        public static Promise<FetchChannelsResponse> FetchChannels(int page, bool joined = true) {
+        public static Promise<FetchChannelsResponse> FetchChannels(int page, bool joined = true, bool discoverAll = false) {
             var promise = new Promise<FetchChannelsResponse>();
             var para = new Dictionary<string, object> {
-                {"discover", "true"},
                 {"discoverPage", page},
-                {"joined", joined ? "true" : "false"}
+                {"joined", joined ? "true" : "false"},
+                {discoverAll ? "discoverAll" : "discover", "true"}
             };
             var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/channels", parameter: para);
             HttpManager.resume(request: request).Then(responseText => {

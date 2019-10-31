@@ -116,6 +116,8 @@ namespace ConnectApp.screens {
                             }),
                         fetchChannels = (pageNumber, joined) =>
                             dispatcher.dispatch<IPromise>(Actions.fetchChannels(page: pageNumber, joined: joined)),
+                        fetchCreateChannelFilterIds = () =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchCreateChannelFilter()),
                         startJoinChannel = channelId => dispatcher.dispatch(new StartJoinChannelAction {
                             channelId = channelId
                         }),
@@ -425,6 +427,9 @@ namespace ConnectApp.screens {
             this.widget.actionModel.fetchChannels(up ? 1 : this.widget.viewModel.page, up)
                 .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(e => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed));
+            if (up) {
+                this.widget.actionModel.fetchCreateChannelFilterIds();
+            }
         }
     }
 }

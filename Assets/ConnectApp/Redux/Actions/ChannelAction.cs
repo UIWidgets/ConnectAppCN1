@@ -14,9 +14,10 @@ using UnityEngine;
 
 namespace ConnectApp.redux.actions {
     public static partial class Actions {
-        public static object fetchChannels(int page, bool fetchMessagesAfterSuccess = false, bool joined = true) {
+        public static object fetchChannels(int page, bool fetchMessagesAfterSuccess = false, bool joined = true, bool discoverAll = false) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return ChannelApi.FetchChannels(page: page, joined: joined).Then(channelResponse => {
+                return ChannelApi.FetchChannels(page: page, joined: joined, discoverAll: discoverAll)
+                    .Then(channelResponse => {
                         dispatcher.dispatch(new FetchChannelsSuccessAction {
                             discoverList = channelResponse.discoverList ?? new List<string>(),
                             joinedList = channelResponse.joinedList ?? new List<string>(),
@@ -40,6 +41,22 @@ namespace ConnectApp.redux.actions {
                         dispatcher.dispatch(new FetchChannelsFailureAction());
                         Debug.Log(error);
                         dispatcher.dispatch(loadReadyStateFromDB());
+                    });
+            });
+        }
+        
+        
+        public static object fetchCreateChannelFilter() {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return ChannelApi.FetchChannels(page: 1, joined: false, discoverAll: true)
+                    .Then(channelResponse => {
+                        dispatcher.dispatch(new FetchDiscoverChannelFilterSuccessAction {
+                            discoverList = channelResponse.discoverList ?? new List<string>(),
+                        });
+                    })
+                    .Catch(error => {
+                        dispatcher.dispatch(new FetchDiscoverChannelFilterFailureAction());
+                        Debug.Log(error);
                     });
             });
         }
@@ -463,6 +480,14 @@ namespace ConnectApp.redux.actions {
     }
 
     public class FetchChannelsFailureAction : BaseAction {
+    }
+
+    public class FetchDiscoverChannelFilterSuccessAction : BaseAction {
+        public List<string> discoverList;
+    }
+
+    public class FetchDiscoverChannelFilterFailureAction : BaseAction {
+        
     }
 
     public class FetchStickChannelSuccessAction : BaseAction {

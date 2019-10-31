@@ -165,6 +165,7 @@ namespace ConnectApp.Models.State {
                 channelState = new ChannelState {
                     publicChannels = new List<string>(),
                     joinedChannels = new List<string>(),
+                    createChannelFilterIds = new List<string>(),
                     discoverPage = 1,
                     discoverHasMore = true,
                     messageLoading = false,
