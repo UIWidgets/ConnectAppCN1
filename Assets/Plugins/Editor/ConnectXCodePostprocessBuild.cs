@@ -185,10 +185,10 @@ namespace Plugins.Editor {
             // 出口合规信息
             rootDict.SetBoolean("ITSAppUsesNonExemptEncryption", false);
 
-            rootDict.SetString("NSCameraUsageDescription", "App需要您的同意,才能访问相机");
-            rootDict.SetString("NSPhotoLibraryUsageDescription", "App需要您的同意,才能访问相册");
-            rootDict.SetString("NSPhotoLibraryAddUsageDescription", "App需要您的同意,才能保存图片到相册");
-            rootDict.SetString("NSMicrophoneUsageDescription", "App需要您的同意,才能访问麦克风");
+            rootDict.SetString("NSCameraUsageDescription", "我们需要访问您的相机，以便您正常使用修改头像、发送图片等功能");
+            rootDict.SetString("NSPhotoLibraryUsageDescription", "我们需要访问您的相册，以便您正常使用修改头像、发送图片或者视频等功能");
+            rootDict.SetString("NSPhotoLibraryAddUsageDescription", "我们需要访问您的相册，以便您正常使用保存图片功能");
+//            rootDict.SetString("NSMicrophoneUsageDescription", "需要录制音频，是否允许此App打开麦克风？");
 
             // remove exit on suspend if it exists.
             string exitsOnSuspendKey = "UIApplicationExitsOnSuspend";

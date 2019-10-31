@@ -62,7 +62,8 @@ static PickImageController *controller = nil;
         _picker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
     }
     _picker.mediaTypes = @[@"public.movie"];
-    _picker.allowsEditing = NO;
+    _picker.allowsEditing = YES;
+    _picker.videoMaximumDuration = 15;
     UIViewController *vc = UnityGetGLViewController();
     [vc presentViewController:_picker animated:YES completion:nil];
     [self buildAlertController];
@@ -104,7 +105,7 @@ static PickImageController *controller = nil;
                 __strong __typeof(wSelf) sSelf = wSelf;
                 NSData *data = [sSelf compressWithImage:resizeImage];
                 NSString *jsonString = [sSelf dataToString:data];
-                UIWidgetsMethodMessage(@"pickImage", @"success", @[jsonString]);
+                UIWidgetsMethodMessage(@"pickImage", @"pickImageSuccess", @[jsonString]);
                 [sSelf pickImageDissmiss];
             };
             crop.cancelBlock = ^{
@@ -116,7 +117,7 @@ static PickImageController *controller = nil;
         } else {
             NSData *data = [self compressWithImage:image];
             NSString *jsonString = [self dataToString:data];
-            UIWidgetsMethodMessage(@"pickImage", @"success", @[jsonString]);
+            UIWidgetsMethodMessage(@"pickImage", @"pickImageSuccess", @[jsonString]);
             [self pickImageDissmiss];
         }
     }
@@ -124,10 +125,10 @@ static PickImageController *controller = nil;
         NSURL *videoURL = [info objectForKey:UIImagePickerControllerMediaURL];
         if (videoURL != nil) {
             NSData *data = [NSData dataWithContentsOfURL:videoURL];
-            NSString *encodedImageStr = [data base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
-            NSData *json = [NSJSONSerialization dataWithJSONObject:@{@"video":encodedImageStr} options:NSJSONWritingPrettyPrinted error: nil];
+            NSString *encodedVideoStr = [data base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
+            NSData *json = [NSJSONSerialization dataWithJSONObject:@{@"videoData":encodedVideoStr} options:NSJSONWritingPrettyPrinted error: nil];
             NSString *jsonString = [[NSString alloc] initWithData:json encoding:NSUTF8StringEncoding];
-            UIWidgetsMethodMessage(@"pickImage", @"success", @[jsonString]);
+            UIWidgetsMethodMessage(@"pickImage", @"pickVideoSuccess", @[jsonString]);
             [self pickImageDissmiss];
         }
     }
@@ -144,7 +145,7 @@ static PickImageController *controller = nil;
 
 - (NSData *)compressWithImage:(UIImage *)image {
     if (_maxSize <= 0.0) {
-        return UIImageJPEGRepresentation(image, 0.5f);
+        return UIImagePNGRepresentation(image);
     }
     
     CGFloat compression = 1;
