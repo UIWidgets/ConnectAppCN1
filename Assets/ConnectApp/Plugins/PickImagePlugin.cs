@@ -44,13 +44,12 @@ namespace ConnectApp.Plugins {
                         case "pickImageSuccess": {
                             var node = args[0];
                             var dict = JSON.Parse(aJSON: node);
-                            if (dict["image"]) {
+                            if (dict["image"] != null) {
                                 var image = (string) dict["image"];
                                 var imageData = Convert.FromBase64String(s: image);
                                 _imageCallBack?.Invoke(obj: imageData);
                             }
-
-                            if (dict["imagePath"]) {
+                            else if (dict["imagePath"] != null) {
                                 var imagePath = (string) dict["imagePath"];
                                 var data = CImageUtils.readImage(path: imagePath);
                                 _imageCallBack?.Invoke(obj: data);
@@ -64,13 +63,12 @@ namespace ConnectApp.Plugins {
                         case "pickVideoSuccess": {
                             var node = args[0];
                             var dict = JSON.Parse(aJSON: node);
-                            if (dict["videoData"]) {
+                            if (dict["videoData"] != null) {
                                 var videoData = (string) dict["videoData"];
                                 var data = Convert.FromBase64String(s: videoData);
                                 _videoCallBack?.Invoke(obj: data);
                             }
-
-                            if (dict["videoPath"]) {
+                            else if (dict["videoPath"] != null) {
                                 var videoPath = (string) dict["videoPath"];
                                 var data = CImageUtils.readImage(path: videoPath);
                                 _videoCallBack?.Invoke(obj: data);
