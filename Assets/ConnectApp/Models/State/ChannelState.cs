@@ -9,6 +9,7 @@ namespace ConnectApp.Models.State {
         public List<string> publicChannels;
         public List<string> joinedChannels;
         public int discoverPage;
+        public bool discoverHasMore;
         public bool messageLoading;
         public int totalUnread;
         public int totalMention;

@@ -67,6 +67,8 @@ namespace ConnectApp.screens {
                         joinedChannels = joinedChannels,
                         lastMessageMap = lastMessageMap,
                         hasUnreadNotifications = state.channelState.newNotifications != null,
+                        page = state.channelState.discoverPage,
+                        hasMore = state.channelState.discoverHasMore,
                         popularChannels = state.channelState.publicChannels
                             .Select(channelId => state.channelState.channelDict[key: channelId])
                             .Take(state.channelState.publicChannels.Count > 0
@@ -112,8 +114,8 @@ namespace ConnectApp.screens {
                             new MainNavigatorPushToChannelDetailAction {
                                 channelId = channelId
                             }),
-                        fetchChannels = pageNumber =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchChannels(page: pageNumber)),
+                        fetchChannels = (pageNumber, joined) =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchChannels(page: pageNumber, joined: joined)),
                         startJoinChannel = channelId => dispatcher.dispatch(new StartJoinChannelAction {
                             channelId = channelId
                         }),
@@ -146,7 +148,6 @@ namespace ConnectApp.screens {
 
     public class _MessageScreenState : AutomaticKeepAliveClientMixin<MessengerScreen>, RouteAware {
         RefreshController _refreshController;
-        int _pageNumber;
         string _newNotificationSubId;
 
         protected override bool wantKeepAlive {
@@ -156,7 +157,6 @@ namespace ConnectApp.screens {
         public override void initState() {
             base.initState();
             this._refreshController = new RefreshController();
-            this._pageNumber = 1;
             this._newNotificationSubId = EventBus.subscribe(sName: EventBusConstant.newNotifications,
                 args => { this.widget.actionModel.updateNewNotification(); });
         }
@@ -194,7 +194,8 @@ namespace ConnectApp.screens {
                                     child: new SectionView(
                                         controller: this._refreshController,
                                         enablePullDown: true,
-                                        enablePullUp: false,
+                                        enablePullUp: this.widget.viewModel.hasMore &&
+                                                      this.widget.viewModel.joinedChannels.isEmpty(),
                                         onRefresh: this._onRefresh,
                                         hasBottomMargin: true,
                                         sectionCount: 2,
@@ -209,7 +210,10 @@ namespace ConnectApp.screens {
                                         },
                                         headerInSection: this._headerInSection,
                                         cellAtIndexPath: this._buildMessageItem,
-                                        footerWidget: new EndView(hasBottomMargin: true)
+                                        footerWidget: !this.widget.viewModel.hasMore &&
+                                                      this.widget.viewModel.joinedChannels.isEmpty()
+                                            ? new EndView(hasBottomMargin: true)
+                                            : null
                                     )
                                 )
                             )
@@ -418,14 +422,7 @@ namespace ConnectApp.screens {
         }
 
         void _onRefresh(bool up) {
-            if (up) {
-                this._pageNumber = 1;
-            }
-            else {
-                this._pageNumber++;
-            }
-
-            this.widget.actionModel.fetchChannels(arg: this._pageNumber)
+            this.widget.actionModel.fetchChannels(up ? 1 : this.widget.viewModel.page, up)
                 .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(e => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed));
         }

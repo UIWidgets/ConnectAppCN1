@@ -2497,16 +2497,27 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case FetchChannelsSuccessAction action: {
-                    action.discoverList.ForEach(discoverId => {
-                        if (!state.channelState.publicChannels.Contains(item: discoverId)) {
-                            state.channelState.publicChannels.Add(item: discoverId);
-                        }
-                    });
+                    if (action.discoverList.isNotEmpty() && action.discoverPage == 1) {
+                        state.channelState.publicChannels = action.discoverList;
+                    }
+                    else {
+                        action.discoverList.ForEach(discoverId => {
+                            if (!state.channelState.publicChannels.Contains(item: discoverId)) {
+                                state.channelState.publicChannels.Add(item: discoverId);
+                            }
+                        });
+                    }
+                    
+                    state.channelState.discoverPage = action.discoverList.isNotEmpty()
+                        ? action.discoverPage + 1
+                        : action.discoverPage;
+                    state.channelState.discoverHasMore = action.discoverList.isNotEmpty();
+                    if (action.updateJoined) {
+                        state.channelState.joinedChannels = action.joinedList;
+                    }
 
-                    state.channelState.discoverPage = action.discoverPage;
-                    state.channelState.joinedChannels = action.joinedList;
                     var joinedChannelMap = new Dictionary<string, bool>();
-                    foreach (var channelId in action.joinedList) {
+                    foreach (var channelId in state.channelState.joinedChannels) {
                         joinedChannelMap[key: channelId] = true;
                     }
 

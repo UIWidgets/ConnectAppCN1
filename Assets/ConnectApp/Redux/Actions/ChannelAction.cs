@@ -14,9 +14,9 @@ using UnityEngine;
 
 namespace ConnectApp.redux.actions {
     public static partial class Actions {
-        public static object fetchChannels(int page, bool fetchMessagesAfterSuccess = false) {
+        public static object fetchChannels(int page, bool fetchMessagesAfterSuccess = false, bool joined = true) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return ChannelApi.FetchChannels(page: page).Then(channelResponse => {
+                return ChannelApi.FetchChannels(page: page, joined: joined).Then(channelResponse => {
                         dispatcher.dispatch(new FetchChannelsSuccessAction {
                             discoverList = channelResponse.discoverList ?? new List<string>(),
                             joinedList = channelResponse.joinedList ?? new List<string>(),
@@ -25,7 +25,8 @@ namespace ConnectApp.redux.actions {
                             joinedMemberMap =
                                 channelResponse.joinedMemberMap ?? new Dictionary<string, ChannelMember>(),
                             groupMap = channelResponse.groupFullMap ?? new Dictionary<string, Group>(),
-                            groupMemberMap = channelResponse.groupMemberMap ?? new Dictionary<string, GroupMember>()
+                            groupMemberMap = channelResponse.groupMemberMap ?? new Dictionary<string, GroupMember>(),
+                            updateJoined = joined
                         });
                         if (fetchMessagesAfterSuccess) {
                             channelResponse.joinedList.ForEach(joinedChannelId => {
@@ -456,6 +457,7 @@ namespace ConnectApp.redux.actions {
         public Dictionary<string, ChannelMember> joinedMemberMap;
         public Dictionary<string, Group> groupMap;
         public Dictionary<string, GroupMember> groupMemberMap;
+        public bool updateJoined;
     }
 
     public class FetchChannelsFailureAction : BaseAction {
