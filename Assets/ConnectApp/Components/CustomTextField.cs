@@ -211,7 +211,6 @@ namespace ConnectApp.Components {
             return new CustomButton(
                 padding: EdgeInsets.zero,
                 onPressed: () => {
-                    FocusScope.of(context: context).requestFocus(node: this._focusNode);
                     this.widget.onPressEmoji();
                 },
                 child: new Container(

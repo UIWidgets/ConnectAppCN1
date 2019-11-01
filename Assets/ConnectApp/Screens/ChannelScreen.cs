@@ -604,7 +604,7 @@ namespace ConnectApp.screens {
 
             if (this.widget.viewModel.mentionAutoFocus) {
                 SchedulerBinding.instance.addPostFrameCallback(_ => {
-                    FocusScope.of(this.context)?.requestFocus(this._focusNode);
+                    FocusScope.of(context).requestFocus(this._focusNode);
                     if (!this.widget.viewModel.mentionUserId.isEmpty()) {
                         var userName = this.widget.viewModel.mentionUserName;
                         var newContent = this._textController.text + userName + " ";
@@ -1241,8 +1241,8 @@ namespace ConnectApp.screens {
                 onPressImage: this._pickImage,
                 onPressEmoji: () => {
                     this._refreshController.scrollController.jumpTo(0);
-                    FocusScope.of(context: this.context).requestFocus(node: this._focusNode);
                     if (this.showEmojiBoard) {
+                        FocusScope.of(this.context).requestFocus(node: this._focusNode);
                         TextInputPlugin.TextInputShow();
                     }
                     else {
@@ -1308,9 +1308,11 @@ namespace ConnectApp.screens {
             }
 
             var selection = this._textController.selection;
+            var start = selection.start < 0 ? 0 : selection.start;
+            var end = selection.end < 0 ? 0 : selection.end;
             this._textController.value = new TextEditingValue(
-                this._textController.text.Substring(0, length: selection.start) +
-                emojiText + this._textController.text.Substring(startIndex: selection.end),
+                this._textController.text.Substring(0, length: start) +
+                emojiText + this._textController.text.Substring(startIndex: end),
                 TextSelection.collapsed(selection.start + emojiText.Length));
         }
 
@@ -1342,10 +1344,6 @@ namespace ConnectApp.screens {
             }
 
             var nonce = Snowflake.CreateNonce();
-
-//            this.widget.actionModel.startSendMessage();
-//            this.widget.actionModel.sendMessage(this.widget.viewModel.channel.id, text.Trim(), nonce, "")
-//                .Catch(_ => CustomDialogUtils.showToast("消息发送失败", iconData: Icons.error_outline));
             this._refreshController.scrollTo(0);
             this.widget.actionModel.addLocalMessage(new ChannelMessageView {
                 id = nonce,
@@ -1445,6 +1443,10 @@ namespace ConnectApp.screens {
         }
 
         void _pickImage() {
+            if (this.showKeyboard || this.showEmojiBoard) {
+                this.setState(fn: this._dismissKeyboard);
+            }
+
             var items = new List<ActionSheetItem> {
                 new ActionSheetItem(
                     "拍照",
@@ -1532,8 +1534,8 @@ namespace ConnectApp.screens {
         }
 
         public void didPushNext() {
-            if (this._focusNode.hasFocus) {
-                this._focusNode.unfocus();
+            if (this.showKeyboard || this.showEmojiBoard) {
+                this.setState(fn: this._dismissKeyboard);
             }
         }
 
