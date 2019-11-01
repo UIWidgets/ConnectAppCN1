@@ -29,11 +29,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PickImageActivity extends TakePhotoActivity {
+
+    boolean mFinished;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         String source = this.getIntent().getStringExtra("source");
-
+        mFinished = false;
         if (source.equals("0")) {
             int cameraPermission = ActivityCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA);
             if (cameraPermission != PackageManager.PERMISSION_GRANTED) {
@@ -57,6 +60,8 @@ public class PickImageActivity extends TakePhotoActivity {
     @Override
     public void takeSuccess(TResult result) {
         super.takeSuccess(result);
+        if (mFinished)return;
+        mFinished = true;
         String compressPath = result.getImage().getCompressPath();
         String path = compressPath.isEmpty() ? result.getImage().getOriginalPath() : result.getImage().getCompressPath();
         Map<String, String> map = new HashMap<String, String>();
@@ -87,6 +92,8 @@ public class PickImageActivity extends TakePhotoActivity {
                 if (data == null) {
                     finish();
                 } else {
+                    if (mFinished)return;
+                    mFinished = true;
                     Uri selectedVideo = data.getData();
                     String[] filePathColumn = {MediaStore.Video.Media.DATA};
 
