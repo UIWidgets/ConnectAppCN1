@@ -9,21 +9,16 @@ public class RealityViewer : MonoBehaviour {
     Camera mainCamera;
 
     float originYAngle;
-    Quaternion originRotation;
     Quaternion originGyroBaseRotation;
-
 
     bool m_VirtualGyroEnabled;
 
     public Transform gyroOverride;
-    Quaternion m_ViturlaGyroDefaultRotation;
-
 
     void Start() {
         this.mainCamera = Camera.main;
         this.mainCamera.clearFlags = CameraClearFlags.SolidColor;
 
-        this.originRotation = this.transform.rotation;
         this.originGyroBaseRotation = Quaternion.Euler(90f, this.transform.eulerAngles.y, 0f);
     }
 
@@ -40,10 +35,6 @@ public class RealityViewer : MonoBehaviour {
                 if (!this.m_GyroEnabled && !this.m_VirtualGyroEnabled) {
                     this.m_VirtualGyroEnabled = this.InitVirtualGyro();
                 }
-
-                this.ResetGyro();
-
-                // this.rot = this.originRotation * this.FlipLeftHandToRight(Quaternion.Inverse(this.gyro.attitude));
             }
         }
         else {
@@ -66,32 +57,11 @@ public class RealityViewer : MonoBehaviour {
     bool InitVirtualGyro() {
         if (this.gyroOverride != null) {
             Debug.Log("Use Virtual Gyro");
-            this.m_ViturlaGyroDefaultRotation = this.gyroOverride.rotation;
             return true;
         }
 
         Debug.Log("Virtual Gyro Disabled");
         return false;
-    }
-
-    public void ResetGyro() {
-        if (this.m_GyroEnabled) {
-            Debug.Log("Reset Gyro");
-            this.gyro.enabled = false;
-            this.gyro.enabled = true;
-
-            var attitude = this.FlipLeftHandToRight(this.gyro.attitude);
-            this.transform.localRotation = this.originGyroBaseRotation * attitude;
-        }
-        else if (this.m_VirtualGyroEnabled) {
-            Debug.Log("Reset Virtual Gyro");
-            this.gyroOverride.rotation = this.m_ViturlaGyroDefaultRotation;
-
-            // this.transform.localRotation = this.gyroOverride.rotation;
-        }
-        else {
-            this.transform.localRotation = this.originRotation;
-        }
     }
 
     Quaternion FlipLeftHandToRight(Quaternion origin) {
@@ -128,10 +98,6 @@ public class RealityViewer : MonoBehaviour {
         }
         else if (this.m_VirtualGyroEnabled) {
             this.transform.localRotation = this.gyroOverride.rotation;
-            // float angle = 0f;
-            // Vector3 axis;
-            // this.gyroOverride.rotation.ToAngleAxis(out angle, out axis);
-            // Debug.Log(axis.ToString() + "@" + angle);
         }
 
         if (RealityManager.instance.phone.castable) {
