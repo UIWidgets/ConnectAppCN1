@@ -4,7 +4,7 @@ using ConnectApp.redux.actions;
 using RSG;
 
 namespace ConnectApp.Utils {
-    public class NetworkStatusManager {
+    public static class NetworkStatusManager {
         public static bool isConnected {
             get { return _isConnected; }
 

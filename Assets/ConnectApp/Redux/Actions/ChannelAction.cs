@@ -431,9 +431,10 @@ namespace ConnectApp.redux.actions {
             });
         }
 
-        public static object sendVideo(string channelId, string nonce, string videoData) {
+        public static object sendVideo(string channelId, string nonce, string videoData, string fileName) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return ChannelApi.SendVideo(channelId: channelId, "", nonce: nonce, videoData: videoData)
+                return ChannelApi.SendVideo(channelId: channelId, "", nonce: nonce, videoData: videoData,
+                        fileName: fileName)
                     .Then(responseText => {
                         dispatcher.dispatch(new SendChannelMessageSuccessAction {
                             channelId = channelId,

@@ -195,7 +195,7 @@ namespace ConnectApp.Api {
         }
 
         public static Promise<FetchSendMessageResponse> SendVideo(string channelId, string content, string nonce,
-            string videoData, string parentMessageId = "") {
+            string videoData, string fileName, string parentMessageId = "") {
             var data = Convert.FromBase64String(s: videoData);
             var promise = new Promise<FetchSendMessageResponse>();
             var request = HttpManager.POST(
@@ -209,7 +209,7 @@ namespace ConnectApp.Api {
                     new List<object> {"file", data}
                 },
                 multipart: true,
-                filename: $"{nonce}.mp4",
+                filename: fileName,
                 fileType: "video/mp4");
             HttpManager.resume(request: request).Then(responseText => {
                 promise.Resolve(new FetchSendMessageResponse {
