@@ -127,7 +127,7 @@ public class MiniGameManager : MonoBehaviour {
         this.scoreText.text = $"TIME : {(int) this.timerCountdown}\nSCORE : {this.score}";
 
         this.unityChan.isMoving = false;
-
+        
         RealityManager.instance.viewer.ResetGyro();
 
         this.TriggerSwitchCamera(10);
@@ -155,7 +155,7 @@ public class MiniGameManager : MonoBehaviour {
         this.unityChan.enableToMove = false;
         this.unityChan.isMoving = false;
         this.overlayCanvas.SetActive(false);
-
+        
         RealityManager.instance.viewer.ResetGyro();
 
         this.TriggerSwitchCamera(10);

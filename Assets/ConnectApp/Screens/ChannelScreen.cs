@@ -1253,7 +1253,12 @@ namespace ConnectApp.screens {
                 onPressImage: this._pickImage,
                 onPressEmoji: () => {
                     this._refreshController.scrollController.jumpTo(0);
+                    if (this._textController.text.isNotEmpty()) {
+                        this._textController.selection = TextSelection.collapsed(this._textController.text.Length);
+                    }
+
                     if (this.showEmojiBoard) {
+                        this._focusNode.unfocus();
                         FocusScope.of(this.context).requestFocus(node: this._focusNode);
                         TextInputPlugin.TextInputShow();
                     }
@@ -1403,6 +1408,7 @@ namespace ConnectApp.screens {
                 this.showEmojiBoard = false;
             }
 
+            this._focusNode.unfocus();
             TextInputPlugin.TextInputHide();
         }
 
