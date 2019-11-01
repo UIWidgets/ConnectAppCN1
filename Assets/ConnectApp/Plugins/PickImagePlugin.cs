@@ -101,6 +101,7 @@ namespace ConnectApp.Plugins {
                 return;
             }
 
+            removeListener();
             addListener();
             _imageCallBack = imageCallBack;
             var sourceInt = (int) source;
@@ -114,7 +115,7 @@ namespace ConnectApp.Plugins {
             if (Application.isEditor) {
                 return;
             }
-
+            removeListener();
             addListener();
             _videoCallBack = videoCallBack;
             var sourceInt = (int) source;
