@@ -57,8 +57,8 @@ public class PickImageActivity extends TakePhotoActivity {
     @Override
     public void takeSuccess(TResult result) {
         super.takeSuccess(result);
-        int maxSize = this.getIntent().getIntExtra("maxSize", 0);
-        String path = maxSize > 0 ? result.getImage().getCompressPath() : result.getImage().getOriginalPath();
+        String compressPath = result.getImage().getCompressPath();
+        String path = compressPath.isEmpty() ? result.getImage().getOriginalPath() : result.getImage().getCompressPath();
         Map<String, String> map = new HashMap<String, String>();
         map.put("imagePath", path);
         UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("pickImage","pickImageSuccess",Arrays.asList(new Gson().toJson(map)));
@@ -152,12 +152,8 @@ public class PickImageActivity extends TakePhotoActivity {
                 }
             }
             Uri imageUri = Uri.fromFile(file);
-
-            int maxSize = this.getIntent().getIntExtra("maxSize", 0);
-            if (maxSize > 0) {
-                // 压缩图片
-                takePhoto.onEnableCompress(compressConfig(), true);
-            }
+            // 压缩图片
+            takePhoto.onEnableCompress(compressConfig(), true);
 
             TakePhotoOptions takePhotoOptions = new TakePhotoOptions.Builder().create();
             takePhotoOptions.setCorrectImage(true);
@@ -195,10 +191,10 @@ public class PickImageActivity extends TakePhotoActivity {
 
     private CompressConfig compressConfig() {
         int maxSize = this.getIntent().getIntExtra("maxSize", 0);
-        int imageMaxSize = maxSize == 0 ? 700 * 1024 : maxSize;
+        int imageMaxSize = maxSize == 0 ? 5*1024*1024 : maxSize;
         CompressConfig config = new CompressConfig.Builder()
                 .setMaxSize(imageMaxSize)
-                .setMaxPixel(800)
+                .setMaxPixel(2048)
                 .enableReserveRaw(true)
                 .create();
         return config;

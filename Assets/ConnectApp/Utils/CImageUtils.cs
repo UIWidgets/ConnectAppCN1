@@ -1,7 +1,10 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using RSG;
+using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
@@ -158,6 +161,18 @@ namespace ConnectApp.Utils {
             fs.Close();
             fs.Dispose();
             return bytes;
+        }
+
+        public static Promise<byte[]> asyncLoadFile(string path) {
+            var promise = new Promise<byte[]>();
+            Window.instance.startCoroutine(_read(path, promise));
+            return promise;
+        }
+
+        static IEnumerator _read(string path, Promise<byte[]> promise) {
+            byte[] bytes = readImage(path);
+            yield return bytes;
+            promise.Resolve(bytes);
         }
     }
 }

@@ -51,8 +51,9 @@ namespace ConnectApp.Plugins {
                             }
                             else if (dict["imagePath"] != null) {
                                 var imagePath = (string) dict["imagePath"];
-                                var data = CImageUtils.readImage(path: imagePath);
-                                _imageCallBack?.Invoke(obj: data);
+                                CImageUtils.asyncLoadFile(imagePath).Then(bytes => {
+                                    _imageCallBack?.Invoke(obj: bytes);
+                                });
                             }
 
                             removeListener();
@@ -70,8 +71,9 @@ namespace ConnectApp.Plugins {
                             }
                             else if (dict["videoPath"] != null) {
                                 var videoPath = (string) dict["videoPath"];
-                                var data = CImageUtils.readImage(path: videoPath);
-                                _videoCallBack?.Invoke(obj: data);
+                                CImageUtils.asyncLoadFile(videoPath).Then(bytes => {
+                                    _videoCallBack?.Invoke(obj: bytes);
+                                });
                             }
 
                             removeListener();
