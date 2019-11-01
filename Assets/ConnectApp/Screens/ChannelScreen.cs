@@ -160,9 +160,11 @@ namespace ConnectApp.screens {
                             }
                             else if (viewModel.waitingMessage.type == ChannelMessageType.file) {
                                 dispatcher.dispatch<IPromise>(Actions.sendVideo(
-                                    this.channelId,
-                                    viewModel.waitingMessage.id,
-                                    viewModel.waitingMessage.content));
+                                    channelId: this.channelId,
+                                    nonce: viewModel.waitingMessage.id,
+                                    videoData: viewModel.waitingMessage.content,
+                                    fileName: viewModel.waitingMessage.attachments.first().filename)
+                                );
                             }
                             else {
                                 dispatcher.dispatch<IPromise>(Actions.sendImage(
@@ -1163,7 +1165,17 @@ namespace ConnectApp.screens {
                         message: message,
                         () => {
                             var attachment = message.attachments.first();
-                            if (attachment.filename.EndsWith("mp4")) {
+                            var filename = attachment.filename;
+                            if (CCommonUtils.isAndroid && !filename.EndsWith(".mp4")) {
+                                CustomToast.show(new CustomToastItem(
+                                    context: this.context,
+                                    "暂不支持该文件",
+                                    TimeSpan.FromMilliseconds(2000)
+                                ));
+                                return;
+                            }
+
+                            if (filename.EndsWith(".mp4")) {
                                 this.widget.actionModel.playVideo(obj: attachment.url);
                             }
                             else {
@@ -1513,7 +1525,7 @@ namespace ConnectApp.screens {
                 content = Convert.ToBase64String(inArray: videoData),
                 attachments = new List<Attachment> {
                     new Attachment {
-                        filename = $"{nonce}.mp4",
+                        filename = $"VIDEO_{DateTime.UtcNow:yyyyMMddHHmmss}.mp4",
                         contentType = "video/mp4",
                         size = videoData.Length
                     }
