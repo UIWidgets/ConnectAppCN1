@@ -6,13 +6,12 @@ using Unity.UIWidgets.widgets;
 using UnityEngine;
 
 namespace ConnectApp.Utils {
-
     class DelayCall {
         public Action callback;
         public float remainInterval;
         public int id;
     }
-    
+
     public class WebSocketHost : MonoBehaviour {
         readonly Queue<Action> _executionQueue = new Queue<Action>();
         readonly List<DelayCall> _delayCalls = new List<DelayCall>();
@@ -68,6 +67,7 @@ namespace ConnectApp.Utils {
                 if (i != this._delayCalls.Count - 1) {
                     this._delayCalls[i + 1].remainInterval += this._delayCalls[i].remainInterval;
                 }
+
                 callIndex = i;
                 break;
             }
@@ -91,31 +91,27 @@ namespace ConnectApp.Utils {
 
                 preInterval = this._delayCalls[i].remainInterval;
             }
-            
+
             this._delayCalls.Add(new DelayCall {
                 id = this._delayCallId++,
                 callback = callback,
                 remainInterval = duration - preInterval
             });
-            
+
             return this._delayCallId - 1;
         }
-        
+
         public void Enqueue(IEnumerator action) {
             lock (this._executionQueue) {
-                this._executionQueue.Enqueue (() => {
-                    this.StartCoroutine (action);
-                });
+                this._executionQueue.Enqueue(() => { this.StartCoroutine(action); });
             }
         }
-        
-        public void Enqueue(Action action)
-        {
+
+        public void Enqueue(Action action) {
             this.Enqueue(this.ActionWrapper(action));
         }
-        
-        IEnumerator ActionWrapper(Action action)
-        {
+
+        IEnumerator ActionWrapper(Action action) {
             action();
             yield return null;
         }
@@ -126,11 +122,12 @@ namespace ConnectApp.Utils {
 
         void Start() {
             if (_singletonChecker) {
-                Debug.Assert(false, "fatal error! Cannot initialize two WebSocketHost!");
+                DebugerUtils.DebugAssert(false, "fatal error! Cannot initialize two WebSocketHost!");
                 return;
             }
+
             _singletonChecker = true;
-            
+
             this._socketGateway = new SocketGateway(this);
 
             this.m_InternetState = NetworkReachability.NotReachable;

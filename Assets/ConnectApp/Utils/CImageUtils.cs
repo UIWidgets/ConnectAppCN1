@@ -9,7 +9,6 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
 using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.Utils {
@@ -20,7 +19,7 @@ namespace ConnectApp.Utils {
         public static string SuitableSizeImageUrl(float imageWidth, string imageUrl) {
             var devicePixelRatio = Window.instance.devicePixelRatio;
             if (imageWidth <= 0) {
-                Debug.Assert(imageWidth <= 0, $"Image width error, width: {imageWidth}");
+                DebugerUtils.DebugAssert(imageWidth <= 0, $"Image width error, width: {imageWidth}");
             }
 
             var networkImageWidth = Math.Ceiling(imageWidth * devicePixelRatio);
@@ -51,7 +50,8 @@ namespace ConnectApp.Utils {
 
         public static bool isNationalDay = false;
 
-        public static Widget GenBadgeImage(List<string> badges, string license, EdgeInsets padding, bool showFlag = true) {
+        public static Widget GenBadgeImage(List<string> badges, string license, EdgeInsets padding,
+            bool showFlag = true) {
             var badgeList = new List<Widget>();
             Widget badgeWidget = null;
 
@@ -62,13 +62,15 @@ namespace ConnectApp.Utils {
                         height: 12,
                         width: 24
                     );
-                } else if (license == "UnityPersonalPlus") {
+                }
+                else if (license == "UnityPersonalPlus") {
                     badgeWidget = Image.asset(
                         "image/plus-badge",
                         height: 13,
                         width: 28
                     );
-                } else if (license == "UnityLearnPremium") {
+                }
+                else if (license == "UnityLearnPremium") {
                     badgeWidget = Image.asset(
                         "image/prem-badge",
                         height: 13,
@@ -76,7 +78,7 @@ namespace ConnectApp.Utils {
                     );
                 }
             }
-            
+
             if (badges != null && badges.isNotEmpty()) {
                 if (badges.Any(badge => badge.isNotEmpty() && badge.Equals("official"))) {
                     badgeWidget = Image.asset(
@@ -91,6 +93,7 @@ namespace ConnectApp.Utils {
                 if (badgeList.Count >= 1) {
                     badgeList.Add(new SizedBox(width: 4));
                 }
+
                 badgeList.Add(item: badgeWidget);
             }
 
@@ -98,6 +101,7 @@ namespace ConnectApp.Utils {
                 if (badgeList.Count >= 1) {
                     badgeList.Add(new SizedBox(width: 4));
                 }
+
                 badgeList.Add(Image.asset(
                     "image/china-flag-badge",
                     height: 14,
