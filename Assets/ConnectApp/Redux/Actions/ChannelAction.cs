@@ -410,7 +410,7 @@ namespace ConnectApp.redux.actions {
             });
         }
 
-        public static object sendImage(string channelId, string nonce, string imageData) {
+        public static object sendImage(string channelId, string nonce, byte[] imageData) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ChannelApi.SendImage(channelId, "", nonce, imageData)
                     .Then(responseText => {
@@ -431,7 +431,7 @@ namespace ConnectApp.redux.actions {
             });
         }
 
-        public static object sendVideo(string channelId, string nonce, string videoData, string fileName) {
+        public static object sendVideo(string channelId, string nonce, byte[] videoData, string fileName) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ChannelApi.SendVideo(channelId: channelId, "", nonce: nonce, videoData: videoData,
                         fileName: fileName)

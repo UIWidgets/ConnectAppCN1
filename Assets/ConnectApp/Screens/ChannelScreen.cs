@@ -16,8 +16,8 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -134,7 +134,8 @@ namespace ConnectApp.screens {
                         mentionUserName = state.channelState.mentionUserName,
                         mentionSuggestion = state.channelState.mentionSuggestions.getOrDefault(this.channelId, null),
                         waitingMessage = waitingMessage,
-                        sendingMessage = sendingMessage
+                        sendingMessage = sendingMessage,
+                        userLicenseDict = state.userState.userLicenseDict
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -162,7 +163,7 @@ namespace ConnectApp.screens {
                                 dispatcher.dispatch<IPromise>(Actions.sendVideo(
                                     channelId: this.channelId,
                                     nonce: viewModel.waitingMessage.id,
-                                    videoData: viewModel.waitingMessage.content,
+                                    videoData: viewModel.waitingMessage.videoData,
                                     fileName: viewModel.waitingMessage.attachments.first().filename)
                                 );
                             }
@@ -170,7 +171,7 @@ namespace ConnectApp.screens {
                                 dispatcher.dispatch<IPromise>(Actions.sendImage(
                                     this.channelId,
                                     nonce: viewModel.waitingMessage.id,
-                                    imageData: viewModel.waitingMessage.content));
+                                    imageData: viewModel.waitingMessage.imageData));
                             }
                         });
                     }
@@ -291,6 +292,7 @@ namespace ConnectApp.screens {
         bool _showUnreadMessageNotification = false;
         bool _showNewMessageNotification = false;
         float _inputFieldHeight;
+        CustomTextField customTextField;
 
         public bool showUnreadMessageNotification {
             get { return this._showUnreadMessageNotification; }
@@ -1032,22 +1034,38 @@ namespace ConnectApp.screens {
                 child: ret
             );
 
-            ret = new Expanded(
-                child: new Column(
-                    crossAxisAlignment: left ? CrossAxisAlignment.start : CrossAxisAlignment.end,
-                    children: new List<Widget> {
-                        new Container(
-                            padding: EdgeInsets.only(bottom: 6),
-                            child: new Text(
-                                data: message.author.fullName,
-                                style: CTextStyle.PSmallBody4,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis)
-                        ),
-                        ret
-                    }
-                )
-            );
+            if (left) {
+                ret = new Expanded(
+                    child: new Column(
+                        crossAxisAlignment: left ? CrossAxisAlignment.start : CrossAxisAlignment.end,
+                        children: new List<Widget> {
+                            new Container(
+                                padding: EdgeInsets.only(left: 0, right: 16, bottom: 6),
+                                child: new Row(
+                                    children: new List<Widget> {
+                                        new Flexible(
+                                            child: new Text(
+                                                data: message.author.fullName,
+                                                style: CTextStyle.PSmallBody4,
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis
+                                            )
+                                        ),
+                                        CImageUtils.GenBadgeImage(
+                                            badges: message.author.badges,
+                                            CCommonUtils.GetUserLicense(userId: message.author.id,
+                                                userLicenseMap: this.widget.viewModel.userLicenseDict),
+                                            EdgeInsets.only(4),
+                                            false
+                                        )
+                                    }
+                                )
+                            ),
+                            ret
+                        }
+                    )
+                );
+            }
 
             ret = new Container(
                 padding: EdgeInsets.only(left: 2, right: 2, bottom: 16),
@@ -1142,6 +1160,7 @@ namespace ConnectApp.screens {
                 onTap: () => this._browserImage(imageUrl: message.content),
                 child: new ImageMessage(
                     url: message.content,
+                    data: message.imageData,
                     size: 140,
                     ratio: 16.0f / 9.0f,
                     srcWidth: message.width,
@@ -1234,7 +1253,7 @@ namespace ConnectApp.screens {
 
         Widget _buildInputBar() {
             var padding = this.showKeyboard || this.showEmojiBoard ? 0 : MediaQuery.of(this.context).padding.bottom;
-            var customTextField = new CustomTextField(
+            this.customTextField = new CustomTextField(
                 EdgeInsets.only(bottom: padding),
                 new BoxDecoration(
                     border: new Border(new BorderSide(color: CColors.Separator)),
@@ -1286,11 +1305,11 @@ namespace ConnectApp.screens {
             if (!this.showEmojiBoard && !this.showKeyboard) {
                 backdropFilterWidget = new BackdropFilter(
                     filter: ImageFilter.blur(10, 10),
-                    child: customTextField
+                    child: this.customTextField
                 );
             }
             else {
-                backdropFilterWidget = customTextField;
+                backdropFilterWidget = this.customTextField;
             }
 
             return new Positioned(
@@ -1507,7 +1526,7 @@ namespace ConnectApp.screens {
                 channelId = this.widget.viewModel.channel.id,
                 nonce = nonce.hexToLong(),
                 type = ChannelMessageType.image,
-                content = Convert.ToBase64String(inArray: pickImage),
+                imageData = pickImage,
                 time = DateTime.UtcNow,
                 status = "waiting"
             });
@@ -1522,10 +1541,10 @@ namespace ConnectApp.screens {
                 channelId = this.widget.viewModel.channel.id,
                 nonce = nonce.hexToLong(),
                 type = ChannelMessageType.file,
-                content = Convert.ToBase64String(inArray: videoData),
+                videoData = videoData,
                 attachments = new List<Attachment> {
                     new Attachment {
-                        filename = $"VIDEO_{DateTime.UtcNow:yyyyMMddHHmmss}.mp4",
+                        filename = $"VIDEO_{DateTime.Now:yyyyMMddHHmmss}.mp4",
                         contentType = "video/mp4",
                         size = videoData.Length
                     }
