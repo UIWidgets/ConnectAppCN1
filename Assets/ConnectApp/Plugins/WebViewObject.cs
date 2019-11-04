@@ -366,7 +366,7 @@ public class WebViewObject : MonoBehaviour {
         Application.ExternalCall("unityWebView.init", name);
 #elif UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
         //TODO: UNSUPPORTED
-        Debug.LogError("Webview is not supported on this platform.");
+        Debuger.LogError("Webview is not supported on this platform.");
 #elif UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
         {
             var uri = new Uri(_CWebViewPlugin_GetAppPath());
@@ -375,7 +375,7 @@ public class WebViewObject : MonoBehaviour {
                 && !Regex.IsMatch(info,
                     @"<key>NSAppTransportSecurity</key>\s*<dict>\s*<key>NSAllowsArbitraryLoads</key>\s*<true/>\s*</dict>")
             ) {
-                Debug.LogWarning(
+                Debuger.LogWarning(
                     "<color=yellow>WebViewObject: NSAppTransportSecurity isn't configured to allow HTTP. If you need to allow any HTTP access, please shutdown Unity and invoke:</color>\n/usr/libexec/PlistBuddy -c \"Add NSAppTransportSecurity:NSAllowsArbitraryLoads bool true\" /Applications/Unity/Unity.app/Contents/Info.plist");
             }
         }
@@ -410,7 +410,7 @@ public class WebViewObject : MonoBehaviour {
         webView = new AndroidJavaObject("net.gree.unitywebview.CWebViewPlugin");
         webView.Call("Init", name, transparent, ua);
 #else
-        Debug.LogError("Webview is not supported on this platform.");
+        Debuger.LogError("Webview is not supported on this platform.");
 #endif
     }
 

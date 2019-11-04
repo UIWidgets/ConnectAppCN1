@@ -4,8 +4,6 @@ using ConnectApp.Models.Api;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using Unity.UIWidgets.Redux;
-using UnityEngine;
-using EventType = ConnectApp.Models.State.EventType;
 
 namespace ConnectApp.redux.actions {
     public class StartFetchEventOngoingAction : RequestAction {
@@ -104,7 +102,7 @@ namespace ConnectApp.redux.actions {
                             tab = tab,
                             pageNumber = pageNumber
                         });
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }
@@ -149,7 +147,7 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new FetchEventDetailFailedAction());
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }
@@ -159,8 +157,8 @@ namespace ConnectApp.redux.actions {
                 return EventApi.JoinEvent(eventId)
                     .Then(id => { dispatcher.dispatch(new JoinEventSuccessAction {eventId = id}); })
                     .Catch(error => {
-                        Debug.Log(error);
                         dispatcher.dispatch(new JoinEventFailureAction());
+                        Debuger.LogError(message: error);
                     });
             });
         }
@@ -218,7 +216,7 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new FetchMessagesFailureAction());
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }
@@ -235,7 +233,7 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new SendMessageFailureAction());
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }

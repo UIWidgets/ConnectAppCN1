@@ -7,7 +7,6 @@ using ConnectApp.Models.State;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.Redux;
-using UnityEngine;
 
 namespace ConnectApp.redux.actions {
     public class ArticleMapAction : BaseAction {
@@ -158,17 +157,19 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new FetchArticleFailureAction());
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }
 
-        public static object fetchFollowArticles(int pageNumber, string beforeTime, string afterTime, bool isFirst, bool isHot) {
+        public static object fetchFollowArticles(int pageNumber, string beforeTime, string afterTime, bool isFirst,
+            bool isHot) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ArticleApi.FetchFollowArticles(pageNumber: pageNumber, beforeTime: beforeTime,
                         afterTime: afterTime, isFirst: isFirst, isHot: isHot)
                     .Then(followArticlesResponse => {
-                        dispatcher.dispatch(new ArticleMapAction {articleMap = followArticlesResponse.projectSimpleMap});
+                        dispatcher.dispatch(new ArticleMapAction
+                            {articleMap = followArticlesResponse.projectSimpleMap});
                         dispatcher.dispatch(new UserMapAction {userMap = followArticlesResponse.userMap});
                         dispatcher.dispatch(new UserLicenseMapAction
                             {userLicenseMap = followArticlesResponse.userLicenseMap});
@@ -188,7 +189,7 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new FetchFollowArticleFailureAction());
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }
@@ -237,7 +238,7 @@ namespace ConnectApp.redux.actions {
                             currOldestMessageId = responseComments.currOldestMessageId
                         });
                     })
-                    .Catch(Debug.Log);
+                    .Catch(onRejected: Debuger.LogError);
             });
         }
 
@@ -320,7 +321,7 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new FetchArticleDetailFailureAction());
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }
@@ -364,7 +365,7 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         CustomDialogUtils.hiddenCustomDialog();
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }
@@ -393,7 +394,7 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         CustomDialogUtils.hiddenCustomDialog();
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }

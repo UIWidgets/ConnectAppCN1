@@ -29,7 +29,7 @@ namespace UnityStandardAssets.CrossPlatformInput {
         public void RegisterVirtualAxis(CrossPlatformInputManager.VirtualAxis axis) {
             // check if we already have an axis with that name and log and error if we do
             if (this.m_VirtualAxes.ContainsKey(axis.name)) {
-                Debug.LogError("There is already a virtual axis named " + axis.name + " registered.");
+                Debuger.LogError("There is already a virtual axis named " + axis.name + " registered.");
             }
             else {
                 // add any new axes
@@ -46,7 +46,7 @@ namespace UnityStandardAssets.CrossPlatformInput {
         public void RegisterVirtualButton(CrossPlatformInputManager.VirtualButton button) {
             // check if already have a buttin with that name and log an error if we do
             if (this.m_VirtualButtons.ContainsKey(button.name)) {
-                Debug.LogError("There is already a virtual button named " + button.name + " registered.");
+                Debuger.LogError("There is already a virtual button named " + button.name + " registered.");
             }
             else {
                 // add any new buttons

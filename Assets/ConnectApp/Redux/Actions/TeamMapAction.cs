@@ -4,7 +4,6 @@ using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using RSG;
 using Unity.UIWidgets.Redux;
-using UnityEngine;
 
 namespace ConnectApp.redux.actions {
     public class TeamMapAction : BaseAction {
@@ -104,7 +103,7 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                             dispatcher.dispatch(new FetchTeamFailureAction());
-                            Debug.Log(error);
+                            Debuger.LogError(message: error);
                         }
                     );
             });
@@ -125,7 +124,7 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                             dispatcher.dispatch(new FetchTeamArticleFailureAction());
-                            Debug.Log(error);
+                            Debuger.LogError(message: error);
                         }
                     );
             });
@@ -158,7 +157,7 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                             dispatcher.dispatch(new FetchTeamFollowerFailureAction());
-                            Debug.Log(error);
+                            Debuger.LogError(message: error);
                         }
                     );
             });
@@ -179,7 +178,7 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                             dispatcher.dispatch(new FetchTeamMemberFailureAction());
-                            Debug.Log(error);
+                            Debuger.LogError(message: error);
                         }
                     );
             });
@@ -197,7 +196,7 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                             dispatcher.dispatch(new FetchFollowTeamFailureAction {followTeamId = followTeamId});
-                            Debug.Log(error);
+                            Debuger.LogError(message: error);
                         }
                     );
             });
@@ -215,7 +214,7 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                             dispatcher.dispatch(new FetchUnFollowTeamFailureAction {unFollowTeamId = unFollowTeamId});
-                            Debug.Log(error);
+                            Debuger.LogError(message: error);
                         }
                     );
             });

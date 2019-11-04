@@ -1,5 +1,7 @@
 namespace ConnectApp.Constants {
     public static class Config {
+        public const bool enableDebug = false;
+
         public const string apiAddress = "https://connect.unity.com";
 
         public const string apiPath = "/api/connectapp/v1";

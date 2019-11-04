@@ -10,7 +10,6 @@ using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.Redux;
-using UnityEngine;
 
 namespace ConnectApp.redux.actions {
     public static partial class Actions {
@@ -41,7 +40,7 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new FetchChannelsFailureAction());
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                         dispatcher.dispatch(loadReadyStateFromDB());
                     });
             });
@@ -58,7 +57,7 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new FetchDiscoverChannelFilterFailureAction());
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }
@@ -81,7 +80,7 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         CustomDialogUtils.hiddenCustomDialog();
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }
@@ -104,7 +103,7 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         CustomDialogUtils.hiddenCustomDialog();
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }
@@ -128,7 +127,7 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         CustomDialogUtils.hiddenCustomDialog();
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }
@@ -151,7 +150,7 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         CustomDialogUtils.hiddenCustomDialog();
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }
@@ -168,7 +167,7 @@ namespace ConnectApp.redux.actions {
                             channel = channelInfoResponse.channel
                         });
                     })
-                    .Catch(error => { Debug.Log(error); });
+                    .Catch(onRejected: Debuger.LogError);
             });
         }
 
@@ -204,12 +203,12 @@ namespace ConnectApp.redux.actions {
                                 : loadMessagesFromDB(channelId, before.hexToLong()));
                         }
                         catch (Exception e) {
-                            Debug.LogWarning(e);
+                            Debuger.LogWarning(message: e);
                         }
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new FetchChannelMessagesFailureAction());
-                        Debug.LogWarning(error);
+                        Debuger.LogError(message: error);
                         dispatcher.dispatch(loadMessagesFromDB(channelId, before.hexToLong()));
                     });
             });
@@ -242,7 +241,7 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new FetchChannelMembersFailureAction());
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }
@@ -258,7 +257,7 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new FetchChannelMemberFailureAction());
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }
@@ -282,7 +281,7 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new FetchChannelMentionSuggestionsFailureAction());
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }
@@ -299,7 +298,7 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new FetchChannelMentionQueryFailureAction());
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }
@@ -337,7 +336,7 @@ namespace ConnectApp.redux.actions {
                         }
 
                         dispatcher.dispatch(new JoinChannelFailureAction {channelId = channelId});
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }
@@ -361,7 +360,7 @@ namespace ConnectApp.redux.actions {
                     .Catch(error => {
                         dispatcher.dispatch(new LeaveChannelFailureAction());
                         CustomDialogUtils.hiddenCustomDialog();
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }
@@ -383,7 +382,7 @@ namespace ConnectApp.redux.actions {
                             channelId = channelId,
                             messageId = nonce
                         });
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }
@@ -394,7 +393,7 @@ namespace ConnectApp.redux.actions {
                     .Then(ackMessageResponse => { dispatcher.dispatch(new DeleteChannelMessageSuccessAction()); })
                     .Catch(error => {
                         dispatcher.dispatch(new DeleteChannelMessageFailureAction());
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }
@@ -405,7 +404,7 @@ namespace ConnectApp.redux.actions {
                     .Then(ackMessageResponse => { dispatcher.dispatch(new AckChannelMessageSuccessAction()); })
                     .Catch(error => {
                         dispatcher.dispatch(new AckChannelMessageFailureAction());
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }
@@ -426,7 +425,7 @@ namespace ConnectApp.redux.actions {
                             channelId = channelId,
                             messageId = nonce
                         });
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }
@@ -448,7 +447,7 @@ namespace ConnectApp.redux.actions {
                             channelId = channelId,
                             messageId = nonce
                         });
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }
