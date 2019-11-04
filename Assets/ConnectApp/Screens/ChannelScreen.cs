@@ -1144,7 +1144,7 @@ namespace ConnectApp.screens {
                                     ),
                                 Positioned.fill(
                                     Image.asset(
-                                        "image/avatar-circle-1",
+                                        "image/avatar-circle",
                                         fit: BoxFit.cover
                                     )
                                 )
