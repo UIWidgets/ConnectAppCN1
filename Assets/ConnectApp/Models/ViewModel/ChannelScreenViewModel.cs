@@ -19,5 +19,6 @@ namespace ConnectApp.Models.ViewModel {
         public bool channelError;
         public ChannelMessageView waitingMessage;
         public ChannelMessageView sendingMessage;
+        public Dictionary<string, UserLicense> userLicenseDict;
     }
 }

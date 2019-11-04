@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using ConnectApp.Constants;
 using ConnectApp.Models.Api;
@@ -168,8 +167,7 @@ namespace ConnectApp.Api {
         }
 
         public static Promise<FetchSendMessageResponse> SendImage(string channelId, string content, string nonce,
-            string imageData, string parentMessageId = "") {
-            var data = Convert.FromBase64String(s: imageData);
+            byte[] imageData, string parentMessageId = "") {
             var promise = new Promise<FetchSendMessageResponse>();
             var request = HttpManager.POST(
                 $"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/messages/attachments",
@@ -178,8 +176,8 @@ namespace ConnectApp.Api {
                     new List<object> {"content", content},
                     new List<object> {"parentMessageId", parentMessageId},
                     new List<object> {"nonce", nonce},
-                    new List<object> {"size", $"{data.Length}"},
-                    new List<object> {"file", data}
+                    new List<object> {"size", $"{imageData.Length}"},
+                    new List<object> {"file", imageData}
                 },
                 multipart: true,
                 filename: "image.png",
@@ -195,8 +193,7 @@ namespace ConnectApp.Api {
         }
 
         public static Promise<FetchSendMessageResponse> SendVideo(string channelId, string content, string nonce,
-            string videoData, string fileName, string parentMessageId = "") {
-            var data = Convert.FromBase64String(s: videoData);
+            byte[] videoData, string fileName, string parentMessageId = "") {
             var promise = new Promise<FetchSendMessageResponse>();
             var request = HttpManager.POST(
                 $"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/messages/attachments",
@@ -205,8 +202,8 @@ namespace ConnectApp.Api {
                     new List<object> {"content", content},
                     new List<object> {"parentMessageId", parentMessageId},
                     new List<object> {"nonce", nonce},
-                    new List<object> {"size", $"{data.Length}"},
-                    new List<object> {"file", data}
+                    new List<object> {"size", $"{videoData.Length}"},
+                    new List<object> {"file", videoData}
                 },
                 multipart: true,
                 filename: fileName,
@@ -224,10 +221,8 @@ namespace ConnectApp.Api {
         public static Promise<FetchChannelMembersResponse> FetchChannelMemberSuggestions(string channelId) {
             var promise = new Promise<FetchChannelMembersResponse>();
             var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/members",
-                parameter: new Dictionary<string, object> {
-                    {"get", "testLimit"},
-                    {"offset", 0},
-                    {"testLimit", 200}
+                new Dictionary<string, object> {
+                    {"get", "active"}
                 });
             HttpManager.resume(request: request).Then(responseText => {
                 var members = JsonConvert.DeserializeObject<FetchChannelMembersResponse>(value: responseText);

@@ -1,5 +1,6 @@
 using System;
 using ConnectApp.Components;
+using ConnectApp.Constants;
 using ConnectApp.Models.State;
 using ConnectApp.Plugins;
 using ConnectApp.redux;
@@ -15,6 +16,7 @@ namespace ConnectApp.Main {
     public sealed class ConnectAppPanel : UIWidgetsPanel {
         protected override void OnEnable() {
             base.OnEnable();
+            Debuger.EnableLog = Config.enableDebug;
             Screen.fullScreen = false;
             Screen.orientation = ScreenOrientation.Portrait;
             Window.onFrameRateCoolDown = CustomFrameRateCoolDown;

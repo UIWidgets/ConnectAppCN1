@@ -4,12 +4,9 @@ using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
-using UnityEngine;
 
 namespace ConnectApp.Api {
     public static class SocketApi {
-        const bool DebugSocketApi = true;
-
         static string m_lastSessionId;
 
         public static void ResetState() {
@@ -72,19 +69,16 @@ namespace ConnectApp.Api {
                 DoConnectToWSS(sessionId);
             }
             catch (Exception e) {
-                if (DebugSocketApi) {
-                    Debug.Log("Failed to connect to wss: error = " + e);
-                }
+                Debuger.Log("Failed to connect to wss: error = " + e);
             }
         }
 
         static void DoConnectToWSS(string sessionId) {
             //Ready-state check
-            if (DebugSocketApi) {
-                Debug.Assert(SocketGateway.instance != null, "fatal error: socket gateway is null, cannot connect !");
-                Debug.Assert(SocketGateway.instance.readyForConnect,
-                    "fatal error: socket gateway is not ready for connection !");
-            }
+            DebugerUtils.DebugAssert(SocketGateway.instance != null,
+                "fatal error: socket gateway is null, cannot connect !");
+            DebugerUtils.DebugAssert(SocketGateway.instance.readyForConnect,
+                "fatal error: socket gateway is not ready for connection !");
 
             if (SocketGateway.instance == null || !SocketGateway.instance.readyForConnect) {
                 return;

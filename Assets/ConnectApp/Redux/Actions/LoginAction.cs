@@ -9,7 +9,6 @@ using ConnectApp.screens;
 using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.Redux;
-using UnityEngine;
 
 namespace ConnectApp.redux.actions {
     public class LoginChangeEmailAction : BaseAction {
@@ -77,7 +76,7 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new LoginByEmailFailureAction());
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                         var customSnackBar = new CustomSnackBar(
                             "邮箱或密码不正确，请稍后再试。"
                         );
@@ -117,7 +116,8 @@ namespace ConnectApp.redux.actions {
                         }
                         else {
                             dispatcher.dispatch(new MainNavigatorPopAction());
-                            EventBus.publish(sName: EventBusConstant.login_success, new List<object> {loginInfo.userId});
+                            EventBus.publish(sName: EventBusConstant.login_success,
+                                new List<object> {loginInfo.userId});
                         }
                     })
                     .Catch(error => {
@@ -148,7 +148,7 @@ namespace ConnectApp.redux.actions {
                         AnalyticsManager.AnalyticsQRScan(state: QRState.confirm, false);
                     }
                 }).Catch(error => {
-                        Debug.Log($"confirm api error: {error}, action: {action}");
+                        Debuger.LogError($"confirm api error: {error}, action: {action}");
                         if (action == "cancel") {
                             AnalyticsManager.AnalyticsQRScan(state: QRState.cancel, false);
                             return;

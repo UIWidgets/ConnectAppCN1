@@ -185,7 +185,7 @@ namespace Plugins.Editor {
             // 出口合规信息
             rootDict.SetBoolean("ITSAppUsesNonExemptEncryption", false);
 
-            rootDict.SetString("NSCameraUsageDescription", "我们需要访问您的相机，以便您正常使用修改头像、发送图片等功能");
+            rootDict.SetString("NSCameraUsageDescription", "我们需要访问您的相机，以便您正常使用修改头像、发送图片、扫一扫等功能");
             rootDict.SetString("NSPhotoLibraryUsageDescription", "我们需要访问您的相册，以便您正常使用修改头像、发送图片或者视频等功能");
             rootDict.SetString("NSPhotoLibraryAddUsageDescription", "我们需要访问您的相册，以便您正常使用保存图片功能");
 //            rootDict.SetString("NSMicrophoneUsageDescription", "需要录制音频，是否允许此App打开麦克风？");
