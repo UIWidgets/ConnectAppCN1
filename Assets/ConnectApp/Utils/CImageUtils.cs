@@ -51,7 +51,7 @@ namespace ConnectApp.Utils {
 
         public static bool isNationalDay = false;
 
-        public static Widget GenBadgeImage(List<string> badges, string license, EdgeInsets padding) {
+        public static Widget GenBadgeImage(List<string> badges, string license, EdgeInsets padding, bool showFlag = true) {
             var badgeList = new List<Widget>();
             Widget badgeWidget = null;
 
@@ -59,20 +59,24 @@ namespace ConnectApp.Utils {
                 if (license == "UnityPro") {
                     badgeWidget = Image.asset(
                         "image/pro-badge",
-                        height: 15,
-                        width: 26
+                        height: 12,
+                        width: 24
                     );
-                }
-
-                if (license == "UnityPersonalPlus") {
+                } else if (license == "UnityPersonalPlus") {
                     badgeWidget = Image.asset(
                         "image/plus-badge",
-                        height: 15,
-                        width: 30
+                        height: 13,
+                        width: 28
+                    );
+                } else if (license == "UnityLearnPremium") {
+                    badgeWidget = Image.asset(
+                        "image/prem-badge",
+                        height: 13,
+                        width: 33
                     );
                 }
             }
-
+            
             if (badges != null && badges.isNotEmpty()) {
                 if (badges.Any(badge => badge.isNotEmpty() && badge.Equals("official"))) {
                     badgeWidget = Image.asset(
@@ -84,14 +88,16 @@ namespace ConnectApp.Utils {
             }
 
             if (badgeWidget != null) {
-                badgeList.Add(item: badgeWidget);
-            }
-
-            if (isNationalDay) {
                 if (badgeList.Count >= 1) {
                     badgeList.Add(new SizedBox(width: 4));
                 }
+                badgeList.Add(item: badgeWidget);
+            }
 
+            if (isNationalDay && showFlag) {
+                if (badgeList.Count >= 1) {
+                    badgeList.Add(new SizedBox(width: 4));
+                }
                 badgeList.Add(Image.asset(
                     "image/china-flag-badge",
                     height: 14,
