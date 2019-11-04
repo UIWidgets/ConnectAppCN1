@@ -44,16 +44,10 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             return new Navigator(
                 key: globalKey,
-                onGenerateRoute: settings => {
-                    return new PageRouteBuilder(
-                        settings: settings,
-                        (context1, animation, secondaryAnimation) => loginRoutes[settings.name](context1),
-                        (context1, animation, secondaryAnimation, child) => new PushPageTransition(
-                            routeAnimation: animation,
-                            child: child
-                        )
-                    );
-                }
+                onGenerateRoute: settings => new CustomPageRoute(
+                    settings: settings,
+                    builder: context1 => loginRoutes[key: settings.name](context: context1)
+                )
             );
         }
     }
@@ -66,11 +60,11 @@ namespace ConnectApp.screens {
                     var actionModel = new LoginSwitchScreenActionModel {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
                         loginByWechatAction = code => dispatcher.dispatch<IPromise>(Actions.loginByWechat(code)),
-                        loginRouterPushToBindUnity =
-                            () => dispatcher.dispatch(new LoginNavigatorPushToBindUnityAction()),
+                        loginRouterPushToBindUnity = () => dispatcher.dispatch(
+                            new LoginNavigatorPushToAction {routeName = LoginNavigatorRoutes.BindUnity}),
                         openUrl = url => dispatcher.dispatch(new OpenUrlAction {url = url})
                     };
-                    return new LoginSwitchScreen(actionModel);
+                    return new LoginSwitchScreen(actionModel: actionModel);
                 }
             );
         }

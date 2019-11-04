@@ -133,7 +133,7 @@ namespace ConnectApp.Main {
                     }
                     else if (Screen.orientation != ScreenOrientation.Portrait) {
                         //视频全屏时禁止物理返回按钮
-                        EventBus.publish(EventBusConstant.fullScreen, new List<object> {true});
+                        EventBus.publish(sName: EventBusConstant.fullScreen, new List<object> {true});
                         promise.Resolve(false);
                     }
                     else if (navigator.canPop()) {
@@ -174,53 +174,12 @@ namespace ConnectApp.Main {
                     observers: new List<NavigatorObserver> {
                         _routeObserve
                     },
-                    onGenerateRoute: settings => {
-                        return new PageRouteBuilder(
-                            settings: settings,
-                            (context1, animation, secondaryAnimation) => mainRoutes[settings.name](context1),
-                            (context1, animation, secondaryAnimation, child) => {
-                                if (fullScreenRoutes.ContainsKey(settings.name)) {
-                                    return new ModalPageTransition(
-                                        routeAnimation: animation,
-                                        child: child
-                                    );
-                                }
-
-                                return new PushPageTransition(
-                                    routeAnimation: animation,
-                                    child: child
-                                );
-                            }
-                        );
-                    }
+                    onGenerateRoute: settings => new CustomPageRoute(
+                        settings: settings,
+                        fullscreenDialog: fullScreenRoutes.ContainsKey(key: settings.name),
+                        builder: context1 => mainRoutes[key: settings.name](context: context1)
+                    )
                 )
-            );
-        }
-    }
-
-    class PushPageTransition : StatelessWidget {
-        internal PushPageTransition(
-            Key key = null,
-            Animation<float> routeAnimation = null, // The route's linear 0.0 - 1.0 animation.
-            Widget child = null
-        ) : base(key: key) {
-            this._positionAnimation = this._leftPushTween.chain(this._fastOutSlowInTween).animate(routeAnimation);
-            this.child = child;
-        }
-
-        readonly Tween<Offset> _leftPushTween = new OffsetTween(
-            new Offset(1.0f, 0.0f),
-            Offset.zero
-        );
-
-        readonly Animatable<float> _fastOutSlowInTween = new CurveTween(Curves.fastOutSlowIn);
-        readonly Animation<Offset> _positionAnimation;
-        readonly Widget child;
-
-        public override Widget build(BuildContext context) {
-            return new SlideTransition(
-                position: this._positionAnimation,
-                child: this.child
             );
         }
     }

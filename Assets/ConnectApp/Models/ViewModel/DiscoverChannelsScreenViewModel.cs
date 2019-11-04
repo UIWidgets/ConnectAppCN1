@@ -6,5 +6,6 @@ namespace ConnectApp.Models.ViewModel {
         public List<ChannelView> publicChannels;
         public Dictionary<string, string> lastMessageMap;
         public int page;
+        public bool hasMore;
     }
 }

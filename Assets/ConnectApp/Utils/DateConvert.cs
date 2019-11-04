@@ -12,9 +12,9 @@ namespace ConnectApp.Utils {
     public static class DateConvert {
         static readonly DateTime startTime =
             new DateTime(2016, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-        
-        public static string DateStringFromNow(DateTime dt, bool isLocal = false) {
-            TimeSpan span = isLocal ? DateTime.Now - dt : DateTime.UtcNow - dt;
+
+        public static string DateStringFromNow(DateTime dt) {
+            TimeSpan span = DateTime.UtcNow - dt;
             if (span.TotalDays > 3) {
                 return dt.ToString("yyyy-MM-dd");
             }
@@ -63,14 +63,17 @@ namespace ConnectApp.Utils {
         }
 
         public static string DateStringFromNonce(string nonce) {
-            return DateStringFromNow(DateTimeFromNonce(nonce), true);
+            return DateStringFromNow(DateTimeFromNonce(nonce));
         }
-        
+
         public static DateTime DateTimeFromNonce(string nonce) {
-            if (string.IsNullOrEmpty(nonce)) return startTime;
+            if (string.IsNullOrEmpty(nonce)) {
+                return startTime;
+            }
+
             return DateTimeFromNonce(Convert.ToInt64(nonce, 16));
         }
-        
+
         public static DateTime DateTimeFromNonce(long span) {
             var shifted = (span + 1) >> 22;
             var timespan = (shifted - 1);
@@ -81,21 +84,21 @@ namespace ConnectApp.Utils {
             var localtime = time.ToLocalTime();
             if (showTimeNotToday) {
                 return localtime.Date == DateTime.Today
-                        ? localtime.ToString("HH:mm")
-                        : localtime.Date == DateTime.Today - TimeSpan.FromDays(1)
-                            ? $"昨天 {localtime:HH:mm}"
-                            : localtime.Year == DateTime.Today.Year
-                                ? localtime.ToString("M月d日 HH:mm")
-                                : localtime.ToString("yyyy年M月d日 HH:mm");
+                    ? localtime.ToString("HH:mm")
+                    : localtime.Date == DateTime.Today - TimeSpan.FromDays(1)
+                        ? $"昨天 {localtime:HH:mm}"
+                        : localtime.Year == DateTime.Today.Year
+                            ? localtime.ToString("M月d日 HH:mm")
+                            : localtime.ToString("yyyy年M月d日 HH:mm");
             }
             else {
                 return localtime.Date == DateTime.Today
-                        ? localtime.ToString("HH:mm")
-                        : localtime.Date == DateTime.Today - TimeSpan.FromDays(1)
-                            ? "昨天"
-                            : localtime.Year == DateTime.Today.Year
-                                ? localtime.ToString("M月d日")
-                                : localtime.ToString("yyyy年M月d日");
+                    ? localtime.ToString("HH:mm")
+                    : localtime.Date == DateTime.Today - TimeSpan.FromDays(1)
+                        ? "昨天"
+                        : localtime.Year == DateTime.Today.Year
+                            ? localtime.ToString("M月d日")
+                            : localtime.ToString("yyyy年M月d日");
             }
         }
 

@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using ConnectApp.Constants;
 using ConnectApp.Models.Api;
@@ -6,15 +5,17 @@ using ConnectApp.Utils;
 using Newtonsoft.Json;
 using RSG;
 using Unity.UIWidgets.foundation;
+using UnityEngine.Networking;
 
 namespace ConnectApp.Api {
     public static class ChannelApi {
-        public static Promise<FetchChannelsResponse> FetchChannels(int page) {
+        public static Promise<FetchChannelsResponse> FetchChannels(int page, bool joined = true,
+            bool discoverAll = false) {
             var promise = new Promise<FetchChannelsResponse>();
             var para = new Dictionary<string, object> {
-                {"discover", "true"},
                 {"discoverPage", page},
-                {"joined", "true"}
+                {"joined", joined ? "true" : "false"},
+                {discoverAll ? "discoverAll" : "discover", "true"}
             };
             var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/channels", parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
@@ -44,16 +45,36 @@ namespace ConnectApp.Api {
             return promise;
         }
 
+        public static Promise<FetchMuteChannelResponse> FetchMuteChannel(string channelId) {
+            var promise = new Promise<FetchMuteChannelResponse>();
+            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/mute");
+            HttpManager.resume(request: request).Then(responseText => {
+                var muteChannel = JsonConvert.DeserializeObject<FetchMuteChannelResponse>(value: responseText);
+                promise.Resolve(value: muteChannel);
+            }).Catch(exception => promise.Reject(ex: exception));
+            return promise;
+        }
+
+        public static Promise<FetchUnMuteChannelResponse> FetchUnMuteChannel(string channelId) {
+            var promise = new Promise<FetchUnMuteChannelResponse>();
+            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/unMute");
+            HttpManager.resume(request: request).Then(responseText => {
+                var unMuteChannel = JsonConvert.DeserializeObject<FetchUnMuteChannelResponse>(value: responseText);
+                promise.Resolve(value: unMuteChannel);
+            }).Catch(exception => promise.Reject(ex: exception));
+            return promise;
+        }
+
         public static Promise<FetchChannelMessagesResponse> FetchChannelMessages(
             string channelId, string before = null, string after = null) {
             D.assert(before == null || after == null);
             var promise = new Promise<FetchChannelMessagesResponse>();
             var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/messages",
                 parameter: before != null
-                ? new Dictionary<string, object> {{"before", before}}
-                : after != null
-                    ? new Dictionary<string, object> {{"after", after}}
-                    : null);
+                    ? new Dictionary<string, object> {{"before", before}}
+                    : after != null
+                        ? new Dictionary<string, object> {{"after", after}}
+                        : null);
             HttpManager.resume(request: request).Then(responseText => {
                 promise.Resolve(JsonConvert.DeserializeObject<FetchChannelMessagesResponse>(value: responseText));
             }).Catch(exception => promise.Reject(ex: exception));
@@ -74,6 +95,15 @@ namespace ConnectApp.Api {
             var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/messages/{messageId}/ack");
             HttpManager.resume(request: request).Then(responseText => {
                 promise.Resolve(JsonConvert.DeserializeObject<AckChannelMessagesResponse>(value: responseText));
+            }).Catch(exception => promise.Reject(ex: exception));
+            return promise;
+        }
+
+        public static Promise<FetchChannelInfoResponse> FetchChannelInfo(string channelId) {
+            var promise = new Promise<FetchChannelInfoResponse>();
+            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}");
+            HttpManager.resume(request: request).Then(responseText => {
+                promise.Resolve(JsonConvert.DeserializeObject<FetchChannelInfoResponse>(value: responseText));
             }).Catch(exception => promise.Reject(ex: exception));
             return promise;
         }
@@ -101,22 +131,35 @@ namespace ConnectApp.Api {
 
         public static Promise<JoinChannelResponse> JoinChannel(string channelId, string groupId = null) {
             var promise = new Promise<JoinChannelResponse>();
-            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/join",
-                parameter: new Dictionary<string, string> {
-                    {"channelId", channelId}
-            });
+            UnityWebRequest request = null;
+
+            if (string.IsNullOrEmpty(groupId)) {
+                request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/join");
+            }
+            else {
+                request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/groups/{groupId}/join");
+            }
+
             HttpManager.resume(request: request).Then(responseText => {
                 promise.Resolve(JsonConvert.DeserializeObject<JoinChannelResponse>(value: responseText));
             }).Catch(exception => promise.Reject(ex: exception));
             return promise;
         }
 
-        public static Promise<LeaveChannelResponse> LeaveChannel(string channelId, string groupId = null) {
+        public static Promise<LeaveChannelResponse> LeaveChannel(
+            string channelId, string memberId = null, string groupId = null) {
             var promise = new Promise<LeaveChannelResponse>();
-            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/leave",
-                parameter: new Dictionary<string, string> {
-                    {"channelId", channelId}
-            });
+            UnityWebRequest request;
+            if (string.IsNullOrEmpty(groupId) || string.IsNullOrEmpty(memberId)) {
+                request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/leave");
+            }
+            else {
+                request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/groups/{groupId}/leave",
+                    parameter: new Dictionary<string, string> {
+                        {"memberId", memberId}
+                    });
+            }
+
             HttpManager.resume(request: request).Then(responseText => {
                 promise.Resolve(JsonConvert.DeserializeObject<LeaveChannelResponse>(value: responseText));
             }).Catch(exception => promise.Reject(ex: exception));
@@ -124,22 +167,47 @@ namespace ConnectApp.Api {
         }
 
         public static Promise<FetchSendMessageResponse> SendImage(string channelId, string content, string nonce,
-            string imageData, string parentMessageId = "") {
-            var data = Convert.FromBase64String(s: imageData);
+            byte[] imageData, string parentMessageId = "") {
             var promise = new Promise<FetchSendMessageResponse>();
             var request = HttpManager.POST(
                 $"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/messages/attachments",
                 parameter: new List<List<object>> {
-                    new List<object>{"channel", channelId},
-                    new List<object>{"content", content},
-                    new List<object>{"parentMessageId", parentMessageId},
-                    new List<object>{"nonce", nonce},
-                    new List<object>{"size", $"{data.Length}"},
-                    new List<object>{"file", data}
+                    new List<object> {"channel", channelId},
+                    new List<object> {"content", content},
+                    new List<object> {"parentMessageId", parentMessageId},
+                    new List<object> {"nonce", nonce},
+                    new List<object> {"size", $"{imageData.Length}"},
+                    new List<object> {"file", imageData}
                 },
-                multipart: true, 
-                filename: "image.png", 
+                multipart: true,
+                filename: "image.png",
                 fileType: "image/png");
+            HttpManager.resume(request: request).Then(responseText => {
+                promise.Resolve(new FetchSendMessageResponse {
+                    channelId = channelId,
+                    content = content,
+                    nonce = nonce
+                });
+            }).Catch(exception => promise.Reject(ex: exception));
+            return promise;
+        }
+
+        public static Promise<FetchSendMessageResponse> SendVideo(string channelId, string content, string nonce,
+            byte[] videoData, string fileName, string parentMessageId = "") {
+            var promise = new Promise<FetchSendMessageResponse>();
+            var request = HttpManager.POST(
+                $"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/messages/attachments",
+                parameter: new List<List<object>> {
+                    new List<object> {"channel", channelId},
+                    new List<object> {"content", content},
+                    new List<object> {"parentMessageId", parentMessageId},
+                    new List<object> {"nonce", nonce},
+                    new List<object> {"size", $"{videoData.Length}"},
+                    new List<object> {"file", videoData}
+                },
+                multipart: true,
+                filename: fileName,
+                fileType: "video/mp4");
             HttpManager.resume(request: request).Then(responseText => {
                 promise.Resolve(new FetchSendMessageResponse {
                     channelId = channelId,
@@ -153,11 +221,25 @@ namespace ConnectApp.Api {
         public static Promise<FetchChannelMembersResponse> FetchChannelMemberSuggestions(string channelId) {
             var promise = new Promise<FetchChannelMembersResponse>();
             var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/members",
-                parameter: new Dictionary<string, object> {
+                new Dictionary<string, object> {
                     {"get", "active"}
                 });
             HttpManager.resume(request: request).Then(responseText => {
                 var members = JsonConvert.DeserializeObject<FetchChannelMembersResponse>(value: responseText);
+                promise.Resolve(value: members);
+            }).Catch(exception => promise.Reject(ex: exception));
+            return promise;
+        }
+
+        public static Promise<FetchChannelMemberQueryResponse> FetchChannelMemberQuery(string channelId,
+            string query) {
+            var promise = new Promise<FetchChannelMemberQueryResponse>();
+            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/searchMembers",
+                parameter: new Dictionary<string, object> {
+                    {"q", query}
+                });
+            HttpManager.resume(request: request).Then(responseText => {
+                var members = JsonConvert.DeserializeObject<FetchChannelMemberQueryResponse>(value: responseText);
                 promise.Resolve(value: members);
             }).Catch(exception => promise.Reject(ex: exception));
             return promise;

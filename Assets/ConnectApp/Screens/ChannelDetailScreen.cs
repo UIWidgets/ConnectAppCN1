@@ -12,8 +12,8 @@ using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
@@ -32,12 +32,14 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ChannelDetailScreenViewModel>(
                 converter: state => {
-                    ChannelView channel = state.channelState.channelDict[key: this.channelId];
+                    ChannelView channel = !state.channelState.channelDict.ContainsKey(this.channelId)
+                        ? ChannelView.fromChannel(new Channel())
+                        : state.channelState.channelDict[this.channelId];
                     channel.isTop = state.channelState.channelTop.TryGetValue(key: this.channelId, out var isTop) &&
                                     isTop;
                     return new ChannelDetailScreenViewModel {
                         channel = channel,
-                        members = state.channelState.channelDict[key: this.channelId].memberIds.Select(
+                        members = channel.memberIds.Select(
                             memberId => channel.membersDict[key: memberId]
                         ).ToList()
                     };
@@ -56,15 +58,27 @@ namespace ConnectApp.screens {
                                     channelId = this.channelId
                                 }
                             ),
+                        pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
+                            routeName = MainNavigatorRoutes.Login
+                        }),
+                        copyText = text => dispatcher.dispatch(new CopyTextAction {text = text}),
                         fetchMembers = () => dispatcher.dispatch<IPromise>(
                             Actions.fetchChannelMembers(channelId: this.channelId)),
                         joinChannel = () => dispatcher.dispatch<IPromise>(
                             Actions.joinChannel(channelId: this.channelId, groupId: viewModel.channel.groupId, true)),
                         leaveChannel = () => dispatcher.dispatch<IPromise>(
-                            Actions.leaveChannel(channelId: this.channelId, groupId: viewModel.channel.groupId)),
+                            Actions.leaveChannel(channelId: this.channelId,
+                                memberId: viewModel.channel.currentMember.id,
+                                groupId: viewModel.channel.groupId)),
                         updateTop = isTop => dispatcher.dispatch<IPromise>(isTop
                             ? Actions.fetchStickChannel(channelId: this.channelId)
-                            : Actions.fetchUnStickChannel(channelId: this.channelId))
+                            : Actions.fetchUnStickChannel(channelId: this.channelId)),
+                        updateMute = isMute => dispatcher.dispatch<IPromise>(isMute
+                            ? Actions.fetchMuteChannel(channelId: this.channelId)
+                            : Actions.fetchUnMuteChannel(channelId: this.channelId)),
+                        shareToWechat = (type, title, description, linkUrl, imageUrl) =>
+                            dispatcher.dispatch<IPromise>(
+                                Actions.shareToWechat(type, title, description, linkUrl, imageUrl))
                     };
                     return new ChannelDetailScreen(actionModel: actionModel, viewModel: viewModel);
                 }
@@ -305,16 +319,55 @@ namespace ConnectApp.screens {
                         this.widget.viewModel.channel?.isTop ?? false,
                         value => this.widget.actionModel.updateTop(obj: value)
                     ),
-#if false
                     _switchRow(
                         "消息免打扰",
                         this.widget.viewModel.channel?.isMute ?? false,
-                        value => { }
+                        value => this.widget.actionModel.updateMute(obj: value)
                     ),
-#endif
+                    new Container(height: 16),
+                    new GestureDetector(
+                        onTap: this.share,
+                        child: new Container(
+                            color: CColors.White,
+                            height: 60,
+                            child: new Center(
+                                child: new Text("分享群聊", style: CTextStyle.PLargeBlue)
+                            )
+                        )
+                    ),
                     new Container(height: 16),
                     leaveContainer
                 }
+            );
+        }
+
+        void share() {
+            ActionSheetUtils.showModalActionSheet(
+                new ShareView(
+                    projectType: ProjectType.iEvent,
+                    onPressed: type => {
+                        var linkUrl = $"{Config.apiAddress}/mconnect/channels/{this.widget.viewModel.channel.id}";
+                        if (type == ShareType.clipBoard) {
+                            this.widget.actionModel.copyText(obj: linkUrl);
+                            CustomDialogUtils.showToast("复制链接成功", iconData: Icons.check_circle_outline);
+                        }
+                        else {
+                            var imageUrl =
+                                CImageUtils.SizeTo200ImageUrl(imageUrl: this.widget.viewModel.channel.thumbnail);
+                            CustomDialogUtils.showCustomDialog(
+                                child: new CustomLoadingDialog()
+                            );
+                            this.widget.actionModel.shareToWechat(
+                                    arg1: type,
+                                    arg2: this.widget.viewModel.channel.name,
+                                    arg3: this.widget.viewModel.channel.topic,
+                                    arg4: linkUrl,
+                                    arg5: imageUrl)
+                                .Then(onResolved: CustomDialogUtils.hiddenCustomDialog)
+                                .Catch(_ => CustomDialogUtils.hiddenCustomDialog());
+                        }
+                    }
+                )
             );
         }
 

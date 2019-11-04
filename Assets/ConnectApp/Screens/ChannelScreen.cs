@@ -13,18 +13,16 @@ using ConnectApp.Plugins;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using RSG;
+using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.gestures;
-using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using Config = ConnectApp.Constants.Config;
-using Icons = ConnectApp.Constants.Icons;
 using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.screens {
@@ -41,84 +39,165 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ChannelScreenViewModel>(
                 converter: state => {
-                    List<ChannelMessageView> getMessages(List<string> messageIds) {
-                        if (messageIds == null || messageIds.Count == 0) {
-                            return new List<ChannelMessageView>();
+                    List<ChannelMessageView> newMessages = new List<ChannelMessageView>();
+                    List<ChannelMessageView> messages = new List<ChannelMessageView>();
+
+                    ChannelView channel = !state.channelState.channelDict.ContainsKey(this.channelId)
+                        ? ChannelView.fromChannel(new Channel())
+                        : state.channelState.channelDict[this.channelId];
+
+                    foreach (var messageId in channel.oldMessageIds) {
+                        if (state.channelState.messageDict.ContainsKey(key: messageId)) {
+                            messages.Add(state.channelState.messageDict[key: messageId]);
                         }
+                    }
 
-                        var channelMessageViews = new List<ChannelMessageView>();
-                        messageIds.ForEach(messageId => {
-                            if (state.channelState.messageDict.ContainsKey(key: messageId)) {
-                                channelMessageViews.Add(state.channelState.messageDict[key: messageId]);
+                    foreach (var messageId in channel.messageIds) {
+                        if (state.channelState.messageDict.ContainsKey(key: messageId)) {
+                            messages.Add(state.channelState.messageDict[key: messageId]);
+                        }
+                    }
+
+                    ChannelMessageView waitingMessage = null;
+                    ChannelMessageView sendingMessage = null;
+                    foreach (var messageId in channel.localMessageIds) {
+                        var key = $"{state.loginState.loginInfo.userId}:{this.channelId}:{messageId}";
+                        if (state.channelState.localMessageDict.ContainsKey(key: key)) {
+                            var message = state.channelState.localMessageDict[key: key];
+                            if (message.status == "sending") {
+                                sendingMessage = sendingMessage ?? message;
                             }
-                        });
-                        return channelMessageViews;
+                            else if (message.status == "waiting") {
+                                waitingMessage = waitingMessage ?? message;
+                            }
+
+                            messages.Add(message);
+                        }
                     }
 
-                    var channel = state.channelState.channelDict[this.channelId];
-                    List<ChannelMessageView> newMessages = null;
-                    List<ChannelMessageView> messages;
-                    if (channel.newMessageIds.isNotEmpty()) {
-                        messages = getMessages(messageIds: channel.messageIds);
-                        newMessages = getMessages(messageIds:channel.newMessageIds);
-                    }
-                    else if (channel.oldMessageIds.isNotEmpty()) {
-                        messages = getMessages(messageIds: channel.oldMessageIds);
-                        messages.AddRange(getMessages(messageIds: channel.messageIds));
-                    }
-                    else {
-                        messages = getMessages(messageIds: channel.messageIds);
+                    foreach (var messageId in channel.newMessageIds) {
+                        if (state.channelState.messageDict.ContainsKey(key: messageId)) {
+                            newMessages.Add(state.channelState.messageDict[key: messageId]);
+                        }
                     }
 
-                    messages = messages
-                        .Where(message => message.type != ChannelMessageType.text || message.content != "")
-                        .ToList();
+                    if (messages.isNotEmpty()) {
+                        messages = messages.Where(message => !message.shouldSkip()).ToList();
+                        if (channel.localMessageIds.isNotEmpty()) {
+                            messages.Sort((m1, m2) => {
+                                if ((m1.status != "sending" && m1.status != "waiting") &&
+                                    (m2.status == "sending" || m2.status == "waiting")) {
+                                    return -1;
+                                }
+
+                                if ((m2.status != "sending" && m2.status != "waiting") &&
+                                    (m1.status == "sending" || m1.status == "waiting")) {
+                                    return 1;
+                                }
+
+                                if (m1.id.hexToLong() < m2.id.hexToLong()) {
+                                    return -1;
+                                }
+
+                                if (m1.id.hexToLong() > m2.id.hexToLong()) {
+                                    return 1;
+                                }
+
+                                return 0;
+                            });
+                        }
+                    }
+
+                    if (newMessages.isNotEmpty()) {
+                        newMessages = newMessages
+                            .Where(message => !message.shouldSkip())
+                            .ToList();
+                    }
 
                     return new ChannelScreenViewModel {
-                        channel = state.channelState.channelDict[this.channelId],
+                        hasChannel = state.channelState.channelDict.ContainsKey(this.channelId),
+                        channelError = state.channelState.channelError,
+                        channel = channel,
                         messages = messages,
-                        newMessages = newMessages ?? new List<ChannelMessageView>(),
-                        me = state.loginState.loginInfo.userId,
+                        newMessages = newMessages,
+                        me = new User {
+                            id = state.loginState.loginInfo.userId,
+                            avatar = state.loginState.loginInfo.userAvatar,
+                            fullName = state.loginState.loginInfo.userFullName
+                        },
                         messageLoading = state.channelState.messageLoading,
-                        newMessageCount = state.channelState.channelDict[this.channelId].unread,
+                        newMessageCount = channel.unread,
                         socketConnected = state.channelState.socketConnected,
+                        netWorkConnected = state.channelState.netWorkConnected,
                         mentionAutoFocus = state.channelState.mentionAutoFocus,
                         mentionUserId = state.channelState.mentionUserId,
-                        mentionSuggestion = state.channelState.mentionSuggestions.getOrDefault(this.channelId, null)
+                        mentionUserName = state.channelState.mentionUserName,
+                        mentionSuggestion = state.channelState.mentionSuggestions.getOrDefault(this.channelId, null),
+                        waitingMessage = waitingMessage,
+                        sendingMessage = sendingMessage,
+                        userLicenseDict = state.userState.userLicenseDict
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
-                    if (viewModel.channel.oldMessageIds.isNotEmpty()) {
-                        SchedulerBinding.instance.addPostFrameCallback(_ => {
-                            dispatcher.dispatch(new MergeOldChannelMessages {channelId = this.channelId});
-                        });
+                    if (viewModel.hasChannel) {
+                        if (viewModel.channel.oldMessageIds.isNotEmpty()) {
+                            SchedulerBinding.instance.addPostFrameCallback(_ => {
+                                dispatcher.dispatch(new MergeOldChannelMessages {channelId = this.channelId});
+                            });
+                        }
                     }
 
-                    if (viewModel.channel.sentMessageFailed ||
-                        viewModel.channel.sentMessageSuccess ||
-                        viewModel.channel.sentImageSuccess) {
+                    if (viewModel.waitingMessage != null && viewModel.sendingMessage == null) {
                         SchedulerBinding.instance.addPostFrameCallback(_ => {
-                            dispatcher.dispatch(new ClearSentChannelMessage {channelId = this.channelId});
+                            dispatcher.dispatch(new StartSendChannelMessageAction {
+                                message = viewModel.waitingMessage
+                            });
+                            if (viewModel.waitingMessage.type == ChannelMessageType.text) {
+                                dispatcher.dispatch<IPromise>(Actions.sendChannelMessage(
+                                    this.channelId,
+                                    viewModel.waitingMessage.content,
+                                    nonce: viewModel.waitingMessage.id,
+                                    parentMessageId: ""));
+                            }
+                            else if (viewModel.waitingMessage.type == ChannelMessageType.file) {
+                                dispatcher.dispatch<IPromise>(Actions.sendVideo(
+                                    channelId: this.channelId,
+                                    nonce: viewModel.waitingMessage.id,
+                                    videoData: viewModel.waitingMessage.videoData,
+                                    fileName: viewModel.waitingMessage.attachments.first().filename)
+                                );
+                            }
+                            else {
+                                dispatcher.dispatch<IPromise>(Actions.sendImage(
+                                    this.channelId,
+                                    nonce: viewModel.waitingMessage.id,
+                                    imageData: viewModel.waitingMessage.imageData));
+                            }
                         });
                     }
 
                     var actionModel = new ChannelScreenActionModel {
-                        mainRouterPop = () => {
-                            dispatcher.dispatch(new MainNavigatorPopAction());
-                            dispatcher.dispatch(Actions.ackChannelMessage(viewModel.channel.lastMessageId));
-                            dispatcher.dispatch(new ChannelScreenLeaveBottom {channelId = this.channelId});
-                        },
+                        mainRouterPop = () => { dispatcher.dispatch(new MainNavigatorPopAction()); },
                         openUrl = url => OpenUrlUtil.OpenUrl(url: url, dispatcher: dispatcher),
                         browserImage = (url, imageUrls) => dispatcher.dispatch(new MainNavigatorPushToPhotoViewAction {
                             url = url,
                             urls = imageUrls
                         }),
+                        playVideo = url => {
+                            dispatcher.dispatch(new MainNavigatorPushToVideoPlayerAction {
+                                url = url,
+                                needUpdate = false,
+                                limitSeconds = 0
+                            });
+                        },
+                        fetchChannelInfo = () => dispatcher.dispatch<IPromise>(
+                            Actions.fetchChannelInfo(channelId: this.channelId)),
                         fetchMessages = (before, after) => dispatcher.dispatch<IPromise>(
                             Actions.fetchChannelMessages(channelId: this.channelId, before: before, after: after)),
                         fetchMembers = () => dispatcher.dispatch<IPromise>(
                             Actions.fetchChannelMembers(channelId: this.channelId)),
                         fetchMember = () => dispatcher.dispatch<IPromise>(
-                            Actions.fetchChannelMember(channelId: this.channelId, userId: viewModel.me)),
+                            Actions.fetchChannelMember(channelId: this.channelId, userId: viewModel.me.id)),
                         deleteChannelMessage = messageId => dispatcher.dispatch<IPromise>(
                             Actions.deleteChannelMessage(messageId: messageId)),
                         pushToChannelDetail = () => dispatcher.dispatch(new MainNavigatorPushToChannelDetailAction {
@@ -129,9 +208,8 @@ namespace ConnectApp.screens {
                         }),
                         sendMessage = (channelId, content, nonce, parentMessageId) => dispatcher.dispatch<IPromise>(
                             Actions.sendChannelMessage(channelId, content, nonce, parentMessageId)),
-                        startSendMessage = () => dispatcher.dispatch(new StartSendChannelMessageAction {
-                            channelId = this.channelId
-                        }),
+                        ackMessage = () =>
+                            dispatcher.dispatch(Actions.ackChannelMessage(viewModel.channel.lastMessageId)),
                         sendImage = (channelId, data, nonce) => dispatcher.dispatch<IPromise>(
                             Actions.sendImage(channelId, nonce, data)),
                         clearUnread = () => dispatcher.dispatch(new ClearChannelUnreadAction {
@@ -145,12 +223,22 @@ namespace ConnectApp.screens {
                         reportLeaveBottom = () => dispatcher.dispatch(new ChannelScreenLeaveBottom {
                             channelId = this.channelId
                         }),
+                        popFromScreen = () => {
+                            dispatcher.dispatch(Actions.ackChannelMessage(viewModel.channel.lastMessageId));
+                            dispatcher.dispatch(new SetChannelInactive {channelId = this.channelId});
+                        },
                         pushToChannelMention = () => {
                             dispatcher.dispatch(new MainNavigatorPushToChannelMentionAction {
                                 channelId = this.channelId
                             });
                         },
-                        clearLastChannelMention = () => dispatcher.dispatch(new ChannelClearMentionAction())
+                        clearLastChannelMention = () => dispatcher.dispatch(new ChannelClearMentionAction()),
+                        addLocalMessage = message => dispatcher.dispatch(new AddLocalMessageAction {
+                            message = message
+                        }),
+                        resendMessage = message => dispatcher.dispatch(new ResendMessageAction {
+                            message = message
+                        })
                     };
                     return new ChannelScreen(viewModel: viewModel, actionModel: actionModel);
                 }
@@ -180,111 +268,300 @@ namespace ConnectApp.screens {
         readonly TextEditingController _textController = new TextEditingController();
         readonly RefreshController _refreshController = new RefreshController();
         readonly GlobalKey _smartRefresherKey = GlobalKey<State<SmartRefresher>>.key("SmartRefresher");
-        readonly ChannelMessageInputManager _inputContentManager = new ChannelMessageInputManager();
-        TabController _emojiTabController;
-        FocusNode _focusNode;
-        GlobalKey _focusNodeKey;
+        readonly FocusNode _focusNode = new FocusNode();
+        readonly GlobalKey _textFieldKey = GlobalKey.key("_channelTextFieldKey");
+        readonly TimeSpan _showTimeThreshold = TimeSpan.FromMinutes(5);
 
-        float messageBubbleWidth = 0;
-        bool _showEmojiBoard = false;
-        Dictionary<string, string> headers;
-        float mPaddingBottom = 0;
+        readonly Dictionary<string, string> _headers = new Dictionary<string, string> {
+            {HttpManager.COOKIE, HttpManager.getCookie()},
+            {"ConnectAppVersion", Config.versionNumber},
+            {"X-Requested-With", "XmlHttpRequest"}
+        };
+
+        bool _showEmojiBoard;
+        string _lastMessageEditingContent = "";
+        readonly Dictionary<string, string> mentionMap = new Dictionary<string, string>();
+        string _lastReadMessageId = null;
+        string _lastMessageWhenScreenIsOpened = null;
+        AnimationController _unreadNotificationController;
+        AnimationController _newMessageNotificationController;
+        AnimationController _emojiBoardController;
+        AnimationController _viewInsetsBottomController;
+        Animation<float> _viewInsetsBottomAnimation;
+
+        bool _showUnreadMessageNotification = false;
+        bool _showNewMessageNotification = false;
+        float _inputFieldHeight;
+        CustomTextField customTextField;
+
+        public bool showUnreadMessageNotification {
+            get { return this._showUnreadMessageNotification; }
+            set {
+                if (this._showUnreadMessageNotification == value) {
+                    return;
+                }
+
+                this._showUnreadMessageNotification = value;
+                if (this._showUnreadMessageNotification) {
+                    Promise.Delayed(TimeSpan.FromMilliseconds(500)).Then(() => {
+                        this._unreadNotificationController.animateTo(1.0f);
+                    });
+                }
+                else {
+                    this._unreadNotificationController.animateBack(0.0f, TimeSpan.FromMilliseconds(100));
+                }
+            }
+        }
+
+        public bool showNewMessageNotification {
+            get { return this._showNewMessageNotification; }
+            set {
+                if (this._showNewMessageNotification == value) {
+                    return;
+                }
+
+                this._showNewMessageNotification = value;
+                if (this._showNewMessageNotification) {
+                    Promise.Delayed(TimeSpan.FromMilliseconds(100)).Then(() => {
+                        this._newMessageNotificationController.animateTo(1.0f);
+                    });
+                }
+                else {
+                    this._newMessageNotificationController.animateBack(0.0f, TimeSpan.FromMilliseconds(100));
+                }
+            }
+        }
+
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
             Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(context: this.context));
         }
 
+        float messageBubbleWidth {
+            get { return MediaQuery.of(context: this.context).size.width * 0.7f; }
+        }
+
         float inputBarHeight {
-            get { return 48 + CCommonUtils.getSafeAreaBottomPadding(this.context); }
+            get { return this._inputFieldHeight + 24 + CCommonUtils.getSafeAreaBottomPadding(context: this.context); }
         }
 
         bool showKeyboard {
-            get { return MediaQuery.of(this.context).viewInsets.bottom > 50; }
+            get { return this.viewInsetsBottom > 50; }
         }
 
         bool showEmojiBoard {
+            get { return this._showEmojiBoard || this._emojiBoardController.value > 0.01f; }
+
+            set {
+                if (this._showEmojiBoard == value) {
+                    return;
+                }
+
+                this._showEmojiBoard = value;
+                if (value) {
+                    this._emojiBoardController.animateTo(1);
+                }
+                else {
+                    this._emojiBoardController.animateBack(0, TimeSpan.FromMilliseconds(200));
+                }
+            }
+        }
+
+        float _viewInsetsBottom = 0;
+
+        public float viewInsetsBottom {
             get {
-                if (this.showKeyboard && this._showEmojiBoard) {
-                    Promise.Delayed(TimeSpan.FromMilliseconds(300)).Then(() => {
-                        if (this.showKeyboard && this._showEmojiBoard) {
+                var target = MediaQuery.of(this.context).viewInsets.bottom;
+                if (this._viewInsetsBottom != target) {
+                    this._viewInsetsBottomAnimation = new FloatTween(begin: this._viewInsetsBottom, end: target)
+                        .animate(this._viewInsetsBottomController);
+                    this._viewInsetsBottomController.reset();
+                    this._viewInsetsBottomController.animateTo(1).Finally(() => {
+                        if (target > 50 && this._showEmojiBoard) {
                             this._showEmojiBoard = false;
+                            this._emojiBoardController.setValue(0);
                         }
                     });
                 }
 
-                return this._showEmojiBoard && !this.showKeyboard;
+                this._viewInsetsBottom = target;
+                return this._viewInsetsBottomAnimation.value;
             }
         }
 
         public override void initState() {
             base.initState();
-            this._emojiTabController = new TabController(
-                length: (emojiList.Count - 1) / emojiBoardPageSize + 1,
-                vsync: this);
+            this._lastReadMessageId = this.widget.viewModel.channel.lastReadMessageId;
             SchedulerBinding.instance.addPostFrameCallback(_ => {
-                this._refreshController.scrollController.addListener(this._handleScrollListener);
-                this.widget.actionModel.fetchMessages(null, null);
-                this.widget.actionModel.fetchMembers();
-                this.widget.actionModel.fetchMember();
-                this.widget.actionModel.reportHitBottom();
-            });
-            this._focusNode = new FocusNode();
-            this._focusNodeKey = GlobalKey.key("_channelFocusNodeKey");
-            this.headers = new Dictionary<string, string> {
-                {HttpManager.COOKIE, HttpManager.getCookie()},
-                {"ConnectAppVersion", Config.versionNumber},
-                {"X-Requested-With", "XmlHttpRequest"}
-            };
+                if (this.widget.viewModel.hasChannel) {
+                    this.fetchMessagesAndMembers();
+                    this.addScrollListener();
+                }
+                else {
+                    this.widget.actionModel.fetchChannelInfo().Then(() => {
+                        this.fetchMessagesAndMembers();
+                        this.addScrollListener();
+                    });
+                }
 
+                this.widget.actionModel.clearUnread();
+            });
+
+            this._showEmojiBoard = false;
+            this._inputFieldHeight = 24;
             this._textController.addListener(this._onTextChanged);
+            this._unreadNotificationController = new AnimationController(
+                duration: TimeSpan.FromMilliseconds(100),
+                vsync: this
+            );
+            this._newMessageNotificationController = new AnimationController(
+                duration: TimeSpan.FromMilliseconds(100),
+                vsync: this
+            );
+            this._emojiBoardController = new AnimationController(
+                duration: TimeSpan.FromMilliseconds(100),
+                vsync: this
+            );
+            this._viewInsetsBottomController = new AnimationController(
+                duration: TimeSpan.FromMilliseconds(100),
+                vsync: this
+            );
+            this._viewInsetsBottomAnimation =
+                new FloatTween(begin: 0, end: 0).animate(this._viewInsetsBottomController);
+            this._unreadNotificationController.addListener(() => { this.setState(() => { }); });
+            this._newMessageNotificationController.addListener(() => { this.setState(() => { }); });
+            this._emojiBoardController.addListener(() => { this.setState(() => { }); });
+            this._viewInsetsBottomController.addListener(() => { this.setState(() => { }); });
+        }
+
+        bool _onMessageLoadedCalled = false;
+
+        void _onMessageLoaded() {
+            if (this._onMessageLoadedCalled) {
+                return;
+            }
+
+            this._onMessageLoadedCalled = true;
+            if (this._lastMessageWhenScreenIsOpened == null) {
+                this._lastMessageWhenScreenIsOpened = this.widget.viewModel.messages.last().id;
+            }
+
+            this.showUnreadMessageNotification = this._lastReadMessageId != null &&
+                                                 this.calculateOffsetFromMessage(this._lastReadMessageId) > 0;
+        }
+
+        void fetchMessagesAndMembers() {
+            this.widget.actionModel.fetchMessages(null, null);
+            this.widget.actionModel.fetchMembers();
+            this.widget.actionModel.fetchMember();
+            this.widget.actionModel.reportHitBottom();
+        }
+
+        void addScrollListener() {
+            this._refreshController.scrollController.addListener(this._handleScrollListener);
+        }
+
+        void jumpToLastReadMessage() {
+            if (this._lastReadMessageId != null) {
+                this.jumpToMessage(this._lastReadMessageId);
+            }
+        }
+
+        void jumpToMessage(string id) {
+            var index = this.widget.viewModel.messages.FindIndex(message => {
+                return message.id.hexToLong() > id.hexToLong();
+            });
+            if (index >= 0) {
+                this.jumpToIndex(index);
+            }
+        }
+
+        float calculateTotalHeightFromMessage(string id) {
+            var index = this.widget.viewModel.messages.FindIndex(message => {
+                return message.id.hexToLong() > id.hexToLong();
+            });
+            if (index >= 0) {
+                return this.calculateMessageHeightFromIndex(index);
+            }
+
+            return 0;
+        }
+
+        float calculateOffsetFromMessage(string id) {
+            var index = this.widget.viewModel.messages.FindIndex(message => {
+                return message.id.hexToLong() > id.hexToLong();
+            });
+            if (index >= 0) {
+                return this.calculateOffsetFromIndex(index);
+            }
+
+            return 0;
+        }
+
+        float calculateMessageHeightFromIndex(int index) {
+            float height = 0;
+            for (int i = index; i < this.widget.viewModel.messages.Count; i++) {
+                var message = this.widget.viewModel.messages[i];
+                height += calculateMessageHeight(message,
+                    i == 0 || message.time - this.widget.viewModel.messages[i - 1].time > this._showTimeThreshold,
+                    this.messageBubbleWidth);
+            }
+
+            return height;
+        }
+
+        float calculateOffsetFromIndex(int index) {
+            return this.calculateMessageHeightFromIndex(index) -
+                   (MediaQuery.of(this.context).size.height - CustomAppBarUtil.appBarHeight - 120);
+        }
+
+        void jumpToIndex(int index) {
+            float offset = this.calculateOffsetFromIndex(index);
+            if (offset < 0) {
+                this.showUnreadMessageNotification = false;
+            }
+            else {
+                this._refreshController.scrollTo(offset);
+            }
         }
 
         public override void dispose() {
             Router.routeObserve.unsubscribe(this);
-            this._textController.removeListener(this._onTextChanged);
             this._textController.dispose();
-            this._emojiTabController.dispose();
             SchedulerBinding.instance.addPostFrameCallback(_ => { this.widget.actionModel.clearUnread(); });
             this._focusNode.dispose();
+            this._unreadNotificationController.dispose();
+            this._newMessageNotificationController.dispose();
+            this._emojiBoardController.dispose();
+            this._viewInsetsBottomController.dispose();
             base.dispose();
         }
 
-        string _lastMessageEditingContent = "";
-        bool omitTextChange;
-
         void _onTextChanged() {
-            if (this.omitTextChange) {
-                this.omitTextChange = false;
-                return;
-            }
-
             var curTextContent = this._textController.text;
             if (curTextContent != this._lastMessageEditingContent) {
                 var isDelete = curTextContent.Length < this._lastMessageEditingContent.Length;
                 this._lastMessageEditingContent = curTextContent;
 
-                if (!isDelete) {
-                    this._inputContentManager.AddContent(this._textController.selection.start,
-                        this._lastMessageEditingContent);
-                }
-                else {
-                    var jumpForward = 0;
-                    this._lastMessageEditingContent = this._inputContentManager.DeleteContent(
-                        this._textController.selection.end, this._lastMessageEditingContent, ref jumpForward);
-                    if (this._textController.text != this._lastMessageEditingContent) {
-                        var selection = this._textController.selection;
-                        this.omitTextChange = true;
-                        this._textController.value = new TextEditingValue(
-                            text: this._lastMessageEditingContent,
-                            TextSelection.collapsed(selection.start - jumpForward));
-                    }
-                }
-
                 if (!isDelete &&
                     this._lastMessageEditingContent.isNotEmpty() &&
                     this._lastMessageEditingContent[this._lastMessageEditingContent.Length - 1] == '@') {
                     this.widget.actionModel.pushToChannelMention();
+                }
+            }
+
+            var inputFieldWidth = this._textFieldKey.currentContext.size.width;
+            if (curTextContent.isNotEmpty()) {
+                var inputFieldHeight = CTextUtils.CalculateTextHeight(
+                    text: curTextContent, textStyle: CTextStyle.PLargeBody, textWidth: inputFieldWidth, 4);
+                if (this._inputFieldHeight != inputFieldHeight) {
+                    this.setState(() => this._inputFieldHeight = inputFieldHeight);
+                }
+            }
+            else {
+                if (this._inputFieldHeight != 24) {
+                    this.setState(() => this._inputFieldHeight = 24);
                 }
             }
         }
@@ -303,23 +580,44 @@ namespace ConnectApp.screens {
             ));
         }
 
+        void _browserImage(string imageUrl) {
+            var imageUrls = new List<string>();
+            this.widget.viewModel.messages.ForEach(msg => {
+                if (msg.type == ChannelMessageType.image) {
+                    imageUrls.Add(CImageUtils.SizeToScreenImageUrl(imageUrl: msg.content));
+                }
+
+//                if (msg.type == ChannelMessageType.embedImage) {
+//                    imageUrls.Add(CImageUtils.SizeToScreenImageUrl(imageUrl: msg.embeds[0].embedData.imageUrl));
+//                }
+            });
+            var url = CImageUtils.SizeToScreenImageUrl(imageUrl: imageUrl);
+            this.widget.actionModel.browserImage(arg1: url, arg2: imageUrls);
+        }
+
         public override Widget build(BuildContext context) {
-            this.mPaddingBottom = MediaQuery.of(context).padding.bottom;
+            if (this.widget.viewModel.channel.id == null) {
+                return this._buildLoadingPage();
+            }
+
+            if (this.widget.viewModel.channel.lastMessageId == this._lastReadMessageId) {
+                this._lastReadMessageId = null;
+            }
+
+            this.showNewMessageNotification = this.widget.viewModel.newMessageCount > 0;
+
             if (this.widget.viewModel.mentionAutoFocus) {
                 SchedulerBinding.instance.addPostFrameCallback(_ => {
-                    FocusScope.of(this.context)?.requestFocus(this._focusNode);
+                    FocusScope.of(context).requestFocus(this._focusNode);
                     if (!this.widget.viewModel.mentionUserId.isEmpty()) {
-                        var userDict = this.widget.viewModel.mentionSuggestion ??
-                                       this.widget.viewModel.channel.membersDict;
-                        if (userDict.ContainsKey(this.widget.viewModel.mentionUserId)) {
-                            var userName = userDict[this.widget.viewModel.mentionUserId].user.fullName;
-                            var newContent = this._textController.text + userName + " ";
-                            this._inputContentManager.AddMention(userName + " ", this.widget.viewModel.mentionUserId,
-                                newContent);
-                            this._textController.value = new TextEditingValue(
-                                text: newContent,
-                                TextSelection.collapsed(newContent.Length));
-                        }
+                        var userName = this.widget.viewModel.mentionUserName;
+                        var newContent = this._textController.text + userName + " ";
+
+                        this.mentionMap[userName] = this.widget.viewModel.mentionUserId;
+
+                        this._textController.value = new TextEditingValue(
+                            text: newContent,
+                            TextSelection.collapsed(newContent.Length));
                     }
 
                     this.widget.actionModel.clearLastChannelMention();
@@ -330,46 +628,16 @@ namespace ConnectApp.screens {
                 SchedulerBinding.instance.addPostFrameCallback(_ => this._refreshController.scrollTo(0));
             }
 
-            if (this.widget.viewModel.channel.sentMessageSuccess) {
-                SchedulerBinding.instance.addPostFrameCallback(_ => {
-                    this._textController.clear();
-                    this._textController.selection = TextSelection.collapsed(0);
-                });
-            }
-
-            if (this.widget.viewModel.channel.sentMessageFailed) {
-                SchedulerBinding.instance.addPostFrameCallback(_ => {
-                    CustomDialogUtils.showToast("消息发送失败", Icons.error_outline);
-                });
-            }
-
-            this.messageBubbleWidth = MediaQuery.of(context).size.width * 0.7f;
-
             Widget ret = new Stack(
                 children: new List<Widget> {
                     this._buildContent(),
-                    this.widget.viewModel.messageLoading &&
-                    this.widget.viewModel.messages.isEmpty()
-                        ? (Widget) new GlobalLoading()
-                        : new Container(),
                     this._buildInputBar(),
-                    this.widget.viewModel.newMessageCount == 0 ||
                     this.widget.viewModel.messageLoading
                         ? new Container()
-                        : this._buildNewMessageNotification()
-                }
-            );
-
-            ret = new Column(
-                children: new List<Widget> {
-                    this._buildNavigationBar(),
-                    this.widget.viewModel.socketConnected
+                        : this._buildNewMessageNotification(),
+                    this._lastReadMessageId == null
                         ? new Container()
-                        : this._buildNetworkDisconnectedNote(),
-                    new Flexible(child: ret),
-                    this.showEmojiBoard
-                        ? this._buildEmojiBoard()
-                        : new Container(height: MediaQuery.of(this.context).viewInsets.bottom)
+                        : this._buildUnreadMessageNotification()
                 }
             );
 
@@ -379,7 +647,18 @@ namespace ConnectApp.screens {
                     bottom: false,
                     child: new Container(
                         color: CColors.Background,
-                        child: ret
+                        child: new Column(
+                            children: new List<Widget> {
+                                this._buildNavigationBar(),
+                                !this.widget.viewModel.netWorkConnected
+                                    ? this._buildNetworkDisconnectedNote()
+                                    : new Container(),
+                                new Flexible(child: ret),
+                                this.showEmojiBoard
+                                    ? this._buildEmojiBoard()
+                                    : new Container(height: this.viewInsetsBottom)
+                            }
+                        )
                     )
                 )
             );
@@ -398,11 +677,21 @@ namespace ConnectApp.screens {
             );
         }
 
+        int _newMessageCount = 0;
+
         Widget _buildNewMessageNotification() {
+            if (this.widget.viewModel.newMessageCount > 0) {
+                this._newMessageCount = this.widget.viewModel.newMessageCount;
+            }
+
+            if (this._newMessageNotificationController.value < 0.1f) {
+                return new Container();
+            }
+
             Widget ret = new Container(
                 height: 40,
                 decoration: new BoxDecoration(
-                    color: CColors.Error,
+                    color: CColors.White,
                     borderRadius: BorderRadius.all(20),
                     boxShadow: new List<BoxShadow> {
                         new BoxShadow(
@@ -419,11 +708,16 @@ namespace ConnectApp.screens {
                     mainAxisSize: MainAxisSize.min,
                     children: new List<Widget> {
                         new Text(
-                            $"{CStringUtils.CountToString(this.widget.viewModel.newMessageCount)}条新消息未读",
-                            style: CTextStyle.PRegularWhite.copyWith(height: 1f)
+                            $"{CStringUtils.CountToString(this._newMessageCount, "0")}条新消息未读",
+                            style: CTextStyle.PRegularBlue.copyWith(height: 1f)
                         )
                     })
             );
+
+            ret = new FractionalTranslation(
+                translation: new OffsetTween(new Offset(0, 1), Offset.zero)
+                    .animate(this._newMessageNotificationController).value,
+                child: ret);
 
             ret = new Positioned(
                 bottom: this.inputBarHeight + 16,
@@ -435,9 +729,104 @@ namespace ConnectApp.screens {
                     child: new GestureDetector(
                         onTap: () => {
                             this.widget.actionModel.reportHitBottom();
+                            if (this.lastReadMessageLoaded()) {
+                                this.showUnreadMessageNotification = false;
+                            }
+
                             SchedulerBinding.instance.addPostFrameCallback(_ => {
                                 this._refreshController.scrollTo(0);
                             });
+                        },
+                        child: ret
+                    )
+                )
+            );
+
+            return ret;
+        }
+
+        bool lastReadMessageLoaded() {
+            return this.widget.viewModel.messages.isNotEmpty() &&
+                   this.widget.viewModel.messages.first().id.hexToLong() <= this._lastReadMessageId.hexToLong();
+        }
+
+        Widget _buildUnreadMessageNotification() {
+            if (this._unreadNotificationController.value < 0.1f) {
+                return new Container();
+            }
+
+            var index = this.widget.viewModel.messages.FindIndex(message => {
+                return message.id.hexToLong() > this._lastReadMessageId.hexToLong();
+            });
+            if (index < 0) {
+                return new Container();
+            }
+
+            var lastMessageIndex =
+                this.widget.viewModel.messages.FindIndex(message => message.id == this._lastMessageWhenScreenIsOpened);
+            if (lastMessageIndex == -1) {
+                lastMessageIndex = this.widget.viewModel.messages.Count - 1;
+            }
+
+            Widget ret = new Container(
+                height: 40,
+                decoration: new BoxDecoration(
+                    color: CColors.White,
+                    border: Border.all(color: CColors.Separator2, width: 1),
+                    borderRadius: BorderRadius.only(topLeft: 20, bottomLeft: 20),
+                    boxShadow: new List<BoxShadow> {
+                        new BoxShadow(
+                            color: CColors.Black.withOpacity(0.08f),
+                            blurRadius: 6,
+                            spreadRadius: 0,
+                            offset: new Offset(0, 1))
+                    }
+                ),
+                padding: EdgeInsets.only(left: 16, top: 9, right: 10, 9),
+                child: new Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: new List<Widget> {
+                        new Text(
+                            $"{lastMessageIndex - index + 1}" +
+                            $"{(index == 0 && this.widget.viewModel.channel.hasMore ? "+" : "")} 条新消息",
+                            style: CTextStyle.PRegularBlue.copyWith(height: 1f)
+                        ),
+                        new SizedBox(width: 4),
+                        new Icon(
+                            icon: Icons.keyboard_arrow_up,
+                            color: CColors.PrimaryBlue,
+                            size: 20
+                        )
+                    }
+                )
+            );
+
+            ret = new FractionalTranslation(
+                translation: new OffsetTween(new Offset(1.0f, 0.0f), Offset.zero)
+                    .animate(this._unreadNotificationController).value,
+                child: ret
+            );
+
+            ret = new Positioned(
+                top: 16,
+                left: 0,
+                right: 0,
+                height: 40,
+                child: new Align(
+                    alignment: Alignment.topRight,
+                    child: new GestureDetector(
+                        onTap: () => {
+                            if (index == 0 && this.widget.viewModel.channel.hasMore) {
+                                this._refreshController.requestRefresh(false);
+                                SchedulerBinding.instance.addPostFrameCallback(_ => {
+                                    this._refreshController.scrollTo(this.calculateOffsetFromIndex(index) + 100);
+                                });
+                            }
+                            else {
+                                this.jumpToLastReadMessage();
+                                this.showUnreadMessageNotification = false;
+                            }
                         },
                         child: ret
                     )
@@ -451,13 +840,34 @@ namespace ConnectApp.screens {
             return new CustomAppBar(
                 () => this.widget.actionModel.mainRouterPop(),
                 new Flexible(
-                    child: new Text(
-                        data: this.widget.viewModel.channel.name,
-                        style: CTextStyle.PXLargeMedium,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis
+                    child: new Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: new List<Widget> {
+                            new Flexible(
+                                child: new Text(
+                                    !this.widget.viewModel.netWorkConnected
+                                        ? this.widget.viewModel.channel.name + "(未连接)"
+                                        : this.widget.viewModel.socketConnected
+                                            ? this.widget.viewModel.channel.name
+                                            : "收取中...",
+                                    style: CTextStyle.PXLargeMedium,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis
+                                )
+                            ),
+                            this.widget.viewModel.channel.isMute
+                                ? new Container(
+                                    margin: EdgeInsets.only(4),
+                                    child: new Icon(
+                                        icon: Icons.notifications_off,
+                                        size: 16,
+                                        color: CColors.MuteIcon
+                                    )
+                                )
+                                : new Container()
+                        }
                     )
-                 ),
+                ),
                 new CustomButton(
                     onPressed: () => this.widget.actionModel.pushToChannelDetail(),
                     child: new Container(
@@ -471,10 +881,14 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildContent() {
-            Widget ret = new Container(
+            if (this.widget.viewModel.channelError) {
+                return this._buildErrorPage();
+            }
+
+            Widget content = new Container(
                 color: CColors.White,
                 child: new CustomScrollbar(
-                    child: new SmartRefresher(
+                    new SmartRefresher(
                         key: this._smartRefresherKey,
                         controller: this._refreshController,
                         enablePullDown: false,
@@ -491,13 +905,13 @@ namespace ConnectApp.screens {
             );
 
             if (this.showKeyboard || this.showEmojiBoard) {
-                ret = new GestureDetector(
-                    onTap: () => this.setState(this._dismissKeyboard),
-                    child: ret
+                return new GestureDetector(
+                    onTap: () => this.setState(fn: this._dismissKeyboard),
+                    child: content
                 );
             }
 
-            return ret;
+            return content;
         }
 
         ListView _buildMessageListView() {
@@ -507,7 +921,9 @@ namespace ConnectApp.screens {
                         new Container()
                     });
             }
-            
+
+            this._onMessageLoaded();
+
             return ListView.builder(
                 padding: EdgeInsets.only(top: 16, bottom: this.inputBarHeight),
                 itemCount: this.widget.viewModel.messages.Count,
@@ -517,8 +933,13 @@ namespace ConnectApp.screens {
                     return this._buildMessage(message,
                         showTime: index == 0 ||
                                   (message.time - this.widget.viewModel.messages[index - 1].time) >
-                                  TimeSpan.FromMinutes(5),
-                        left: message.author.id != this.widget.viewModel.me
+                                  this._showTimeThreshold,
+                        left: message.author.id != this.widget.viewModel.me.id,
+                        showUnreadLine: index < this.widget.viewModel.messages.Count - 1 &&
+                                        this._lastReadMessageId != null &&
+                                        message.id.hexToLong() <= this._lastReadMessageId.hexToLong() &&
+                                        this.widget.viewModel.messages[index + 1].id.hexToLong() >
+                                        this._lastReadMessageId.hexToLong()
                     );
                 }
             );
@@ -529,6 +950,17 @@ namespace ConnectApp.screens {
                 children: new List<Widget> {
                     new Container(
                         child: new GlobalLoading(),
+                        width: MediaQuery.of(this.context).size.width,
+                        height: MediaQuery.of(this.context).size.height
+                    )
+                });
+        }
+
+        ListView _buildErrorPage() {
+            return new ListView(
+                children: new List<Widget> {
+                    new Container(
+                        child: new Center(child: new Text("你已不在该群组", style: CTextStyle.PLargeBody.copyWith(height: 1))),
                         width: MediaQuery.of(this.context).size.width,
                         height: MediaQuery.of(this.context).size.height
                     )
@@ -546,8 +978,8 @@ namespace ConnectApp.screens {
                 );
         }
 
-        Widget _buildMessage(ChannelMessageView message, bool showTime, bool left) {
-            if (message.shouldSkip()) {
+        Widget _buildMessage(ChannelMessageView message, bool showTime, bool left, bool showUnreadLine = false) {
+            if (message.shouldSkip() || message.type == ChannelMessageType.skip) {
                 return new Container();
             }
 
@@ -555,15 +987,28 @@ namespace ConnectApp.screens {
                 constraints: new BoxConstraints(
                     maxWidth: this.messageBubbleWidth
                 ),
-                padding: message.type == ChannelMessageType.text
-                    ? EdgeInsets.symmetric(8, 12)
-                    : EdgeInsets.zero,
                 decoration: this._messageDecoration(message.type, left),
-                child: this._buildMessageContent(message)
+                child: this._buildMessageContent(message: message)
             );
 
+            if (message.status != "normal" && message.status != "local") {
+                Widget symbol = message.status == "sending" || message.status == "waiting"
+                    ? (Widget) new CustomActivityIndicator(size: LoadingSize.small)
+                    : new GestureDetector(
+                        onTap: () => { this.widget.actionModel.resendMessage(message); },
+                        child: new Icon(icon: Icons.error, color: CColors.Error, size: 24)
+                    );
+                ret = new Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: new List<Widget> {symbol, new SizedBox(width: 8), ret}
+                );
+            }
+
             var tipMenuItems = new List<TipMenuItem>();
-            if (message.type == ChannelMessageType.text || message.type == ChannelMessageType.embed) {
+            if (message.type == ChannelMessageType.text
+                || message.type == ChannelMessageType.embedExternal
+                || message.type == ChannelMessageType.embedImage) {
                 tipMenuItems.Add(new TipMenuItem(
                     "复制",
                     () => {
@@ -577,33 +1022,50 @@ namespace ConnectApp.screens {
                 ));
             }
 
-            if (message.author.id == this.widget.viewModel.me) {
+            if (message.author.id == this.widget.viewModel.me.id) {
                 tipMenuItems.Add(new TipMenuItem(
                     "删除",
                     () => this._deleteMessage(message: message)
                 ));
             }
+
             ret = new TipMenu(
                 tipMenuItems: tipMenuItems,
                 child: ret
             );
 
-            ret = new Expanded(
-                child: new Column(
-                    crossAxisAlignment: left ? CrossAxisAlignment.start : CrossAxisAlignment.end,
-                    children: new List<Widget> {
-                        new Container(
-                            padding: EdgeInsets.only(bottom: 6),
-                            child: new Text(
-                                data: message.author.fullName,
-                                style: CTextStyle.PSmallBody4,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis)
-                        ),
-                        ret
-                    }
-                )
-            );
+            if (left) {
+                ret = new Expanded(
+                    child: new Column(
+                        crossAxisAlignment: left ? CrossAxisAlignment.start : CrossAxisAlignment.end,
+                        children: new List<Widget> {
+                            new Container(
+                                padding: EdgeInsets.only(left: 0, right: 16, bottom: 6),
+                                child: new Row(
+                                    children: new List<Widget> {
+                                        new Flexible(
+                                            child: new Text(
+                                                data: message.author.fullName,
+                                                style: CTextStyle.PSmallBody4,
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis
+                                            )
+                                        ),
+                                        CImageUtils.GenBadgeImage(
+                                            badges: message.author.badges,
+                                            CCommonUtils.GetUserLicense(userId: message.author.id,
+                                                userLicenseMap: this.widget.viewModel.userLicenseDict),
+                                            EdgeInsets.only(4),
+                                            false
+                                        )
+                                    }
+                                )
+                            ),
+                            ret
+                        }
+                    )
+                );
+            }
 
             ret = new Container(
                 padding: EdgeInsets.only(left: 2, right: 2, bottom: 16),
@@ -616,11 +1078,12 @@ namespace ConnectApp.screens {
                 )
             );
 
-            if (showTime) {
+            if (showTime || showUnreadLine) {
                 ret = new Column(
                     children: new List<Widget> {
-                        this._buildTime(message.time),
-                        ret
+                        showTime ? this._buildTime(message.time) : new Container(),
+                        ret,
+                        showUnreadLine ? this._buildUnreadMessageLine() : new Container()
                     }
                 );
             }
@@ -639,19 +1102,24 @@ namespace ConnectApp.screens {
                 child: new GestureDetector(
                     onTap: () => this.widget.actionModel.pushToUserDetail(user.id),
                     onLongPress: () => {
-                        if (user.id == this.widget.viewModel.me) {
+                        if (user.id == this.widget.viewModel.me.id) {
                             return;
                         }
-                        
+
                         var userName = user.fullName;
                         var userId = user.id;
                         var newContent = this._textController.text + "@" + userName + " ";
-                        this._inputContentManager.AddMention(userName + " ", userId,
-                            newContent);
+                        this.mentionMap[userName] = userId;
                         this._textController.value = new TextEditingValue(
                             text: newContent,
                             TextSelection.collapsed(newContent.Length)
                         );
+                        if (!this._focusNode.hasFocus || !this.showKeyboard) {
+                            FocusScope.of(this.context).requestFocus(this._focusNode);
+                            TextInputPlugin.TextInputShow();
+                            Promise.Delayed(TimeSpan.FromMilliseconds(200)).Then(
+                                () => { this.setState(() => { this.showEmojiBoard = false; }); });
+                        }
                     },
                     child: new Container(
                         width: avatarSize,
@@ -676,7 +1144,7 @@ namespace ConnectApp.screens {
                                     ),
                                 Positioned.fill(
                                     Image.asset(
-                                        "image/avatar-circle-1",
+                                        "image/avatar-circle",
                                         fit: BoxFit.cover
                                     )
                                 )
@@ -687,123 +1155,17 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildTextMessageContent(ChannelMessageView message) {
-            if (string.IsNullOrEmpty(message.content)) {
-                return new Container();
-            }
-
-            return new RichText(text: new TextSpan(children: MessageUtils.messageWithMarkdownToTextSpans(
-                message.content, message.mentions, message.mentionEveryone,
-                onTap: userId => this.widget.actionModel.pushToUserDetail(obj: userId)).ToList()));
-        }
-
         Widget _buildImageMessageContent(ChannelMessageView message) {
             return new GestureDetector(
-                onTap: () => {
-                    var imageUrls = this.widget.viewModel.messages
-                        .Where(msg => msg.type == ChannelMessageType.image)
-                        .Select(msg => CImageUtils.SizeToScreenImageUrl(msg.content))
-                        .ToList();
-                    var url = CImageUtils.SizeToScreenImageUrl(message.content);
-                    this.widget.actionModel.browserImage(url, imageUrls);
-                },
-                child: new _ImageMessage(
+                onTap: () => this._browserImage(imageUrl: message.content),
+                child: new ImageMessage(
                     url: message.content,
+                    data: message.imageData,
                     size: 140,
                     ratio: 16.0f / 9.0f,
                     srcWidth: message.width,
                     srcHeight: message.height,
-                    headers: this.headers
-                )
-            );
-        }
-
-        Widget _buildFileMessageContent() {
-            return new Container(
-                padding: EdgeInsets.symmetric(12, 16),
-                child: new Text("[你收到一个文件，请在浏览器上查看]", style: CTextStyle.PLargeBody5)
-            );
-        }
-
-        Widget _buildEmbedContent(ChannelMessageView message) {
-            if (message.embeds[0].embedData.url != null && message.content.Contains(message.embeds[0].embedData.url)) {
-                return new RichText(text: new TextSpan(children: MessageUtils.messageWithMarkdownToTextSpans(
-                    message.content, message.mentions, message.mentionEveryone,
-                    onTap: userId => this.widget.actionModel.pushToUserDetail(obj: userId),
-                    url: message.embeds[0].embedData.url,
-                    onClickUrl: url => this.widget.actionModel.openUrl(message.embeds[0].embedData.url)).ToList()));
-            }
-
-            return this._buildMessageContent(message);
-        }
-
-        Widget _buildEmbeddedRect(EmbedData embedData) {
-            return new Container(
-                padding: EdgeInsets.all(12),
-                color: CColors.White,
-                child: new Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: new List<Widget> {
-                        this._buildEmbeddedTitle(embedData.title),
-                        new Container(height: 4),
-                        this._buildEmbeddedDescription(embedData.description),
-                        this._buildEmbeddedName(embedData.image,
-                            embedData.name)
-                    }
-                )
-            );
-        }
-
-        Widget _buildEmbeddedTitle(string title) {
-            return new Text(title ?? "", style: CTextStyle.PLargeMediumBlue);
-        }
-
-        Widget _buildEmbeddedDescription(string description) {
-            return description == null
-                ? new Container()
-                : new Container(
-                    padding: EdgeInsets.only(bottom: 4),
-                    child: new Text(description ?? "",
-                        style: CTextStyle.PRegularBody3, maxLines: 4,
-                        overflow: TextOverflow.ellipsis));
-        }
-
-        Widget _buildEmbeddedName(string image, string name) {
-            if (image.isEmpty() && name.isEmpty()) {
-                return new Container();
-            }
-
-            return new Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: new List<Widget> {
-                    image == null
-                        ? (Widget) new Container(width: 14, height: 14)
-                        : CachedNetworkImageProvider.cachedNetworkImage(
-                            image ?? "",
-                            width: 14, height: 14, fit: BoxFit.cover),
-                    new Container(width: 4),
-                    new Expanded(
-                        child: new Text(name ?? "",
-                            style: CTextStyle.PMediumBody,
-                            overflow: TextOverflow.ellipsis)
-                    )
-                }
-            );
-        }
-
-        Widget _buildEmbedMessageContent(ChannelMessageView message) {
-            return new Container(
-                padding: EdgeInsets.all(12),
-                child: new Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: new List<Widget> {
-                        this._buildEmbedContent(message),
-                        new Container(height: 12),
-                        new GestureDetector(
-                            child: this._buildEmbeddedRect(message.embeds[0].embedData),
-                            onTap: () => this.widget.actionModel.openUrl(message.embeds[0].embedData.url)
-                        )
-                    }
+                    headers: this._headers
                 )
             );
         }
@@ -811,13 +1173,46 @@ namespace ConnectApp.screens {
         Widget _buildMessageContent(ChannelMessageView message) {
             switch (message.type) {
                 case ChannelMessageType.text:
-                    return this._buildTextMessageContent(message);
+                    return new TextMessage(
+                        message: message,
+                        userId => this.widget.actionModel.pushToUserDetail(obj: userId)
+                    );
                 case ChannelMessageType.image:
                     return this._buildImageMessageContent(message);
                 case ChannelMessageType.file:
-                    return this._buildFileMessageContent();
-                case ChannelMessageType.embed:
-                    return this._buildEmbedMessageContent(message);
+                    return new FileMessage(
+                        message: message,
+                        () => {
+                            var attachment = message.attachments.first();
+                            var filename = attachment.filename;
+                            if (CCommonUtils.isAndroid && !filename.EndsWith(".mp4")) {
+                                CustomToast.show(new CustomToastItem(
+                                    context: this.context,
+                                    "暂不支持该文件",
+                                    TimeSpan.FromMilliseconds(2000)
+                                ));
+                                return;
+                            }
+
+                            if (filename.EndsWith(".mp4")) {
+                                this.widget.actionModel.playVideo(obj: attachment.url);
+                            }
+                            else {
+                                this.widget.actionModel.openUrl(obj: attachment.url);
+                            }
+                        }
+                    );
+                case ChannelMessageType.embedExternal:
+                case ChannelMessageType.embedImage:
+                    return new EmbedMessage(
+                        message: message,
+                        userId => this.widget.actionModel.pushToUserDetail(obj: userId),
+                        url => this.widget.actionModel.openUrl(obj: url),
+                        onClickImage: this._browserImage,
+                        headers: this._headers
+                    );
+                case ChannelMessageType.skip:
+                    return new Container();
                 default:
                     return new Container();
             }
@@ -836,324 +1231,104 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildPickImageButton() {
-            return new CustomButton(
-                padding: EdgeInsets.zero,
-                onPressed: this._pickImage,
-                child: new Container(
-                    width: 44,
-                    height: 49,
-                    child: new Center(
-                        child: new Icon(Icons.outline_photo_size_select_actual,
-                            size: 28, color: CColors.Icon)
+        Widget _buildUnreadMessageLine() {
+            return new Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: new List<Widget> {
+                    new Expanded(
+                        flex: 1,
+                        child: new Container()
+                    ),
+                    new Container(
+                        padding: EdgeInsets.only(top: 8, bottom: 16),
+                        child: new Text("- 以下为新消息 -", style: CTextStyle.PSmallBody5.copyWith(height: 1))
+                    ),
+                    new Expanded(
+                        flex: 1,
+                        child: new Container()
                     )
-                )
-            );
-        }
-
-        Widget _buildShowEmojiBoardButton() {
-            return new CustomButton(
-                padding: EdgeInsets.zero,
-                onPressed: () => {
-                    this.setState(() => {
-                        this._refreshController.scrollController.jumpTo(0);
-                        FocusScope.of(this.context).requestFocus(this._focusNode);
-                        if (this.showEmojiBoard) {
-                            TextInputPlugin.TextInputShow();
-                            Promise.Delayed(TimeSpan.FromMilliseconds(200)).Then(
-                                () => { this.setState(() => { this._showEmojiBoard = false; }); });
-                        }
-                        else {
-                            this.setState(() => { this._showEmojiBoard = true; });
-                            Promise.Delayed(TimeSpan.FromMilliseconds(100)).Then(
-                                TextInputPlugin.TextInputHide
-                            );
-                        }
-                    });
-                },
-                child: new Container(
-                    width: 44,
-                    height: 49,
-                    child: new Center(
-                        child: new Icon(this.showEmojiBoard
-                                ? Icons.outline_keyboard
-                                : Icons.mood,
-                            size: 28, color: CColors.Icon)
-                    )
-                )
+                }
             );
         }
 
         Widget _buildInputBar() {
-            var padding = this.showKeyboard || this.showEmojiBoard ? 0 : this.mPaddingBottom;
-            Widget ret = new Container(
-                padding: EdgeInsets.symmetric(0, 16),
-                height: 32,
-                decoration: new BoxDecoration(
-                    CColors.Separator2,
-                    borderRadius: BorderRadius.all(16)
-                ),
-                alignment: Alignment.centerLeft,
-                child: new InputField(
-                    key: this._focusNodeKey,
-                    controller: this._textController,
-                    focusNode: this._focusNode,
-                    height: 32,
-                    style: CTextStyle.PRegularBody,
-                    hintText: "说点想法…",
-                    hintStyle: CTextStyle.PRegularBody4.copyWith(height: 1),
-                    keyboardType: TextInputType.multiline,
-                    maxLines: 1,
-                    cursorColor: CColors.PrimaryBlue,
-                    textInputAction: TextInputAction.send,
-                    onSubmitted: this._handleSubmit
-                )
-            );
-
-            if (this.widget.viewModel.channel.sendingMessage) {
-                ret = new Stack(
-                    children: new List<Widget> {
-                        ret,
-                        new Positioned(
-                            right: 8,
-                            top: 0,
-                            bottom: 0,
-                            child: new Align(
-                                alignment: Alignment.center,
-                                child: new CustomActivityIndicator(size: LoadingSize.small)
-                            )
-                        )
-                    });
-            }
-
-
-            ret = new Container(
-                padding: EdgeInsets.only(bottom: padding),
-                decoration: new BoxDecoration(
-                    border: new Border(new BorderSide(CColors.Separator)),
+            var padding = this.showKeyboard || this.showEmojiBoard ? 0 : MediaQuery.of(this.context).padding.bottom;
+            this.customTextField = new CustomTextField(
+                EdgeInsets.only(bottom: padding),
+                new BoxDecoration(
+                    border: new Border(new BorderSide(color: CColors.Separator)),
                     color: this.showEmojiBoard ? CColors.White : CColors.TabBarBg
                 ),
-                child: new Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: new List<Widget> {
-                        new Container(width: 16),
-                        new Expanded(child: ret),
-                        this._buildShowEmojiBoardButton(),
-                        this._buildPickImageButton(),
-                        new Container(width: 10)
+                textFieldKey: this._textFieldKey,
+                "说点想法…",
+                controller: this._textController,
+                focusNode: this._focusNode,
+                maxLines: 4,
+                minLines: 1,
+                loading: false,
+                showEmojiBoard: this.showEmojiBoard,
+                isShowImageButton: true,
+                onSubmitted: this._handleSubmit,
+                onPressImage: this._pickImage,
+                onPressEmoji: () => {
+                    this._refreshController.scrollController.jumpTo(0);
+                    if (this._textController.text.isNotEmpty()) {
+                        this._textController.selection = TextSelection.collapsed(this._textController.text.Length);
                     }
-                )
+
+                    if (this.showEmojiBoard) {
+                        this._focusNode.unfocus();
+                        FocusScope.of(this.context).requestFocus(node: this._focusNode);
+                        TextInputPlugin.TextInputShow();
+                    }
+                    else {
+                        // If keyboard is present now, just hide it. If keyboard is not present now,
+                        // it may pop out later (because of the focus), wait for a while and pop it
+                        if (!this.showKeyboard) {
+                            this.showEmojiBoard = true;
+                            Promise.Delayed(TimeSpan.FromMilliseconds(100)).Then(
+                                onResolved: () => {
+                                    TextInputPlugin.TextInputHide();
+                                    this.showEmojiBoard = true;
+                                });
+                        }
+                        else {
+                            this._showEmojiBoard = true;
+                            this._emojiBoardController.setValue(1);
+                            TextInputPlugin.TextInputHide();
+                        }
+                    }
+                }
             );
 
+            Widget backdropFilterWidget;
             if (!this.showEmojiBoard && !this.showKeyboard) {
-                ret = new BackdropFilter(
+                backdropFilterWidget = new BackdropFilter(
                     filter: ImageFilter.blur(10, 10),
-                    child: ret
+                    child: this.customTextField
                 );
             }
+            else {
+                backdropFilterWidget = this.customTextField;
+            }
 
-            ret = new Positioned(
+            return new Positioned(
                 left: 0,
                 right: 0,
                 bottom: 0,
-                child: ret
+                child: backdropFilterWidget
             );
-
-            return ret;
-        }
-
-        static readonly List<int> emojiList = new List<int> {
-            0x1F600, 0x1F603, 0x1F604, 0x1F601, 0x1F606, 0x1F605, 0x1F602, 0x1F923, 0x1F62D,
-            0x1F617, 0x1F619, 0x1F61A, 0x1F618, 0x263A, 0x1F60A, 0x1F970, 0x1F60D, 0x1F929,
-            0x1F917, 0x1F642, 0x1F643, 0x1F609, 0x1F60B, 0x1F61B, 0x1F61D, 0x1F61C, 0x1F92A,
-            0x1F914, 0x1F928, 0x1F9D0, 0x1F644, 0x1F60F, 0x1F612, 0x1F623, 0x1F614, 0x1F60C,
-            0x2639, 0x1F641, 0x1F615, 0x1F61F, 0x1F97A, 0x1F62C, 0x1F910, 0x1F92B, 0x1F92D,
-            0x1F630, 0x1F628, 0x1F627, 0x1F626, 0x1F62E, 0x1F62F, 0x1F632, 0x1F633, 0x1F92F,
-            0x1F622, 0x1F625, 0x1F613, 0x1F61E, 0x1F616, 0x1F629, 0x1F62B, 0x1F635, 0x1F631,
-            0x1F922, 0x1F92E, 0x1F927, 0x1F637, 0x1F974, 0x1F912, 0x1F915, 0x1F975, 0x1F976,
-            0x1F636, 0x1F610, 0x1F611, 0x1F624, 0x1F924, 0x1F634, 0x1F62A, 0x1F607, 0x1F920,
-            0x1F973, 0x1F60E, 0x1F913, 0x1F925
-        };
-
-        static readonly int emojiBoardRowSize = 8;
-        static readonly int emojiBoardColumnSize = 3;
-
-        static int emojiBoardPageSize {
-            get { return emojiBoardRowSize * emojiBoardColumnSize - 1; }
-        }
-
-        float emojiButtonSize {
-            get {
-                return (MediaQuery.of(this.context).size.width - 42 - (emojiBoardRowSize - 1) * 2) / emojiBoardRowSize;
-            }
-        }
-
-        float emojiSizeFactor {
-            get { return 0.7f; }
-        }
-
-        float deleteButtonSize {
-            get { return this.emojiButtonSize * this.emojiSizeFactor; }
-        }
-
-        float emojiSize {
-            get { return this.emojiButtonSize * this.emojiSizeFactor / EmojiUtils.sizeFactor; }
-        }
-
-        List<Widget> _buildEmojiBoardPages() {
-            List<Widget> emojiPages = new List<Widget>();
-            for (int i = 0; i < emojiList.Count; i += emojiBoardPageSize) {
-                List<Widget> rows = new List<Widget>();
-                for (int j = 0; j < emojiBoardColumnSize; j++) {
-                    List<Widget> emojis = new List<Widget>();
-                    for (int k = 0; k < emojiBoardRowSize; k++) {
-                        emojis.Add(j == emojiBoardColumnSize - 1 && k == emojiBoardRowSize - 1
-                            ? this._buildDeleteKey(EdgeInsets.only(left: 2))
-                            : this._buildEmojiButton(i, j, k));
-                    }
-                    if (j > 0) {
-                        rows.Add(new Container(height: 8));
-                    }
-
-                    rows.Add(new Container(
-                        height: this.emojiButtonSize,
-                        padding: EdgeInsets.symmetric(0, 20),
-                        child: new Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: emojis
-                        )
-                    ));
-                }
-
-                emojiPages.Add(new Container(
-                    width: MediaQuery.of(this.context).size.width,
-                    child: new Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: rows
-                    )
-                ));
-            }
-
-            return emojiPages;
         }
 
         Widget _buildEmojiBoard() {
-            return new Column(
-                children: new List<Widget> {
-                    new Container(
-                        decoration: new BoxDecoration(
-                            color: CColors.White,
-                            border: new Border(new BorderSide(color: CColors.Separator))
-                        ),
-                        padding: EdgeInsets.symmetric(24),
-                        child: new Column(
-                            children: new List<Widget> {
-                                new Container(
-                                    height: (this.emojiButtonSize + 8) * (emojiBoardColumnSize - 1) + this.emojiButtonSize,
-                                    child: new TabBarView(
-                                        controller: this._emojiTabController,
-                                        children: this._buildEmojiBoardPages()
-                                    )
-                                ),
-                                new Container(height: 16),
-                                new CustomTabPageSelector(
-                                    controller: this._emojiTabController,
-                                    indicatorSize: 8,
-                                    selectedColor: CColors.PrimaryBlue,
-                                    color: CColors.Disable2
-                                )
-                            }
-                        )
-                    ),
-                    new Container(
-                        color: CColors.EmojiBottomBar,
-                        height: 36,
-                        child: new Row(
-                            children: new List<Widget> {
-                                new Container(width: 16),
-                                new GestureDetector(
-                                    child: new Container(height: 36, width: 44,
-                                        decoration: new BoxDecoration(color: CColors.White),
-                                        child: new Center(
-                                            child: new Text(
-                                                char.ConvertFromUtf32(0x1f642),
-                                                style: new TextStyle(fontSize: 24, height: 1))))
-                                ),
-                                new Expanded(child: new Container()),
-                                new GestureDetector(
-                                    onTap: () => this._handleSubmit(this._textController.text),
-                                    child: new Container(
-                                        width: 60, height: 16,
-                                        decoration: new BoxDecoration(
-                                            border: new Border(left: new BorderSide(color: CColors.Separator))
-                                        ),
-                                        child: new Center(
-                                            child: new Text("发送",
-                                                style: CTextStyle.PMediumBlue.copyWith(height: 1)))
-                                    )
-                                )
-                            }
-                        )
-                    ),
-                    new Container(
-                        color: CColors.EmojiBottomBar,
-                        height: this.mPaddingBottom
-                    )
-                }
-            );
-        }
-
-        Widget _buildDeleteKey(EdgeInsets padding) {
-            return new GestureDetector(
-                onTap: this._handleDelete,
-                child: new Container(
-                    width: this.emojiButtonSize,
-                    height: this.emojiButtonSize,
-                    padding: padding,
-                    child: new Center(
-                        child: new Icon(
-                            Icons.outline_delete_keyboard,
-                            size: this.emojiButtonSize * 0.7f,
-                            color: CColors.Icon
-                        )
-                    )
-                )
-            );
-        }
-
-        string getEmojiText(int index) {
-            if (index < emojiList.Count) {
-                return emojiList[index] > 0x10000
-                    ? char.ConvertFromUtf32(emojiList[index])
-                    : $"{(char) emojiList[index]}";
-            }
-
-            return "";
-        }
-
-        Widget _buildEmojiButton(int i, int j, int k) {
-            int index = i + j * emojiBoardRowSize + k;
-            return new GestureDetector(
-                onTap: this.getEmojiText(index) != ""
-                    ? (GestureTapCallback) (() => {
-                        var selection = this._textController.selection;
-                        this._textController.value = new TextEditingValue(
-                            this._textController.text.Substring(0, selection.start) +
-                            this.getEmojiText(index) + this._textController.text.Substring(selection.end),
-                            TextSelection.collapsed(selection.start + this.getEmojiText(index).Length));
-                    })
-                    : null,
-                child: new Container(
-                    width: this.emojiButtonSize,
-                    height: this.emojiButtonSize,
-                    color: CColors.Transparent,
-                    padding: k == 0 ? EdgeInsets.zero : EdgeInsets.only(left: 2),
-                    child: new Center(
-                        child: new Text(
-                            this.getEmojiText(index),
-                            style: new TextStyle(fontSize: this.emojiSize, height: 1.46f)
-                        )
+            return new ClipRect(
+                child: new Align(
+                    alignment: Alignment.topCenter,
+                    heightFactor: this._emojiBoardController.value,
+                    child: new EmojiBoard(
+                        handleEmoji: this._handleEmoji,
+                        handleDelete: this._handleDelete,
+                        () => this._handleSubmit(text: this._textController.text)
                     )
                 )
             );
@@ -1161,6 +1336,20 @@ namespace ConnectApp.screens {
 
         int codeUnitLengthAt(TextEditingValue value) {
             return value.selection.start > 1 && char.IsSurrogate(value.text[value.selection.start - 1]) ? 2 : 1;
+        }
+
+        void _handleEmoji(string emojiText) {
+            if (emojiText.isEmpty()) {
+                return;
+            }
+
+            var selection = this._textController.selection;
+            var start = selection.start < 0 ? 0 : selection.start;
+            var end = selection.end < 0 ? 0 : selection.end;
+            this._textController.value = new TextEditingValue(
+                this._textController.text.Substring(0, length: start) +
+                emojiText + this._textController.text.Substring(startIndex: end),
+                TextSelection.collapsed(selection.start + emojiText.Length));
         }
 
         void _handleDelete() {
@@ -1183,23 +1372,28 @@ namespace ConnectApp.screens {
         }
 
         void _handleSubmit(string text) {
-            if (this.widget.viewModel.channel.sendingMessage) {
-                return;
-            }
-
-            text = this._inputContentManager.ToMessage(
-                this.widget.viewModel.mentionSuggestion, this.widget.viewModel.channel.membersDict, text);
+            var plainText = text.Trim();
+            text = text.parseMention(replacements: this.mentionMap);
             if (string.IsNullOrWhiteSpace(text)) {
-                CustomDialogUtils.showToast("不能发送空消息", Icons.error_outline);
+                CustomDialogUtils.showToast("不能发送空消息", iconData: Icons.error_outline);
                 return;
             }
 
-            this.widget.actionModel.startSendMessage();
-            this.widget.actionModel.sendMessage(
-                    this.widget.viewModel.channel.id,
-                    text.Trim(), Snowflake.CreateNonce(), "")
-                .Catch(_ => CustomDialogUtils.showToast("消息发送失败", Icons.error_outline));
+            var nonce = Snowflake.CreateNonce();
             this._refreshController.scrollTo(0);
+            this.widget.actionModel.addLocalMessage(new ChannelMessageView {
+                id = nonce,
+                author = this.widget.viewModel.me,
+                channelId = this.widget.viewModel.channel.id,
+                nonce = nonce.hexToLong(),
+                type = ChannelMessageType.text,
+                content = text.Trim(),
+                plainText = plainText,
+                time = DateTime.UtcNow,
+                status = "waiting"
+            });
+            this._textController.clear();
+            this._textController.selection = TextSelection.collapsed(0);
             FocusScope.of(this.context).requestFocus(this._focusNode);
         }
 
@@ -1208,11 +1402,19 @@ namespace ConnectApp.screens {
                 string id = this.widget.viewModel.messages.isNotEmpty()
                     ? this.widget.viewModel.messages.first().id
                     : null;
-                this.widget.actionModel.fetchMessages(id, null).Then(
-                    () => this._refreshController.sendBack(false, RefreshStatus.idle)
-                ).Catch(
-                    (error) => this._refreshController.sendBack(false, RefreshStatus.idle)
-                );
+                this.widget.actionModel.fetchMessages(arg1: id, null)
+                    .Then(() => this._refreshController.sendBack(up: up,
+                        up ? RefreshStatus.completed : RefreshStatus.idle))
+                    .Catch(error => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed))
+                    .Then(() => {
+                        Promise.Delayed(TimeSpan.FromMilliseconds(500)).Then(() => {
+                            if (this._lastReadMessageId != null &&
+                                this.calculateOffsetFromMessage(this._lastReadMessageId) <
+                                this._refreshController.offset + 10) {
+                                this.showUnreadMessageNotification = false;
+                            }
+                        });
+                    });
             }
         }
 
@@ -1221,7 +1423,11 @@ namespace ConnectApp.screens {
         const float bottomThreshold = 50;
 
         void _dismissKeyboard() {
-            this._showEmojiBoard = false;
+            if (this._showEmojiBoard && !this.showKeyboard) {
+                this.showEmojiBoard = false;
+            }
+
+            this._focusNode.unfocus();
             TextInputPlugin.TextInputHide();
         }
 
@@ -1235,9 +1441,9 @@ namespace ConnectApp.screens {
                             offset += calculateMessageHeight(message,
                                 showTime: i == 0
                                     ? message.time - this.widget.viewModel.messages.last().time >
-                                      TimeSpan.FromMinutes(5)
+                                      this._showTimeThreshold
                                     : message.time - this.widget.viewModel.newMessages[i - 1].time >
-                                      TimeSpan.FromMinutes(5),
+                                      this._showTimeThreshold,
                                 this.messageBubbleWidth);
                         }
 
@@ -1246,6 +1452,7 @@ namespace ConnectApp.screens {
                     }
 
                     this.widget.actionModel.reportHitBottom();
+                    this.showNewMessageNotification = false;
                 }
             }
             else if (this._refreshController.offset > bottomThreshold) {
@@ -1256,7 +1463,16 @@ namespace ConnectApp.screens {
 
             if (this._lastScrollPosition == null || this._lastScrollPosition < this._refreshController.offset) {
                 if (this.showEmojiBoard || this.showKeyboard) {
-                    this.setState(this._dismissKeyboard);
+                    this._dismissKeyboard();
+                }
+            }
+
+            if (this._lastReadMessageId != null && this.showUnreadMessageNotification) {
+                var index = this.widget.viewModel.messages.FindIndex(message => {
+                    return message.id.hexToLong() > this._lastReadMessageId.hexToLong();
+                });
+                if (index > 0 && this.calculateOffsetFromIndex(index) < this._refreshController.offset + 10) {
+                    this.showUnreadMessageNotification = false;
                 }
             }
 
@@ -1264,6 +1480,10 @@ namespace ConnectApp.screens {
         }
 
         void _pickImage() {
+            if (this.showKeyboard || this.showEmojiBoard) {
+                this.setState(fn: this._dismissKeyboard);
+            }
+
             var items = new List<ActionSheetItem> {
                 new ActionSheetItem(
                     "拍照",
@@ -1274,35 +1494,73 @@ namespace ConnectApp.screens {
                     )
                 ),
                 new ActionSheetItem(
-                    "从相册选择",
+                    "从相册选择照片",
                     onTap: () => PickImagePlugin.PickImage(
                         source: ImageSource.gallery,
                         imageCallBack: this._pickImageCallback,
                         false
                     )
                 ),
+                new ActionSheetItem(
+                    "从相册选择视频",
+                    onTap: () => PickImagePlugin.PickVideo(
+                        source: ImageSource.gallery,
+                        videoCallBack: this._pickVideoCallback
+                    )
+                ),
                 new ActionSheetItem("取消", type: ActionType.cancel)
             };
 
             ActionSheetUtils.showModalActionSheet(new ActionSheet(
-                title: "发送图片",
+                title: "发送图片或视频",
                 items: items
             ));
         }
 
-        void _pickImageCallback(string pickImage) {
-            this.widget.actionModel.startSendMessage();
-            this.widget.actionModel.sendImage(
-                arg1: this.widget.viewModel.channel.id,
-                arg2: pickImage,
-                Snowflake.CreateNonce());
+        void _pickImageCallback(byte[] pickImage) {
+            var nonce = Snowflake.CreateNonce();
+            this._refreshController.scrollTo(0);
+            this.widget.actionModel.addLocalMessage(new ChannelMessageView {
+                id = nonce,
+                author = this.widget.viewModel.me,
+                channelId = this.widget.viewModel.channel.id,
+                nonce = nonce.hexToLong(),
+                type = ChannelMessageType.image,
+                imageData = pickImage,
+                time = DateTime.UtcNow,
+                status = "waiting"
+            });
+        }
+
+        void _pickVideoCallback(byte[] videoData) {
+            var nonce = Snowflake.CreateNonce();
+            this._refreshController.scrollTo(0);
+            this.widget.actionModel.addLocalMessage(new ChannelMessageView {
+                id = nonce,
+                author = this.widget.viewModel.me,
+                channelId = this.widget.viewModel.channel.id,
+                nonce = nonce.hexToLong(),
+                type = ChannelMessageType.file,
+                videoData = videoData,
+                attachments = new List<Attachment> {
+                    new Attachment {
+                        filename = $"VIDEO_{DateTime.Now:yyyyMMddHHmmss}.mp4",
+                        contentType = "video/mp4",
+                        size = videoData.Length
+                    }
+                },
+                time = DateTime.UtcNow,
+                status = "waiting"
+            });
         }
 
         public void didPop() {
-            this._inputContentManager.Clear();
+            this.mentionMap.Clear();
             if (this._focusNode.hasFocus) {
                 this._focusNode.unfocus();
             }
+
+            this.widget.actionModel.popFromScreen();
         }
 
         public void didPopNext() {
@@ -1313,169 +1571,30 @@ namespace ConnectApp.screens {
         }
 
         public void didPushNext() {
-            if (this._focusNode.hasFocus) {
-                this._focusNode.unfocus();
+            if (this.showKeyboard || this.showEmojiBoard) {
+                this.setState(fn: this._dismissKeyboard);
             }
         }
 
-        public static float calculateMessageHeight(ChannelMessageView message, bool showTime, float width) {
+        static float calculateMessageHeight(ChannelMessageView message, bool showTime, float width) {
             float height = 20 + 6 + 16 + (showTime ? 36 : 0); // Name + Internal + Bottom padding + time
             switch (message.type) {
                 case ChannelMessageType.text:
-                    height += 16 + CTextUtils.CalculateTextHeight(
-                                  message.content,
-                                  CTextStyle.PLargeBody,
-                                  width - 24, maxLines: null);
+                    height += TextMessage.CalculateTextHeight(content: message.content, width: width);
                     break;
                 case ChannelMessageType.image:
-                    height += message.width > message.height * 16.0f / 9.0f
-                        ? 140.0f * 9.0f / 16.0f
-                        : message.width > message.height
-                            ? 140.0f * message.height / message.width
-                            : 140.0f;
+                    height += ImageMessage.CalculateTextHeight(message: message);
                     break;
                 case ChannelMessageType.file:
-                    height += 16 + CTextUtils.CalculateTextHeight(
-                                  "[你收到一个文件，请在浏览器上查看]",
-                                  CTextStyle.PLargeBody5,
-                                  width - 24, maxLines: null);
+                    height += FileMessage.CalculateTextHeight(message: message, width: width);
                     break;
-                case ChannelMessageType.embed:
-                    height += 24 + CTextUtils.CalculateTextHeight(
-                                  message.content,
-                                  CTextStyle.PLargeBody,
-                                  width - 24, maxLines: null) + 24 +
-                              CTextUtils.CalculateTextHeight(
-                                  message.embeds[0].embedData.title,
-                                  CTextStyle.PLargeMediumBlue,
-                                  width - 48, maxLines: null) + 4 +
-                              CTextUtils.CalculateTextHeight(
-                                  message.embeds[0].embedData.description,
-                                  CTextStyle.PRegularBody3,
-                                  width - 48, maxLines: 4) + 4 + 22 + 12;
+                case ChannelMessageType.embedExternal:
+                case ChannelMessageType.embedImage:
+                    height += EmbedMessage.CalculateTextHeight(message: message, width: width);
                     break;
             }
 
             return height;
-        }
-    }
-
-    class _ImageMessage : StatefulWidget {
-        public readonly string url;
-        public readonly float size;
-        public readonly float ratio;
-        public readonly float radius;
-        public readonly float srcWidth;
-        public readonly float srcHeight;
-        public readonly Dictionary<string, string> headers;
-
-        public _ImageMessage(
-            string url,
-            float size,
-            float ratio,
-            float srcWidth = 0,
-            float srcHeight = 0,
-            Dictionary<string, string> headers = null,
-            float radius = 10) {
-            this.url = url;
-            this.size = size;
-            this.ratio = ratio;
-            this.radius = radius;
-            this.headers = headers;
-            this.srcWidth = srcWidth;
-            this.srcHeight = srcHeight;
-        }
-
-        public Size srcSize {
-            get {
-                if (this.srcWidth != 0 && this.srcHeight != 0) {
-                    return new Size(this.srcWidth, this.srcHeight);
-                }
-
-                return null;
-            }
-        }
-
-        public override State createState() {
-            return new _ImageMessageState();
-        }
-    }
-
-    class _ImageMessageState : State<_ImageMessage> {
-        Image image;
-        Size size;
-        ImageStream stream;
-
-        Size _finalSize(Size size) {
-            if (size.width > size.height * this.widget.ratio) {
-                return new Size(
-                    width: this.widget.size,
-                    height: this.widget.size / this.widget.ratio);
-            }
-
-            if (size.width > size.height) {
-                return new Size(
-                    width: this.widget.size,
-                    height: this.widget.size / size.width * size.height);
-            }
-
-            if (size.width > size.height / this.widget.ratio) {
-                return new Size(
-                    width: this.widget.size / size.height * size.width,
-                    height: this.widget.size);
-            }
-
-            return new Size(
-                width: this.widget.size / this.widget.ratio,
-                height: this.widget.size);
-        }
-
-        void _updateSize(ImageInfo info, bool _) {
-            this.size = this._finalSize(new Size(info.image.width, info.image.height));
-
-            this.setState(() => { });
-        }
-
-        public override void initState() {
-            base.initState();
-            if (this.widget.srcSize == null) {
-                this.image = CachedNetworkImageProvider.cachedNetworkImage(
-                    src: CImageUtils.SizeToScreenImageUrl(this.widget.url),
-                    headers: this.widget.headers);
-                this.stream = this.image.image
-                    .resolve(new ImageConfiguration());
-                this.stream.addListener(this._updateSize);
-            }
-            else {
-                this.size = this._finalSize(this.widget.srcSize);
-            }
-        }
-
-        public override void dispose() {
-            this.stream?.removeListener(this._updateSize);
-            base.dispose();
-        }
-
-        public override Widget build(BuildContext context) {
-            return this.size == null || this.widget.url == null
-                ? new Container(
-                    width: this.widget.size,
-                    height: this.widget.size,
-                    decoration: new BoxDecoration(
-                        color: CColors.Disable,
-                        borderRadius: BorderRadius.all(this.widget.radius)
-                    ))
-                : (Widget) new ClipRRect(
-                    borderRadius: BorderRadius.all(this.widget.radius),
-                    child: new Container(
-                        width: this.size.width,
-                        height: this.size.height,
-                        color: CColors.Disable,
-                        child: CachedNetworkImageProvider.cachedNetworkImage(
-                            CImageUtils.SizeToScreenImageUrl(this.widget.url),
-                            headers: this.widget.headers,
-                            fit: BoxFit.cover))
-                );
         }
     }
 }

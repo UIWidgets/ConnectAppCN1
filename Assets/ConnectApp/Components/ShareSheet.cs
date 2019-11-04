@@ -26,14 +26,6 @@ namespace ConnectApp.Components {
 
     public delegate void OnShareType(ShareType type);
 
-    public static class ShareUtils {
-        public static void showShareView(
-            Widget child
-        ) {
-            ActionSheetUtils.showModalActionSheet(child: child);
-        }
-    }
-
     public class ShareView : StatelessWidget {
         public ShareView(
             Key key = null,

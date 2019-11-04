@@ -3,10 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using ConnectApp.Constants;
 using ConnectApp.Models.Api;
-using ConnectApp.redux;
-using ConnectApp.redux.actions;
 using Newtonsoft.Json;
-using UnityEngine;
 
 namespace ConnectApp.Utils {
     enum GatewayState {
@@ -40,7 +37,7 @@ namespace ConnectApp.Utils {
         public static SocketGateway instance {
             get {
                 if (m_Instance == null) {
-                    Debug.Log("fatal error: socket gateway has not been initialized yet !");
+                    Debuger.LogError("fatal error: socket gateway has not been initialized yet !");
                     return null;
                 }
 
@@ -48,20 +45,12 @@ namespace ConnectApp.Utils {
             }
         }
 
-        const bool DebugSocketGatewayStateLog = true;
-
-        static void DebugAssert(bool condition, string logMsg) {
-            if (DebugSocketGatewayStateLog && !condition) {
-                Debug.Log(logMsg);
-            }
-        }
-
         GatewayState m_ReadyState;
-        
+
         readonly List<string> m_PayloadQueue;
         readonly WebSocketHost m_Host;
         readonly BackOff m_BackOff;
-        
+
         //Gateway Data
         List<string> m_CandidateURLs;
         string m_GatewayUrl;
@@ -79,7 +68,7 @@ namespace ConnectApp.Utils {
         int m_HeartBeater = -1;
         bool m_SslHandShakeError = false;
 
-        
+
         bool connected {
             get { return this.m_ReadyState == GatewayState.OPEN; }
         }
@@ -94,26 +83,26 @@ namespace ConnectApp.Utils {
 
         public SocketGateway(WebSocketHost host) {
             if (m_Instance != null) {
-                DebugAssert(false, "fatal error: duplicated socket gateways is not allowed!");
+                DebugerUtils.DebugAssert(false, "fatal error: duplicated socket gateways is not allowed!");
                 return;
             }
 
             m_Instance = this;
             this.m_Host = host;
-            
+
             this.m_CandidateURLs = new List<string>();
             this.m_PayloadQueue = new List<string>();
             this.m_BackOff = new BackOff(host, 1000, 30000);
             this.m_CommitId = null;
             this.m_Socket = null;
-            
+
             this._Reset(isInit: true);
         }
 
         public void Close() {
             this.m_CandidateURLs.Clear();
             this.m_GatewayUrl = null;
-            
+
             this.m_CommitId = null;
             this.m_CloseRequired = true;
             this.m_Socket?.Close();
@@ -154,9 +143,8 @@ namespace ConnectApp.Utils {
 
             bool reset = !this.resumable || this.m_BackOff.fail > 0;
             var delay = this._OnFail(reset);
-
-            StoreProvider.store.dispatcher.dispatch(new SocketConnectStateAction {connected = false});
-            DebugAssert(false, $"connection failed, retry in {delay / 1000f} seconds");
+            NetworkStatusManager.isConnected = false;
+            DebugerUtils.DebugAssert(false, $"connection failed, retry in {delay / 1000f} seconds");
         }
 
         SocketResponseDataBase _OnMessage(byte[] bytes, ref string type) {
@@ -214,6 +202,17 @@ namespace ConnectApp.Utils {
                             var memberChangeResponse = (SocketResponseChannelMemberChange) response;
                             data = memberChangeResponse.data;
                             break;
+                        case DispatchMsgType.CHANNEL_CREATE:
+                        case DispatchMsgType.CHANNEL_DELETE:
+                        case DispatchMsgType.CHANNEL_UPDATE:
+                            var createChannelResponse = (SocketResponseUpdateChannel) response;
+                            data = createChannelResponse.data;
+                            break;
+                        case DispatchMsgType.MESSAGE_ACK:
+                            var messageAckResponse = (SocketResponseMessageAck) response;
+                            data = messageAckResponse.data;
+                            break;
+
                         default:
                             data = null;
                             break;
@@ -236,8 +235,8 @@ namespace ConnectApp.Utils {
                 this.m_CloseRequired = false;
             }
             else {
-                DebugAssert(this.m_OnIdentify != null, "fatal error: reconnect before initial connect !");
-                DebugAssert(this.m_OnMessage != null, "fatal error: reconnect before initial connect !");
+                DebugerUtils.DebugAssert(this.m_OnIdentify != null, "fatal error: reconnect before initial connect !");
+                DebugerUtils.DebugAssert(this.m_OnMessage != null, "fatal error: reconnect before initial connect !");
             }
 
             this.m_ReadyState = GatewayState.CONNECTING;
@@ -252,9 +251,10 @@ namespace ConnectApp.Utils {
                             OnError: msg => { this._OnClose(); },
                             OnClose: this._OnClose,
                             OnConnected: () => {
-                                DebugAssert(this.m_CommitId != null,
+                                NetworkStatusManager.isConnected = true;
+                                DebugerUtils.DebugAssert(this.m_CommitId != null,
                                     "fatal error: commit Id is not correctly set before connection!");
-                                
+
                                 this.m_ReadyState = GatewayState.OPEN;
                                 if (!this._Resume()) {
                                     this.m_OnIdentify.Invoke(this.m_CommitId);
@@ -263,6 +263,7 @@ namespace ConnectApp.Utils {
                                 this._StartHeartBeat();
                             },
                             OnMessage: bytes => {
+                                NetworkStatusManager.isConnected = true;
                                 string type = "";
                                 var data = this._OnMessage(bytes, ref type);
                                 if (data != null) {
@@ -270,12 +271,11 @@ namespace ConnectApp.Utils {
                                 }
                             }
                         );
-                        StoreProvider.store.dispatcher.dispatch(new SocketConnectStateAction {connected = true});
                     }
                     else {
+                        NetworkStatusManager.isConnected = false;
                         var delay = this._OnFail();
-                        StoreProvider.store.dispatcher.dispatch(new SocketConnectStateAction {connected = false});
-                        DebugAssert(false, $"gateway discovery failed, retry in {delay / 1000f} seconds");
+                        DebugerUtils.DebugAssert(false, $"gateway discovery failed, retry in {delay / 1000f} seconds");
                     }
                 });
         }
@@ -323,7 +323,6 @@ namespace ConnectApp.Utils {
             };
             this._Send(requestPayload);
             return true;
-
         }
 
         void _Reset(bool isInit, bool reset = true) {

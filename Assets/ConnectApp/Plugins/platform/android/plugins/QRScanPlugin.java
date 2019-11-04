@@ -21,6 +21,7 @@ public class QRScanPlugin {
     }
 
     public void pushToQRScan() {
+        CommonPlugin.isPushNative = true;
         Intent intent = new Intent(context, QRScanActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         context.startActivity(intent);

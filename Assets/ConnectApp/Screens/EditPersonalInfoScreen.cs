@@ -135,7 +135,7 @@ namespace ConnectApp.screens {
                     onTap: () => PickImagePlugin.PickImage(
                         source: ImageSource.camera,
                         pickImage => {
-                            this._pickedImage = pickImage;
+                            this._pickedImage = Convert.ToBase64String(inArray: pickImage);
                             this.setState(() => { });
                         },
                         maxSize: 100 * 1024
@@ -146,7 +146,7 @@ namespace ConnectApp.screens {
                     onTap: () => PickImagePlugin.PickImage(
                         source: ImageSource.gallery,
                         pickImage => {
-                            this._pickedImage = pickImage;
+                            this._pickedImage = Convert.ToBase64String(inArray: pickImage);
                             this.setState(() => { });
                         },
                         maxSize: 100 * 1024

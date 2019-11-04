@@ -15,8 +15,8 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -139,17 +139,12 @@ namespace ConnectApp.screens {
         string _loginSubId;
         string _shareActionSubId;
         bool _showNavBarShadow;
-        bool _isFullScreen;
         float _bottomPadding;
 
 
         public override void initState() {
             base.initState();
             StatusBarManager.statusBarStyle(false);
-            AVPlayerPlugin.initVideoPlayer("", "",
-                0, (int) MediaQuery.of(this.context).padding.top, MediaQuery.of(this.context).size.width,
-                MediaQuery.of(this.context).size.width * 9 / 16, true);
-            AVPlayerPlugin.hiddenPlayer();
             this._showNavBarShadow = true;
             this._titleHeight = 0.0f;
             this._isHaveTitle = false;
@@ -167,6 +162,10 @@ namespace ConnectApp.screens {
             );
             this._titleAnimation = rectTween.animate(this._titleAnimationController);
             SchedulerBinding.instance.addPostFrameCallback(_ => {
+                AVPlayerPlugin.initVideoPlayer("", "",
+                    0, (int) MediaQuery.of(this.context).padding.top, MediaQuery.of(this.context).size.width,
+                    MediaQuery.of(this.context).size.width * 9 / 16, true);
+                AVPlayerPlugin.hiddenPlayer();
                 this.widget.actionModel.showChatWindow(false);
                 this.widget.actionModel.startFetchEventDetail();
                 this.widget.actionModel.fetchEventDetail(this.widget.viewModel.eventId, EventType.online);
@@ -262,10 +261,9 @@ namespace ConnectApp.screens {
             return new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(
-                    top: !this._isFullScreen,
                     bottom: false,
                     child: new Container(
-                        color: this._isFullScreen ? CColors.Black : CColors.White,
+                        color: CColors.White,
                         child: new Column(
                             children: new List<Widget> {
                                 this._buildEventHeader(context, eventObj, EventType.online, eventStatus,
@@ -855,7 +853,7 @@ namespace ConnectApp.screens {
         }
 
         void _showShareView(IEvent eventObj) {
-            ShareUtils.showShareView(
+            ActionSheetUtils.showModalActionSheet(
                 new ShareView(
                     projectType: ProjectType.iEvent,
                     onPressed: type => {

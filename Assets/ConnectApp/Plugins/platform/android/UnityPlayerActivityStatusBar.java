@@ -17,6 +17,7 @@ import com.dueeeke.videoplayer.player.VideoView;
 import com.dueeeke.videoplayer.player.VideoViewManager;
 import com.unity.uiwidgets.plugin.UIWidgetsMessageManager;
 import com.unity3d.unityconnect.plugins.AVPlayerPlugin;
+import com.unity3d.unityconnect.plugins.CommonPlugin;
 import com.unity3d.unityconnect.plugins.JPushPlugin;
 
 import java.util.Arrays;
@@ -118,12 +119,12 @@ public class UnityPlayerActivityStatusBar extends UnityPlayerActivity
         super.onRestart();
         if (this.getIntent().getScheme() != null && this.getIntent().getScheme().equals("unityconnect") ){
             String data = this.getIntent().getDataString();
-            if (JPushPlugin.getInstance().isListenCompleted){
+            if (JPushPlugin.getInstance().isListenCompleted&&!CommonPlugin.isPushNative){
                 UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("jpush", "OnOpenUrl", Arrays.asList(data));
             }else {
                 JPushPlugin.getInstance().schemeUrl = data;
-
             }
+            CommonPlugin.isPushNative = false;
         }
     }
 

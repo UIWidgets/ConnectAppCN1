@@ -1,48 +1,43 @@
-﻿using System;
-using ConnectApp.Main;
+﻿using ConnectApp.Main;
 using UnityEngine;
 
 namespace ConnectApp.Reality {
     public class Phone : MonoBehaviour {
         public Transform onTable;
         public Transform inHand;
-
         public Transform shell;
         public Transform screen;
-        public RectTransform screenRect;
         public Canvas screenCanvas;
 
         public Vector2 defaultScreenSize = new Vector2(750f, 1334f);
         public ConnectAppPanel appPanel;
 
-        bool m_IsOnTable = false;
-        bool m_IsInHand = true;
         bool m_TowardOnTable = false;
 
         bool m_IsMoving = false;
         float m_LerpDuration = 1f;
         float m_Timer = 0;
 
-        bool m_EnableToCastRay = false;
+        public bool castable = false;
 
         void Start() {
-            Debug.Assert(this.shell && this.screen && this.screenRect);
+            Debug.Assert(this.shell && this.screen);
             Debug.Assert(this.appPanel);
             this.screenCanvas.renderMode = RenderMode.ScreenSpaceCamera;
 
             this.SetScreenSize(Screen.width, Screen.height);
 
-            // Debug.Log("Screen Eye Distance: " + this.inHand.localPosition.z);
-            // Debug.Log(Screen.width + ", " + Screen.height);
+            Debuger.Log("Screen Eye Distance: " + this.inHand.localPosition.z);
+            Debuger.Log(Screen.width + ", " + Screen.height);
         }
 
         void SetScreenSize(float width, float height) {
-            // Debug.Log($"SetScreenSize ({width}, {height})");
-            
+            Debuger.Log($"SetScreenSize ({width}, {height})");
+
             var widthRatio = width / this.defaultScreenSize.x;
             var heightRatio = height / this.defaultScreenSize.y;
-            
-            // Debug.Log($"W&H Ratio: ({widthRatio}, {heightRatio})");
+
+            Debuger.Log($"W&H Ratio: ({widthRatio}, {heightRatio})");
 
             var shellScale = this.shell.transform.localScale;
             shellScale.x *= widthRatio;
@@ -52,11 +47,11 @@ namespace ConnectApp.Reality {
                 shellScale.x *= widthRatio / heightRatio;
                 shellScale.y *= widthRatio / heightRatio;
             }
-            
+
             this.shell.transform.localScale = shellScale;
 
             var inHandLocalPosition = this.inHand.localPosition;
-            // Debug.Log($"distance: {inHandLocalPosition.z}");
+            Debuger.Log($"distance: {inHandLocalPosition.z}");
             var delta = inHandLocalPosition.z;
             inHandLocalPosition.z *= Mathf.Min(widthRatio, heightRatio);
             delta -= inHandLocalPosition.z;
@@ -74,7 +69,7 @@ namespace ConnectApp.Reality {
             if (!this.m_IsMoving) {
                 if (!this.m_TowardOnTable) {
                     this.m_Timer = this.m_LerpDuration;
-                    this.m_EnableToCastRay = false;
+                    this.castable = false;
                     this.appPanel.raycastTarget = true;
                 }
                 else {
@@ -93,38 +88,11 @@ namespace ConnectApp.Reality {
         }
 
         void Update() {
-            if (this.m_EnableToCastRay) {
-                if (Input.touchCount > 0) {
-                    // Debug.Log("Touch");
-                    var touch = Input.GetTouch(0);
-                    Ray mouseDownCheckRay = Camera.main.ScreenPointToRay(touch.position);
-                    RaycastHit hitInfo;
-
-                    if (Physics.Raycast(mouseDownCheckRay, out hitInfo, Mathf.Infinity)) {
-                        // Debug.Log(hitInfo.transform.name);
-                        if (hitInfo.transform.name == "Phone") {
-                            RealityManager.TriggerSwitch();
-                        }
-                    }
-                }
-
-                if (Input.GetMouseButtonDown(0)) {
-                    // Debug.Log("Mouse Down");
-                    Ray mouseDownCheckRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-                    RaycastHit hitInfo;
-
-                    if (Physics.Raycast(mouseDownCheckRay, out hitInfo, Mathf.Infinity)) {
-                        // Debug.Log(hitInfo.transform.name);
-                        if (hitInfo.transform.name == "Phone") {
-                            RealityManager.TriggerSwitch();
-                        }
-                    }
-                }
-            }
-
+#if UNITY_EDITOR
             if (Input.GetKeyDown(KeyCode.Tab)) {
                 this.TriggerSwitch();
             }
+#endif
 
             if (this.m_IsMoving) {
                 if (this.m_TowardOnTable) {
@@ -132,12 +100,10 @@ namespace ConnectApp.Reality {
                     if (this.m_Timer >= this.m_LerpDuration) {
                         // On Table
                         this.m_IsMoving = false;
-                        this.m_IsOnTable = true;
-                        this.m_IsInHand = false;
 
                         this.transform.position = this.onTable.position;
                         this.transform.rotation = this.onTable.rotation;
-                        this.m_EnableToCastRay = true;
+                        this.castable = true;
                     }
                     else {
                         this.transform.position =
@@ -152,8 +118,6 @@ namespace ConnectApp.Reality {
                     if (this.m_Timer <= 0) {
                         // In Hand
                         this.m_IsMoving = false;
-                        this.m_IsOnTable = false;
-                        this.m_IsInHand = true;
 
                         this.transform.position = this.inHand.position;
                         this.transform.rotation = this.inHand.rotation;

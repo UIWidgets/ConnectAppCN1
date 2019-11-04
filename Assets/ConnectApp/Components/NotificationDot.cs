@@ -7,14 +7,17 @@ namespace ConnectApp.Components {
     public class NotificationDot : StatelessWidget {
         readonly string content;
         readonly BorderSide borderSide;
+        readonly EdgeInsets margin;
 
         public NotificationDot(
             string content,
             BorderSide borderSide = null,
+            EdgeInsets margin = null,
             Key key = null
         ) : base(key: key) {
             this.content = content;
             this.borderSide = borderSide;
+            this.margin = margin;
         }
 
         public override Widget build(BuildContext context) {
@@ -49,6 +52,7 @@ namespace ConnectApp.Components {
 
             if (this.borderSide != null) {
                 return new Container(
+                    margin: this.margin,
                     padding: EdgeInsets.all(value: this.borderSide.width),
                     decoration: new BoxDecoration(
                         borderRadius: BorderRadius.all(8 + this.borderSide.width),
@@ -58,7 +62,10 @@ namespace ConnectApp.Components {
                 );
             }
 
-            return content;
+            return new Container(
+                margin: this.margin,
+                child: content
+            );
         }
     }
 }

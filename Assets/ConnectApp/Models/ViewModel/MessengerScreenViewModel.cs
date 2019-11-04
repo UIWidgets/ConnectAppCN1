@@ -1,15 +1,16 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using ConnectApp.Models.Api;
 using ConnectApp.Models.Model;
-using ConnectApp.Utils;
 
 namespace ConnectApp.Models.ViewModel {
     public class MessengerScreenViewModel {
+        public bool channelLoading;
+        public string myUserId;
         public int currentTabBarIndex;
+        public int page;
+        public bool hasMore;
         public bool hasUnreadNotifications;
         public bool socketConnected;
+        public bool netWorkConnected;
         public Dictionary<string, string> lastMessageMap;
         public List<ChannelView> joinedChannels;
         public List<ChannelView> popularChannels;

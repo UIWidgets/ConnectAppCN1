@@ -20,9 +20,14 @@ namespace ConnectApp.redux.actions {
 
     public class MainNavigatorPushToChannelAction : BaseAction {
         public string channelId;
+        public bool pushReplace = false;
     }
 
     public class MainNavigatorPushToChannelDetailAction : BaseAction {
+        public string channelId;
+    }
+
+    public class MainNavigatorPushToChannelShareAction : BaseAction {
         public string channelId;
     }
 
@@ -90,9 +95,6 @@ namespace ConnectApp.redux.actions {
         public ReportType reportType;
     }
 
-    public class LoginNavigatorPushToBindUnityAction : BaseAction {
-    }
-
     public class LoginNavigatorPushToAction : BaseAction {
         public string routeName;
     }
@@ -138,7 +140,7 @@ namespace ConnectApp.redux.actions {
         public string url;
         public bool useCachedNetworkImage = true;
     }
-    
+
     public class MainNavigatorPushToChannelMentionAction : BaseAction {
         public string channelId;
     }

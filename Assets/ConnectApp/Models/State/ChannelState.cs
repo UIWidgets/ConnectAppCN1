@@ -2,31 +2,41 @@ using System.Collections.Generic;
 using System.Linq;
 using ConnectApp.Models.Api;
 using ConnectApp.Models.Model;
+using ConnectApp.Utils;
 
 namespace ConnectApp.Models.State {
     public class ChannelState {
+        public bool channelLoading;
         public List<string> publicChannels;
         public List<string> joinedChannels;
+        public List<string> createChannelFilterIds;
         public int discoverPage;
+        public bool discoverHasMore;
         public bool messageLoading;
         public int totalUnread;
         public int totalMention;
         public Dictionary<string, ChannelView> channelDict;
         public Dictionary<string, ChannelMessageView> messageDict;
+        public Dictionary<string, ChannelMessageView> localMessageDict;
         public Dictionary<string, bool> channelTop;
         public bool socketConnected;
-        
+        public bool netWorkConnected;
         public string mentionUserId;
+        public string mentionUserName;
         public bool mentionAutoFocus;
         public Dictionary<string, Dictionary<string, ChannelMember>> mentionSuggestions;
         public bool mentionLoading;
         public string newNotifications;
+        public bool channelError;
+        public string lastMentionQuery;
+        public bool mentionSearching;
+        public List<ChannelMember> queryMentions;
 
         public void updateMentionSuggestion(string channelId, User userInfo) {
-            if (this.mentionSuggestions.ContainsKey(channelId)) {
-                var suggestions = this.mentionSuggestions[channelId];
-                if (suggestions.ContainsKey(userInfo.id)) {
-                    suggestions[userInfo.id].user = userInfo;
+            if (this.mentionSuggestions.ContainsKey(key: channelId)) {
+                var suggestions = this.mentionSuggestions[key: channelId];
+                if (suggestions.ContainsKey(key: userInfo.id)) {
+                    suggestions[key: userInfo.id].user = userInfo;
                 }
             }
         }
@@ -49,12 +59,24 @@ namespace ConnectApp.Models.State {
             channelView.updateFromNormalChannelLite(channel: channel);
         }
 
+        public void clearMentions() {
+            this.totalUnread = 0;
+            this.totalMention = 0;
+            this.joinedChannels.ForEach(channelId => {
+                this.channelDict[key: channelId].unread = 0;
+                this.channelDict[key: channelId].mentioned = 0;
+            });
+        }
+
         public void updateTotalMention() {
             this.totalUnread = 0;
             this.totalMention = 0;
             this.joinedChannels.ForEach(channelId => {
-                this.totalUnread += this.channelDict[key: channelId].unread;
-                this.totalMention += this.channelDict[key: channelId].mentioned;
+                var channel = this.channelDict[key: channelId];
+                this.totalUnread += channel.unread;
+                this.totalMention += channel.unread > 0
+                    ? channel.mentioned
+                    : 0;
             });
         }
 
@@ -64,6 +86,20 @@ namespace ConnectApp.Models.State {
                     ? $"{this.totalMention}"
                     : ""
                 : null;
+        }
+
+        public void removeLocalMessage(ChannelMessageView channelMessage) {
+            var channel = this.channelDict[channelMessage.channelId];
+            var key = $"{channelMessage.author.id}:{channel.id}:{channelMessage.nonce:x16}";
+            if (channel.localMessageIds.Contains($"{channelMessage.nonce:x16}") &&
+                this.localMessageDict.ContainsKey(key)) {
+                if (channelMessage.type == ChannelMessageType.image) {
+                    channelMessage.imageData = this.localMessageDict[key].imageData;
+                }
+
+                this.localMessageDict.Remove(key);
+                channel.localMessageIds.Remove($"{channelMessage.nonce:x16}");
+            }
         }
 
         public void updateSessionReadyData(SocketResponseSessionData sessionReadyData) {
@@ -80,7 +116,7 @@ namespace ConnectApp.Models.State {
                     this.joinedChannels.Add(item: channel.id);
                 }
             });
-            
+
             sessionReadyData.privateChannels.ForEach(channel => {
                 this.updateNormalChannelLite(channel: channel);
                 if (!this.joinedChannels.Contains(item: channel.id)) {
@@ -109,8 +145,11 @@ namespace ConnectApp.Models.State {
                 var channelId = readState.channelId;
                 if (this.channelDict.TryGetValue(key: channelId, out var channel)) {
                     channel.mentioned = readState.mentionCount;
-                    channel.unread = readState.lastMessageId != channel.lastMessageId &&
-                                     channel.lastMessageId != null ? 1 : 0;
+                    channel.unread = channel.lastMessageId != null && readState.lastMessageId != null &&
+                                     readState.lastMessageId.hexToLong() < channel.lastMessageId.hexToLong()
+                        ? 1
+                        : 0;
+                    channel.lastReadMessageId = readState.lastMessageId;
                     channel.atMe = channel.mentioned > 0 && channel.unread > 0;
                 }
             });

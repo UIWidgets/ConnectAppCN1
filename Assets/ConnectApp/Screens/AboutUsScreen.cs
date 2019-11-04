@@ -6,7 +6,6 @@ using ConnectApp.Models.State;
 using ConnectApp.redux.actions;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.widgets;
 
@@ -79,14 +78,21 @@ namespace ConnectApp.screens {
                         new Container(
                             margin: EdgeInsets.only(bottom: 16),
                             alignment: Alignment.center,
-                            child: new Icon(
-                                icon: Icons.UnityLogo,
-                                size: 64
+                            child: Image.asset(
+                                name: "image/img-unity_app_logo",
+                                width: 128,
+                                height: 128,
+                                fit: BoxFit.cover
                             )
                         ),
-                        new Text(
-                            "unity Connect",
-                            style: CTextStyle.H4
+                        new Container(
+                            alignment: Alignment.center,
+                            child: Image.asset(
+                                name: "image/img-unity_text_logo",
+                                width: 149,
+                                height: 24,
+                                fit: BoxFit.cover
+                            )
                         ),
                         new Container(height: 8),
                         new Text(
@@ -101,32 +107,15 @@ namespace ConnectApp.screens {
                             )
                         ),
                         new Container(color: CColors.Background, height: 16),
-                        new GestureDetector(
-                            child: _buildTapRow("关注本项目源代码"),
+                        new CustomListTile(
+                            title: "关注本项目源代码",
+                            trailing: CustomListTileConstant.defaultTrailing,
                             onTap: () => this.actionModel.toOriginCode()
                         ),
-                        new GestureDetector(
-                            child: _buildTapRow("关注 UIWidgets 项目源代码"),
+                        new CustomListTile(
+                            title: "关注 UIWidgets 项目源代码",
+                            trailing: CustomListTileConstant.defaultTrailing,
                             onTap: () => this.actionModel.toWidgetOriginCode()
-                        )
-                    }
-                )
-            );
-        }
-
-        static Widget _buildTapRow(string content) {
-            return new Container(
-                height: 60,
-                color: CColors.Transparent,
-                padding: EdgeInsets.only(16, right: 16),
-                child: new Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: new List<Widget> {
-                        new Text(data: content, style: CTextStyle.PLargeBody),
-                        new Icon(
-                            icon: Icons.arrow_forward,
-                            size: 16,
-                            color: CColors.Icon
                         )
                     }
                 )

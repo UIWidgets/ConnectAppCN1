@@ -163,20 +163,25 @@ namespace ConnectApp.Models.State {
                     loading = false
                 },
                 channelState = new ChannelState {
+                    channelLoading = false,
                     publicChannels = new List<string>(),
                     joinedChannels = new List<string>(),
+                    createChannelFilterIds = new List<string>(),
                     discoverPage = 1,
+                    discoverHasMore = true,
                     messageLoading = false,
                     totalUnread = 0,
                     totalMention = 0,
                     channelDict = new Dictionary<string, ChannelView>(),
                     messageDict = new Dictionary<string, ChannelMessageView>(),
+                    localMessageDict = new Dictionary<string, ChannelMessageView>(),
                     channelTop = new Dictionary<string, bool>(),
                     socketConnected = true,
                     mentionSuggestions = new Dictionary<string, Dictionary<string, ChannelMember>>(),
                     newNotifications = isLogin
                         ? NewNotificationManager.getNewNotification(loginInfo.userId)
-                        : null
+                        : null,
+                    lastMentionQuery = null
                 },
                 tabBarState = new TabBarState {
                     currentTabIndex = 0

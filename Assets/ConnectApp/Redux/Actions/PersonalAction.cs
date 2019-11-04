@@ -7,7 +7,6 @@ using ConnectApp.Utils;
 using Newtonsoft.Json;
 using RSG;
 using Unity.UIWidgets.Redux;
-using UnityEngine;
 
 namespace ConnectApp.redux.actions {
     public class StartFetchUserProfileAction : RequestAction {
@@ -171,7 +170,7 @@ namespace ConnectApp.redux.actions {
                                 userId = userId,
                                 errorCode = errorCode
                             });
-                            Debug.Log(error);
+                            Debuger.LogError(message: error);
                         }
                     );
             });
@@ -203,10 +202,9 @@ namespace ConnectApp.redux.actions {
                         });
                     })
                     .Catch(error => {
-                            dispatcher.dispatch(new FetchUserArticleFailureAction());
-                            Debug.Log(error);
-                        }
-                    );
+                        dispatcher.dispatch(new FetchUserArticleFailureAction());
+                        Debuger.LogError(message: error);
+                    });
             });
         }
 
@@ -221,10 +219,9 @@ namespace ConnectApp.redux.actions {
                         });
                     })
                     .Catch(error => {
-                            dispatcher.dispatch(new FollowUserFailureAction {followUserId = followUserId});
-                            Debug.Log(error);
-                        }
-                    );
+                        dispatcher.dispatch(new FollowUserFailureAction {followUserId = followUserId});
+                        Debuger.LogError(message: error);
+                    });
             });
         }
 
@@ -239,10 +236,9 @@ namespace ConnectApp.redux.actions {
                         });
                     })
                     .Catch(error => {
-                            dispatcher.dispatch(new UnFollowUserFailureAction {unFollowUserId = unFollowUserId});
-                            Debug.Log(error);
-                        }
-                    );
+                        dispatcher.dispatch(new UnFollowUserFailureAction {unFollowUserId = unFollowUserId});
+                        Debuger.LogError(message: error);
+                    });
             });
         }
 
@@ -261,10 +257,9 @@ namespace ConnectApp.redux.actions {
                         });
                     })
                     .Catch(error => {
-                            dispatcher.dispatch(new FetchFollowingFailureAction());
-                            Debug.Log(error);
-                        }
-                    );
+                        dispatcher.dispatch(new FetchFollowingFailureAction());
+                        Debuger.LogError(message: error);
+                    });
             });
         }
 
@@ -296,10 +291,9 @@ namespace ConnectApp.redux.actions {
                         });
                     })
                     .Catch(error => {
-                            dispatcher.dispatch(new FetchFollowingUserFailureAction());
-                            Debug.Log(error);
-                        }
-                    );
+                        dispatcher.dispatch(new FetchFollowingUserFailureAction());
+                        Debuger.LogError(message: error);
+                    });
             });
         }
 
@@ -331,10 +325,9 @@ namespace ConnectApp.redux.actions {
                         });
                     })
                     .Catch(error => {
-                            dispatcher.dispatch(new FetchFollowerFailureAction());
-                            Debug.Log(error);
-                        }
-                    );
+                        dispatcher.dispatch(new FetchFollowerFailureAction());
+                        Debuger.LogError(message: error);
+                    });
             });
         }
 
@@ -365,10 +358,9 @@ namespace ConnectApp.redux.actions {
                         });
                     })
                     .Catch(error => {
-                            dispatcher.dispatch(new FetchFollowingTeamFailureAction());
-                            Debug.Log(error);
-                        }
-                    );
+                        dispatcher.dispatch(new FetchFollowingTeamFailureAction());
+                        Debuger.LogError(message: error);
+                    });
             });
         }
 

@@ -29,30 +29,26 @@ namespace ConnectApp.Components {
             this.items = items;
         }
 
-        public readonly SelectTabCallBack tapCallBack;
-        public readonly Color backgroundColor;
-        public readonly List<Widget> controllers;
-        public readonly List<CustomTabBarItem> items;
+        readonly SelectTabCallBack tapCallBack;
+        readonly Color backgroundColor;
+        readonly List<Widget> controllers;
+        readonly List<CustomTabBarItem> items;
 
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, List<string>>(
-                converter: state => {
-                    return new List<string> {
-                        null,
-                        null,
-                        state.channelState.totalNotification(),
-                        null
-                    };
+                converter: state => new List<string> {
+                    null,
+                    null,
+                    state.channelState.totalNotification(),
+                    null
                 },
-                builder: (context1, notifications, dispatcher) => {
-                    return new CustomTabBar(
-                        controllers: this.controllers,
-                        items: this.items,
-                        backgroundColor: this.backgroundColor,
-                        notifications: notifications,
-                        tapCallBack: this.tapCallBack
-                    );
-                }
+                builder: (context1, notifications, dispatcher) => new CustomTabBar(
+                    controllers: this.controllers,
+                    items: this.items,
+                    backgroundColor: this.backgroundColor,
+                    notifications: notifications,
+                    tapCallBack: this.tapCallBack
+                )
             );
         }
     }
@@ -96,7 +92,7 @@ namespace ConnectApp.Components {
             base.initState();
             this._selectedIndex = 0;
             this._bottomPadding = 0;
-            this._pageController = new PageController(this._selectedIndex);
+            this._pageController = new PageController(initialPage: this._selectedIndex);
         }
 
         public override Widget build(BuildContext context) {
@@ -215,9 +211,11 @@ namespace ConnectApp.Components {
                             new Positioned(
                                 left: (float) Math.Ceiling(screenWidth / 8) + 2,
                                 top: 4,
-                                child: new NotificationDot(
-                                    this.widget.notifications[index: item.index],
-                                    new BorderSide(color: CColors.White, 2)
+                                child: new IgnorePointer(
+                                    child: new NotificationDot(
+                                        this.widget.notifications[index: item.index],
+                                        new BorderSide(color: CColors.White, 2)
+                                    )
                                 )
                             )
                         }

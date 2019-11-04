@@ -8,6 +8,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using Image = Unity.UIWidgets.widgets.Image;
@@ -16,7 +17,7 @@ namespace ConnectApp.Components {
     public static class ContentDescription {
         const int codeBlockNumber = 10;
         static readonly Color codeBlockBackgroundColor = Color.fromRGBO(110, 198, 255, 0.12f);
-        public static List<string> imageUrls = new List<string>();
+        public static readonly List<string> imageUrls = new List<string>();
 
         public static List<Widget> map(BuildContext context, string cont, Dictionary<string, ContentMap> contentMap,
             Dictionary<string, VideoSliceMap> videoSliceMap, Dictionary<string, string> videoPosterMap,
@@ -145,9 +146,7 @@ namespace ConnectApp.Components {
                                     var attachmentId = map.attachmentId ?? "";
                                     var downloadUrl = map.downloadUrl ?? "";
                                     var contentType = map.contentType ?? "";
-                                    var originalImage = map.originalImage == null
-                                        ? map.thumbnail
-                                        : map.originalImage;
+                                    var originalImage = map.originalImage ?? map.thumbnail;
                                     var needUpdate = false;
                                     var limitSeconds = 0;
                                     var videoStatus = "completed";
@@ -189,10 +188,7 @@ namespace ConnectApp.Components {
                 return new Container();
             }
 
-            Widget child = new Text(
-                text,
-                style: CTextStyle.H4
-            );
+            Widget child;
             if (inlineSpans != null) {
                 child = new RichText(
                     text: new TextSpan(
@@ -200,11 +196,25 @@ namespace ConnectApp.Components {
                     )
                 );
             }
+            else {
+                child = new Text(
+                    data: text,
+                    style: CTextStyle.H4
+                );
+            }
 
             return new Container(
                 color: CColors.White,
                 padding: EdgeInsets.only(16, 16, 16, 24),
-                child: child
+                child: new TipMenu(
+                    new List<TipMenuItem> {
+                        new TipMenuItem(
+                            "复制",
+                            () => Clipboard.setData(new ClipboardData(text: text))
+                        )
+                    },
+                    child: child
+                )
             );
         }
 
@@ -213,10 +223,7 @@ namespace ConnectApp.Components {
                 return new Container();
             }
 
-            Widget child = new Text(
-                text,
-                style: CTextStyle.H5
-            );
+            Widget child;
             if (inlineSpans != null) {
                 child = new RichText(
                     text: new TextSpan(
@@ -224,11 +231,25 @@ namespace ConnectApp.Components {
                     )
                 );
             }
+            else {
+                child = new Text(
+                    data: text,
+                    style: CTextStyle.H5
+                );
+            }
 
             return new Container(
                 color: CColors.White,
                 padding: EdgeInsets.only(16, 16, 16, 24),
-                child: child
+                child: new TipMenu(
+                    new List<TipMenuItem> {
+                        new TipMenuItem(
+                            "复制",
+                            () => Clipboard.setData(new ClipboardData(text: text))
+                        )
+                    },
+                    child: child
+                )
             );
         }
 
@@ -237,10 +258,7 @@ namespace ConnectApp.Components {
                 return new Container();
             }
 
-            Widget child = new Text(
-                text,
-                style: CTextStyle.PXLarge
-            );
+            Widget child;
             if (inlineSpans != null) {
                 child = new RichText(
                     text: new TextSpan(
@@ -248,17 +266,31 @@ namespace ConnectApp.Components {
                     )
                 );
             }
+            else {
+                child = new Text(
+                    data: text,
+                    style: CTextStyle.PXLarge
+                );
+            }
 
-            return new Container(
-                color: CColors.White,
-                padding: EdgeInsets.only(16, right: 16, bottom: 24),
-                child: child
+            return new TipMenu(
+                new List<TipMenuItem> {
+                    new TipMenuItem(
+                        "复制",
+                        () => Clipboard.setData(new ClipboardData(text: text))
+                    )
+                },
+                new Container(
+                    color: CColors.White,
+                    padding: EdgeInsets.only(16, right: 16, bottom: 24),
+                    child: child
+                )
             );
         }
 
         static List<Widget> _CodeBlock(string text) {
             List<Widget> codeBlockList = new List<Widget>();
-            if (string.IsNullOrEmpty(text)) {
+            if (text.isEmpty()) {
                 codeBlockList.Add(new Container());
             }
             else {
@@ -278,12 +310,20 @@ namespace ConnectApp.Components {
                         }
                     }
 
-                    var codeWidget = new Container(
-                        color: codeBlockBackgroundColor,
-                        padding: EdgeInsets.symmetric(horizontal: 16),
-                        child: new Text(
-                            codeBlockGroup,
-                            style: CTextStyle.PCodeStyle
+                    var codeWidget = new TipMenu(
+                        new List<TipMenuItem> {
+                            new TipMenuItem(
+                                "复制",
+                                () => Clipboard.setData(new ClipboardData(text: codeBlockGroup))
+                            )
+                        },
+                        new Container(
+                            color: codeBlockBackgroundColor,
+                            padding: EdgeInsets.symmetric(horizontal: 16),
+                            child: new Text(
+                                data: codeBlockGroup,
+                                style: CTextStyle.PCodeStyle
+                            )
                         )
                     );
                     codeBlockList.Add(item: codeWidget);
@@ -296,12 +336,8 @@ namespace ConnectApp.Components {
             return codeBlockList;
         }
 
-
         static Widget _QuoteBlock(string text, List<TextSpan> inlineSpans) {
-            Widget child = new Text(
-                text,
-                style: CTextStyle.PXLargeBody4
-            );
+            Widget child;
             if (inlineSpans != null) {
                 child = new RichText(
                     text: new TextSpan(
@@ -309,22 +345,33 @@ namespace ConnectApp.Components {
                     )
                 );
             }
+            else {
+                child = new Text(
+                    data: text,
+                    style: CTextStyle.PXLargeBody4
+                );
+            }
 
-            return new Container(
-                color: CColors.White,
-                padding: EdgeInsets.only(16, right: 16, bottom: 24),
-                child: new Container(
-                    decoration: new BoxDecoration(
-                        CColors.White,
-                        border: new Border(
-                            left: new BorderSide(
-                                CColors.Separator,
-                                8
+            return new TipMenu(
+                new List<TipMenuItem> {
+                    new TipMenuItem("复制", () => Clipboard.setData(new ClipboardData(text: text)))
+                },
+                new Container(
+                    color: CColors.White,
+                    padding: EdgeInsets.only(16, right: 16, bottom: 24),
+                    child: new Container(
+                        decoration: new BoxDecoration(
+                            color: CColors.White,
+                            border: new Border(
+                                left: new BorderSide(
+                                    color: CColors.Separator,
+                                    8
+                                )
                             )
-                        )
-                    ),
-                    padding: EdgeInsets.only(16),
-                    child: child
+                        ),
+                        padding: EdgeInsets.only(16),
+                        child: child
+                    )
                 )
             );
         }
@@ -499,7 +546,6 @@ namespace ConnectApp.Components {
             );
         }
 
-
         static Widget _OrderedList(
             string text,
             int index,
@@ -509,23 +555,28 @@ namespace ConnectApp.Components {
             var spans = new List<TextSpan> {
                 new TextSpan(
                     $"{index}. ",
-                    CTextStyle.PXLarge
+                    style: CTextStyle.PXLarge
                 )
             };
             if (inlineSpans != null) {
-                spans.AddRange(inlineSpans);
+                spans.AddRange(collection: inlineSpans);
             }
             else {
-                spans.Add(new TextSpan(text, CTextStyle.PXLarge));
+                spans.Add(new TextSpan(text: text, style: CTextStyle.PXLarge));
             }
 
-            return new Container(
-                color: CColors.White,
-                padding: EdgeInsets.only(16, right: 16, top: index == 1 ? 0 : 4, bottom: isLast ? 24 : 0),
-                child: new RichText(
-                    text: new TextSpan(
-                        style: CTextStyle.PXLarge,
-                        children: spans
+            return new TipMenu(
+                new List<TipMenuItem> {
+                    new TipMenuItem("复制", () => Clipboard.setData(new ClipboardData(text: text)))
+                },
+                new Container(
+                    color: CColors.White,
+                    padding: EdgeInsets.only(16, right: 16, top: index == 1 ? 0 : 4, bottom: isLast ? 24 : 0),
+                    child: new RichText(
+                        text: new TextSpan(
+                            style: CTextStyle.PXLarge,
+                            children: spans
+                        )
                     )
                 )
             );
@@ -537,15 +588,18 @@ namespace ConnectApp.Components {
             bool isLast,
             List<TextSpan> inlineSpans
         ) {
-            Widget child = new Text(
-                text,
-                style: CTextStyle.PXLarge
-            );
+            Widget child;
             if (inlineSpans != null) {
                 child = new RichText(
                     text: new TextSpan(
                         children: inlineSpans
                     )
+                );
+            }
+            else {
+                child = new Text(
+                    data: text,
+                    style: CTextStyle.PXLarge
                 );
             }
 
@@ -555,7 +609,7 @@ namespace ConnectApp.Components {
                     height: 8,
                     margin: EdgeInsets.only(top: 14, right: 8),
                     decoration: new BoxDecoration(
-                        CColors.Black,
+                        color: CColors.Black,
                         borderRadius: BorderRadius.all(4)
                     )
                 ),
@@ -564,12 +618,17 @@ namespace ConnectApp.Components {
                 )
             };
 
-            return new Container(
-                color: CColors.White,
-                padding: EdgeInsets.only(16, isFirst ? 0 : 4, 16, isLast ? 24 : 0),
-                child: new Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: spans
+            return new TipMenu(
+                new List<TipMenuItem> {
+                    new TipMenuItem("复制", () => Clipboard.setData(new ClipboardData(text: text)))
+                },
+                new Container(
+                    color: CColors.White,
+                    padding: EdgeInsets.only(16, isFirst ? 0 : 4, 16, isLast ? 24 : 0),
+                    child: new Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: spans
+                    )
                 )
             );
         }

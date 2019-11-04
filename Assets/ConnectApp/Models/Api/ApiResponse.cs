@@ -222,9 +222,11 @@ namespace ConnectApp.Models.Api {
         public List<string> discoverList;
         public List<string> joinedList;
         public int discoverPage;
+        public bool discoverHasMore;
         public Dictionary<string, Channel> channelMap;
         public Dictionary<string, ChannelMember> joinedMemberMap;
-        public Dictionary<string, bool> joinedChannelMap;
+        public Dictionary<string, Group> groupFullMap;
+        public Dictionary<string, GroupMember> groupMemberMap;
     }
 
     [Serializable]
@@ -236,11 +238,19 @@ namespace ConnectApp.Models.Api {
     }
 
     [Serializable]
+    public class FetchMuteChannelResponse {
+    }
+
+    [Serializable]
+    public class FetchUnMuteChannelResponse {
+    }
+
+    [Serializable]
     public class FetchChannelMessagesResponse {
         public List<ChannelMessage> items;
         public bool hasMore;
         public bool hasMoreNew;
-        public Dictionary<string, UserLicense> userLicenseMap; 
+        public Dictionary<string, UserLicense> userLicenseMap;
     }
 
     [Serializable]
@@ -257,6 +267,14 @@ namespace ConnectApp.Models.Api {
         public int offset;
         public int total;
         public Dictionary<string, bool> followeeMap;
+    }
+
+    [Serializable]
+    public class FetchChannelInfoResponse {
+        public Channel channel;
+        public ChannelMember channelMember;
+        public Group groupFull;
+        public GroupMember groupMember;
     }
 
     [Serializable]
@@ -292,5 +310,10 @@ namespace ConnectApp.Models.Api {
         public Dictionary<string, Article> projectSimpleMap;
         public List<Favorite> favorites;
         public bool hasMore;
+    }
+
+    [Serializable]
+    public class FetchChannelMemberQueryResponse {
+        public List<ChannelMember> searchMembers;
     }
 }

@@ -8,7 +8,7 @@ buildscript {
 
     dependencies {
         classpath 'com.android.tools.build:gradle:3.2.0'
-}
+    }
 }
 
 allprojects {
@@ -56,8 +56,8 @@ android {
         ndk {
             abiFilters 'armeabi-v7a', 'x86'
         }
-        versionCode 76
-        versionName '1.2.0'
+        versionCode 82
+        versionName '1.2.1'
     }
 
     lintOptions {

@@ -150,6 +150,9 @@ namespace ConnectApp.Plugins {
                 else if (uri.AbsolutePath.Equals("/connectapplink/event_detail")) {
                     type = "event";
                 }
+                else if (uri.AbsolutePath.Equals("/connectapplink/messenger")) {
+                    type = "messenger";
+                }
                 else {
                     return;
                 }
@@ -179,6 +182,9 @@ namespace ConnectApp.Plugins {
                     else if (uri.AbsolutePath.Equals("/event_detail")) {
                         type = "event";
                     }
+                    else if (uri.AbsolutePath.Equals("/messenger")) {
+                        type = "messenger";
+                    }
                     else {
                         return;
                     }
@@ -193,7 +199,7 @@ namespace ConnectApp.Plugins {
             }
         }
 
-        static void pushPage(string type, string subType, string id, bool isPush = false) {
+        public static void pushPage(string type, string subType, string id, bool isPush = false) {
             if (id.isEmpty()) {
                 return;
             }
@@ -235,6 +241,10 @@ namespace ConnectApp.Plugins {
                 if (subType == "channelAt") {
                     StoreProvider.store.dispatcher.dispatch(
                         new MainNavigatorPushToChannelAction {channelId = id});
+                }
+                else if (subType == "channelShare") {
+                    StoreProvider.store.dispatcher.dispatch(
+                        new MainNavigatorPushToChannelShareAction {channelId = id});
                 }
             }
         }

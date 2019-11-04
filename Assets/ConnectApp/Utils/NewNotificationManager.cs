@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 using UnityEngine;
 
 namespace ConnectApp.Utils {
-    public class NewNotificationManager {
+    public static class NewNotificationManager {
         const string _newNotifications = "NewNotifications";
 
         public static void saveNewNotification(string userId, string newNotification) {

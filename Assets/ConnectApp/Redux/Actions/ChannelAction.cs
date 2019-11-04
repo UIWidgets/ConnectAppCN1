@@ -10,20 +10,26 @@ using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.Redux;
-using UnityEngine;
 
 namespace ConnectApp.redux.actions {
     public static partial class Actions {
-        public static object fetchChannels(int page, bool fetchMessagesAfterSuccess = false) {
+        public static object fetchChannels(int page, bool fetchMessagesAfterSuccess = false, bool joined = true,
+            bool discoverAll = false) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return ChannelApi.FetchChannels(page: page).Then(channelResponse => {
+                dispatcher.dispatch(new StartFetchChannelsAction());
+                return ChannelApi.FetchChannels(page: page, joined: joined, discoverAll: discoverAll)
+                    .Then(channelResponse => {
                         dispatcher.dispatch(new FetchChannelsSuccessAction {
                             discoverList = channelResponse.discoverList ?? new List<string>(),
                             joinedList = channelResponse.joinedList ?? new List<string>(),
                             discoverPage = channelResponse.discoverPage,
                             channelMap = channelResponse.channelMap ?? new Dictionary<string, Channel>(),
-                            joinedMemberMap = channelResponse.joinedMemberMap ?? new Dictionary<string, ChannelMember>(),
-                            joinedChannelMap = channelResponse.joinedChannelMap ?? new Dictionary<string, bool>()
+                            joinedMemberMap =
+                                channelResponse.joinedMemberMap ?? new Dictionary<string, ChannelMember>(),
+                            groupMap = channelResponse.groupFullMap ?? new Dictionary<string, Group>(),
+                            groupMemberMap = channelResponse.groupMemberMap ?? new Dictionary<string, GroupMember>(),
+                            updateJoined = joined,
+                            discoverHasMore = channelResponse.discoverHasMore
                         });
                         if (fetchMessagesAfterSuccess) {
                             channelResponse.joinedList.ForEach(joinedChannelId => {
@@ -34,8 +40,24 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new FetchChannelsFailureAction());
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                         dispatcher.dispatch(loadReadyStateFromDB());
+                    });
+            });
+        }
+
+
+        public static object fetchCreateChannelFilter() {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return ChannelApi.FetchChannels(page: 1, joined: false, discoverAll: true)
+                    .Then(channelResponse => {
+                        dispatcher.dispatch(new FetchDiscoverChannelFilterSuccessAction {
+                            discoverList = channelResponse.discoverList ?? new List<string>(),
+                        });
+                    })
+                    .Catch(error => {
+                        dispatcher.dispatch(new FetchDiscoverChannelFilterFailureAction());
+                        Debuger.LogError(message: error);
                     });
             });
         }
@@ -45,6 +67,7 @@ namespace ConnectApp.redux.actions {
                 CustomDialogUtils.showToast("请检查网络", iconData: Icons.sentiment_dissatisfied);
                 return null;
             }
+
             CustomDialogUtils.showCustomDialog(child: new CustomLoadingDialog(message: "置顶中"));
 
             return new ThunkAction<AppState>((dispatcher, getState) => {
@@ -57,7 +80,7 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         CustomDialogUtils.hiddenCustomDialog();
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }
@@ -67,6 +90,7 @@ namespace ConnectApp.redux.actions {
                 CustomDialogUtils.showToast("请检查网络", iconData: Icons.sentiment_dissatisfied);
                 return null;
             }
+
             CustomDialogUtils.showCustomDialog(child: new CustomLoadingDialog(message: "取消置顶中"));
 
             return new ThunkAction<AppState>((dispatcher, getState) => {
@@ -79,8 +103,71 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         CustomDialogUtils.hiddenCustomDialog();
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
+            });
+        }
+
+
+        public static object fetchMuteChannel(string channelId) {
+            if (HttpManager.isNetWorkError()) {
+                CustomDialogUtils.showToast("请检查网络", iconData: Icons.sentiment_dissatisfied);
+                return null;
+            }
+
+            CustomDialogUtils.showCustomDialog(child: new CustomLoadingDialog(message: "免打扰中"));
+
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return ChannelApi.FetchMuteChannel(channelId: channelId)
+                    .Then(muteChannelResponse => {
+                        CustomDialogUtils.hiddenCustomDialog();
+                        dispatcher.dispatch(new FetchMuteChannelSuccessAction {
+                            channelId = channelId
+                        });
+                    })
+                    .Catch(error => {
+                        CustomDialogUtils.hiddenCustomDialog();
+                        Debuger.LogError(message: error);
+                    });
+            });
+        }
+
+        public static object fetchUnMuteChannel(string channelId) {
+            if (HttpManager.isNetWorkError()) {
+                CustomDialogUtils.showToast("请检查网络", iconData: Icons.sentiment_dissatisfied);
+                return null;
+            }
+
+            CustomDialogUtils.showCustomDialog(child: new CustomLoadingDialog(message: "取消免打扰中"));
+
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return ChannelApi.FetchUnMuteChannel(channelId: channelId)
+                    .Then(unMuteChannelResponse => {
+                        CustomDialogUtils.hiddenCustomDialog();
+                        dispatcher.dispatch(new FetchUnMuteChannelSuccessAction {
+                            channelId = channelId
+                        });
+                    })
+                    .Catch(error => {
+                        CustomDialogUtils.hiddenCustomDialog();
+                        Debuger.LogError(message: error);
+                    });
+            });
+        }
+
+        public static object fetchChannelInfo(string channelId, bool ignoreError = false) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return ChannelApi.FetchChannelInfo(channelId: channelId)
+                    .Then(channelInfoResponse => {
+                        if (channelInfoResponse.channelMember == null && !ignoreError) {
+                            dispatcher.dispatch(new FetchChannelInfoErrorAction());
+                        }
+
+                        dispatcher.dispatch(new FetchChannelInfoSuccessAction {
+                            channel = channelInfoResponse.channel
+                        });
+                    })
+                    .Catch(onRejected: Debuger.LogError);
             });
         }
 
@@ -94,6 +181,12 @@ namespace ConnectApp.redux.actions {
                         var userMap = new Dictionary<string, User>();
                         (channelMessagesResponse.items ?? new List<ChannelMessage>()).ForEach(channelMessage => {
                             userMap[key: channelMessage.author.id] = channelMessage.author;
+                            (channelMessage.mentions ?? new List<User>()).ForEach(mention => {
+                                userMap[key: mention.id] = mention;
+                            });
+                            (channelMessage.replyUsers ?? new List<User>()).ForEach(replyUser => {
+                                userMap[key: replyUser.id] = replyUser;
+                            });
                         });
                         dispatcher.dispatch(new UserMapAction {userMap = userMap});
                         dispatcher.dispatch(new FetchChannelMessagesSuccessAction {
@@ -110,12 +203,12 @@ namespace ConnectApp.redux.actions {
                                 : loadMessagesFromDB(channelId, before.hexToLong()));
                         }
                         catch (Exception e) {
-                            Debug.LogError(e);
+                            Debuger.LogWarning(message: e);
                         }
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new FetchChannelMessagesFailureAction());
-                        Debug.LogError(error);
+                        Debuger.LogError(message: error);
                         dispatcher.dispatch(loadMessagesFromDB(channelId, before.hexToLong()));
                     });
             });
@@ -148,7 +241,7 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new FetchChannelMembersFailureAction());
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }
@@ -164,7 +257,7 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new FetchChannelMemberFailureAction());
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }
@@ -188,7 +281,24 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new FetchChannelMentionSuggestionsFailureAction());
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
+                    });
+            });
+        }
+
+        public static object queryChannelMentionSuggestions(string channelId, string query) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return ChannelApi.FetchChannelMemberQuery(channelId: channelId, query: query)
+                    .Then(channelMemberResponse => {
+                        var searchMembers = channelMemberResponse.searchMembers ?? new List<ChannelMember>();
+                        dispatcher.dispatch(new FetchChannelMentionQuerySuccessAction {
+                            channelId = channelId,
+                            members = searchMembers
+                        });
+                    })
+                    .Catch(error => {
+                        dispatcher.dispatch(new FetchChannelMentionQueryFailureAction());
+                        Debuger.LogError(message: error);
                     });
             });
         }
@@ -224,13 +334,14 @@ namespace ConnectApp.redux.actions {
                         if (loading) {
                             CustomDialogUtils.hiddenCustomDialog();
                         }
+
                         dispatcher.dispatch(new JoinChannelFailureAction {channelId = channelId});
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }
 
-        public static object leaveChannel(string channelId, string groupId = null) {
+        public static object leaveChannel(string channelId, string memberId = null, string groupId = null) {
             if (HttpManager.isNetWorkError()) {
                 CustomDialogUtils.showToast("请检查网络", iconData: Icons.sentiment_dissatisfied);
                 return null;
@@ -239,7 +350,7 @@ namespace ConnectApp.redux.actions {
             CustomDialogUtils.showCustomDialog(child: new CustomLoadingDialog(message: "正在退出群聊"));
 
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return ChannelApi.LeaveChannel(channelId: channelId, groupId: groupId)
+                return ChannelApi.LeaveChannel(channelId: channelId, memberId: memberId, groupId: groupId)
                     .Then(leaveChannelResponse => {
                         dispatcher.dispatch(new LeaveChannelSuccessAction {channelId = channelId});
                         CustomDialogUtils.hiddenCustomDialog();
@@ -249,7 +360,7 @@ namespace ConnectApp.redux.actions {
                     .Catch(error => {
                         dispatcher.dispatch(new LeaveChannelFailureAction());
                         CustomDialogUtils.hiddenCustomDialog();
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }
@@ -268,9 +379,10 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new SendChannelMessageFailureAction {
-                            channelId = channelId
+                            channelId = channelId,
+                            messageId = nonce
                         });
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }
@@ -278,12 +390,10 @@ namespace ConnectApp.redux.actions {
         public static object deleteChannelMessage(string messageId) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ChannelApi.DeleteChannelMessage(messageId: messageId)
-                    .Then(ackMessageResponse => {
-                        dispatcher.dispatch(new DeleteChannelMessageSuccessAction());
-                    })
+                    .Then(ackMessageResponse => { dispatcher.dispatch(new DeleteChannelMessageSuccessAction()); })
                     .Catch(error => {
                         dispatcher.dispatch(new DeleteChannelMessageFailureAction());
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }
@@ -291,17 +401,15 @@ namespace ConnectApp.redux.actions {
         public static object ackChannelMessage(string messageId) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ChannelApi.AckChannelMessage(messageId: messageId)
-                    .Then(ackMessageResponse => {
-                        dispatcher.dispatch(new AckChannelMessageSuccessAction());
-                    })
+                    .Then(ackMessageResponse => { dispatcher.dispatch(new AckChannelMessageSuccessAction()); })
                     .Catch(error => {
                         dispatcher.dispatch(new AckChannelMessageFailureAction());
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }
 
-        public static object sendImage(string channelId, string nonce, string imageData) {
+        public static object sendImage(string channelId, string nonce, byte[] imageData) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ChannelApi.SendImage(channelId, "", nonce, imageData)
                     .Then(responseText => {
@@ -313,8 +421,33 @@ namespace ConnectApp.redux.actions {
                         });
                     })
                     .Catch(error => {
-                        dispatcher.dispatch(new SendChannelMessageFailureAction());
-                        Debug.Log(error);
+                        dispatcher.dispatch(new SendChannelMessageFailureAction {
+                            channelId = channelId,
+                            messageId = nonce
+                        });
+                        Debuger.LogError(message: error);
+                    });
+            });
+        }
+
+        public static object sendVideo(string channelId, string nonce, byte[] videoData, string fileName) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return ChannelApi.SendVideo(channelId: channelId, "", nonce: nonce, videoData: videoData,
+                        fileName: fileName)
+                    .Then(responseText => {
+                        dispatcher.dispatch(new SendChannelMessageSuccessAction {
+                            channelId = channelId,
+                            content = "",
+                            nonce = nonce,
+                            isImage = false
+                        });
+                    })
+                    .Catch(error => {
+                        dispatcher.dispatch(new SendChannelMessageFailureAction {
+                            channelId = channelId,
+                            messageId = nonce
+                        });
+                        Debuger.LogError(message: error);
                     });
             });
         }
@@ -355,7 +488,9 @@ namespace ConnectApp.redux.actions {
                 return Promise.Resolved();
             });
         }
+    }
 
+    public class StartFetchChannelsAction : BaseAction {
     }
 
     public class FetchChannelsSuccessAction : BaseAction {
@@ -364,10 +499,20 @@ namespace ConnectApp.redux.actions {
         public int discoverPage;
         public Dictionary<string, Channel> channelMap;
         public Dictionary<string, ChannelMember> joinedMemberMap;
-        public Dictionary<string, bool> joinedChannelMap;
+        public Dictionary<string, Group> groupMap;
+        public Dictionary<string, GroupMember> groupMemberMap;
+        public bool updateJoined;
+        public bool discoverHasMore;
     }
 
     public class FetchChannelsFailureAction : BaseAction {
+    }
+
+    public class FetchDiscoverChannelFilterSuccessAction : BaseAction {
+        public List<string> discoverList;
+    }
+
+    public class FetchDiscoverChannelFilterFailureAction : BaseAction {
     }
 
     public class FetchStickChannelSuccessAction : BaseAction {
@@ -376,6 +521,21 @@ namespace ConnectApp.redux.actions {
 
     public class FetchUnStickChannelSuccessAction : BaseAction {
         public string channelId;
+    }
+
+    public class FetchMuteChannelSuccessAction : BaseAction {
+        public string channelId;
+    }
+
+    public class FetchUnMuteChannelSuccessAction : BaseAction {
+        public string channelId;
+    }
+
+    public class FetchChannelInfoSuccessAction : BaseAction {
+        public Channel channel;
+    }
+
+    public class FetchChannelInfoErrorAction : BaseAction {
     }
 
     public class StartFetchChannelMessageAction : BaseAction {
@@ -432,7 +592,7 @@ namespace ConnectApp.redux.actions {
     }
 
     public class StartSendChannelMessageAction : RequestAction {
-        public string channelId;
+        public ChannelMessageView message;
     }
 
     public class SendChannelMessageSuccessAction : BaseAction {
@@ -444,17 +604,18 @@ namespace ConnectApp.redux.actions {
 
     public class SendChannelMessageFailureAction : BaseAction {
         public string channelId;
+        public string messageId;
     }
 
     public class DeleteChannelMessageSuccessAction : BaseAction {
     }
-    
+
     public class DeleteChannelMessageFailureAction : BaseAction {
     }
 
     public class AckChannelMessageSuccessAction : BaseAction {
     }
-    
+
     public class AckChannelMessageFailureAction : BaseAction {
     }
 
@@ -471,6 +632,10 @@ namespace ConnectApp.redux.actions {
     }
 
     public class ChannelScreenLeaveBottom : BaseAction {
+        public string channelId;
+    }
+
+    public class SetChannelInactive : BaseAction {
         public string channelId;
     }
 
@@ -502,8 +667,19 @@ namespace ConnectApp.redux.actions {
         public SocketResponseChannelMemberChangeData memberData;
     }
 
+    public class PushChannelCreateChannelAction : BaseAction {
+        public SocketResponseUpdateChannelData channelData;
+    }
+
+    public class PushChannelDeleteChannelAction : BaseAction {
+        public SocketResponseUpdateChannelData channelData;
+    }
+
+    public class PushChannelUpdateChannelAction : BaseAction {
+        public SocketResponseUpdateChannelData channelData;
+    }
+
     public class SaveMessagesToDBSuccessAction : BaseAction {
-        
     }
 
     public class LoadMessagesFromDBSuccessAction : BaseAction {
@@ -513,7 +689,6 @@ namespace ConnectApp.redux.actions {
     }
 
     public class SaveReadyStateToDBSuccessAction : BaseAction {
-        
     }
 
     public class LoadReadyStateFromDBSuccessAction : BaseAction {
@@ -531,9 +706,14 @@ namespace ConnectApp.redux.actions {
     public class SocketConnectStateAction : BaseAction {
         public bool connected;
     }
-    
+
+    public class NetWorkStateAction : BaseAction {
+        public bool available;
+    }
+
     public class ChannelChooseMentionConfirmAction : BaseAction {
         public string mentionUserId;
+        public string mentionUserName;
     }
 
     public class ChannelChooseMentionCancelAction : BaseAction {
@@ -543,6 +723,9 @@ namespace ConnectApp.redux.actions {
     }
 
     public class StartFetchChannelMentionSuggestionAction : BaseAction {
+    }
+
+    public class StartSearchChannelMentionSuggestionAction : BaseAction {
     }
 
     public class FetchChannelMentionSuggestionsSuccessAction : BaseAction {
@@ -555,5 +738,32 @@ namespace ConnectApp.redux.actions {
 
     public class UpdateNewNotificationAction : BaseAction {
         public string notification;
+    }
+
+    public class PushChannelMessageAckAction : BaseAction {
+        public SocketResponseMessageAckData ackData;
+    }
+
+    public class AddLocalMessageAction : BaseAction {
+        public ChannelMessageView message;
+    }
+
+    public class ResendMessageAction : BaseAction {
+        public ChannelMessageView message;
+    }
+
+    public class FetchChannelMentionQuerySuccessAction : BaseAction {
+        public string channelId;
+        public List<ChannelMember> members;
+    }
+
+    public class FetchChannelMentionQueryFailureAction : BaseAction {
+    }
+
+    public class ChannelUpdateMentionQueryAction : BaseAction {
+        public string mentionQuery;
+    }
+
+    public class ChannelClearMentionQueryAction : BaseAction {
     }
 }

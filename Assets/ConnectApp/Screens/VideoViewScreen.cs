@@ -32,8 +32,6 @@ namespace ConnectApp.screens {
     }
 
     public class _VideoViewScreenState : State<VideoViewScreen>, RouteAware {
-        bool _isFullScreen;
-
         public override void initState() {
             base.initState();
             StatusBarManager.hideStatusBar(true);
@@ -58,9 +56,7 @@ namespace ConnectApp.screens {
                         child: new Stack(
                             children: new List<Widget> {
                                 new Positioned(
-                                    top: 0, left: 16, right: 0, child: this._isFullScreen
-                                        ? new Container()
-                                        : new Container(
+                                    top: 0, left: 16, right: 0, child: new Container(
                                             child: new Row(
                                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                 children: new List<Widget> {

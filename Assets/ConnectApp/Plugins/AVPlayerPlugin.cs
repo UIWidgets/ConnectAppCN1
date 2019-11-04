@@ -8,12 +8,13 @@ using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
+
 #if UNITY_IOS
 using System.Runtime.InteropServices;
 #endif
 
 namespace ConnectApp.Plugins {
-    public class AVPlayerPlugin {
+    public static class AVPlayerPlugin {
         public static bool isExistPlayer;
         public static bool isConfigPlayer;
 
@@ -98,6 +99,14 @@ namespace ConnectApp.Plugins {
                             Application.OpenURL(Config.unityLearnPremiumUrl);
                             break;
                         }
+                        case "LandscapeLeft": {
+                            Screen.orientation = ScreenOrientation.LandscapeLeft;
+                            break;
+                        }
+                        case "Portrait": {
+                            Screen.orientation = ScreenOrientation.Portrait;
+                            break;
+                        }
                     }
                 }
             }
@@ -106,26 +115,26 @@ namespace ConnectApp.Plugins {
 
 #if UNITY_IOS
         [DllImport("__Internal")]
-        internal static extern void InitPlayer(string url, string cookie, float left, float top, float width,
+        static extern void InitPlayer(string url, string cookie, float left, float top, float width,
             float height, bool isPop, bool needUpdate, int limitSeconds);
 
         [DllImport("__Internal")]
-        internal static extern void ConfigPlayer(string url, string cookie);
+        static extern void ConfigPlayer(string url, string cookie);
 
         [DllImport("__Internal")]
-        internal static extern void VideoRelease();
+        static extern void VideoRelease();
 
         [DllImport("__Internal")]
-        internal static extern void VideoPause();
+        static extern void VideoPause();
 
         [DllImport("__Internal")]
-        internal static extern void VideoPlay();
+        static extern void VideoPlay();
 
         [DllImport("__Internal")]
-        internal static extern void VideoHidden();
+        static extern void VideoHidden();
 
         [DllImport("__Internal")]
-        internal static extern void VideoShow();
+        static extern void VideoShow();
 
 #elif UNITY_ANDROID
         static AndroidJavaObject _plugin;

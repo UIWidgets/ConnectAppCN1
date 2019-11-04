@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ConnectApp.Models.Api;
 using ConnectApp.Utils;
+using Unity.UIWidgets.foundation;
 
 namespace ConnectApp.Models.Model {
     [Serializable]
@@ -66,6 +67,7 @@ namespace ConnectApp.Models.Model {
         public string name;
         public string title;
         public string url;
+        public string imageUrl;
     }
 
     [Serializable]
@@ -75,6 +77,7 @@ namespace ConnectApp.Models.Model {
         public User user;
         public string role;
         public string stickTime;
+        public bool isMute;
         public string presenceStatus;
         public bool isBanned;
         public bool kicked;
@@ -90,6 +93,7 @@ namespace ConnectApp.Models.Model {
                 user = data.user,
                 role = data.role,
                 stickTime = data.stickTime,
+                isMute = data.isMute,
                 presenceStatus = null,
                 isBanned = data.isBanned,
                 kicked = data.kicked,
@@ -106,6 +110,7 @@ namespace ConnectApp.Models.Model {
             this.user = data.user ?? this.user;
             this.role = data.role ?? this.role;
             this.stickTime = data.stickTime ?? this.stickTime;
+            this.isMute = data.isMute;
             this.isBanned = data.isBanned;
             this.kicked = data.kicked;
             this.left = data.left;
@@ -128,23 +133,22 @@ namespace ConnectApp.Models.Model {
         public List<string> messageIds;
         public List<string> oldMessageIds;
         public List<string> newMessageIds;
+        public List<string> localMessageIds;
         public int unread = 0;
         public int mentioned = 0;
+        public string lastReadMessageId = null;
         public bool isTop = false;
         public bool joined = false;
         public bool joinLoading = false;
         public bool atMe = false;
         public bool atAll = false;
-        public bool sendingMessage = false;
-        public bool sentMessageFailed = false;
-        public bool sentMessageSuccess = false;
-        public bool sentImageSuccess = false;
         public bool hasMore = true;
         public bool hasMoreNew = true;
         public List<string> memberIds;
         public Dictionary<string, ChannelMember> membersDict;
         public int memberOffset;
         public bool atBottom = false;
+        public bool active = false;
         public ChannelMember currentMember;
 
         public static ChannelView fromChannel(Channel channel) {
@@ -154,8 +158,8 @@ namespace ConnectApp.Models.Model {
                 membersDict = new Dictionary<string, ChannelMember>(),
                 id = channel?.id,
                 groupId = channel?.groupId,
-                thumbnail = channel?.thumbnail,
-                name = channel?.name,
+                thumbnail = channel?.thumbnail ?? "",
+                name = channel?.name ?? "未命名",
                 topic = channel?.topic,
                 memberCount = channel?.memberCount ?? 0,
                 isMute = channel?.isMute ?? false,
@@ -163,6 +167,7 @@ namespace ConnectApp.Models.Model {
                 lastMessageId = channel?.lastMessage?.id,
                 lastMessage = ChannelMessageView.fromChannelMessage(channel?.lastMessage),
                 messageIds = new List<string>(),
+                localMessageIds = new List<string>(),
                 oldMessageIds = new List<string>(),
                 newMessageIds = new List<string>(),
                 currentMember = new ChannelMember()
@@ -187,9 +192,6 @@ namespace ConnectApp.Models.Model {
 
         public static ChannelView fromNormalChannelLite(NormalChannelLite channel) {
             return new ChannelView {
-                atAll = false,
-                memberIds = new List<string>(),
-                membersDict = new Dictionary<string, ChannelMember>(),
                 id = channel?.id,
                 groupId = channel?.groupId,
                 thumbnail = channel?.thumbnail,
@@ -199,7 +201,11 @@ namespace ConnectApp.Models.Model {
                 isMute = channel?.isMute ?? false,
                 live = channel?.live ?? false,
                 lastMessageId = channel?.lastMessageId,
+                atAll = false,
+                memberIds = new List<string>(),
+                membersDict = new Dictionary<string, ChannelMember>(),
                 messageIds = new List<string>(),
+                localMessageIds = new List<string>(),
                 oldMessageIds = new List<string>(),
                 newMessageIds = new List<string>(),
                 currentMember = new ChannelMember()
@@ -218,11 +224,46 @@ namespace ConnectApp.Models.Model {
             this.lastMessageId = channel?.lastMessageId ?? this.lastMessageId;
         }
 
+        public void updateFromSocketResponseUpdateChannelData(SocketResponseUpdateChannelData channel) {
+            this.id = channel?.id ?? this.id;
+            this.groupId = channel?.groupId ?? this.groupId;
+            this.thumbnail = channel?.thumbnail ?? this.thumbnail;
+            this.name = channel?.name ?? this.name;
+            this.topic = channel?.topic ?? this.topic;
+            this.memberCount = channel?.memberCount ?? this.memberCount;
+            this.isMute = channel?.isMute ?? this.isMute;
+            this.live = channel?.live ?? this.live;
+            this.lastMessage = channel?.lastMessage == null
+                ? this.lastMessage
+                : ChannelMessageView.fromChannelMessageLite(channel.lastMessage);
+        }
+
+        public static ChannelView fromSocketResponseUpdateChannelData(SocketResponseUpdateChannelData channel) {
+            ChannelView channelView = new ChannelView {
+                atAll = false,
+                memberIds = new List<string>(),
+                membersDict = new Dictionary<string, ChannelMember>(),
+                messageIds = new List<string>(),
+                localMessageIds = new List<string>(),
+                oldMessageIds = new List<string>(),
+                newMessageIds = new List<string>(),
+                currentMember = new ChannelMember()
+            };
+            channelView.updateFromSocketResponseUpdateChannelData(channel);
+            return channelView;
+        }
+
+        public void completeMissingFieldsFromGroup(Group group) {
+            this.groupId = group.id.isEmpty() ? this.groupId : group.id;
+            this.topic = group.id.isEmpty() ? this.topic : group.description;
+        }
+
         public void handleUnreadMessage(ChannelMessageView message, string userId) {
             if (message.mentionEveryone || message.mentions.Any(user => user.id == userId)) {
                 this.mentioned += 1;
                 this.atMe = true;
             }
+
             this.atAll = this.atAll || message.mentionEveryone;
             this.unread += 1;
         }
@@ -230,6 +271,7 @@ namespace ConnectApp.Models.Model {
         public void clearUnread() {
             this.unread = 0;
             this.mentioned = 0;
+            this.lastReadMessageId = null;
             this.atAll = false;
             this.atMe = false;
         }
@@ -273,7 +315,9 @@ namespace ConnectApp.Models.Model {
         text,
         image,
         file,
-        embed
+        embedExternal,
+        embedImage,
+        skip
     }
 
     public class ChannelMessageView {
@@ -284,6 +328,7 @@ namespace ConnectApp.Models.Model {
         public DateTime time;
         public ChannelMessageType type = ChannelMessageType.text;
         public string content;
+        public string plainText;
         public long fileSize = 0;
         public int width;
         public int height;
@@ -299,37 +344,56 @@ namespace ConnectApp.Models.Model {
         public bool deleted = false;
         public List<Reaction> reactions;
         public List<Embed> embeds;
+        public string status = "normal";
+        public byte[] imageData;
+        public byte[] videoData;
 
         public bool shouldSkip() {
-            return this.deleted || (this.type == ChannelMessageType.text && string.IsNullOrEmpty(this.content));
+            return this.deleted || (this.type == ChannelMessageType.text && this.content.isEmpty());
         }
 
-        static ChannelMessageType getType(
-            string content,
-            List<Attachment> attachments = null,
+        static ChannelMessageType getType(string content, List<Attachment> attachments = null,
             List<Embed> embeds = null) {
-            return content != null || (attachments?.Count ?? 0) == 0
-                ? (embeds?.Count ?? 0) == 0 ? ChannelMessageType.text : ChannelMessageType.embed
-                : attachments[0].contentType.StartsWith("image")
-                    ? ChannelMessageType.image
-                    : ChannelMessageType.file;
+            if (content != null || (attachments?.Count ?? 0) == 0) {
+                if ((embeds?.Count ?? 0) == 0) {
+                    return ChannelMessageType.text;
+                }
+
+                switch (embeds.First().embedType) {
+                    case "image":
+                        return ChannelMessageType.embedImage;
+                    case "external":
+                        return ChannelMessageType.embedExternal;
+                    default:
+                        return ChannelMessageType.skip;
+                }
+            }
+
+            return attachments.First().contentType.StartsWith("image") &&
+                   !attachments.First().filename.EndsWith(".svg")
+                ? ChannelMessageType.image
+                : ChannelMessageType.file;
         }
 
         static long getNonce(string nonce) {
-            return string.IsNullOrEmpty(nonce) ? 0 : Convert.ToInt64(nonce, 16);
+            return nonce.isEmpty() ? 0 : Convert.ToInt64(nonce, 16);
         }
 
         static string getContent(string content, List<Attachment> attachments = null, List<Embed> embeds = null) {
             switch (getType(content, attachments, embeds)) {
                 case ChannelMessageType.text:
-                case ChannelMessageType.embed:
+                case ChannelMessageType.embedExternal:
+                case ChannelMessageType.embedImage:
                     return content ?? "";
                 case ChannelMessageType.image:
-                    return attachments[0].url;
+                    return attachments.FirstOrDefault().url;
                 case ChannelMessageType.file:
-                    return attachments[0].filename;
+                    return attachments.FirstOrDefault().filename;
+                case ChannelMessageType.skip:
+                    return "";
+                default:
+                    return "";
             }
-            return "";
         }
 
         static int getFileSize(string content, List<Attachment> attachments = null, List<Embed> embeds = null) {

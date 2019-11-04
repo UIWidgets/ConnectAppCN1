@@ -22,6 +22,8 @@ public class CommonPlugin {
 
     public static Context mContext;
 
+    public static boolean isPushNative;
+
     public static void pauseAudioSession(){
 
         AudioManager.OnAudioFocusChangeListener afChangeListener = new AudioManager.OnAudioFocusChangeListener() {
@@ -63,7 +65,9 @@ public class CommonPlugin {
     }
 
     public static void pickImage(String source, boolean cropped, int maxSize){
+        isPushNative = true;
         Intent intent = new Intent(mContext, PickImageActivity.class);
+        intent.putExtra("type", "image");
         intent.putExtra("source", source);
         intent.putExtra("cropped", cropped);
         intent.putExtra("maxSize", maxSize);
@@ -72,7 +76,10 @@ public class CommonPlugin {
     }
 
     public static void pickVideo(String source){
-        Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+        isPushNative = true;
+        Intent intent = new Intent(mContext, PickImageActivity.class);
+        intent.putExtra("type", "video");
+        intent.putExtra("source", source);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         mContext.startActivity(intent);
     }

@@ -3,7 +3,6 @@ using ConnectApp.Components;
 using ConnectApp.Constants;
 using ConnectApp.Models.State;
 using Unity.UIWidgets.Redux;
-using UnityEngine;
 
 namespace ConnectApp.redux.actions {
     public class StartReportItemAction : RequestAction {
@@ -43,7 +42,7 @@ namespace ConnectApp.redux.actions {
                     .Catch(error => {
                         CustomDialogUtils.showToast("举报失败", Icons.sentiment_dissatisfied);
                         dispatcher.dispatch(new ReportItemFailureAction());
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }

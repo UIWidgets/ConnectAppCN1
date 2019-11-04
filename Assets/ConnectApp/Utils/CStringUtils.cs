@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using ConnectApp.Constants;
 using Unity.UIWidgets.foundation;
-using UnityEngine;
 
 namespace ConnectApp.Utils {
     public static class CStringUtils {
@@ -12,7 +11,6 @@ namespace ConnectApp.Utils {
         }
 
         public static string CountToString(int count, string placeholder = "") {
-
             if (count > 0 && count < 1000) {
                 return count.ToString();
             }
@@ -59,6 +57,7 @@ namespace ConnectApp.Utils {
         }
 
         static readonly Regex LetterOrNumberRegex = new Regex(@"^[A-Za-z0-9]+$");
+
         public static bool IsLetterOrNumber(string str) {
             return LetterOrNumberRegex.IsMatch(input: str);
         }
@@ -67,6 +66,7 @@ namespace ConnectApp.Utils {
             if (id.isNotEmpty() && title.isNotEmpty()) {
                 return $"pages/Home/Home?type=toDetail&app=true&id={id}&title={title}";
             }
+
             return "";
         }
 
@@ -107,7 +107,7 @@ namespace ConnectApp.Utils {
                 return Convert.ToInt64(value: number, 16);
             }
             catch (Exception e) {
-                Debug.LogError($"Error in converting {number}: {e}");
+                Debuger.LogWarning($"Error in converting {number}: {e}");
                 return defaultValue;
             }
         }

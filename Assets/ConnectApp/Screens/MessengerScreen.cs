@@ -31,22 +31,33 @@ namespace ConnectApp.screens {
                     var joinedChannels = state.channelState.joinedChannels.Select(
                         channelId => {
                             ChannelView channel = state.channelState.channelDict[key: channelId];
-                            channel.isTop = state.channelState.channelTop.TryGetValue(channelId, out var isTop) &&
+                            channel.isTop = state.channelState.channelTop.TryGetValue(key: channelId, out var isTop) &&
                                             isTop;
                             return channel;
                         }).ToList();
-                    joinedChannels.Sort(
-                        (c1, c2) => {
-                            if (c1.isTop && !c2.isTop) {
-                                return -1;
-                            }
+                    if (joinedChannels.isNotNullAndEmpty() && joinedChannels.Count > 1) {
+                        joinedChannels.Sort(
+                            (c1, c2) => {
+                                if (c1 == null) {
+                                    return -1;
+                                }
 
-                            if (!c1.isTop && c2.isTop) {
-                                return 1;
-                            }
+                                if (c2 == null) {
+                                    return 1;
+                                }
 
-                            return (c2.lastMessage.time - c1.lastMessage.time).Milliseconds;
-                        });
+                                if (c1.isTop && !c2.isTop) {
+                                    return -1;
+                                }
+
+                                if (!c1.isTop && c2.isTop) {
+                                    return 1;
+                                }
+
+                                return (c2.lastMessage.time - c1.lastMessage.time).Milliseconds;
+                            });
+                    }
+
                     var lastMessageMap = new Dictionary<string, string>();
                     foreach (var channel in joinedChannels) {
                         if (!string.IsNullOrEmpty(value: channel.lastMessageId)) {
@@ -55,9 +66,13 @@ namespace ConnectApp.screens {
                     }
 
                     return new MessengerScreenViewModel {
+                        channelLoading = state.channelState.channelLoading,
+                        myUserId = state.loginState.loginInfo.userId,
                         joinedChannels = joinedChannels,
                         lastMessageMap = lastMessageMap,
                         hasUnreadNotifications = state.channelState.newNotifications != null,
+                        page = state.channelState.discoverPage,
+                        hasMore = state.channelState.discoverHasMore,
                         popularChannels = state.channelState.publicChannels
                             .Select(channelId => state.channelState.channelDict[key: channelId])
                             .Take(state.channelState.publicChannels.Count > 0
@@ -71,7 +86,8 @@ namespace ConnectApp.screens {
                                 : state.channelState.publicChannels.Count)
                             .ToList(),
                         currentTabBarIndex = state.tabBarState.currentTabIndex,
-                        socketConnected = state.channelState.socketConnected
+                        socketConnected = state.channelState.socketConnected,
+                        netWorkConnected = state.channelState.netWorkConnected
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -102,8 +118,10 @@ namespace ConnectApp.screens {
                             new MainNavigatorPushToChannelDetailAction {
                                 channelId = channelId
                             }),
-                        fetchChannels = pageNumber =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchChannels(page: pageNumber)),
+                        fetchChannels = (pageNumber, joined) =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchChannels(page: pageNumber, joined: joined)),
+                        fetchCreateChannelFilterIds = () =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchCreateChannelFilter()),
                         startJoinChannel = channelId => dispatcher.dispatch(new StartJoinChannelAction {
                             channelId = channelId
                         }),
@@ -136,7 +154,6 @@ namespace ConnectApp.screens {
 
     public class _MessageScreenState : AutomaticKeepAliveClientMixin<MessengerScreen>, RouteAware {
         RefreshController _refreshController;
-        int _pageNumber;
         string _newNotificationSubId;
 
         protected override bool wantKeepAlive {
@@ -146,10 +163,8 @@ namespace ConnectApp.screens {
         public override void initState() {
             base.initState();
             this._refreshController = new RefreshController();
-            this._pageNumber = 1;
-            this._newNotificationSubId = EventBus.subscribe(sName: EventBusConstant.newNotifications, args => {
-                this.widget.actionModel.updateNewNotification();
-            });
+            this._newNotificationSubId = EventBus.subscribe(sName: EventBusConstant.newNotifications,
+                args => { this.widget.actionModel.updateNewNotification(); });
         }
 
         public override void didChangeDependencies() {
@@ -169,42 +184,55 @@ namespace ConnectApp.screens {
 
         public override Widget build(BuildContext context) {
             base.build(context: context);
+            Widget content;
+            if (this.widget.viewModel.publicChannels.isNullOrEmpty() && this.widget.viewModel.channelLoading) {
+                content = new Container(
+                    child: new GlobalLoading(),
+                    padding: EdgeInsets.only(bottom: CConstant.TabBarHeight +
+                                                     CCommonUtils.getSafeAreaBottomPadding(context: context))
+                );
+            }
+            else {
+                content = new NotificationListener<ScrollNotification>(
+                    child: new Container(
+                        color: CColors.Background,
+                        child: new SectionView(
+                            controller: this._refreshController,
+                            enablePullDown: true,
+                            enablePullUp: this.widget.viewModel.hasMore &&
+                                          this.widget.viewModel.joinedChannels.isEmpty(),
+                            onRefresh: this._onRefresh,
+                            hasBottomMargin: true,
+                            sectionCount: 2,
+                            numOfRowInSection: section => {
+                                if (section == 0) {
+                                    return !this._hasJoinedChannel()
+                                        ? 1
+                                        : this.widget.viewModel.joinedChannels.Count;
+                                }
+
+                                return this.widget.viewModel.publicChannels.Count;
+                            },
+                            headerInSection: this._headerInSection,
+                            cellAtIndexPath: this._buildMessageItem,
+                            footerWidget: !this.widget.viewModel.hasMore
+                                ? new EndView(hasBottomMargin: true)
+                                : null
+                        )
+                    )
+                );
+            }
+
             return new Container(
                 padding: EdgeInsets.only(top: CCommonUtils.getSafeAreaTopPadding(context: context)),
                 color: CColors.White,
                 child: new Column(
                     children: new List<Widget> {
                         this._buildNavigationBar(),
-                        !this.widget.viewModel.socketConnected
+                        !this.widget.viewModel.netWorkConnected
                             ? this._buildNetworkDisconnectedNote()
                             : new Container(color: CColors.Separator2, height: 1),
-                        new Flexible(
-                            child: new NotificationListener<ScrollNotification>(
-                                child: new Container(
-                                    color: CColors.Background,
-                                    child: new SectionView(
-                                        controller: this._refreshController,
-                                        enablePullDown: true,
-                                        enablePullUp: false,
-                                        onRefresh: this._onRefresh,
-                                        hasBottomMargin: true,
-                                        sectionCount: 2,
-                                        numOfRowInSection: section => {
-                                            if (section == 0) {
-                                                return !this._hasJoinedChannel()
-                                                    ? 1
-                                                    : this.widget.viewModel.joinedChannels.Count;
-                                            }
-
-                                            return this.widget.viewModel.publicChannels.Count;
-                                        },
-                                        headerInSection: this._headerInSection,
-                                        cellAtIndexPath: this._buildMessageItem,
-                                        footerWidget: new EndView(hasBottomMargin: true)
-                                    )
-                                )
-                            )
-                        )
+                        new Flexible(child: content)
                     }
                 )
             );
@@ -212,7 +240,11 @@ namespace ConnectApp.screens {
 
         Widget _buildNavigationBar() {
             return new CustomNavigationBar(
-                new Text("群聊", style: CTextStyle.H2),
+                !this.widget.viewModel.netWorkConnected
+                    ? new Text("群聊(未连接)", style: CTextStyle.H2)
+                    : this.widget.viewModel.socketConnected
+                        ? new Text("群聊", style: CTextStyle.H2)
+                        : new Text("收取中...", style: CTextStyle.H2Body4),
                 new List<Widget> {
                     new CustomButton(
                         onPressed: () => this.widget.actionModel.pushToNotifications(),
@@ -241,9 +273,7 @@ namespace ConnectApp.screens {
                         )
                     )
                 },
-                backgroundColor: CColors.White,
-                0,
-                EdgeInsets.only(16, bottom: 8)
+                padding: EdgeInsets.only(16, bottom: 8)
             );
         }
 
@@ -259,7 +289,7 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
+
         Widget _headerInSection(int section) {
             if (section == 0) {
                 return null;
@@ -368,6 +398,7 @@ namespace ConnectApp.screens {
                 var joinedChannel = joinedChannels[index: row];
                 return new JoinedChannelCard(
                     channel: joinedChannel,
+                    myUserId: this.widget.viewModel.myUserId,
                     () => this.widget.actionModel.pushToChannel(obj: joinedChannel.id)
                 );
             }
@@ -406,16 +437,12 @@ namespace ConnectApp.screens {
         }
 
         void _onRefresh(bool up) {
-            if (up) {
-                this._pageNumber = 1;
-            }
-            else {
-                this._pageNumber++;
-            }
-
-            this.widget.actionModel.fetchChannels(arg: this._pageNumber)
+            this.widget.actionModel.fetchChannels(up ? 1 : this.widget.viewModel.page, up)
                 .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(e => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed));
+            if (up) {
+                this.widget.actionModel.fetchCreateChannelFilterIds();
+            }
         }
     }
 }

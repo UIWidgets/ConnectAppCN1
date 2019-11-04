@@ -2,7 +2,6 @@ using ConnectApp.Api;
 using ConnectApp.Models.Api;
 using ConnectApp.Models.State;
 using Unity.UIWidgets.Redux;
-using UnityEngine;
 
 namespace ConnectApp.redux.actions {
     public class StartFetchMyFutureEventsAction : RequestAction {
@@ -39,7 +38,7 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new FetchMyFutureEventsFailureAction());
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }
@@ -57,7 +56,7 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new FetchMyPastEventsFailureAction());
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using ConnectApp.Constants;
 using ConnectApp.Models.Model;
 using ConnectApp.Utils;
@@ -13,14 +12,17 @@ namespace ConnectApp.Components {
     public class JoinedChannelCard : StatelessWidget {
         public JoinedChannelCard(
             ChannelView channel,
+            string myUserId = null,
             GestureTapCallback onTap = null,
             Key key = null
         ) : base(key: key) {
             this.channel = channel;
+            this.myUserId = myUserId;
             this.onTap = onTap;
         }
 
         readonly ChannelView channel;
+        readonly string myUserId;
         readonly GestureTapCallback onTap;
 
         public override Widget build(BuildContext context) {
@@ -39,29 +41,35 @@ namespace ConnectApp.Components {
                 else {
                     text = this.channel.lastMessage.content ?? "";
                 }
-                if (!string.IsNullOrEmpty(value: this.channel.lastMessage.author?.fullName) &&
-                    !string.IsNullOrEmpty(value: text)) {
-                    text = $"{this.channel.lastMessage.author?.fullName}: {text}";
-                }
             }
             else {
                 text = "";
             }
 
+            var contentTextSpans = new List<TextSpan>();
+            if (this.channel.lastMessage.author?.fullName.isNotEmpty() ?? true &&
+                text.isNotEmpty() &&
+                this.channel.lastMessage.author.id != this.myUserId) {
+                contentTextSpans.Add(new TextSpan(
+                    $"{this.channel.lastMessage.author?.fullName}: ",
+                    style: CTextStyle.PRegularBody4
+                ));
+            }
+            contentTextSpans.AddRange(MessageUtils.messageWithMarkdownToTextSpans(
+                content: text,
+                mentions: this.channel.lastMessage?.mentions,
+                this.channel.lastMessage?.mentionEveryone ?? false,
+                null,
+                bodyStyle: CTextStyle.PRegularBody4,
+                linkStyle: CTextStyle.PRegularBody4
+            ));
             Widget message = new RichText(
                 text: new TextSpan(
-                    this.channel.atMe
+                    (this.channel.atMe || this.channel.atAll) && this.channel.unread > 0
                         ? "[有人@我] "
-                        : this.channel.atAll ? "[@所有人] " : "",
+                        : "",
                     style: CTextStyle.PRegularError,
-                    children: MessageUtils.messageWithMarkdownToTextSpans(
-                        content: text,
-                        mentions: this.channel.lastMessage?.mentions,
-                        mentionEveryone: this.channel.lastMessage?.mentionEveryone ?? false,
-                        onTap: null,
-                        bodyStyle: CTextStyle.PRegularBody4,
-                        linkStyle: CTextStyle.PRegularBody4
-                    ).ToList()
+                    children: contentTextSpans
                     
                 ),
                 overflow: TextOverflow.ellipsis,
@@ -96,31 +104,6 @@ namespace ConnectApp.Components {
                 )
             );
 
-            Widget icon = new Align(
-                alignment: Alignment.centerRight,
-                child: this.channel.isMute
-                    ? (Widget) new Icon(
-                        icon: Icons.notifications_off,
-                        size: 16, color: CColors.MuteIcon)
-                    : new NotificationDot(
-                        this.channel.unread > 0
-                            ? this.channel.mentioned > 0 ? $"{this.channel.mentioned}" : ""
-                            : null
-                    )
-            );
-
-            var messageIcon = new Row(
-                children: new List<Widget> {
-                    new Expanded(
-                        child: new Container(
-                            padding: EdgeInsets.symmetric(0, 16),
-                            child: message
-                        )
-                    ),
-                    this.channel.isMute || this.channel.unread > 0 ? icon : new Container()
-                }
-            );
-
             return new GestureDetector(
                 onTap: this.onTap,
                 child: new Container(
@@ -141,8 +124,19 @@ namespace ConnectApp.Components {
                                 child: new Column(
                                     children: new List<Widget> {
                                         titleLine,
-                                        new Expanded(
-                                            child: messageIcon
+                                        new Row(
+                                            children: new List<Widget> {
+                                                new Container(width: 16),
+                                                new Expanded(
+                                                    child: message
+                                                ),
+                                                new NotificationDot(
+                                                    this.channel.unread > 0
+                                                        ? this.channel.mentioned > 0 ? $"{this.channel.mentioned}" : ""
+                                                        : null,
+                                                    margin: EdgeInsets.only(16)
+                                                )
+                                            }
                                         )
                                     }
                                 )
