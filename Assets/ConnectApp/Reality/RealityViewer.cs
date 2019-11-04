@@ -56,7 +56,7 @@ public class RealityViewer : MonoBehaviour {
 
     bool InitGyro() {
         if (SystemInfo.supportsGyroscope) {
-            Debug.Log("Gyro Enabled");
+            Debuger.Log("Gyro Enabled");
             this.m_Gyro = Input.gyro;
             this.ApplyGyroRotation();
             this.ApplyCalibration();
@@ -66,26 +66,26 @@ public class RealityViewer : MonoBehaviour {
             return true;
         }
 
-        Debug.Log("Gyro Disabled");
+        Debuger.Log("Gyro Disabled");
         return false;
     }
 
     bool InitVirtualGyro() {
         if (this.gyroOverride != null) {
-            Debug.Log("Use Virtual Gyro");
+            Debuger.Log("Use Virtual Gyro");
             this.gyroInstance = new GameObject("Gyro Instance").transform;
             this.gyroInstance.position = this.transform.position;
             this.gyroInstance.rotation = this.transform.rotation;
             return true;
         }
 
-        Debug.Log("Virtual Gyro Disabled");
+        Debuger.Log("Virtual Gyro Disabled");
         return false;
     }
 
     public void ResetGyro() {
         if (this.m_GyroEnabled) {
-            Debug.Log("Reset Gyro");
+            Debuger.Log("Reset Gyro");
 
             this.m_CalibrationYAngle = this.m_AppliedGyroYAngle - this.m_InitialYAngle;
 
@@ -93,7 +93,7 @@ public class RealityViewer : MonoBehaviour {
             this.ApplyCalibration();
         }
         else if (this.m_VirtualGyroEnabled) {
-            Debug.Log("Reset Virtual Gyro");
+            Debuger.Log("Reset Virtual Gyro");
             this.gyroOverride.rotation = this.originRotation;
             this.transform.localRotation = this.gyroOverride.rotation;
         }
@@ -103,7 +103,7 @@ public class RealityViewer : MonoBehaviour {
     }
 
     void CheckHit(RaycastHit hitInfo) {
-        Debug.Log(hitInfo.transform.name);
+        Debuger.Log(hitInfo.transform.name);
         if (hitInfo.transform.name == "Phone Shell") {
             if (RealityManager.instance.miniGame.isPause) {
                 RealityManager.TriggerSwitch();

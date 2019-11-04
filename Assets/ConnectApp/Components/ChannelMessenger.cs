@@ -258,6 +258,7 @@ namespace ConnectApp.Components {
                 // onTap: () => this.onClickImage(obj: this.message.embeds[0].embedData.imageUrl),
                 child: new ImageMessage(
                     url: this.message.embeds[0].embedData.imageUrl,
+                    data: this.message.imageData,
                     size: 140,
                     ratio: 16.0f / 9.0f,
                     srcWidth: this.message.width,
@@ -370,6 +371,7 @@ namespace ConnectApp.Components {
     public class ImageMessage : StatefulWidget {
         public ImageMessage(
             string url,
+            byte[] data,
             float size,
             float ratio,
             float srcWidth = 0,
@@ -380,6 +382,7 @@ namespace ConnectApp.Components {
             Key key = null
         ) : base(key: key) {
             this.url = url;
+            this.data = data;
             this.size = size;
             this.ratio = ratio;
             this.radius = radius;
@@ -390,6 +393,7 @@ namespace ConnectApp.Components {
         }
 
         public readonly string url;
+        public readonly byte[] data;
         public readonly float size;
         public readonly float ratio;
         public readonly float radius;
@@ -427,6 +431,7 @@ namespace ConnectApp.Components {
         Image image;
         Size size;
         ImageStream stream;
+        byte[] imageData;
 
         Size _finalSize(Size size) {
             if (size.width > size.height * this.widget.ratio) {
@@ -458,19 +463,19 @@ namespace ConnectApp.Components {
             this.setState(() => { });
         }
 
-        Image _getImage(string content, Dictionary<string, string> headers = null) {
-            return content.StartsWith("http")
+        Image _getImage() {
+            return this.widget.data == null
                 ? CachedNetworkImageProvider.cachedNetworkImage(
-                    this.widget.isOriginalImage ? content : CImageUtils.SizeToScreenImageUrl(content),
+                    this.widget.isOriginalImage ? this.widget.url : CImageUtils.SizeToScreenImageUrl(this.widget.url),
                     fit: BoxFit.cover,
-                    headers: headers)
-                : Image.memory(Convert.FromBase64String(s: content));
+                    headers: this.widget.headers)
+                : Image.memory(bytes: this.widget.data);
         }
 
         public override void initState() {
             base.initState();
             if (this.widget.srcSize == null) {
-                this.image = this._getImage(this.widget.url, this.widget.headers);
+                this.image = this._getImage();
                 this.stream = this.image.image
                     .resolve(new ImageConfiguration());
                 this.stream.addListener(this._updateSize);
@@ -486,7 +491,7 @@ namespace ConnectApp.Components {
         }
 
         public override Widget build(BuildContext context) {
-            return this.size == null || this.widget.url == null
+            return this.size == null || (this.widget.url == null && this.widget.data == null)
                 ? new Container(
                     width: this.widget.size,
                     height: this.widget.size,
@@ -500,7 +505,7 @@ namespace ConnectApp.Components {
                         width: this.size.width,
                         height: this.size.height,
                         color: CColors.Disable,
-                        child: this._getImage(this.widget.url, this.widget.headers))
+                        child: this._getImage())
                 );
         }
     }

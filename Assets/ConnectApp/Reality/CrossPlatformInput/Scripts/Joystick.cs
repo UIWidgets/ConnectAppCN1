@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -90,14 +89,14 @@ namespace UnityStandardAssets.CrossPlatformInput {
 
 
         public void OnPointerUp(PointerEventData data) {
-            // Debug.Log("Release Joy Stick");
+            // Debuger.Log("Release Joy Stick");
             this.transform.position = this.m_StartPos;
             this.UpdateVirtualAxes(this.m_StartPos);
         }
 
 
         public void OnPointerDown(PointerEventData data) {
-            // Debug.Log("Move Joy Stick");
+            // Debuger.Log("Move Joy Stick");
         }
 
         void OnDisable() {

@@ -80,32 +80,30 @@ namespace ConnectApp.Components {
         }
 
         public override Widget build(BuildContext context) {
-            string imageName;
             int sideLength;
-            if (this.widget.size == LoadingSize.normal) {
-                sideLength = 24;
-                imageName = this.widget.loadingColor == LoadingColor.white
-                    ? "image/white-loading24"
-                    : "image/black-loading24";
-            }
-            else if (this.widget.size == LoadingSize.small) {
-                sideLength = 20;
-                imageName = this.widget.loadingColor == LoadingColor.white
-                    ? "image/white-loading20"
-                    : "image/black-loading20";
-            }
-            else {
-                sideLength = 16;
-                imageName = this.widget.loadingColor == LoadingColor.white
-                    ? "image/white-loading20"
-                    : "image/black-loading20";
+            switch (this.widget.size) {
+                case LoadingSize.normal: {
+                    sideLength = 24;
+                    break;
+                }
+                case LoadingSize.small: {
+                    sideLength = 20;
+                    break;
+                }
+                case LoadingSize.xSmall:
+                default:{
+                    sideLength = 16;
+                    break;
+                }
             }
 
             return new RotationTransition(
                 turns: this._controller,
                 child: new Center(
                     child: Image.asset(
-                        name: imageName,
+                        this.widget.loadingColor == LoadingColor.white
+                            ? "image/white-loading"
+                            : "image/black-loading",
                         width: sideLength,
                         height: sideLength
                     )

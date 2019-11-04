@@ -3,7 +3,6 @@ using ConnectApp.Api;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using Unity.UIWidgets.Redux;
-using UnityEngine;
 
 namespace ConnectApp.redux.actions {
     public class PopularSearchArticleSuccessAction : RequestAction {
@@ -108,7 +107,7 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new SearchArticleFailureAction {keyword = keyword});
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }
@@ -121,7 +120,7 @@ namespace ConnectApp.redux.actions {
                             popularSearchArticles = popularSearchArticles
                         });
                     })
-                    .Catch(error => Debug.Log($"{error}"));
+                    .Catch(onRejected: Debuger.LogError);
             });
         }
 
@@ -153,7 +152,7 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new SearchUserFailureAction {keyword = keyword});
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }
@@ -171,7 +170,7 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new SearchFollowingFailureAction {keyword = keyword});
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }
@@ -184,7 +183,7 @@ namespace ConnectApp.redux.actions {
                             popularSearchUsers = popularSearchUsers
                         });
                     })
-                    .Catch(error => Debug.Log($"{error}"));
+                    .Catch(onRejected: Debuger.LogError);
             });
         }
 
@@ -214,7 +213,7 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new SearchTeamFailureAction {keyword = keyword});
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }

@@ -4,7 +4,6 @@ using System.Text;
 using ConnectApp.Constants;
 using ConnectApp.Models.Api;
 using Newtonsoft.Json;
-using UnityEngine;
 
 namespace ConnectApp.Utils {
     enum GatewayState {
@@ -38,19 +37,11 @@ namespace ConnectApp.Utils {
         public static SocketGateway instance {
             get {
                 if (m_Instance == null) {
-                    Debug.Log("fatal error: socket gateway has not been initialized yet !");
+                    Debuger.LogError("fatal error: socket gateway has not been initialized yet !");
                     return null;
                 }
 
                 return m_Instance;
-            }
-        }
-
-        const bool DebugSocketGatewayStateLog = true;
-
-        static void DebugAssert(bool condition, string logMsg) {
-            if (DebugSocketGatewayStateLog && !condition) {
-                Debug.Log(logMsg);
             }
         }
 
@@ -92,7 +83,7 @@ namespace ConnectApp.Utils {
 
         public SocketGateway(WebSocketHost host) {
             if (m_Instance != null) {
-                DebugAssert(false, "fatal error: duplicated socket gateways is not allowed!");
+                DebugerUtils.DebugAssert(false, "fatal error: duplicated socket gateways is not allowed!");
                 return;
             }
 
@@ -153,7 +144,7 @@ namespace ConnectApp.Utils {
             bool reset = !this.resumable || this.m_BackOff.fail > 0;
             var delay = this._OnFail(reset);
             NetworkStatusManager.isConnected = false;
-            DebugAssert(false, $"connection failed, retry in {delay / 1000f} seconds");
+            DebugerUtils.DebugAssert(false, $"connection failed, retry in {delay / 1000f} seconds");
         }
 
         SocketResponseDataBase _OnMessage(byte[] bytes, ref string type) {
@@ -244,8 +235,8 @@ namespace ConnectApp.Utils {
                 this.m_CloseRequired = false;
             }
             else {
-                DebugAssert(this.m_OnIdentify != null, "fatal error: reconnect before initial connect !");
-                DebugAssert(this.m_OnMessage != null, "fatal error: reconnect before initial connect !");
+                DebugerUtils.DebugAssert(this.m_OnIdentify != null, "fatal error: reconnect before initial connect !");
+                DebugerUtils.DebugAssert(this.m_OnMessage != null, "fatal error: reconnect before initial connect !");
             }
 
             this.m_ReadyState = GatewayState.CONNECTING;
@@ -261,7 +252,7 @@ namespace ConnectApp.Utils {
                             OnClose: this._OnClose,
                             OnConnected: () => {
                                 NetworkStatusManager.isConnected = true;
-                                DebugAssert(this.m_CommitId != null,
+                                DebugerUtils.DebugAssert(this.m_CommitId != null,
                                     "fatal error: commit Id is not correctly set before connection!");
 
                                 this.m_ReadyState = GatewayState.OPEN;
@@ -284,7 +275,7 @@ namespace ConnectApp.Utils {
                     else {
                         NetworkStatusManager.isConnected = false;
                         var delay = this._OnFail();
-                        DebugAssert(false, $"gateway discovery failed, retry in {delay / 1000f} seconds");
+                        DebugerUtils.DebugAssert(false, $"gateway discovery failed, retry in {delay / 1000f} seconds");
                     }
                 });
         }

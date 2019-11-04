@@ -79,7 +79,7 @@ public class MiniGameManager : MonoBehaviour {
             return;
         }
 
-        Debug.Log("Init Game");
+        Debuger.Log("Init Game");
         this.startText.SetActive(true);
         this.pauseIcon.SetActive(false);
         this.replayIcon.SetActive(false);
@@ -99,7 +99,7 @@ public class MiniGameManager : MonoBehaviour {
             return;
         }
 
-        Debug.Log("Start Game");
+        Debuger.Log("Start Game");
 
         this.overlayCanvas.SetActive(true);
         this.startText.SetActive(false);
@@ -118,7 +118,7 @@ public class MiniGameManager : MonoBehaviour {
     }
 
     public void PauseGame() {
-        Debug.Log("Pause Game");
+        Debuger.Log("Pause Game");
         this.overlayCanvas.SetActive(false);
         this.pauseIcon.SetActive(true);
 
@@ -127,14 +127,14 @@ public class MiniGameManager : MonoBehaviour {
         this.scoreText.text = $"TIME : {(int) this.timerCountdown}\nSCORE : {this.score}";
 
         this.unityChan.isMoving = false;
-        
+
         RealityManager.instance.viewer.ResetGyro();
 
         this.TriggerSwitchCamera(10);
     }
 
     public void ResumeGame() {
-        Debug.Log("Resume Game");
+        Debuger.Log("Resume Game");
 
         this.overlayCanvas.SetActive(true);
         this.pauseIcon.SetActive(false);
@@ -146,7 +146,7 @@ public class MiniGameManager : MonoBehaviour {
     }
 
     public void OverGame() {
-        Debug.Log("Game Over");
+        Debuger.Log("Game Over");
         this.timerCountdown = 0;
         this.isPause = true;
         this.isOver = true;
@@ -155,7 +155,7 @@ public class MiniGameManager : MonoBehaviour {
         this.unityChan.enableToMove = false;
         this.unityChan.isMoving = false;
         this.overlayCanvas.SetActive(false);
-        
+
         RealityManager.instance.viewer.ResetGyro();
 
         this.TriggerSwitchCamera(10);
