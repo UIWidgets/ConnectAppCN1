@@ -856,7 +856,7 @@ namespace ConnectApp.screens {
                                 child: new Text(
                                     !this.widget.viewModel.netWorkConnected
                                         ? this.widget.viewModel.channel.name + "(未连接)"
-                                        : this.widget.viewModel.socketConnected
+                                        : this.widget.viewModel.socketConnected && !this.widget.viewModel.messageLoading
                                             ? this.widget.viewModel.channel.name
                                             : "收取中...",
                                     style: CTextStyle.PXLargeMedium,
