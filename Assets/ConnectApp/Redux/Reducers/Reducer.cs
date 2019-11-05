@@ -106,7 +106,7 @@ namespace ConnectApp.redux.reducers {
                     state.favoriteState.favoriteDetailArticleIdDict = new Dictionary<string, List<string>>();
                     state.channelState.clearMentions();
                     state.channelState.mentionSuggestions.Clear();
-                    state.channelState.channelDict = new Dictionary<string, ChannelView>();
+                    state.channelState.channelDict.Clear();
                     break;
                 }
 
