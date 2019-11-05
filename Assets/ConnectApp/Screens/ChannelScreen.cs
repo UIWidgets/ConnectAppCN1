@@ -196,7 +196,10 @@ namespace ConnectApp.screens {
                         fetchMember = () => dispatcher.dispatch<IPromise>(
                             Actions.fetchChannelMember(channelId: this.channelId, userId: viewModel.me.id)),
                         deleteChannelMessage = messageId => dispatcher.dispatch<IPromise>(
-                            Actions.deleteChannelMessage(messageId: messageId)),
+                            Actions.deleteChannelMessage(channelId: this.channelId, messageId: messageId)),
+                        deleteLocalMessage = message => dispatcher.dispatch(new DeleteLocalMessageAction {
+                            message = message
+                        }),
                         pushToChannelDetail = () => dispatcher.dispatch(new MainNavigatorPushToChannelDetailAction {
                             channelId = this.channelId
                         }),
@@ -569,8 +572,14 @@ namespace ConnectApp.screens {
                     new ActionSheetItem(
                         "删除",
                         type: ActionType.destructive,
-                        () => this.widget.actionModel.deleteChannelMessage(message.id)
-                    ),
+                        () => {
+                            if (message.status == "normal") {
+                                this.widget.actionModel.deleteChannelMessage(message.id);
+                            }
+                            else {
+                                this.widget.actionModel.deleteLocalMessage(message);
+                            }
+                        }),
                     new ActionSheetItem("取消", type: ActionType.cancel)
                 }
             ));
