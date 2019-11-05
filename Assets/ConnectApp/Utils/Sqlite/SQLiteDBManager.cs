@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using SQLite4Unity3d;
+#if !UNITY_EDITOR
 using UnityEngine;
+#endif
 
 namespace ConnectApp.Utils {
     public class SQLiteDBManager {
