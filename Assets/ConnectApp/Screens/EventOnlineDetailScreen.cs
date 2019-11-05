@@ -139,7 +139,6 @@ namespace ConnectApp.screens {
         string _loginSubId;
         string _shareActionSubId;
         bool _showNavBarShadow;
-        bool _isFullScreen;
         float _bottomPadding;
 
 
@@ -262,10 +261,9 @@ namespace ConnectApp.screens {
             return new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(
-                    top: !this._isFullScreen,
                     bottom: false,
                     child: new Container(
-                        color: this._isFullScreen ? CColors.Black : CColors.White,
+                        color: CColors.White,
                         child: new Column(
                             children: new List<Widget> {
                                 this._buildEventHeader(context, eventObj, EventType.online, eventStatus,

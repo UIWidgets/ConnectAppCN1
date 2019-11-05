@@ -182,7 +182,7 @@ namespace ConnectApp.Plugins {
                     else if (uri.AbsolutePath.Equals("/event_detail")) {
                         type = "event";
                     }
-                    else if (uri.AbsolutePath.Equals("/connectapplink/messenger")) {
+                    else if (uri.AbsolutePath.Equals("/messenger")) {
                         type = "messenger";
                     }
                     else {

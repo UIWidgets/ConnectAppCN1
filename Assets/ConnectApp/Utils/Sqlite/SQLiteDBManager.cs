@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using SQLite4Unity3d;
-using Unity.UIWidgets.foundation;
+#if !UNITY_EDITOR
 using UnityEngine;
+#endif
 
 namespace ConnectApp.Utils {
     public class SQLiteDBManager {
         const string DBName = "messenger";
-        
+
         static SQLiteDBManager m_Instance;
 
         public static SQLiteDBManager instance {
@@ -21,7 +22,7 @@ namespace ConnectApp.Utils {
                 return m_Instance;
             }
         }
-        
+
         SQLiteConnection m_Connection;
 
         SQLiteDBManager() {
@@ -32,7 +33,7 @@ namespace ConnectApp.Utils {
             if (!force && this.m_Connection != null) {
                 return;
             }
-            
+
             this.m_Connection?.Close();
 
 #if UNITY_EDITOR
@@ -43,13 +44,13 @@ namespace ConnectApp.Utils {
             try {
                 bool dbExists = File.Exists(dbPath);
                 this.m_Connection = new SQLiteConnection(dbPath, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create);
-                
+
                 if (!dbExists) {
                     this.InitDB();
                 }
             }
             catch (Exception e) {
-                Debug.Log($"fatal error: fail to connect to database: {DBName}, error msg = {e.Message}");
+                Debuger.LogError($"fatal error: fail to connect to database: {DBName}, error msg = {e.Message}");
             }
         }
 
@@ -79,7 +80,7 @@ namespace ConnectApp.Utils {
                 return ret.First().filepath;
             }
 
-            Debug.Assert(false, "fatal error: duplicated files are mapping to one url.");
+            DebugerUtils.DebugAssert(false, "fatal error: duplicated files are mapping to one url.");
             return null;
         }
 
@@ -108,8 +109,9 @@ namespace ConnectApp.Utils {
         }
 
         public DBReadyStateLite LoadReadyState() {
-            var ret = this.m_Connection.Table<DBReadyStateLite>().Where(record => record.key == DBReadyStateLite.DefaultReadyStateKey);
-            
+            var ret = this.m_Connection.Table<DBReadyStateLite>()
+                .Where(record => record.key == DBReadyStateLite.DefaultReadyStateKey);
+
             if (!ret.Any()) {
                 return null;
             }
@@ -118,7 +120,7 @@ namespace ConnectApp.Utils {
                 return ret.First();
             }
 
-            Debug.Assert(false, "fatal error: duplicated ready states are mapping to the default key.");
+            DebugerUtils.DebugAssert(false, "fatal error: duplicated ready states are mapping to the default key.");
             return null;
         }
     }

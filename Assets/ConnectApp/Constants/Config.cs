@@ -1,5 +1,7 @@
 namespace ConnectApp.Constants {
     public static class Config {
+        public const bool enableDebug = false;
+
         public const string apiAddress = "https://connect.unity.com";
 
         public const string apiPath = "/api/connectapp/v1";
@@ -18,9 +20,9 @@ namespace ConnectApp.Constants {
 
         public const string miniId = "gh_f731aec0bdd0";
 
-        public const string versionNumber = "1.2.0";
+        public const string versionNumber = "1.2.1";
 
-        public const int versionCode = 78;
+        public const int versionCode = 82;
 
         public const string messengerTag = "messenger";
 

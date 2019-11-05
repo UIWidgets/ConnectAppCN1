@@ -345,6 +345,8 @@ namespace ConnectApp.Models.Model {
         public List<Reaction> reactions;
         public List<Embed> embeds;
         public string status = "normal";
+        public byte[] imageData;
+        public byte[] videoData;
 
         public bool shouldSkip() {
             return this.deleted || (this.type == ChannelMessageType.text && this.content.isEmpty());

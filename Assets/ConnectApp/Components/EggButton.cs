@@ -75,9 +75,9 @@ namespace ConnectApp.Components {
                     height: 21
                 )
                 : Image.asset(
-                    "image/egg",
-                    width: 21,
-                    height: 21
+                    "image/egg-chan",
+                    width: 18,
+                    height: 23
                 );
 
             return new AnimatedBuilder(

@@ -119,12 +119,12 @@ public class UnityPlayerActivityStatusBar extends UnityPlayerActivity
         super.onRestart();
         if (this.getIntent().getScheme() != null && this.getIntent().getScheme().equals("unityconnect") ){
             String data = this.getIntent().getDataString();
-            if (JPushPlugin.getInstance().isListenCompleted&&!CommonPlugin.isPushNative){
+            if (JPushPlugin.getInstance().isListenCompleted){
+                this.getIntent().setData(null);
                 UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("jpush", "OnOpenUrl", Arrays.asList(data));
             }else {
                 JPushPlugin.getInstance().schemeUrl = data;
             }
-            CommonPlugin.isPushNative = false;
         }
     }
 

@@ -1,12 +1,14 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using RSG;
+using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
 using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.Utils {
@@ -17,7 +19,7 @@ namespace ConnectApp.Utils {
         public static string SuitableSizeImageUrl(float imageWidth, string imageUrl) {
             var devicePixelRatio = Window.instance.devicePixelRatio;
             if (imageWidth <= 0) {
-                Debug.Assert(imageWidth <= 0, $"Image width error, width: {imageWidth}");
+                DebugerUtils.DebugAssert(imageWidth <= 0, $"Image width error, width: {imageWidth}");
             }
 
             var networkImageWidth = Math.Ceiling(imageWidth * devicePixelRatio);
@@ -48,7 +50,8 @@ namespace ConnectApp.Utils {
 
         public static bool isNationalDay = false;
 
-        public static Widget GenBadgeImage(List<string> badges, string license, EdgeInsets padding) {
+        public static Widget GenBadgeImage(List<string> badges, string license, EdgeInsets padding,
+            bool showFlag = true) {
             var badgeList = new List<Widget>();
             Widget badgeWidget = null;
 
@@ -56,16 +59,22 @@ namespace ConnectApp.Utils {
                 if (license == "UnityPro") {
                     badgeWidget = Image.asset(
                         "image/pro-badge",
-                        height: 15,
-                        width: 26
+                        height: 12,
+                        width: 24
                     );
                 }
-
-                if (license == "UnityPersonalPlus") {
+                else if (license == "UnityPersonalPlus") {
                     badgeWidget = Image.asset(
                         "image/plus-badge",
-                        height: 15,
-                        width: 30
+                        height: 13,
+                        width: 28
+                    );
+                }
+                else if (license == "UnityLearnPremium") {
+                    badgeWidget = Image.asset(
+                        "image/prem-badge",
+                        height: 13,
+                        width: 33
                     );
                 }
             }
@@ -81,10 +90,14 @@ namespace ConnectApp.Utils {
             }
 
             if (badgeWidget != null) {
+                if (badgeList.Count >= 1) {
+                    badgeList.Add(new SizedBox(width: 4));
+                }
+
                 badgeList.Add(item: badgeWidget);
             }
 
-            if (isNationalDay) {
+            if (isNationalDay && showFlag) {
                 if (badgeList.Count >= 1) {
                     badgeList.Add(new SizedBox(width: 4));
                 }
@@ -158,6 +171,18 @@ namespace ConnectApp.Utils {
             fs.Close();
             fs.Dispose();
             return bytes;
+        }
+
+        public static Promise<byte[]> asyncLoadFile(string path) {
+            var promise = new Promise<byte[]>();
+            Window.instance.startCoroutine(_read(path, promise));
+            return promise;
+        }
+
+        static IEnumerator _read(string path, Promise<byte[]> promise) {
+            byte[] bytes = readImage(path);
+            yield return bytes;
+            promise.Resolve(bytes);
         }
     }
 }
