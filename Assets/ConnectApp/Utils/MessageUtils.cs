@@ -11,6 +11,8 @@ namespace ConnectApp.Utils {
     public delegate void MentionTapCallback(string userId);
 
     public static class MessageUtils {
+        public static string lastWaitingMessageId;
+
         public static string AnalyzeMessage(string content, List<User> mentions, bool mentionEveryone) {
             if (content.isEmpty()) {
                 return "";
@@ -31,8 +33,9 @@ namespace ConnectApp.Utils {
 
             return parsingContent;
         }
-                
-        public static IEnumerable<TextSpan> messageToTextSpans(string content, List<User> mentions, bool mentionEveryone, MentionTapCallback onTap) {
+
+        public static IEnumerable<TextSpan> messageToTextSpans(string content, List<User> mentions,
+            bool mentionEveryone, MentionTapCallback onTap) {
             var textSpans = new List<TextSpan>();
 
             if (content.isEmpty()) {
@@ -52,6 +55,7 @@ namespace ConnectApp.Utils {
                     if (parsingContent.Contains($"<@{mentionId}>")) {
                         parsingContent = parsingContent.Replace($"<@{mentionId}>", $"@{mentionFullName}");
                     }
+
                     var index = parsingContent.IndexOf($"@{mentionFullName}", startIndex: startIndex);
                     var length = $"@{mentionFullName}".Length;
                     textSpans.Add(new TextSpan(
@@ -61,9 +65,11 @@ namespace ConnectApp.Utils {
                     textSpans.Add(new TextSpan(
                         parsingContent.Substring(startIndex: index, length: length),
                         style: CTextStyle.PLargeBlue,
-                        recognizer: onTap == null ? null : new TapGestureRecognizer {
-                            onTap = () => onTap(userId: mentionId)
-                        }
+                        recognizer: onTap == null
+                            ? null
+                            : new TapGestureRecognizer {
+                                onTap = () => onTap(userId: mentionId)
+                            }
                     ));
                     startIndex = index + length;
                 });
@@ -108,6 +114,7 @@ namespace ConnectApp.Utils {
 
                 stripMarkdown(result, textSpan.text, bodyStyle, linkStyle, url, onClickUrl);
             }
+
             return result;
         }
 
@@ -122,6 +129,7 @@ namespace ConnectApp.Utils {
                 result.Add(new TextSpan(stripPairs(text), style: bodyStyle));
                 return;
             }
+
             var index = text.IndexOf(url, StringComparison.Ordinal);
             if (index >= 0) {
                 if (index > 0) {
@@ -129,10 +137,13 @@ namespace ConnectApp.Utils {
                         stripPairs(text.Substring(0, index)),
                         style: bodyStyle));
                 }
+
                 result.Add(new TextSpan(url, style: linkStyle,
-                    recognizer: onClickUrl == null ? null : new TapGestureRecognizer {
-                        onTap = () => onClickUrl(url)
-                    }));
+                    recognizer: onClickUrl == null
+                        ? null
+                        : new TapGestureRecognizer {
+                            onTap = () => onClickUrl(url)
+                        }));
                 if (index + url.Length < text.Length) {
                     result.Add(new TextSpan(
                         stripPairs(text.Substring(index + url.Length)),
@@ -157,8 +168,8 @@ namespace ConnectApp.Utils {
                 if (first >= 0 && last >= 0 && first + symbol.Length <= last) {
                     text = (first > 0 ? text.Substring(0, first) : "") +
                            (first + symbol.Length < last
-                                ? text.Substring(first + symbol.Length, last - first - symbol.Length)
-                                : "") +
+                               ? text.Substring(first + symbol.Length, last - first - symbol.Length)
+                               : "") +
                            (last + symbol.Length < text.Length ? text.Substring(last + symbol.Length) : "");
                     continue;
                 }
@@ -167,11 +178,12 @@ namespace ConnectApp.Utils {
             }
         }
 
-        public static void parseMarkdown(List<TextSpan> result, string text, string url = null, Action<string> onClickUrl = null) {
+        public static void parseMarkdown(List<TextSpan> result, string text, string url = null,
+            Action<string> onClickUrl = null) {
             if (string.IsNullOrEmpty(text)) {
                 return;
             }
-            
+
             var markdownStyle = new TextStyle();
 
             int curr = 0, last = 0;
@@ -182,10 +194,13 @@ namespace ConnectApp.Utils {
                         result.Add(new TextSpan(text.Substring(last, curr - last),
                             style: CTextStyle.PLargeBody.merge(markdownStyle)));
                     }
+
                     result.Add(new TextSpan(url, style: CTextStyle.PLargeBlue.merge(markdownStyle),
-                        recognizer: onClickUrl == null ? null : new TapGestureRecognizer {
-                            onTap = () => onClickUrl(url)
-                        }));
+                        recognizer: onClickUrl == null
+                            ? null
+                            : new TapGestureRecognizer {
+                                onTap = () => onClickUrl(url)
+                            }));
                     curr += url.Length;
                     last = curr;
                 }
@@ -231,7 +246,8 @@ namespace ConnectApp.Utils {
                     curr += 1;
                     last = curr;
                 }
-                else if (text.Length - curr >= 3 && text[curr] == '`' && text[curr + 1] == '`' && text[curr + 2] == '`') {
+                else if (text.Length - curr >= 3 && text[curr] == '`' && text[curr + 1] == '`' &&
+                         text[curr + 2] == '`') {
                     int end = text.IndexOf("```", curr + 3, StringComparison.Ordinal);
                     if (end >= curr + 3) {
                         if (curr > last) {
@@ -249,7 +265,8 @@ namespace ConnectApp.Utils {
                         if (text[end - 1] == '\n') {
                             length -= 1;
                         }
-                        result.Add(new TextSpan((curr > 0 && text[curr-1] != '\n' ? "\n" : "") +
+
+                        result.Add(new TextSpan((curr > 0 && text[curr - 1] != '\n' ? "\n" : "") +
                                                 text.Substring(start, length) +
                                                 (end + 3 < text.Length && text[end + 3] != '\n' ? "\n" : ""),
                             style: CTextStyle.PLargeBody.merge(markdownStyle.copyWith(fontFamily: "Menlo"))));

@@ -107,6 +107,8 @@ namespace ConnectApp.redux.reducers {
                     state.channelState.clearMentions();
                     state.channelState.mentionSuggestions.Clear();
                     state.channelState.channelDict.Clear();
+                    state.channelState.joinedChannels.Clear();
+                    state.channelState.publicChannels.Clear();
                     break;
                 }
 
