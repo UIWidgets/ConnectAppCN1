@@ -126,7 +126,7 @@ namespace ConnectApp.screens {
                             fullName = state.loginState.loginInfo.userFullName
                         },
                         messageLoading = state.channelState.messageLoading,
-                        newMessageCount = channel.unread,
+                        newMessageCount = newMessages.Count,
                         socketConnected = state.channelState.socketConnected,
                         netWorkConnected = state.channelState.netWorkConnected,
                         mentionAutoFocus = state.channelState.mentionAutoFocus,
