@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using SQLite4Unity3d;
+using UnityEngine;
 
 namespace ConnectApp.Utils {
     public class SQLiteDBManager {
