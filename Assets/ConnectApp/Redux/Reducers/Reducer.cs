@@ -936,6 +936,15 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case DeleteLocalMessageAction action: {
+                    if (state.channelState.channelDict.ContainsKey(action.message.channelId)) {
+                        state.channelState.localMessageDict.Remove(
+                            $"{action.message.author.id}:{action.message.channelId}:{action.message.id}");
+                        var channel = state.channelState.channelDict[action.message.channelId];
+                    }
+                    break;
+                }
+
                 case ResendMessageAction action: {
                     var key = $"{action.message.author.id}:{action.message.channelId}:{action.message.id}";
                     if (state.channelState.channelDict.ContainsKey(action.message.channelId) &&
@@ -2696,6 +2705,14 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case DeleteChannelMessageSuccessAction action: {
+                    if (state.channelState.messageDict.ContainsKey(action.messageId)) {
+                        state.channelState.messageDict[action.messageId].deleted = true;
+                    }
+                    
+                    break;
+                }
+
                 case FetchChannelMembersSuccessAction action: {
                     var channel = state.channelState.channelDict[key: action.channelId];
                     if (channel.memberIds == null) {
@@ -2943,11 +2960,12 @@ namespace ConnectApp.redux.reducers {
                     }
 
                     var channel = state.channelState.channelDict[message.channelId];
-                    channel.lastMessage.deleted = true;
+                    if (channel.lastMessage.id == message.id) {
+                        channel.lastMessage.deleted = true;
+                    }
 
-                    var messageId = message.id;
-                    if (state.channelState.messageDict.ContainsKey(messageId)) {
-                        state.channelState.messageDict[messageId].deleted = true;
+                    if (state.channelState.messageDict.ContainsKey(message.id)) {
+                        state.channelState.messageDict[message.id].deleted = true;
                     }
 
                     break;
