@@ -90,9 +90,14 @@ namespace ConnectApp.Models.State {
 
         public void removeLocalMessage(ChannelMessageView channelMessage) {
             var channel = this.channelDict[channelMessage.channelId];
-            if (channel.localMessageIds.Contains($"{channelMessage.nonce:x16}")) {
-                this.localMessageDict.Remove(
-                    $"{channelMessage.author.id}:{channel.id}:{channelMessage.id}");
+            var key = $"{channelMessage.author.id}:{channel.id}:{channelMessage.nonce:x16}";
+            if (channel.localMessageIds.Contains($"{channelMessage.nonce:x16}") &&
+                this.localMessageDict.ContainsKey(key)) {
+                if (channelMessage.type == ChannelMessageType.image) {
+                    channelMessage.imageData = this.localMessageDict[key].imageData;
+                }
+
+                this.localMessageDict.Remove(key);
                 channel.localMessageIds.Remove($"{channelMessage.nonce:x16}");
             }
         }

@@ -16,8 +16,8 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -134,7 +134,8 @@ namespace ConnectApp.screens {
                         mentionUserName = state.channelState.mentionUserName,
                         mentionSuggestion = state.channelState.mentionSuggestions.getOrDefault(this.channelId, null),
                         waitingMessage = waitingMessage,
-                        sendingMessage = sendingMessage
+                        sendingMessage = sendingMessage,
+                        userLicenseDict = state.userState.userLicenseDict
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -160,15 +161,17 @@ namespace ConnectApp.screens {
                             }
                             else if (viewModel.waitingMessage.type == ChannelMessageType.file) {
                                 dispatcher.dispatch<IPromise>(Actions.sendVideo(
-                                    this.channelId,
-                                    viewModel.waitingMessage.id,
-                                    viewModel.waitingMessage.content));
+                                    channelId: this.channelId,
+                                    nonce: viewModel.waitingMessage.id,
+                                    videoData: viewModel.waitingMessage.videoData,
+                                    fileName: viewModel.waitingMessage.attachments.first().filename)
+                                );
                             }
                             else {
                                 dispatcher.dispatch<IPromise>(Actions.sendImage(
                                     this.channelId,
                                     nonce: viewModel.waitingMessage.id,
-                                    imageData: viewModel.waitingMessage.content));
+                                    imageData: viewModel.waitingMessage.imageData));
                             }
                         });
                     }
@@ -289,6 +292,7 @@ namespace ConnectApp.screens {
         bool _showUnreadMessageNotification = false;
         bool _showNewMessageNotification = false;
         float _inputFieldHeight;
+        CustomTextField customTextField;
 
         public bool showUnreadMessageNotification {
             get { return this._showUnreadMessageNotification; }
@@ -604,7 +608,7 @@ namespace ConnectApp.screens {
 
             if (this.widget.viewModel.mentionAutoFocus) {
                 SchedulerBinding.instance.addPostFrameCallback(_ => {
-                    FocusScope.of(this.context)?.requestFocus(this._focusNode);
+                    FocusScope.of(context).requestFocus(this._focusNode);
                     if (!this.widget.viewModel.mentionUserId.isEmpty()) {
                         var userName = this.widget.viewModel.mentionUserName;
                         var newContent = this._textController.text + userName + " ";
@@ -1030,22 +1034,38 @@ namespace ConnectApp.screens {
                 child: ret
             );
 
-            ret = new Expanded(
-                child: new Column(
-                    crossAxisAlignment: left ? CrossAxisAlignment.start : CrossAxisAlignment.end,
-                    children: new List<Widget> {
-                        new Container(
-                            padding: EdgeInsets.only(bottom: 6),
-                            child: new Text(
-                                data: message.author.fullName,
-                                style: CTextStyle.PSmallBody4,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis)
-                        ),
-                        ret
-                    }
-                )
-            );
+            if (left) {
+                ret = new Expanded(
+                    child: new Column(
+                        crossAxisAlignment: left ? CrossAxisAlignment.start : CrossAxisAlignment.end,
+                        children: new List<Widget> {
+                            new Container(
+                                padding: EdgeInsets.only(left: 0, right: 16, bottom: 6),
+                                child: new Row(
+                                    children: new List<Widget> {
+                                        new Flexible(
+                                            child: new Text(
+                                                data: message.author.fullName,
+                                                style: CTextStyle.PSmallBody4,
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis
+                                            )
+                                        ),
+                                        CImageUtils.GenBadgeImage(
+                                            badges: message.author.badges,
+                                            CCommonUtils.GetUserLicense(userId: message.author.id,
+                                                userLicenseMap: this.widget.viewModel.userLicenseDict),
+                                            EdgeInsets.only(4),
+                                            false
+                                        )
+                                    }
+                                )
+                            ),
+                            ret
+                        }
+                    )
+                );
+            }
 
             ret = new Container(
                 padding: EdgeInsets.only(left: 2, right: 2, bottom: 16),
@@ -1124,7 +1144,7 @@ namespace ConnectApp.screens {
                                     ),
                                 Positioned.fill(
                                     Image.asset(
-                                        "image/avatar-circle-1",
+                                        "image/avatar-circle",
                                         fit: BoxFit.cover
                                     )
                                 )
@@ -1140,6 +1160,7 @@ namespace ConnectApp.screens {
                 onTap: () => this._browserImage(imageUrl: message.content),
                 child: new ImageMessage(
                     url: message.content,
+                    data: message.imageData,
                     size: 140,
                     ratio: 16.0f / 9.0f,
                     srcWidth: message.width,
@@ -1163,7 +1184,17 @@ namespace ConnectApp.screens {
                         message: message,
                         () => {
                             var attachment = message.attachments.first();
-                            if (attachment.filename.EndsWith("mp4")) {
+                            var filename = attachment.filename;
+                            if (CCommonUtils.isAndroid && !filename.EndsWith(".mp4")) {
+                                CustomToast.show(new CustomToastItem(
+                                    context: this.context,
+                                    "暂不支持该文件",
+                                    TimeSpan.FromMilliseconds(2000)
+                                ));
+                                return;
+                            }
+
+                            if (filename.EndsWith(".mp4")) {
                                 this.widget.actionModel.playVideo(obj: attachment.url);
                             }
                             else {
@@ -1222,7 +1253,7 @@ namespace ConnectApp.screens {
 
         Widget _buildInputBar() {
             var padding = this.showKeyboard || this.showEmojiBoard ? 0 : MediaQuery.of(this.context).padding.bottom;
-            var customTextField = new CustomTextField(
+            this.customTextField = new CustomTextField(
                 EdgeInsets.only(bottom: padding),
                 new BoxDecoration(
                     border: new Border(new BorderSide(color: CColors.Separator)),
@@ -1241,8 +1272,13 @@ namespace ConnectApp.screens {
                 onPressImage: this._pickImage,
                 onPressEmoji: () => {
                     this._refreshController.scrollController.jumpTo(0);
-                    FocusScope.of(context: this.context).requestFocus(node: this._focusNode);
+                    if (this._textController.text.isNotEmpty()) {
+                        this._textController.selection = TextSelection.collapsed(this._textController.text.Length);
+                    }
+
                     if (this.showEmojiBoard) {
+                        this._focusNode.unfocus();
+                        FocusScope.of(this.context).requestFocus(node: this._focusNode);
                         TextInputPlugin.TextInputShow();
                     }
                     else {
@@ -1269,11 +1305,11 @@ namespace ConnectApp.screens {
             if (!this.showEmojiBoard && !this.showKeyboard) {
                 backdropFilterWidget = new BackdropFilter(
                     filter: ImageFilter.blur(10, 10),
-                    child: customTextField
+                    child: this.customTextField
                 );
             }
             else {
-                backdropFilterWidget = customTextField;
+                backdropFilterWidget = this.customTextField;
             }
 
             return new Positioned(
@@ -1308,9 +1344,11 @@ namespace ConnectApp.screens {
             }
 
             var selection = this._textController.selection;
+            var start = selection.start < 0 ? 0 : selection.start;
+            var end = selection.end < 0 ? 0 : selection.end;
             this._textController.value = new TextEditingValue(
-                this._textController.text.Substring(0, length: selection.start) +
-                emojiText + this._textController.text.Substring(startIndex: selection.end),
+                this._textController.text.Substring(0, length: start) +
+                emojiText + this._textController.text.Substring(startIndex: end),
                 TextSelection.collapsed(selection.start + emojiText.Length));
         }
 
@@ -1342,10 +1380,6 @@ namespace ConnectApp.screens {
             }
 
             var nonce = Snowflake.CreateNonce();
-
-//            this.widget.actionModel.startSendMessage();
-//            this.widget.actionModel.sendMessage(this.widget.viewModel.channel.id, text.Trim(), nonce, "")
-//                .Catch(_ => CustomDialogUtils.showToast("消息发送失败", iconData: Icons.error_outline));
             this._refreshController.scrollTo(0);
             this.widget.actionModel.addLocalMessage(new ChannelMessageView {
                 id = nonce,
@@ -1393,6 +1427,7 @@ namespace ConnectApp.screens {
                 this.showEmojiBoard = false;
             }
 
+            this._focusNode.unfocus();
             TextInputPlugin.TextInputHide();
         }
 
@@ -1445,6 +1480,10 @@ namespace ConnectApp.screens {
         }
 
         void _pickImage() {
+            if (this.showKeyboard || this.showEmojiBoard) {
+                this.setState(fn: this._dismissKeyboard);
+            }
+
             var items = new List<ActionSheetItem> {
                 new ActionSheetItem(
                     "拍照",
@@ -1487,7 +1526,7 @@ namespace ConnectApp.screens {
                 channelId = this.widget.viewModel.channel.id,
                 nonce = nonce.hexToLong(),
                 type = ChannelMessageType.image,
-                content = Convert.ToBase64String(inArray: pickImage),
+                imageData = pickImage,
                 time = DateTime.UtcNow,
                 status = "waiting"
             });
@@ -1502,10 +1541,10 @@ namespace ConnectApp.screens {
                 channelId = this.widget.viewModel.channel.id,
                 nonce = nonce.hexToLong(),
                 type = ChannelMessageType.file,
-                content = Convert.ToBase64String(inArray: videoData),
+                videoData = videoData,
                 attachments = new List<Attachment> {
                     new Attachment {
-                        filename = $"{nonce}.mp4",
+                        filename = $"VIDEO_{DateTime.Now:yyyyMMddHHmmss}.mp4",
                         contentType = "video/mp4",
                         size = videoData.Length
                     }
@@ -1532,8 +1571,8 @@ namespace ConnectApp.screens {
         }
 
         public void didPushNext() {
-            if (this._focusNode.hasFocus) {
-                this._focusNode.unfocus();
+            if (this.showKeyboard || this.showEmojiBoard) {
+                this.setState(fn: this._dismissKeyboard);
             }
         }
 

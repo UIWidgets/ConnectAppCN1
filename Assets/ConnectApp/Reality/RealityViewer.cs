@@ -2,106 +2,108 @@ using ConnectApp.Reality;
 using UnityEngine;
 
 public class RealityViewer : MonoBehaviour {
-    bool m_GyroEnabled = false;
-    Gyroscope gyro;
-
     public bool isActived = false;
-    Camera mainCamera;
 
-    float originYAngle;
-    Quaternion originRotation;
-    Quaternion originGyroBaseRotation;
-
-
-    bool m_VirtualGyroEnabled;
-
+    bool m_GyroEnabled = false;
+    bool m_VirtualGyroEnabled = false;
     public Transform gyroOverride;
-    Quaternion m_ViturlaGyroDefaultRotation;
+    Gyroscope m_Gyro;
+    Camera m_MainCamera;
 
+    // Gyro Variables
+    float m_InitialYAngle = 0f;
+    float m_AppliedGyroYAngle = 0f;
+    float m_CalibrationYAngle = 0f;
+
+    Quaternion originRotation;
+
+    Transform gyroInstance;
 
     void Start() {
-        this.mainCamera = Camera.main;
-        this.mainCamera.clearFlags = CameraClearFlags.SolidColor;
+        this.m_MainCamera = Camera.main;
+        this.m_MainCamera.clearFlags = CameraClearFlags.SolidColor;
 
         this.originRotation = this.transform.rotation;
-        this.originGyroBaseRotation = Quaternion.Euler(90f, this.transform.eulerAngles.y, 0f);
+        this.m_InitialYAngle = this.transform.eulerAngles.y;
+        this.m_AppliedGyroYAngle = 0;
+        this.m_CalibrationYAngle = this.m_InitialYAngle;
     }
 
     public void SetActive(bool b) {
         if (b) {
             this.isActived = true;
-            this.mainCamera.clearFlags = CameraClearFlags.Skybox;
+            this.m_MainCamera.clearFlags = CameraClearFlags.Skybox;
 
             if (RealityManager.instance.useGyro) {
-                if (!this.m_GyroEnabled) {
+                if (this.m_GyroEnabled) {
+                    this.ResetGyro();
+                }
+                else {
                     this.m_GyroEnabled = this.InitGyro();
                 }
 
                 if (!this.m_GyroEnabled && !this.m_VirtualGyroEnabled) {
                     this.m_VirtualGyroEnabled = this.InitVirtualGyro();
+                    this.ResetGyro();
                 }
-
-                this.ResetGyro();
-
-                // this.rot = this.originRotation * this.FlipLeftHandToRight(Quaternion.Inverse(this.gyro.attitude));
             }
         }
         else {
-            this.mainCamera.clearFlags = CameraClearFlags.SolidColor;
+            this.m_MainCamera.clearFlags = CameraClearFlags.SolidColor;
             this.isActived = false;
         }
     }
 
     bool InitGyro() {
         if (SystemInfo.supportsGyroscope) {
-            Debug.Log("Gyro Enabled");
-            this.gyro = Input.gyro;
+            Debuger.Log("Gyro Enabled");
+            this.m_Gyro = Input.gyro;
+            this.ApplyGyroRotation();
+            this.ApplyCalibration();
+            this.gyroInstance = new GameObject("Gyro Instance").transform;
+            this.gyroInstance.position = this.transform.position;
+            this.gyroInstance.rotation = this.transform.rotation;
             return true;
         }
 
-        Debug.Log("Gyro Disabled");
+        Debuger.Log("Gyro Disabled");
         return false;
     }
 
     bool InitVirtualGyro() {
         if (this.gyroOverride != null) {
-            Debug.Log("Use Virtual Gyro");
-            this.m_ViturlaGyroDefaultRotation = this.gyroOverride.rotation;
+            Debuger.Log("Use Virtual Gyro");
+            this.gyroInstance = new GameObject("Gyro Instance").transform;
+            this.gyroInstance.position = this.transform.position;
+            this.gyroInstance.rotation = this.transform.rotation;
             return true;
         }
 
-        Debug.Log("Virtual Gyro Disabled");
+        Debuger.Log("Virtual Gyro Disabled");
         return false;
     }
 
     public void ResetGyro() {
         if (this.m_GyroEnabled) {
-            Debug.Log("Reset Gyro");
-            this.gyro.enabled = false;
-            this.gyro.enabled = true;
+            Debuger.Log("Reset Gyro");
 
-            var attitude = this.FlipLeftHandToRight(this.gyro.attitude);
-            this.transform.localRotation = this.originGyroBaseRotation * attitude;
+            this.m_CalibrationYAngle = this.m_AppliedGyroYAngle - this.m_InitialYAngle;
+
+            this.ApplyGyroRotation();
+            this.ApplyCalibration();
         }
         else if (this.m_VirtualGyroEnabled) {
-            Debug.Log("Reset Virtual Gyro");
-            this.gyroOverride.rotation = this.m_ViturlaGyroDefaultRotation;
-
-            // this.transform.localRotation = this.gyroOverride.rotation;
+            Debuger.Log("Reset Virtual Gyro");
+            this.gyroOverride.rotation = this.originRotation;
+            this.transform.localRotation = this.gyroOverride.rotation;
         }
         else {
             this.transform.localRotation = this.originRotation;
         }
     }
 
-    Quaternion FlipLeftHandToRight(Quaternion origin) {
-        origin.z = -origin.z;
-        origin.w = -origin.w;
-        return origin;
-    }
-
     void CheckHit(RaycastHit hitInfo) {
-        Debug.Log(hitInfo.transform.name);
+        Debuger.Log(hitInfo.transform.name);
         if (hitInfo.transform.name == "Phone Shell") {
             if (RealityManager.instance.miniGame.isPause) {
                 RealityManager.TriggerSwitch();
@@ -113,32 +115,43 @@ public class RealityViewer : MonoBehaviour {
         }
     }
 
+    void ApplyGyroRotation() {
+        this.transform.rotation = Input.gyro.attitude;
+        this.transform.Rotate(0f, 0f, 180f, Space.Self);
+        this.transform.Rotate(90f, 180f, 0f, Space.World);
+        // this.appliedGyroYAngle = this.transform.eulerAngles.y;
+    }
+
+    void ApplyCalibration() {
+        this.transform.Rotate(0f, -this.m_CalibrationYAngle, 0f, Space.World);
+    }
+
     void Update() {
+        // Update gyro
+        if (this.gyroInstance && this.m_GyroEnabled) {
+            this.gyroInstance.rotation = Input.gyro.attitude;
+            this.gyroInstance.Rotate(0f, 0f, 180f, Space.Self);
+            this.gyroInstance.Rotate(90f, 180f, 0f, Space.World);
+            this.m_AppliedGyroYAngle = this.gyroInstance.eulerAngles.y;
+        }
+
         if (!this.isActived) {
             return;
         }
 
         if (this.m_GyroEnabled) {
-            var attitude = this.FlipLeftHandToRight(this.gyro.attitude);
-            // float angle = 0f;
-            // Vector3 axis;
-            // attitude.ToAngleAxis(out angle, out axis);
-            // Debug.Log(axis.ToString() + "@" + angle);
-            this.transform.localRotation = this.originGyroBaseRotation * attitude;
+            this.ApplyGyroRotation();
+            this.ApplyCalibration();
         }
         else if (this.m_VirtualGyroEnabled) {
             this.transform.localRotation = this.gyroOverride.rotation;
-            // float angle = 0f;
-            // Vector3 axis;
-            // this.gyroOverride.rotation.ToAngleAxis(out angle, out axis);
-            // Debug.Log(axis.ToString() + "@" + angle);
         }
 
         if (RealityManager.instance.phone.castable) {
             if (!RealityManager.instance.miniGame.duringGame) {
                 if (Input.touchCount > 0) {
                     var touch = Input.GetTouch(0);
-                    Ray mouseDownCheckRay = this.mainCamera.ScreenPointToRay(touch.position);
+                    Ray mouseDownCheckRay = this.m_MainCamera.ScreenPointToRay(touch.position);
                     RaycastHit hitInfo;
 
                     if (Physics.Raycast(mouseDownCheckRay, out hitInfo, Mathf.Infinity,
@@ -148,7 +161,7 @@ public class RealityViewer : MonoBehaviour {
                 }
 
                 if (Input.GetMouseButtonDown(0)) {
-                    Ray mouseDownCheckRay = this.mainCamera.ScreenPointToRay(Input.mousePosition);
+                    Ray mouseDownCheckRay = this.m_MainCamera.ScreenPointToRay(Input.mousePosition);
                     RaycastHit hitInfo;
 
                     if (Physics.Raycast(mouseDownCheckRay, out hitInfo, Mathf.Infinity,

@@ -37,7 +37,7 @@ namespace ConnectApp.Utils {
                 }
                 else if (uri.AbsolutePath.StartsWith("/mconnect/channels/")) {
                     var channelId = uri.AbsolutePath.Remove(0, "/mconnect/channels/".Length);
-                    dispatcher.dispatch(new MainNavigatorPushToChannelDetailAction {
+                    dispatcher.dispatch(new MainNavigatorPushToChannelShareAction {
                         channelId = channelId
                     });
                 }

@@ -149,7 +149,7 @@ static PickImageController *controller = nil;
 
 - (NSData *)compressWithImage:(UIImage *)image {
     if (_maxSize <= 0.0) {
-        return UIImagePNGRepresentation(image);
+        return UIImageJPEGRepresentation(image, 0.8);
     }
     
     CGFloat compression = 1;

@@ -7,7 +7,6 @@ using ConnectApp.Models.State;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.Redux;
-using UnityEngine;
 
 namespace ConnectApp.redux.actions {
     public class StartFetchFavoriteTagAction : RequestAction {
@@ -73,7 +72,7 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new FetchFavoriteTagFailureAction());
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }
@@ -81,9 +80,10 @@ namespace ConnectApp.redux.actions {
         public static object fetchFavoriteDetail(string userId, string tagId, int offset) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 var favoriteTagId = tagId.isNotEmpty() ? tagId : $"{userId}all";
-                var favoriteDetailArticleIds = getState().favoriteState.favoriteDetailArticleIdDict.ContainsKey(key: favoriteTagId)
-                    ? getState().favoriteState.favoriteDetailArticleIdDict[key: favoriteTagId]
-                    : new List<string>();
+                var favoriteDetailArticleIds =
+                    getState().favoriteState.favoriteDetailArticleIdDict.ContainsKey(key: favoriteTagId)
+                        ? getState().favoriteState.favoriteDetailArticleIdDict[key: favoriteTagId]
+                        : new List<string>();
                 var favoriteDetailArticleCount = favoriteDetailArticleIds.Count;
                 if (offset != 0 && offset != favoriteDetailArticleCount) {
                     offset = favoriteDetailArticleCount;
@@ -105,7 +105,7 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new FetchFavoriteDetailFailureAction());
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }
@@ -133,7 +133,7 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         CustomDialogUtils.hiddenCustomDialog();
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }
@@ -150,7 +150,8 @@ namespace ConnectApp.redux.actions {
                 )
             );
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return FavoriteApi.EditFavoriteTag(tagId: tagId, iconStyle: iconStyle, name: name, description: description)
+                return FavoriteApi
+                    .EditFavoriteTag(tagId: tagId, iconStyle: iconStyle, name: name, description: description)
                     .Then(editFavoriteTagResponse => {
                         CustomDialogUtils.hiddenCustomDialog();
                         dispatcher.dispatch(new EditFavoriteTagSuccessAction {
@@ -161,7 +162,7 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         CustomDialogUtils.hiddenCustomDialog();
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }
@@ -188,7 +189,7 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         CustomDialogUtils.hiddenCustomDialog();
-                        Debug.Log(error);
+                        Debuger.LogError(message: error);
                     });
             });
         }

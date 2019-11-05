@@ -27,17 +27,17 @@ namespace ConnectApp.Reality {
 
             this.SetScreenSize(Screen.width, Screen.height);
 
-            // Debug.Log("Screen Eye Distance: " + this.inHand.localPosition.z);
-            // Debug.Log(Screen.width + ", " + Screen.height);
+            Debuger.Log("Screen Eye Distance: " + this.inHand.localPosition.z);
+            Debuger.Log(Screen.width + ", " + Screen.height);
         }
 
         void SetScreenSize(float width, float height) {
-            // Debug.Log($"SetScreenSize ({width}, {height})");
+            Debuger.Log($"SetScreenSize ({width}, {height})");
 
             var widthRatio = width / this.defaultScreenSize.x;
             var heightRatio = height / this.defaultScreenSize.y;
 
-            // Debug.Log($"W&H Ratio: ({widthRatio}, {heightRatio})");
+            Debuger.Log($"W&H Ratio: ({widthRatio}, {heightRatio})");
 
             var shellScale = this.shell.transform.localScale;
             shellScale.x *= widthRatio;
@@ -51,7 +51,7 @@ namespace ConnectApp.Reality {
             this.shell.transform.localScale = shellScale;
 
             var inHandLocalPosition = this.inHand.localPosition;
-            // Debug.Log($"distance: {inHandLocalPosition.z}");
+            Debuger.Log($"distance: {inHandLocalPosition.z}");
             var delta = inHandLocalPosition.z;
             inHandLocalPosition.z *= Mathf.Min(widthRatio, heightRatio);
             delta -= inHandLocalPosition.z;

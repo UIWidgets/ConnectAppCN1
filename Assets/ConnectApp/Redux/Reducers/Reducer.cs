@@ -3025,8 +3025,8 @@ namespace ConnectApp.redux.reducers {
                     }
 
                     if (state.channelState.channelDict.ContainsKey(channelData.id)) {
-                        Debug.LogWarning($"Channel {channelData.id} already exists! Overwrite!");
-                        ChannelView channel = state.channelState.channelDict[channelData.id];
+                        // Channel already exists! Overwrite!
+                        var channel = state.channelState.channelDict[channelData.id];
                         channel.updateFromSocketResponseUpdateChannelData(channelData);
                     }
                     else {
@@ -3047,7 +3047,7 @@ namespace ConnectApp.redux.reducers {
                         state.channelState.joinedChannels.Remove(channelData.id);
                     }
                     else {
-                        Debug.LogWarning($"Channel {channelData.id} not exists!");
+                        Debuger.LogWarning($"Channel {channelData.id} not exists!");
                     }
 
                     break;
@@ -3060,7 +3060,7 @@ namespace ConnectApp.redux.reducers {
                         channel.updateFromSocketResponseUpdateChannelData(channelData);
                     }
                     else {
-                        Debug.LogWarning($"Channel {channelData.id} not exists! Create new.");
+                        Debuger.LogWarning($"Channel {channelData.id} not exists! Create new.");
                         state.channelState.channelDict[channelData.id] =
                             ChannelView.fromSocketResponseUpdateChannelData(channelData);
                         if (!state.channelState.joinedChannels.Contains(channelData.id)) {
@@ -3082,7 +3082,7 @@ namespace ConnectApp.redux.reducers {
                         }
                     }
                     else {
-                        Debug.LogWarning($"Channel {ackData.channelId} not exists!");
+                        Debuger.LogWarning($"Channel {ackData.channelId} not exists!");
                     }
 
                     break;

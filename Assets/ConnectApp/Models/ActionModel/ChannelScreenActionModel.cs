@@ -16,7 +16,7 @@ namespace ConnectApp.Models.ActionModel {
         public Action<string, List<string>> browserImage;
         public Action<string> playVideo;
         public Func<string, string, string, string, IPromise> sendMessage;
-        public Func<string, string, string, IPromise> sendImage;
+        public Func<string, byte[], string, IPromise> sendImage;
         public Func<IPromise> fetchChannelInfo;
         public Func<string, string, IPromise> fetchMessages;
         public Func<IPromise> fetchMembers;

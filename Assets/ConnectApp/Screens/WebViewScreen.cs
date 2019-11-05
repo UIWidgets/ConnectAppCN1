@@ -146,7 +146,7 @@ namespace ConnectApp.screens {
                                 new Expanded(
                                     child: new Center(
                                         child: new Text(
-                                            this._onClose ? "正在关闭..." : "正在加载...",
+                                            this._onClose ? "正在关闭..." : "",
                                             style: CTextStyle.PXLarge
                                         )
                                     )
