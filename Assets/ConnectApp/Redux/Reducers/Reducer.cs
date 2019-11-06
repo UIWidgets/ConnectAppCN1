@@ -5,6 +5,7 @@ using ConnectApp.Components;
 using ConnectApp.Main;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
+using ConnectApp.Plugins;
 using ConnectApp.Reality;
 using ConnectApp.redux.actions;
 using ConnectApp.screens;
@@ -1539,8 +1540,10 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case OpenUrlAction action: {
-                    if (action.url != null || action.url.Length > 0) {
-                        Application.OpenURL(url: action.url);
+                    if (action.url.isNotEmpty()) {
+                        if (UrlLauncherPlugin.CanLaunch(urlString: action.url)) {
+                            UrlLauncherPlugin.Launch(urlString: action.url);
+                        }
                     }
 
                     break;
