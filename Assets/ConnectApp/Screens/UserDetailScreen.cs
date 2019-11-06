@@ -71,17 +71,18 @@ namespace ConnectApp.screens {
                         fetchUserProfile = () => dispatcher.dispatch<IPromise>(Actions.fetchUserProfile(this.userId)),
                         startFetchUserArticle = () => dispatcher.dispatch(new StartFetchUserArticleAction()),
                         fetchUserArticle = (userId, pageNumber) =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchUserArticle(userId: userId, pageNumber: pageNumber)),
+                            dispatcher.dispatch<IPromise>(Actions.fetchUserArticle(userId: userId,
+                                pageNumber: pageNumber)),
                         startFetchUserFavorite = () => dispatcher.dispatch(new StartFetchFavoriteDetailAction()),
                         fetchUserFavorite = (userId, offset) =>
                             dispatcher.dispatch<IPromise>(Actions.fetchFavoriteTags(userId: userId, offset: offset)),
                         startFollowUser = userId =>
                             dispatcher.dispatch(new StartFollowUserAction {followUserId = userId}),
-                        followUser = userId => 
+                        followUser = userId =>
                             dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(followUserId: userId)),
                         startUnFollowUser = userId => dispatcher.dispatch(new StartUnFollowUserAction
                             {unFollowUserId = userId}),
-                        unFollowUser = userId => 
+                        unFollowUser = userId =>
                             dispatcher.dispatch<IPromise>(Actions.fetchUnFollowUser(unFollowUserId: userId)),
                         deleteFavoriteTag = tagId =>
                             dispatcher.dispatch<IPromise>(Actions.deleteFavoriteTag(tagId: tagId)),
@@ -210,7 +211,6 @@ namespace ConnectApp.screens {
                 this.widget.actionModel.fetchUserProfile();
                 this.widget.actionModel.startFetchUserArticle();
                 this.widget.actionModel.startFetchUserFavorite();
-                this.widget.actionModel.fetchUserFavorite(arg1: this.widget.viewModel.user.id, 0);
             });
         }
 
@@ -290,13 +290,17 @@ namespace ConnectApp.screens {
                     this._favoriteArticleOffset = 0;
                 }
                 else {
-                    var favoriteDetailArticleIds = this.widget.viewModel.favoriteTagIdDict.ContainsKey(key: this.widget.viewModel.user.id)
-                        ? this.widget.viewModel.favoriteTagIdDict[key: this.widget.viewModel.user.id]
-                        : new List<string>();
+                    var favoriteDetailArticleIds =
+                        this.widget.viewModel.favoriteTagIdDict.ContainsKey(key: this.widget.viewModel.user.id)
+                            ? this.widget.viewModel.favoriteTagIdDict[key: this.widget.viewModel.user.id]
+                            : new List<string>();
                     this._favoriteArticleOffset = favoriteDetailArticleIds.Count;
                 }
-                this.widget.actionModel.fetchUserFavorite(arg1: this.widget.viewModel.user.id, arg2: this._favoriteArticleOffset)
-                    .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))
+
+                this.widget.actionModel
+                    .fetchUserFavorite(arg1: this.widget.viewModel.user.id, arg2: this._favoriteArticleOffset)
+                    .Then(() => this._refreshController.sendBack(up: up,
+                        up ? RefreshStatus.completed : RefreshStatus.idle))
                     .Catch(_ => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed));
                 return;
             }
@@ -505,7 +509,8 @@ namespace ConnectApp.screens {
                                     );
                                 }
 
-                                if ((articleIds == null || articleIds.Count == 0) && index == 2 && this._selectedIndex == 0) {
+                                if ((articleIds == null || articleIds.Count == 0) && index == 2 &&
+                                    this._selectedIndex == 0) {
                                     var height = MediaQuery.of(context: context).size.height - headerHeight - 44;
                                     return new Container(
                                         height: height,
@@ -516,7 +521,8 @@ namespace ConnectApp.screens {
                                     );
                                 }
 
-                                if ((favoriteIds == null || favoriteIds.Count == 0) && index == 2 && this._selectedIndex == 1) {
+                                if ((favoriteIds == null || favoriteIds.Count == 0) && index == 2 &&
+                                    this._selectedIndex == 1) {
                                     var height = MediaQuery.of(context: context).size.height - headerHeight - 44;
                                     return new Container(
                                         height: height,
@@ -560,6 +566,7 @@ namespace ConnectApp.screens {
                                         fullName = this.widget.viewModel.teamDict[key: article.teamId].name;
                                     }
                                 }
+
                                 return new ArticleCard(
                                     article: article,
                                     () => this.widget.actionModel.pushToArticleDetail(obj: article.id),
