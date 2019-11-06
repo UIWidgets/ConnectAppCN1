@@ -64,6 +64,7 @@ namespace Plugins.Editor {
             proj.AddFrameworkToProject(target, "CoreServices.framework", true);
             proj.AddFrameworkToProject(target, "MediaPlayer.framework", true);
             proj.AddFrameworkToProject(target, "Photos.framework", false);
+            proj.AddFrameworkToProject(target, "SafariServices.framework", false);
             proj.AddBuildProperty(target, "OTHER_LDFLAGS", "-all_load");
 
             //associated-domains
