@@ -13,6 +13,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using EventType = ConnectApp.Models.State.EventType;
+
 #if UNITY_IOS
 using System.Runtime.InteropServices;
 
@@ -32,7 +33,14 @@ namespace ConnectApp.Plugins {
                 isListen = true;
                 UIWidgetsMessageManager.instance.AddChannelMessageDelegate("jpush", _handleMethodCall);
                 completed();
-                setJPushChannel(Config.store);
+                setJPushChannel(channel: Config.store);
+                if (StoreProvider.store.getState().loginState.isLoggedIn) {
+                    setJPushAlias(alias: StoreProvider.store.getState().loginState.loginInfo.userId);
+                }
+                else {
+                    deleteJPushAlias();
+                }
+
                 setJPushTags(
                     new List<string> {Config.versionCode.ToString(), Config.messengerTag, Config.versionNumber});
             }
