@@ -16,8 +16,8 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -126,7 +126,7 @@ namespace ConnectApp.screens {
                             fullName = state.loginState.loginInfo.userFullName
                         },
                         messageLoading = state.channelState.messageLoading,
-                        newMessageCount = channel.unread,
+                        newMessageCount = newMessages.Count,
                         socketConnected = state.channelState.socketConnected,
                         netWorkConnected = state.channelState.netWorkConnected,
                         mentionAutoFocus = state.channelState.mentionAutoFocus,
@@ -152,6 +152,12 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch(new StartSendChannelMessageAction {
                                 message = viewModel.waitingMessage
                             });
+                            if (MessageUtils.lastWaitingMessageId.isNotEmpty() &&
+                                viewModel.waitingMessage.id == MessageUtils.lastWaitingMessageId) {
+                                return;
+                            }
+
+                            MessageUtils.lastWaitingMessageId = viewModel.waitingMessage.id;
                             if (viewModel.waitingMessage.type == ChannelMessageType.text) {
                                 dispatcher.dispatch<IPromise>(Actions.sendChannelMessage(
                                     this.channelId,
@@ -199,7 +205,10 @@ namespace ConnectApp.screens {
                         fetchMember = () => dispatcher.dispatch<IPromise>(
                             Actions.fetchChannelMember(channelId: this.channelId, userId: viewModel.me.id)),
                         deleteChannelMessage = messageId => dispatcher.dispatch<IPromise>(
-                            Actions.deleteChannelMessage(messageId: messageId)),
+                            Actions.deleteChannelMessage(channelId: this.channelId, messageId: messageId)),
+                        deleteLocalMessage = message => dispatcher.dispatch(new DeleteLocalMessageAction {
+                            message = message
+                        }),
                         pushToChannelDetail = () => dispatcher.dispatch(new MainNavigatorPushToChannelDetailAction {
                             channelId = this.channelId
                         }),
@@ -573,8 +582,14 @@ namespace ConnectApp.screens {
                     new ActionSheetItem(
                         "删除",
                         type: ActionType.destructive,
-                        () => this.widget.actionModel.deleteChannelMessage(message.id)
-                    ),
+                        () => {
+                            if (message.status == "normal") {
+                                this.widget.actionModel.deleteChannelMessage(message.id);
+                            }
+                            else {
+                                this.widget.actionModel.deleteLocalMessage(message);
+                            }
+                        }),
                     new ActionSheetItem("取消", type: ActionType.cancel)
                 }
             ));
@@ -847,7 +862,7 @@ namespace ConnectApp.screens {
                                 child: new Text(
                                     !this.widget.viewModel.netWorkConnected
                                         ? this.widget.viewModel.channel.name + "(未连接)"
-                                        : this.widget.viewModel.socketConnected
+                                        : this.widget.viewModel.socketConnected && !this.widget.viewModel.messageLoading
                                             ? this.widget.viewModel.channel.name
                                             : "收取中...",
                                     style: CTextStyle.PXLargeMedium,
