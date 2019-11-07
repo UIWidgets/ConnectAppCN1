@@ -2633,7 +2633,7 @@ namespace ConnectApp.redux.reducers {
                     channel.hasMore = action.hasMore;
                     channel.hasMoreNew = action.hasMoreNew;
 
-                    var lastMessageId = channel.messageIds.last();
+                    var lastMessageId = channel.messageIds.isNotEmpty() ? channel.messageIds.last() : "";
                     if (channel.newMessageIds.isNotEmpty() &&
                         channel.newMessageIds.last().hexToLong() > lastMessageId.hexToLong()) {
                         lastMessageId = channel.newMessageIds.last();
@@ -2644,7 +2644,8 @@ namespace ConnectApp.redux.reducers {
 
                         if (!channel.newMessageIds.Contains(channelMessage.id) &&
                             !channel.messageIds.Contains(channelMessage.id)) {
-                            if (!channel.atBottom && channelMessage.author.id != state.loginState.loginInfo.userId &&
+                            if (lastMessageId.isNotEmpty() && !channel.atBottom &&
+                                channelMessage.author.id != state.loginState.loginInfo.userId &&
                                 channelMessage.id.hexToLong() > lastMessageId.hexToLong()) {
                                 channel.newMessageIds.Add(channelMessage.id);
                             }
