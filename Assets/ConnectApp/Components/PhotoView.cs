@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using ConnectApp.Constants;
 using ConnectApp.Main;
 using ConnectApp.Plugins;
@@ -31,7 +30,7 @@ namespace ConnectApp.Components {
             D.assert(urls.isNotEmpty());
             this.urls = urls;
             this.index = index;
-            this.controller = controller ?? new PageController(index);
+            this.controller = controller ?? new PageController(initialPage: index);
             this.headers = headers;
             this.useCachedNetworkImage = useCachedNetworkImage;
         }
@@ -67,20 +66,26 @@ namespace ConnectApp.Components {
             };
             var pageView = new PageView(
                 controller: this.widget.controller,
-                onPageChanged: index => { this.setState(() => { this.currentIndex = index; }); },
-                children: this.widget.urls.Select<string, Widget>(url => {
+                onPageChanged: index => this.setState(() => this.currentIndex = index),
+                itemCount: this.widget.urls.Count,
+                itemBuilder: (cxt, index) => {
+                    var url = this.widget.urls[index: index];
                     return this.widget.useCachedNetworkImage
                         ? (Widget)new CachedNetworkImage(
-                            url,
+                            src: url,
                             new CustomActivityIndicator(loadingColor: LoadingColor.white),
                             fit: BoxFit.contain,
-                            headers: headers)
-                        : Image.network(url,
+                            headers: headers
+                        )
+                        : Image.network(
+                            src: url,
                             fit: BoxFit.contain,
-                            headers: headers);
-                }).ToList());
+                            headers: headers
+                        );
+                }
+            );
             return new GestureDetector(
-                onTap: () => { StoreProvider.store.dispatcher.dispatch(new MainNavigatorPopAction()); },
+                onTap: () => StoreProvider.store.dispatcher.dispatch(new MainNavigatorPopAction()),
                 onLongPress: this._pickImage,
                 child: new Container(
                     color: CColors.Black,
@@ -102,12 +107,15 @@ namespace ConnectApp.Components {
                                         style: CTextStyle.PLargeWhite.copyWith(height: 1))
                                 )
                             )
-                        })));
+                        }
+                    )
+                )
+            );
         }
 
         void _pickImage() {
-            var imageUrl = this.widget.urls[this.currentIndex];
-            var imagePath = SQLiteDBManager.instance.GetCachedFilePath(imageUrl);
+            var imageUrl = this.widget.urls[index: this.currentIndex];
+            var imagePath = SQLiteDBManager.instance.GetCachedFilePath(url: imageUrl);
             if (imagePath.isEmpty()) {
                 return;
             }
@@ -116,17 +124,14 @@ namespace ConnectApp.Components {
                 new ActionSheetItem(
                     "保存图片",
                     onTap: () => {
-                        if (imagePath.isNotEmpty()) {
-                            var imageStr = CImageUtils.readImage(imagePath);
-                            PickImagePlugin.SaveImage(imagePath, imageStr);
-                        }
+                        var imageStr = CImageUtils.readImage(path: imagePath);
+                        PickImagePlugin.SaveImage(imagePath: imagePath, image: imageStr);
                     }
                 ),
                 new ActionSheetItem("取消", type: ActionType.cancel)
             };
 
             ActionSheetUtils.showModalActionSheet(new ActionSheet(
-                title: "",
                 items: items
             ));
         }
