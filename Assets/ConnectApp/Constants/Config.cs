@@ -20,9 +20,9 @@ namespace ConnectApp.Constants {
 
         public const string miniId = "gh_f731aec0bdd0";
 
-        public const string versionNumber = "1.2.1";
+        public const string versionNumber = "1.2.3";
 
-        public const int versionCode = 82;
+        public const int versionCode = 85;
 
         public const string messengerTag = "messenger";
 
@@ -41,7 +41,6 @@ namespace ConnectApp.Constants {
         public const string store = "appstore";
 #elif UNITY_ANDROID
         public const string platform = "android";
-
 //        public const string store = "test";
         public const string store = "official";
 //        public const string store = "xiaomi";
