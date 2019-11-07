@@ -388,7 +388,7 @@ namespace ConnectApp.Utils {
         void _Send(SocketRequestPayload requestPayload) {
             var payload = JsonConvert.SerializeObject(requestPayload);
             if (this.connected) {
-                this.m_Socket.Send(payload);
+                this.m_Socket?.Send(payload);
             }
             else {
                 this.m_PayloadQueue.Add(payload);
