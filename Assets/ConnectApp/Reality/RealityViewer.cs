@@ -19,6 +19,10 @@ public class RealityViewer : MonoBehaviour {
 
     Transform gyroInstance;
 
+    void Awake() {
+        this.m_GyroEnabled = this.InitGyro();
+    }
+
     void Start() {
         this.m_MainCamera = Camera.main;
         this.m_MainCamera.clearFlags = CameraClearFlags.SolidColor;
@@ -64,9 +68,9 @@ public class RealityViewer : MonoBehaviour {
             this.gyroInstance.Rotate(0f, 0f, 180f, Space.Self);
             this.gyroInstance.Rotate(90f, 180f, 0f, Space.World);
             this.m_AppliedGyroYAngle = this.gyroInstance.eulerAngles.y;
-            
+
             this.m_CalibrationYAngle = this.m_AppliedGyroYAngle - this.m_InitialYAngle;
-            
+
             this.ApplyGyroRotation();
             this.ApplyCalibration();
 
