@@ -150,6 +150,7 @@ namespace ConnectApp.Models.Model {
         public bool atBottom = false;
         public bool active = false;
         public ChannelMember currentMember;
+        public bool needFetchMessages;
 
         public static ChannelView fromChannel(Channel channel) {
             return new ChannelView {

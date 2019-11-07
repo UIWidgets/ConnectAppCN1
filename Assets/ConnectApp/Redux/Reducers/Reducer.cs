@@ -2617,8 +2617,10 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
-                case StartFetchChannelMessageAction _: {
+                case StartFetchChannelMessageAction action: {
                     state.channelState.messageLoading = true;
+                    var channel = state.channelState.channelDict[key: action.channelId];
+                    channel.needFetchMessages = false;
                     break;
                 }
 
@@ -2631,10 +2633,25 @@ namespace ConnectApp.redux.reducers {
                     channel.hasMore = action.hasMore;
                     channel.hasMoreNew = action.hasMoreNew;
 
+                    var lastMessageId = channel.messageIds.last();
+                    if (channel.newMessageIds.isNotEmpty() &&
+                        channel.newMessageIds.last().hexToLong() > lastMessageId.hexToLong()) {
+                        lastMessageId = channel.newMessageIds.last();
+                    }
                     for (var i = 0; i < action.messages.Count; i++) {
                         var channelMessage = ChannelMessageView.fromChannelMessage(action.messages[i]);
                         state.channelState.messageDict[channelMessage.id] = channelMessage;
-                        channel.messageIds.Add(channelMessage.id);
+
+                        if (!channel.newMessageIds.Contains(channelMessage.id) &&
+                            !channel.messageIds.Contains(channelMessage.id)) {
+                            if (!channel.atBottom && channelMessage.author.id != state.loginState.loginInfo.userId &&
+                                channelMessage.id.hexToLong() > lastMessageId.hexToLong()) {
+                                channel.newMessageIds.Add(channelMessage.id);
+                            }
+                            else {
+                                channel.messageIds.Add(channelMessage.id);
+                            }
+                        }
                         if (channelMessage.id.hexToLong() > channel.lastMessage.id.hexToLong()) {
                             channel.lastMessage = channelMessage;
                             channel.lastMessageId = channelMessage.id;
@@ -3113,6 +3130,16 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case SocketConnectStateAction action: {
+                    if (!state.channelState.socketConnected && action.connected) {
+                        state.channelState.joinedChannels.ForEach(channelId => {
+                            if (state.channelState.channelDict.ContainsKey(channelId)) {
+                                var channel = state.channelState.channelDict[channelId];
+                                if (channel.active) {
+                                    channel.needFetchMessages = true;
+                                }
+                            }
+                        });
+                    }
                     state.channelState.socketConnected = action.connected;
                     break;
                 }

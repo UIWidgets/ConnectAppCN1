@@ -147,6 +147,13 @@ namespace ConnectApp.screens {
                         }
                     }
 
+                    if (viewModel.channel.needFetchMessages) {
+                        SchedulerBinding.instance.addPostFrameCallback(_ => {
+                            dispatcher.dispatch<IPromise>(
+                                Actions.fetchChannelMessages(channelId: this.channelId));
+                        });
+                    }
+
                     if (viewModel.waitingMessage != null && viewModel.sendingMessage == null) {
                         SchedulerBinding.instance.addPostFrameCallback(_ => {
                             dispatcher.dispatch(new StartSendChannelMessageAction {
