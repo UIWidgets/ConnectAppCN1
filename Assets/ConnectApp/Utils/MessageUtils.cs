@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using ConnectApp.Constants;
 using ConnectApp.Models.Model;
+using ConnectApp.redux;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -36,6 +37,8 @@ namespace ConnectApp.Utils {
 
         public static IEnumerable<TextSpan> messageToTextSpans(string content, List<User> mentions,
             bool mentionEveryone, MentionTapCallback onTap) {
+            var userDict = StoreProvider.store.getState().userState.userDict;
+
             var textSpans = new List<TextSpan>();
 
             if (content.isEmpty()) {
@@ -51,7 +54,8 @@ namespace ConnectApp.Utils {
                 int startIndex = 0;
                 mentions.ForEach(mention => {
                     var mentionId = mention.id;
-                    var mentionFullName = mention.fullName;
+                    var mentionFullName = mention.fullName.isNotEmpty() ? mention.fullName :
+                        userDict.ContainsKey(mention.id) ? userDict[mention.id].fullName : "";
                     if (parsingContent.Contains($"<@{mentionId}>")) {
                         parsingContent = parsingContent.Replace($"<@{mentionId}>", $"@{mentionFullName}");
                     }
