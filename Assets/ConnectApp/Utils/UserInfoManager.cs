@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using ConnectApp.Models.Model;
+using ConnectApp.Plugins;
 using Newtonsoft.Json;
 using Unity.UIWidgets.foundation;
 using UnityEngine;
@@ -55,6 +56,7 @@ namespace ConnectApp.Utils {
             if (PlayerPrefs.HasKey(_userInfo)) {
                 PlayerPrefs.DeleteKey(_userInfo);
             }
+            JPushPlugin.deleteJPushAlias();
         }
     }
 }
