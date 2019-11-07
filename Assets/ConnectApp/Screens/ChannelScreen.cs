@@ -1155,7 +1155,7 @@ namespace ConnectApp.screens {
                                     : new Container(
                                         padding: EdgeInsets.all(1.0f / Window.instance.devicePixelRatio),
                                         color: CColors.White,
-                                        child: CachedNetworkImageProvider.cachedNetworkImage(src: httpsUrl)
+                                        child: new CachedNetworkImage(src: httpsUrl)
                                     ),
                                 Positioned.fill(
                                     Image.asset(

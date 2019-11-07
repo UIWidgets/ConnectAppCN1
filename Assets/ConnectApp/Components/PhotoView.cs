@@ -70,8 +70,9 @@ namespace ConnectApp.Components {
                 onPageChanged: index => { this.setState(() => { this.currentIndex = index; }); },
                 children: this.widget.urls.Select<string, Widget>(url => {
                     return this.widget.useCachedNetworkImage
-                        ? CachedNetworkImageProvider.cachedNetworkImage(
+                        ? (Widget)new CachedNetworkImage(
                             url,
+                            new CustomActivityIndicator(loadingColor: LoadingColor.white),
                             fit: BoxFit.contain,
                             headers: headers)
                         : Image.network(url,
