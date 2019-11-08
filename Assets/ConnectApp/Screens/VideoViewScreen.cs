@@ -84,12 +84,15 @@ namespace ConnectApp.screens {
 
         public void didPush() {
             StatusBarManager.hideStatusBar(true);
-            var width = MediaQuery.of(this.context).size.width;
-            var height = width * 9 / 16;
-            var originY = (MediaQuery.of(this.context).size.height - height) / 2;
 
-            AVPlayerPlugin.initVideoPlayer(this.widget.url, HttpManager.getCookie(), 0, originY, width, height, false,
-                this.widget.needUpdate, this.widget.limitSeconds);
+            Promise.Delayed(TimeSpan.FromMilliseconds(500)).Then(() => {
+                var width = MediaQuery.of(this.context).size.width;
+                var height = width * 9 / 16;
+                var originY = (MediaQuery.of(this.context).size.height - height) / 2;
+                AVPlayerPlugin.initVideoPlayer(this.widget.url, HttpManager.getCookie(), 0, originY, width, height,
+                    false,
+                    this.widget.needUpdate, this.widget.limitSeconds);
+            });
         }
 
         public void didPop() {

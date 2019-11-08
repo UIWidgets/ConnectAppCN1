@@ -21,6 +21,7 @@ using System.Runtime.InteropServices;
 namespace ConnectApp.Plugins {
     public static class JPushPlugin {
         public static bool isListen;
+        public static bool isShowPushAlert;
         static int callbackId = 0;
 
         public static void addListener() {
@@ -75,6 +76,7 @@ namespace ConnectApp.Plugins {
                                 EventBus.publish(EventBusConstant.newNotifications, new List<object>());
                             }
 
+                            playMessageSound();
                             break;
                         }
                         case "OnReceiveMessage": {
@@ -290,6 +292,28 @@ namespace ConnectApp.Plugins {
             setTags(callbackId++, tagsJsonStr);
         }
 
+        public static void playMessageSound() {
+            if (Application.isEditor) {
+                return;
+            }
+
+            playSystemSound();
+        }
+
+        public static void showPushAlert(bool isShow) {
+            if (Application.isEditor) {
+                return;
+            }
+
+            if (isShowPushAlert == isShow) {
+                return;
+            }
+
+            isShowPushAlert = isShow;
+            updateShowAlert(isShow);
+        }
+
+
 #if UNITY_IOS
         [DllImport("__Internal")]
         static extern void listenCompleted();
@@ -305,6 +329,12 @@ namespace ConnectApp.Plugins {
 
         [DllImport("__Internal")]
         static extern void setTags(int sequence, string tagsJsonStr);
+
+        [DllImport("__Internal")]
+        static extern void playSystemSound();
+
+        [DllImport("__Internal")]
+        static extern void updateShowAlert(bool isShow);
 
 #elif UNITY_ANDROID
         static AndroidJavaObject _plugin;
@@ -340,12 +370,21 @@ namespace ConnectApp.Plugins {
         static void setTags(int sequence, string tagsJsonStr) {
             Plugin().Call("setTags", sequence, tagsJsonStr);
         }
+        
+        static void playSystemSound() {
+            Plugin().Call("playSystemSound");
+        }
+        
+        static void updateShowAlert(bool isShow) {
+            Plugin().Call("updateShowAlert");
+        }
 #else
         static void listenCompleted() {}
         static void setChannel(string channel) {}
         static void setAlias(int sequence, string channel) {}
         static void deleteAlias(int sequence) {}
         static void setTags(int sequence, string tagsJsonStr) {}
+        static void updateShowAlert(bool isShow) {}
 #endif
     }
 }

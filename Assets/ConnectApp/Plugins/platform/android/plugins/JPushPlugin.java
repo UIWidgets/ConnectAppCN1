@@ -84,4 +84,9 @@ public class JPushPlugin {
 
         JPushInterface.setTags(mContext, sequence, tagSet);
     }
+    
+    public void playSystemSound(){
+        Vibrator vibrator = (Vibrator)mContext.getSystemService(Context.VIBRATOR_SERVICE);
+        vibrator.vibrate(200L);
+    }
 }

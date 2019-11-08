@@ -10,6 +10,7 @@
 @interface JPushEventCache()
 @property(strong, nonatomic) NSMutableDictionary *eventCache;
 @property(assign, nonatomic) BOOL isJPushDidLoad;
+@property(assign, nonatomic) BOOL isShowAlert;
 @end
 
 @implementation JPushEventCache
@@ -32,6 +33,9 @@
   }
   
   return self;
+}
+- (void)updateShowAlert:(bool)isShow{
+    _isShowAlert = isShow;
 }
 
 - (void)sendEvent:(NSDictionary *)userInfo withKey:(NSString *)key {
@@ -95,11 +99,14 @@
     
     userInfo[@"identifier"] = notification.request.identifier;
   }
-  [[JPushEventCache sharedInstance] sendEvent: userInfo withKey: @"JPushPluginReceiveNotification"];
-
+    // 需要执行这个方法，选择是否提醒用户，有 Badge、Sound、Alert 三种类型可以选择设置
+    if(!_isShowAlert&&[[userInfo objectForKey:@"type"] isEqualToString:@"messenger"]){
+        completionHandler(UNNotificationPresentationOptionSound);
+    }else{
+        [[JPushEventCache sharedInstance] sendEvent: userInfo withKey: @"JPushPluginReceiveNotification"];
+        completionHandler(UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionSound);
+    }
   
-  // 需要执行这个方法，选择是否提醒用户，有 Badge、Sound、Alert 三种类型可以选择设置
-  completionHandler(UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionSound);
 }
 
 // iOS 10 Support
