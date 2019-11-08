@@ -6,11 +6,11 @@ namespace ConnectApp.Utils {
         static int _tabIndex = 0;
 
         public static void updateTabIndex(int tabIndex) {
+            tabIndex = tabIndex == 2 ? 2 : 0;
             if (_tabIndex == tabIndex) {
                 return;
             }
-
-            _tabIndex = tabIndex == 2 ? 2 : 0;
+            _tabIndex = tabIndex;
             PlayerPrefs.SetInt(_initTabBarIndex, _tabIndex);
             PlayerPrefs.Save();
         }
