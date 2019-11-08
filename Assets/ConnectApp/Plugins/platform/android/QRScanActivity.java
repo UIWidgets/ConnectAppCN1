@@ -11,8 +11,8 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 
-import com.google.zxing.android.CaptureActivity;
-import com.google.zxing.android.FinishListener;
+import com.google.zxing.activity.CaptureActivity;
+import com.google.zxing.decoding.FinishListener;
 import com.unity.uiwidgets.plugin.UIWidgetsMessageManager;
 
 import java.util.Arrays;
@@ -72,7 +72,7 @@ public class QRScanActivity extends Activity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_SCAN && resultCode == RESULT_OK) {
             if (data != null) {
-                String qrCode = data.getStringExtra("codedContent");
+                String qrCode = data.getStringExtra("qr_scan_result");
                 type = data.getStringExtra("type");
                 UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("QRScan", "OnReceiveQRCode", Arrays.asList(qrCode));
             }

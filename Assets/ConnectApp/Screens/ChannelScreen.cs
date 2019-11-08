@@ -1096,7 +1096,7 @@ namespace ConnectApp.screens {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: left
                         ? new List<Widget> {this._buildAvatar(message.author), ret}
-                        : new List<Widget> {ret, this._buildAvatar(message.author)}
+                        : new List<Widget> {ret, this._buildAvatar(this.widget.viewModel.me)}
                 )
             );
 
