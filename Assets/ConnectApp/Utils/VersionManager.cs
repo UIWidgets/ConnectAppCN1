@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.Api;
 using ConnectApp.Components;
@@ -11,12 +12,12 @@ using Color = Unity.UIWidgets.ui.Color;
 
 namespace ConnectApp.Utils {
     public enum CheckVersionType {
-        first,
+        initialize,
         setting
     }
 
     public static class VersionManager {
-        const string _ignoreUpdaterKey = "ignoreUpdaterKey";
+        const string _noticeNewVersionTimeKey = "noticeNewVersionTimeKey";
 
         public static void checkForUpdates(CheckVersionType type) {
             if (type == CheckVersionType.setting) {
@@ -25,26 +26,24 @@ namespace ConnectApp.Utils {
                 );
             }
 
-            SettingApi.FetchVersion(Config.platform, Config.store, $"{Config.versionCode}")
+            SettingApi.CheckNewVersion(platform: Config.platform, store: Config.store, $"{Config.versionCode}")
                 .Then(versionResponse => {
                     if (type == CheckVersionType.setting) {
                         CustomDialogUtils.hiddenCustomDialog();
                     }
 
-                    var status = versionResponse["status"];
-                    if (status.ToLower() == "need_update" && versionResponse.ContainsKey("url")) {
-                        var changeLog = "发现新版本，立即更新体验吧！";
-                        if (versionResponse.ContainsKey("changeLog")) {
-                            if (versionResponse["changeLog"].isNotEmpty()) {
-                                changeLog = versionResponse["changeLog"];
-                            }
+                    var status = versionResponse.status;
+                    if (status == "NEED_UPDATE" && versionResponse.url.isNotEmpty()) {
+                        if (type == CheckVersionType.initialize && !needNoticeNewVersion()) {
+                            return;
                         }
 
+                        markUpdateNoticeTime();
                         CustomDialogUtils.showCustomDialog(
                             barrierColor: Color.fromRGBO(0, 0, 0, 0.5f),
                             child: new CustomAlertDialog(
                                 "版本更新",
-                                changeLog,
+                                message: versionResponse.changeLog,
                                 new List<Widget> {
                                     new CustomButton(
                                         child: new Text(
@@ -57,7 +56,7 @@ namespace ConnectApp.Utils {
                                             ),
                                             textAlign: TextAlign.center
                                         ),
-                                        onPressed: _ignoreUpdater
+                                        onPressed: CustomDialogUtils.hiddenCustomDialog
                                     ),
                                     new CustomButton(
                                         child: new Text(
@@ -66,9 +65,8 @@ namespace ConnectApp.Utils {
                                             textAlign: TextAlign.center
                                         ),
                                         onPressed: () => {
-                                            _ignoreUpdater();
-                                            var url = versionResponse["url"];
-                                            Application.OpenURL(url);
+                                            CustomDialogUtils.hiddenCustomDialog();
+                                            Application.OpenURL(url: versionResponse.url);
                                         }
                                     )
                                 }
@@ -92,13 +90,20 @@ namespace ConnectApp.Utils {
                 });
         }
 
-        public static bool needCheckUpdater() {
-            return !PlayerPrefs.HasKey(_ignoreUpdaterKey);
+        static bool needNoticeNewVersion() {
+            if (!PlayerPrefs.HasKey(key: _noticeNewVersionTimeKey)) {
+                // when need update first check
+                return true;
+            }
+
+            var timeString = PlayerPrefs.GetString(key: _noticeNewVersionTimeKey);
+            var endTime = DateTime.Parse(s: timeString);
+            return DateTime.Compare(t1: endTime, t2: DateTime.Now) <= 0;
         }
 
-        static void _ignoreUpdater() {
-            CustomDialogUtils.hiddenCustomDialog();
-            PlayerPrefs.SetString(_ignoreUpdaterKey, "true");
+        static void markUpdateNoticeTime() {
+            var noticeTimeString = DateTime.Now.AddDays(1).ToString("yyyy/MM/dd HH:mm:ss");
+            PlayerPrefs.SetString(key: _noticeNewVersionTimeKey, value: noticeTimeString);
             PlayerPrefs.Save();
         }
     }
