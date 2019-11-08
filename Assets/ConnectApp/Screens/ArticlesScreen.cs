@@ -12,8 +12,8 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
@@ -24,7 +24,6 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, ArticlesScreenViewModel>(
                 converter: state => new ArticlesScreenViewModel {
                     isLoggedIn = state.loginState.isLoggedIn,
-                    showFirstEgg = state.serviceConfigState.showFirstEgg,
                     feedHasNew = state.articleState.feedHasNew,
                     currentTabBarIndex = state.tabBarState.currentTabIndex,
                     nationalDayEnabled = state.serviceConfigState.nationalDayEnabled
@@ -46,7 +45,8 @@ namespace ConnectApp.screens {
                             AnalyticsManager.AnalyticsClickEgg(1);
                         },
                         fetchChannels = () => dispatcher.dispatch<IPromise>(Actions.fetchChannels(1)),
-                        fetchCreateChannelFilter = () => dispatcher.dispatch<IPromise>(Actions.fetchCreateChannelFilter())
+                        fetchCreateChannelFilter = () =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchCreateChannelFilter())
                     };
                     return new ArticlesScreen(viewModel: viewModel, actionModel: actionModel);
                 }
@@ -213,19 +213,16 @@ namespace ConnectApp.screens {
                         ),
                         new Row(
                             children: new List<Widget> {
-                                this.widget.viewModel.showFirstEgg
-                                    ? new CustomButton(
-                                        padding: EdgeInsets.only(16, 10, 8, 10),
-                                        onPressed: () => this.widget.actionModel.pushToReality(),
-                                        child: new Container(
-                                            color: CColors.Transparent,
-                                            child: new EggButton(
-                                                isNationalDay: this.widget.viewModel.nationalDayEnabled)
+                                new CustomButton(
+                                    padding: EdgeInsets.only(16, 10, 8, 10),
+                                    onPressed: () => this.widget.actionModel.pushToReality(),
+                                    child: new Container(
+                                        color: CColors.Transparent,
+                                        child: new EggButton(
+                                            isNationalDay: this.widget.viewModel.nationalDayEnabled
                                         )
                                     )
-                                    : (Widget) new Container(
-                                        height: 44
-                                    ),
+                                ),
                                 new CustomButton(
                                     padding: EdgeInsets.only(8, 8, 16, 8),
                                     onPressed: () => this.widget.actionModel.pushToSearch(),

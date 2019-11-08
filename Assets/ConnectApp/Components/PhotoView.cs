@@ -62,7 +62,7 @@ namespace ConnectApp.Components {
         public override Widget build(BuildContext context) {
             var headers = this.widget.headers ?? new Dictionary<string, string> {
                 {HttpManager.COOKIE, HttpManager.getCookie()},
-                {"ConnectAppVersion", Config.versionNumber},
+                {"ConnectAppVersion", Config.versionName},
                 {"X-Requested-With", "XmlHttpRequest"}
             };
             var pageView = new PageView(
