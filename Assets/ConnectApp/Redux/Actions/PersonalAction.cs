@@ -145,6 +145,8 @@ namespace ConnectApp.redux.actions {
                     .Then(userProfileResponse => {
                         dispatcher.dispatch<IPromise>(
                             fetchUserArticle(userId: userProfileResponse.user.id, 1));
+                        dispatcher.dispatch<IPromise>(action: fetchFavoriteTags(userId: userProfileResponse.user.id,
+                            offset: 0));
                         dispatcher.dispatch(new PlaceMapAction {placeMap = userProfileResponse.placeMap});
                         dispatcher.dispatch(new TeamMapAction {teamMap = userProfileResponse.teamMap});
                         dispatcher.dispatch(new FollowMapAction {followMap = userProfileResponse.followMap});

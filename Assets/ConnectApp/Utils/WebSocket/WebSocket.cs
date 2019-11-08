@@ -91,6 +91,10 @@ namespace ConnectApp.Utils {
             DebugerUtils.DebugAssert(this.m_Socket != null,
                 "fatal error: Cannot send data because the websocket is null.");
 
+            if (this.m_State != WebSocketState.Connected || this.m_Socket == null) {
+                return;
+            }
+
             var bytes = Encoding.UTF8.GetBytes(content);
             this.m_Socket.Send(bytes);
         }

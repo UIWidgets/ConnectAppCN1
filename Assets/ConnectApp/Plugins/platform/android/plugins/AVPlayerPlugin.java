@@ -6,10 +6,8 @@ import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
 import com.dueeeke.videoplayer.player.VideoView;
-import com.dueeeke.videoplayer.player.VideoViewManager;
 import com.unity3d.player.UnityPlayer;
 import com.unity3d.unityconnect.CustomVideoController;
-import com.unity3d.unityconnect.R;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +25,6 @@ public class AVPlayerPlugin {
 
     public boolean needUpdate;
 
-
     public static AVPlayerPlugin getInstance() {
         synchronized (AVPlayerPlugin.class) {
             if (instance == null) {
@@ -36,6 +33,7 @@ public class AVPlayerPlugin {
             return instance;
         }
     }
+
     public void InitPlayer(String url, String cookie, float left, float top, float width, float height, boolean isPop, boolean needUpdate, int limitSeconds){
         this.limitSeconds = limitSeconds;
         this.needUpdate = needUpdate;
@@ -65,7 +63,6 @@ public class AVPlayerPlugin {
             }
         });
     }
-
 
     public void ConfigPlayer(String url, String cookie){
         Map<String, String> header = new HashMap<>();
@@ -131,6 +128,5 @@ public class AVPlayerPlugin {
                 videoView.setVisibility(View.GONE);
             }
         });
-
     }
 }

@@ -38,6 +38,10 @@ namespace ConnectApp.Components {
                 var block = blocks[i];
                 var type = block.type;
                 var text = block.text;
+                if (text.isEmpty()) {
+                    continue;
+                }
+
                 if (text.Contains("\u0000")) {
                     text = text.Replace("\u0000", "");
                 }
