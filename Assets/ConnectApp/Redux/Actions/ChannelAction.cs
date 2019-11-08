@@ -173,7 +173,7 @@ namespace ConnectApp.redux.actions {
 
         public static object fetchChannelMessages(string channelId, string before = null, string after = null) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                dispatcher.dispatch(new StartFetchChannelMessageAction());
+                dispatcher.dispatch(new StartFetchChannelMessageAction {channelId = channelId});
                 return ChannelApi.FetchChannelMessages(channelId: channelId, before: before, after: after)
                     .Then(channelMessagesResponse => {
                         dispatcher.dispatch(new UserLicenseMapAction
@@ -387,10 +387,15 @@ namespace ConnectApp.redux.actions {
             });
         }
 
-        public static object deleteChannelMessage(string messageId) {
+        public static object deleteChannelMessage(string channelId, string messageId) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ChannelApi.DeleteChannelMessage(messageId: messageId)
-                    .Then(ackMessageResponse => { dispatcher.dispatch(new DeleteChannelMessageSuccessAction()); })
+                    .Then(ackMessageResponse => {
+                        dispatcher.dispatch(new DeleteChannelMessageSuccessAction {
+                            channelId = channelId,
+                            messageId = messageId
+                        });
+                    })
                     .Catch(error => {
                         dispatcher.dispatch(new DeleteChannelMessageFailureAction());
                         Debuger.LogError(message: error);
@@ -539,6 +544,7 @@ namespace ConnectApp.redux.actions {
     }
 
     public class StartFetchChannelMessageAction : BaseAction {
+        public string channelId;
     }
 
     public class FetchChannelMessagesSuccessAction : BaseAction {
@@ -607,7 +613,13 @@ namespace ConnectApp.redux.actions {
         public string messageId;
     }
 
+    public class DeleteLocalMessageAction : BaseAction {
+        public ChannelMessageView message;
+    }
+
     public class DeleteChannelMessageSuccessAction : BaseAction {
+        public string channelId;
+        public string messageId;
     }
 
     public class DeleteChannelMessageFailureAction : BaseAction {

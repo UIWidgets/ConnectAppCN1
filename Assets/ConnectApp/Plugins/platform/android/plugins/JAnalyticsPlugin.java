@@ -3,14 +3,6 @@ package com.unity3d.unityconnect.plugins;
 import android.content.Context;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import cn.jiguang.analytics.android.api.BrowseEvent;
@@ -33,6 +25,7 @@ public class JAnalyticsPlugin {
             return instance;
         }
     }
+
     public void startLogPageView(String pageName){
         JAnalyticsInterface.onPageStart(context,pageName);
     }
@@ -47,9 +40,8 @@ public class JAnalyticsPlugin {
     }
 
     public void countEvent(String eventId,String extra){
-
         CountEvent event = new CountEvent(eventId);
-        if ( extra!=null ) {
+        if (extra != null) {
             Map map = new Gson().fromJson(extra,Map.class);
             event.setExtMap(map);
         }
@@ -57,9 +49,8 @@ public class JAnalyticsPlugin {
     }
 
     public void calculateEvent(String eventId,String value,String extra){
-
         CalculateEvent event = new CalculateEvent(eventId,Double.parseDouble(value));
-        if ( extra!=null ) {
+        if (extra != null) {
             Map map = new Gson().fromJson(extra,Map.class);
             event.setExtMap(map);
         }
@@ -72,13 +63,10 @@ public class JAnalyticsPlugin {
         event.setBrowseName(name);
         event.setBrowseType(type);
         event.setBrowseDuration(Float.parseFloat(duration));
-        if ( extra!=null ) {
+        if (extra != null) {
             Map map = new Gson().fromJson(extra,Map.class);
             event.setExtMap(map);
         }
         JAnalyticsInterface.onEvent(context,event);
     }
-
-
-    
 }

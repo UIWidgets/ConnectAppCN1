@@ -27,7 +27,7 @@ namespace ConnectApp.Components {
             }
 
             Widget image = Positioned.fill(
-                CachedNetworkImageProvider.cachedNetworkImage(
+                new CachedNetworkImage(
                     this.channel?.thumbnail ?? "",
                     fit: BoxFit.cover
                 )

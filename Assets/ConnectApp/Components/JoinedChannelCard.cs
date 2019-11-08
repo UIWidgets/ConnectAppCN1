@@ -26,7 +26,6 @@ namespace ConnectApp.Components {
         readonly GestureTapCallback onTap;
 
         public override Widget build(BuildContext context) {
-
             string text;
             if (this.channel.lastMessage != null) {
                 if (this.channel.lastMessage.deleted) {
@@ -47,14 +46,14 @@ namespace ConnectApp.Components {
             }
 
             var contentTextSpans = new List<TextSpan>();
-            if (this.channel.lastMessage.author?.fullName.isNotEmpty() ?? true &&
-                text.isNotEmpty() &&
-                this.channel.lastMessage.author.id != this.myUserId) {
+            if ((bool) this.channel.lastMessage.author?.fullName.isNotEmpty() &&
+                text.isNotEmpty() && this.channel.lastMessage.author.id != this.myUserId) {
                 contentTextSpans.Add(new TextSpan(
                     $"{this.channel.lastMessage.author?.fullName}: ",
                     style: CTextStyle.PRegularBody4
                 ));
             }
+
             contentTextSpans.AddRange(MessageUtils.messageWithMarkdownToTextSpans(
                 content: text,
                 mentions: this.channel.lastMessage?.mentions,
@@ -70,7 +69,6 @@ namespace ConnectApp.Components {
                         : "",
                     style: CTextStyle.PRegularError,
                     children: contentTextSpans
-                    
                 ),
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1

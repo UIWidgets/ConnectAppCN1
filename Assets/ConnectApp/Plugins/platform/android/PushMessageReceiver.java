@@ -3,22 +3,18 @@ package com.unity3d.unityconnect;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.unity.uiwidgets.plugin.UIWidgetsMessageManager;
 import com.unity3d.unityconnect.plugins.JPushPlugin;
 
 import java.util.Arrays;
 
-import cn.jpush.android.api.CmdMessage;
 import cn.jpush.android.api.CustomMessage;
 import cn.jpush.android.api.JPushInterface;
-import cn.jpush.android.api.JPushMessage;
 import cn.jpush.android.api.NotificationMessage;
 import cn.jpush.android.service.JPushMessageReceiver;
 
 public class PushMessageReceiver extends JPushMessageReceiver{
-    private static final String TAG = "PushMessageReceiver";
     @Override
     public void onMessage(Context context, CustomMessage customMessage) {
 
@@ -50,6 +46,4 @@ public class PushMessageReceiver extends JPushMessageReceiver{
         String JSON = message.notificationExtras;
         UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("jpush", "OnReceiveNotification", Arrays.asList(JSON));
     }
-
-
 }

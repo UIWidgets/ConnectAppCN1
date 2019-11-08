@@ -5,6 +5,7 @@ using ConnectApp.Components;
 using ConnectApp.Main;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
+using ConnectApp.Plugins;
 using ConnectApp.Reality;
 using ConnectApp.redux.actions;
 using ConnectApp.screens;
@@ -106,6 +107,9 @@ namespace ConnectApp.redux.reducers {
                     state.favoriteState.favoriteDetailArticleIdDict = new Dictionary<string, List<string>>();
                     state.channelState.clearMentions();
                     state.channelState.mentionSuggestions.Clear();
+                    state.channelState.channelDict.Clear();
+                    state.channelState.joinedChannels.Clear();
+                    state.channelState.publicChannels.Clear();
                     break;
                 }
 
@@ -933,6 +937,15 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case DeleteLocalMessageAction action: {
+                    if (state.channelState.channelDict.ContainsKey(action.message.channelId)) {
+                        state.channelState.localMessageDict.Remove(
+                            $"{action.message.author.id}:{action.message.channelId}:{action.message.id}");
+                        var channel = state.channelState.channelDict[action.message.channelId];
+                    }
+                    break;
+                }
+
                 case ResendMessageAction action: {
                     var key = $"{action.message.author.id}:{action.message.channelId}:{action.message.id}";
                     if (state.channelState.channelDict.ContainsKey(action.message.channelId) &&
@@ -1538,8 +1551,10 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case OpenUrlAction action: {
-                    if (action.url != null || action.url.Length > 0) {
-                        Application.OpenURL(url: action.url);
+                    if (action.url.isNotEmpty()) {
+                        if (UrlLauncherPlugin.CanLaunch(urlString: action.url)) {
+                            UrlLauncherPlugin.Launch(urlString: action.url);
+                        }
                     }
 
                     break;
@@ -2602,8 +2617,10 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
-                case StartFetchChannelMessageAction _: {
+                case StartFetchChannelMessageAction action: {
                     state.channelState.messageLoading = true;
+                    var channel = state.channelState.channelDict[key: action.channelId];
+                    channel.needFetchMessages = false;
                     break;
                 }
 
@@ -2616,10 +2633,26 @@ namespace ConnectApp.redux.reducers {
                     channel.hasMore = action.hasMore;
                     channel.hasMoreNew = action.hasMoreNew;
 
+                    var lastMessageId = channel.messageIds.isNotEmpty() ? channel.messageIds.last() : "";
+                    if (channel.newMessageIds.isNotEmpty() &&
+                        channel.newMessageIds.last().hexToLong() > lastMessageId.hexToLong()) {
+                        lastMessageId = channel.newMessageIds.last();
+                    }
                     for (var i = 0; i < action.messages.Count; i++) {
                         var channelMessage = ChannelMessageView.fromChannelMessage(action.messages[i]);
                         state.channelState.messageDict[channelMessage.id] = channelMessage;
-                        channel.messageIds.Add(channelMessage.id);
+
+                        if (!channel.newMessageIds.Contains(channelMessage.id) &&
+                            !channel.messageIds.Contains(channelMessage.id)) {
+                            if (lastMessageId.isNotEmpty() && !channel.atBottom &&
+                                channelMessage.author.id != state.loginState.loginInfo.userId &&
+                                channelMessage.id.hexToLong() > lastMessageId.hexToLong()) {
+                                channel.newMessageIds.Add(channelMessage.id);
+                            }
+                            else {
+                                channel.messageIds.Add(channelMessage.id);
+                            }
+                        }
                         if (channelMessage.id.hexToLong() > channel.lastMessage.id.hexToLong()) {
                             channel.lastMessage = channelMessage;
                             channel.lastMessageId = channelMessage.id;
@@ -2690,6 +2723,14 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case ClearSentChannelMessage action: {
+                    break;
+                }
+
+                case DeleteChannelMessageSuccessAction action: {
+                    if (state.channelState.messageDict.ContainsKey(action.messageId)) {
+                        state.channelState.messageDict[action.messageId].deleted = true;
+                    }
+                    
                     break;
                 }
 
@@ -2940,11 +2981,12 @@ namespace ConnectApp.redux.reducers {
                     }
 
                     var channel = state.channelState.channelDict[message.channelId];
-                    channel.lastMessage.deleted = true;
+                    if (channel.lastMessage.id == message.id) {
+                        channel.lastMessage.deleted = true;
+                    }
 
-                    var messageId = message.id;
-                    if (state.channelState.messageDict.ContainsKey(messageId)) {
-                        state.channelState.messageDict[messageId].deleted = true;
+                    if (state.channelState.messageDict.ContainsKey(message.id)) {
+                        state.channelState.messageDict[message.id].deleted = true;
                     }
 
                     break;
@@ -3089,6 +3131,16 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case SocketConnectStateAction action: {
+                    if (!state.channelState.socketConnected && action.connected) {
+                        state.channelState.joinedChannels.ForEach(channelId => {
+                            if (state.channelState.channelDict.ContainsKey(channelId)) {
+                                var channel = state.channelState.channelDict[channelId];
+                                if (channel.active) {
+                                    channel.needFetchMessages = true;
+                                }
+                            }
+                        });
+                    }
                     state.channelState.socketConnected = action.connected;
                     break;
                 }
