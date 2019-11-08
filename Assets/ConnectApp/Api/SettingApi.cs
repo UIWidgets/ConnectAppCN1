@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using ConnectApp.Constants;
+using ConnectApp.Models.Api;
 using ConnectApp.Utils;
 using Newtonsoft.Json;
 using RSG;
@@ -20,8 +21,8 @@ namespace ConnectApp.Api {
             return promise;
         }
 
-        public static IPromise<Dictionary<string, string>> FetchVersion(string platform, string store, string version) {
-            var promise = new Promise<Dictionary<string, string>>();
+        public static IPromise<CheckNewVersionResponse> CheckNewVersion(string platform, string store, string version) {
+            var promise = new Promise<CheckNewVersionResponse>();
             var para = new Dictionary<string, object> {
                 {"platform", platform},
                 {"store", store},
@@ -29,7 +30,7 @@ namespace ConnectApp.Api {
             };
             var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/version", parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
-                var versionDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(value: responseText);
+                var versionDictionary = JsonConvert.DeserializeObject<CheckNewVersionResponse>(value: responseText);
                 promise.Resolve(value: versionDictionary);
             }).Catch(exception => promise.Reject(ex: exception));
             return promise;

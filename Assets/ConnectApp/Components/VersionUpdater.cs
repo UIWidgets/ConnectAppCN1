@@ -1,3 +1,4 @@
+using ConnectApp.Api;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
@@ -23,18 +24,22 @@ namespace ConnectApp.Components {
     public class _VersionUpdaterState : State<VersionUpdater> {
         public override void initState() {
             base.initState();
-            HttpManager.initVSCode();
+            fetchInitData();
+            VersionManager.checkForUpdates(type: CheckVersionType.initialize);
             if (UserInfoManager.isLogin()) {
                 var userId = UserInfoManager.initUserInfo().userId ?? "";
                 if (userId.isNotEmpty()) {
                     StoreProvider.store.dispatcher.dispatch(Actions.fetchUserProfile(userId: userId));
                 }
             }
+        }
 
-            var needCheckUpdater = VersionManager.needCheckUpdater();
-            if (needCheckUpdater) {
-                VersionManager.checkForUpdates(type: CheckVersionType.first);
-            }
+        static void fetchInitData() {
+            LoginApi.InitData().Then(initDataResponse => {
+                if (initDataResponse.VS.isNotEmpty()) {
+                    HttpManager.updateCookie($"VS={initDataResponse.VS}");
+                }
+            }).Catch(onRejected: Debuger.LogError);
         }
 
         public override Widget build(BuildContext context) {

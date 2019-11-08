@@ -59,7 +59,7 @@ namespace ConnectApp.Components {
         int currentIndex;
         readonly Dictionary<string, string> _defaultHeaders = new Dictionary<string, string> {
             {HttpManager.COOKIE, HttpManager.getCookie()},
-            {"ConnectAppVersion", Config.versionNumber},
+            {"ConnectAppVersion", Config.versionName},
             {"X-Requested-With", "XmlHttpRequest"}
         };
 
@@ -87,7 +87,7 @@ namespace ConnectApp.Components {
                 maxScale: this.widget.maxScale,
                 minScale: this.widget.minScale,
                 onScaleChanged: (scale, position, scaling) => {
-                    Debug.Log($"Scale: {scale}");
+                    Debuger.Log($"Scale: {scale}");
                     this.setState(() => {
                         this.locked = scale > 1.01f;
                     });
