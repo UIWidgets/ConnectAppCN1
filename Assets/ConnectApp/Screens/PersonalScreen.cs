@@ -10,8 +10,8 @@ using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
@@ -24,7 +24,6 @@ namespace ConnectApp.screens {
                     user = state.loginState.loginInfo,
                     userDict = state.userState.userDict,
                     userLicenseDict = state.userState.userLicenseDict,
-                    scanEnabled = state.serviceConfigState.scanEnabled,
                     currentTabBarIndex = state.tabBarState.currentTabIndex
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -120,7 +119,7 @@ namespace ConnectApp.screens {
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
-                        this._buildQrScanWidget(),
+                        _buildQrScanWidget(),
                         new Text("欢迎来到", style: CTextStyle.H2),
                         new Text("Unity Connect", style: CTextStyle.H2),
                         new Container(
@@ -172,7 +171,7 @@ namespace ConnectApp.screens {
                 child: new Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: new List<Widget> {
-                        this._buildQrScanWidget(),
+                        _buildQrScanWidget(),
                         new Row(
                             children: new List<Widget> {
                                 new Container(
@@ -245,11 +244,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildQrScanWidget() {
-            if (!this.widget.viewModel.scanEnabled) {
-                return new Container(height: 60);
-            }
-
+        static Widget _buildQrScanWidget() {
             return new Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: new List<Widget> {
@@ -307,7 +302,7 @@ namespace ConnectApp.screens {
 
         public void didPopNext() {
             if (this.widget.viewModel.currentTabBarIndex == 3) {
-                StatusBarManager.statusBarStyle( UserInfoManager.isLogin());
+                StatusBarManager.statusBarStyle(UserInfoManager.isLogin());
             }
         }
 

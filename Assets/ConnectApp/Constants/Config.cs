@@ -20,7 +20,7 @@ namespace ConnectApp.Constants {
 
         public const string miniId = "gh_f731aec0bdd0";
 
-        public const string versionNumber = "1.2.3";
+        public const string versionName = "1.2.3";
 
         public const int versionCode = 85;
 
