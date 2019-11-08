@@ -5,8 +5,8 @@ using ConnectApp.Models.State;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
@@ -21,18 +21,22 @@ namespace ConnectApp.Components {
             List<CustomTabBarItem> items,
             Color backgroundColor,
             SelectTabCallBack tapCallBack = null,
+            int initialTabIndex = 0,
             Key key = null
         ) : base(key: key) {
             this.tapCallBack = tapCallBack;
             this.backgroundColor = backgroundColor;
             this.controllers = controllers;
             this.items = items;
+            this.initialTabIndex = initialTabIndex;
         }
 
         readonly SelectTabCallBack tapCallBack;
         readonly Color backgroundColor;
         readonly List<Widget> controllers;
         readonly List<CustomTabBarItem> items;
+        readonly int initialTabIndex;
+
 
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, List<string>>(
@@ -47,7 +51,8 @@ namespace ConnectApp.Components {
                     items: this.items,
                     backgroundColor: this.backgroundColor,
                     notifications: notifications,
-                    tapCallBack: this.tapCallBack
+                    tapCallBack: this.tapCallBack,
+                    initialTabIndex: this.initialTabIndex
                 )
             );
         }
@@ -60,6 +65,7 @@ namespace ConnectApp.Components {
             List<string> notifications,
             Color backgroundColor,
             SelectTabCallBack tapCallBack = null,
+            int initialTabIndex = 0,
             Key key = null
         ) : base(key: key) {
             D.assert(controllers != null && controllers.Count > 1);
@@ -70,6 +76,7 @@ namespace ConnectApp.Components {
             this.backgroundColor = backgroundColor;
             this.tapCallBack = tapCallBack;
             this.notifications = notifications;
+            this.initialTabIndex = initialTabIndex;
         }
 
         public readonly SelectTabCallBack tapCallBack;
@@ -77,6 +84,7 @@ namespace ConnectApp.Components {
         public readonly List<Widget> controllers;
         public readonly List<CustomTabBarItem> items;
         public readonly List<string> notifications;
+        public readonly int initialTabIndex;
 
         public override State createState() {
             return new CustomTabBarState();
@@ -90,7 +98,7 @@ namespace ConnectApp.Components {
 
         public override void initState() {
             base.initState();
-            this._selectedIndex = 0;
+            this._selectedIndex = this.widget.initialTabIndex;
             this._bottomPadding = 0;
             this._pageController = new PageController(initialPage: this._selectedIndex);
         }
