@@ -1,22 +1,22 @@
 using UnityEngine;
 
 namespace ConnectApp.Utils {
-    public class PreferencesManager {
+    public static class PreferencesManager {
         const string _initTabBarIndex = "InitTabBarIndex";
         static int _tabIndex = 0;
 
         public static void updateTabIndex(int tabIndex) {
-            tabIndex = tabIndex == 2 ? 2 : 0;
-            if (_tabIndex == tabIndex) {
+            var newTabIndex = tabIndex == 2 ? 2 : 0;
+            if (_tabIndex == newTabIndex) {
                 return;
             }
-            _tabIndex = tabIndex;
-            PlayerPrefs.SetInt(_initTabBarIndex, _tabIndex);
+            _tabIndex = newTabIndex;
+            PlayerPrefs.SetInt(key: _initTabBarIndex, value: _tabIndex);
             PlayerPrefs.Save();
         }
 
         public static int initTabIndex() {
-            _tabIndex = PlayerPrefs.GetInt(_initTabBarIndex);
+            _tabIndex = PlayerPrefs.GetInt(key: _initTabBarIndex);
             return _tabIndex;
         }
     }
