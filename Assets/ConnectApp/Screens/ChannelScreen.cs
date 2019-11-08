@@ -903,8 +903,14 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildContent() {
+            ListView listView = this._buildMessageListView();
             if (this.widget.viewModel.channelError) {
                 return this._buildErrorPage();
+            }
+
+            if (this.widget.viewModel.messageLoading &&
+                this.widget.viewModel.messages.isEmpty()) {
+                listView = this._buildLoadingPage();
             }
 
             Widget content = new Container(
@@ -918,10 +924,7 @@ namespace ConnectApp.screens {
                         onRefresh: this._onRefresh,
                         reverse: true,
                         headerBuilder: (context, mode) => new SmartRefreshHeader(mode: mode),
-                        child: this.widget.viewModel.messageLoading &&
-                               this.widget.viewModel.messages.isEmpty()
-                            ? this._buildLoadingPage()
-                            : this._buildMessageListView()
+                        child: listView
                     )
                 )
             );
@@ -971,10 +974,10 @@ namespace ConnectApp.screens {
             return new ListView(
                 children: new List<Widget> {
                     new Container(
-                        child: new GlobalLoading(),
-                        width: MediaQuery.of(this.context).size.width,
-                        height: MediaQuery.of(this.context).size.height
-                    )
+                        padding: EdgeInsets.only(top: 44 + MediaQuery.of(this.context).padding.top,
+                            bottom: 49 + MediaQuery.of(this.context).padding.bottom),
+                        height: MediaQuery.of(this.context).size.height,
+                        child: new Center(child: new GlobalLoading()))
                 });
         }
 
@@ -982,10 +985,10 @@ namespace ConnectApp.screens {
             return new ListView(
                 children: new List<Widget> {
                     new Container(
-                        child: new Center(child: new Text("你已不在该群组", style: CTextStyle.PLargeBody.copyWith(height: 1))),
-                        width: MediaQuery.of(this.context).size.width,
-                        height: MediaQuery.of(this.context).size.height
-                    )
+                        padding: EdgeInsets.only(top: 44 + MediaQuery.of(this.context).padding.top,
+                            bottom: 49 + MediaQuery.of(this.context).padding.bottom),
+                        height: MediaQuery.of(this.context).size.height,
+                        child: new Center(child: new Text("你已不在该群组", style: CTextStyle.PLargeBody.copyWith(height: 1))))
                 });
         }
 
