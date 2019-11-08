@@ -5,9 +5,9 @@ using ConnectApp.Main;
 using ConnectApp.Plugins;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
-using ConnectApp.screens;
 using ConnectApp.Utils;
 using Unity.UIWidgets.async;
+using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
@@ -15,14 +15,20 @@ using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
 using Image = Unity.UIWidgets.widgets.Image;
 
-namespace ConnectApp.Components {
-    public class SplashPage : StatefulWidget {
+namespace ConnectApp.screens {
+    public class SplashScreen : StatefulWidget {
+        public SplashScreen(
+            Key key = null
+        ) : base(key: key) {
+            
+        }
+
         public override State createState() {
-            return new _SplashPageState();
+            return new _SplashScreenState();
         }
     }
 
-    class _SplashPageState : State<SplashPage> {
+    class _SplashScreenState : State<SplashScreen> {
         bool _isShow;
         Timer _timer;
         int _lastSecond = 5;
@@ -35,7 +41,7 @@ namespace ConnectApp.Components {
             this._isShow = SplashManager.isExistSplash();
             if (this._isShow) {
                 this._lastSecond = SplashManager.getSplash().duration;
-                this._timer = Window.instance.run(TimeSpan.FromSeconds(1), this.t_Tick, true);
+                this._timer = Window.instance.run(TimeSpan.FromSeconds(1), this.timeDown, true);
             }
 
             var isShowLogo = SplashManager.getSplash().isShowLogo;
@@ -62,23 +68,25 @@ namespace ConnectApp.Components {
                 return new MainScreen();
             }
 
-            var topPadding = 0f;
-            if (Application.platform != RuntimePlatform.Android) {
-                topPadding = MediaQuery.of(context).padding.top;
-            }
+            var topPadding = Application.platform != RuntimePlatform.Android
+                ? MediaQuery.of(context: context).padding.top
+                : 0f;
 
             var isShowLogo = SplashManager.getSplash().isShowLogo;
-            Widget logo = new Container();
+            Widget logoWidget;
             if (isShowLogo) {
-                logo = new Positioned(
+                logoWidget = new Positioned(
                     top: topPadding + 24,
                     left: 16,
                     child: new Icon(
-                        Icons.LogoWithUnity,
+                        icon: Icons.LogoWithUnity,
                         size: 35,
                         color: new Color(value: this.hexColor)
                     )
                 );
+            }
+            else {
+                logoWidget = new Container();
             }
 
             return new Container(
@@ -118,7 +126,7 @@ namespace ConnectApp.Components {
                                 onTap: this.pushCallback
                             )
                         ),
-                        logo
+                        logoWidget
                     }
                 )
             );
@@ -139,12 +147,11 @@ namespace ConnectApp.Components {
             StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushReplaceMainAction());
         }
 
-
         void cancelTimer() {
             this._timer?.cancel();
         }
 
-        void t_Tick() {
+        void timeDown() {
             using (WindowProvider.of(this._context).getScope()) {
                 this.setState(() => { this._lastSecond -= 1; });
                 if (this._lastSecond < 1) {

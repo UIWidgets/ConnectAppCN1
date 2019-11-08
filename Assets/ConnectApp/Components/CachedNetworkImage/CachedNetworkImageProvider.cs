@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
@@ -11,7 +12,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using ImageUtils = Unity.UIWidgets.widgets.ImageUtils;
 
-namespace ConnectApp.Utils {
+namespace ConnectApp.Components {
     enum CachedImagePhase {
         start,
         waiting,

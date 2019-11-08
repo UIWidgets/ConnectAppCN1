@@ -63,11 +63,12 @@ namespace ConnectApp.Components {
             {"X-Requested-With", "XmlHttpRequest"}
         };
 
-        bool locked = false;
+        bool locked;
 
         public override void initState() {
             base.initState();
             this.currentIndex = this.widget.index;
+            this.locked = false;
         }
 
         public override void didChangeDependencies() {
@@ -83,7 +84,7 @@ namespace ConnectApp.Components {
         Widget _buildItem(string url) {
             return new ImageWrapper(url: url,
                 headers: this.widget.headers ?? this._defaultHeaders,
-                useCachedNetworkImage: true,
+                useCachedNetworkImage: this.widget.useCachedNetworkImage,
                 maxScale: this.widget.maxScale,
                 minScale: this.widget.minScale,
                 onScaleChanged: (scale, position, scaling) => {
@@ -97,7 +98,6 @@ namespace ConnectApp.Components {
         }
 
         public override Widget build(BuildContext context) {
-            var headers = this.widget.headers ?? this._defaultHeaders;
             var pageView = new PageView(
                 controller: this.widget.controller,
                 physics: this.locked ? (ScrollPhysics) new NeverScrollableScrollPhysics() : new PageScrollPhysics(), 
@@ -105,7 +105,7 @@ namespace ConnectApp.Components {
                 itemCount: this.widget.urls.Count,
                 itemBuilder: (cxt, index) => {
                     var url = this.widget.urls[index: index];
-                    return this._buildItem(url);
+                    return this._buildItem(url: url);
                 }
             );
             return new GestureDetector(
@@ -184,7 +184,7 @@ namespace ConnectApp.Components {
         public readonly float minScale;
         public readonly OnScaleChangedCallback onScaleChanged;
         public readonly OnOverScrollCallback onOverScroll;
-        
+
         public ImageWrapper(
             Key key = null,
             string url = null,
@@ -204,7 +204,7 @@ namespace ConnectApp.Components {
             this.onScaleChanged = onScaleChanged;
             this.onOverScroll = onOverScroll;
         }
-        
+
         public override State createState() {
             return new _ImageWrapperState();
         }
@@ -300,7 +300,7 @@ namespace ConnectApp.Components {
             this._initialPosition = this.toFractional(scaleStartDetails.focalPoint) - this._positionAnimation.value;
             this.scaling = true;
         }
-        
+
         void _onScaleUpdate(ScaleUpdateDetails scaleUpdateDetails) {
             var newScale = this._initialScale * scaleUpdateDetails.scale;
             this._scaleAnimation = new FloatTween(begin: newScale, end: newScale)
@@ -330,7 +330,7 @@ namespace ConnectApp.Components {
                 }
             }
         }
-        
+
         void _onScaleEnd(ScaleEndDetails scaleEndDetails) {
             this.scaling = false;
             if (this._scaleAnimation.value > this.widget.maxScale) {

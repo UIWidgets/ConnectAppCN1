@@ -95,7 +95,7 @@ namespace ConnectApp.Main {
                 if (Application.isEditor) {
                     var isExistSplash = SplashManager.isExistSplash();
                     if (isExistSplash) {
-                        routes.Add(key: MainNavigatorRoutes.Root, context => new SplashPage());
+                        routes.Add(key: MainNavigatorRoutes.Root, context => new SplashScreen());
                         routes.Add(key: MainNavigatorRoutes.Main, context => new MainScreen());
                     }
                     else {
@@ -103,7 +103,7 @@ namespace ConnectApp.Main {
                     }
                 }
                 else {
-                    routes.Add(key: MainNavigatorRoutes.Splash, context => new SplashPage());
+                    routes.Add(key: MainNavigatorRoutes.Splash, context => new SplashScreen());
                     routes.Add(key: MainNavigatorRoutes.Main, context => new MainScreen());
                     routes.Add(key: MainNavigatorRoutes.Root, context => new RootScreen());
                 }

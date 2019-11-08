@@ -3,6 +3,7 @@ using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.Components {
@@ -26,12 +27,20 @@ namespace ConnectApp.Components {
             base.initState();
             fetchInitData();
             VersionManager.checkForUpdates(type: CheckVersionType.initialize);
-            if (UserInfoManager.isLogin()) {
-                var userId = UserInfoManager.initUserInfo().userId ?? "";
-                if (userId.isNotEmpty()) {
-                    StoreProvider.store.dispatcher.dispatch(Actions.fetchUserProfile(userId: userId));
+            StatusBarManager.hideStatusBar(false);
+            SplashManager.fetchSplash();
+            AnalyticsManager.AnalyticsOpenApp();
+            SchedulerBinding.instance.addPostFrameCallback(_ => {
+                if (UserInfoManager.isLogin()) {
+                    var userId = UserInfoManager.initUserInfo().userId ?? "";
+                    if (userId.isNotEmpty()) {
+                        StoreProvider.store.dispatcher.dispatch(Actions.fetchUserProfile(userId: userId));
+                    }
+                    StoreProvider.store.dispatcher.dispatch(Actions.fetchChannels(1));
+                    StoreProvider.store.dispatcher.dispatch(Actions.fetchCreateChannelFilter());
                 }
-            }
+                StoreProvider.store.dispatcher.dispatch(Actions.fetchReviewUrl());
+            });
         }
 
         static void fetchInitData() {
