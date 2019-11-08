@@ -147,6 +147,13 @@ namespace ConnectApp.screens {
                         }
                     }
 
+                    if (viewModel.channel.needFetchMessages) {
+                        SchedulerBinding.instance.addPostFrameCallback(_ => {
+                            dispatcher.dispatch<IPromise>(
+                                Actions.fetchChannelMessages(channelId: this.channelId));
+                        });
+                    }
+
                     if (viewModel.waitingMessage != null && viewModel.sendingMessage == null) {
                         SchedulerBinding.instance.addPostFrameCallback(_ => {
                             dispatcher.dispatch(new StartSendChannelMessageAction {
@@ -1089,7 +1096,7 @@ namespace ConnectApp.screens {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: left
                         ? new List<Widget> {this._buildAvatar(message.author), ret}
-                        : new List<Widget> {ret, this._buildAvatar(message.author)}
+                        : new List<Widget> {ret, this._buildAvatar(this.widget.viewModel.me)}
                 )
             );
 
@@ -1155,7 +1162,7 @@ namespace ConnectApp.screens {
                                     : new Container(
                                         padding: EdgeInsets.all(1.0f / Window.instance.devicePixelRatio),
                                         color: CColors.White,
-                                        child: CachedNetworkImageProvider.cachedNetworkImage(src: httpsUrl)
+                                        child: new CachedNetworkImage(src: httpsUrl)
                                     ),
                                 Positioned.fill(
                                     Image.asset(

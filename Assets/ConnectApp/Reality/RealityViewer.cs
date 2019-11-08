@@ -19,14 +19,16 @@ public class RealityViewer : MonoBehaviour {
 
     Transform gyroInstance;
 
+    void Awake() {
+        this.m_GyroEnabled = this.InitGyro();
+    }
+
     void Start() {
         this.m_MainCamera = Camera.main;
         this.m_MainCamera.clearFlags = CameraClearFlags.SolidColor;
 
         this.originRotation = this.transform.rotation;
         this.m_InitialYAngle = this.transform.eulerAngles.y;
-        this.m_AppliedGyroYAngle = 0;
-        this.m_CalibrationYAngle = this.m_InitialYAngle;
     }
 
     public void SetActive(bool b) {
@@ -58,11 +60,20 @@ public class RealityViewer : MonoBehaviour {
         if (SystemInfo.supportsGyroscope) {
             Debuger.Log("Gyro Enabled");
             this.m_Gyro = Input.gyro;
-            this.ApplyGyroRotation();
-            this.ApplyCalibration();
+            Input.gyro.enabled = true;
+
             this.gyroInstance = new GameObject("Gyro Instance").transform;
             this.gyroInstance.position = this.transform.position;
-            this.gyroInstance.rotation = this.transform.rotation;
+            this.gyroInstance.rotation = Input.gyro.attitude;
+            this.gyroInstance.Rotate(0f, 0f, 180f, Space.Self);
+            this.gyroInstance.Rotate(90f, 180f, 0f, Space.World);
+            this.m_AppliedGyroYAngle = this.gyroInstance.eulerAngles.y;
+
+            this.m_CalibrationYAngle = this.m_AppliedGyroYAngle - this.m_InitialYAngle;
+
+            this.ApplyGyroRotation();
+            this.ApplyCalibration();
+
             return true;
         }
 
@@ -119,7 +130,6 @@ public class RealityViewer : MonoBehaviour {
         this.transform.rotation = Input.gyro.attitude;
         this.transform.Rotate(0f, 0f, 180f, Space.Self);
         this.transform.Rotate(90f, 180f, 0f, Space.World);
-        // this.appliedGyroYAngle = this.transform.eulerAngles.y;
     }
 
     void ApplyCalibration() {

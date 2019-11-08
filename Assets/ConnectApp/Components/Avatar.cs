@@ -140,7 +140,7 @@ namespace ConnectApp.Components {
                             height: avatarSize,
                             color: CColors.AvatarLoading,
                             child: this.useCachedNetworkImage
-                                ? CachedNetworkImageProvider.cachedNetworkImage(src: httpsUrl)
+                                ? (Widget)new CachedNetworkImage(src: httpsUrl)
                                 : Image.network(src: httpsUrl)
                         )
                 )

@@ -320,7 +320,7 @@ namespace ConnectApp.Components {
                 children: new List<Widget> {
                     image == null
                         ? (Widget) new Container(width: 14, height: 14)
-                        : CachedNetworkImageProvider.cachedNetworkImage(
+                        : new CachedNetworkImage(
                             src: image,
                             width: 14, height: 14, fit: BoxFit.cover
                         ),
@@ -465,7 +465,7 @@ namespace ConnectApp.Components {
 
         Image _getImage() {
             return this.widget.data == null
-                ? CachedNetworkImageProvider.cachedNetworkImage(
+                ? CachedNetworkImage.cachedNetworkImage(
                     this.widget.isOriginalImage ? this.widget.url : CImageUtils.SizeToScreenImageUrl(this.widget.url),
                     fit: BoxFit.cover,
                     headers: this.widget.headers)

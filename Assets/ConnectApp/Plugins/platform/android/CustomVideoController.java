@@ -2,12 +2,7 @@ package com.unity3d.unityconnect;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
-import android.hardware.SensorManager;
-import android.provider.Settings;
-import android.support.annotation.NonNull;
-import android.view.OrientationEventListener;
 import android.view.View;
 import com.dueeeke.videocontroller.StandardVideoController;
 import com.dueeeke.videoplayer.player.VideoView;
@@ -16,18 +11,13 @@ import com.unity.uiwidgets.plugin.UIWidgetsMessageManager;
 import com.unity3d.unityconnect.plugins.AVPlayerPlugin;
 
 public class CustomVideoController extends StandardVideoController {
-
-
-
-    public CustomVideoController(@NonNull Context context) {
+    public CustomVideoController(Context context) {
         super(context);
-
     }
 
     public boolean showBack;
 
     public void setShowBack(boolean showBack) {
-
         this.showBack = showBack;
         mTopContainer.setVisibility(showBack?VISIBLE:GONE);
     }
@@ -35,12 +25,7 @@ public class CustomVideoController extends StandardVideoController {
     @Override
     protected void initView() {
         super.initView();
-
-
-
-
     }
-
 
     @Override
     public void onClick(View v) {
@@ -67,7 +52,6 @@ public class CustomVideoController extends StandardVideoController {
             UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("player", "UpdateLincese", null);
         }
     }
-
 
     @Override
     public void showStatusView() {
@@ -124,9 +108,7 @@ public class CustomVideoController extends StandardVideoController {
         return super.setProgress();
     }
 
-
     public void hiddenUpdateView(){
         mUpdateContainer.setVisibility(GONE);
     }
-
 }
