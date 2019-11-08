@@ -15,7 +15,7 @@ namespace ConnectApp.screens {
             bool needUpdate,
             int limitSeconds,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.url = url;
             this.needUpdate = needUpdate;
             this.limitSeconds = limitSeconds;
@@ -24,7 +24,6 @@ namespace ConnectApp.screens {
         public readonly string url;
         public readonly bool needUpdate;
         public readonly int limitSeconds;
-
 
         public override State createState() {
             return new _VideoViewScreenState();

@@ -10,7 +10,7 @@ using Color = Unity.UIWidgets.ui.Color;
 using Image = Unity.UIWidgets.widgets.Image;
 using Rect = Unity.UIWidgets.ui.Rect;
 
-namespace ConnectApp.Utils {
+namespace ConnectApp.Components {
     /*
      * use CachedNetworkImageProvider.cachedNetworkImage to replace Image.network so that:
      * (1) the image file will be stored locally after fetching from the internet when first load

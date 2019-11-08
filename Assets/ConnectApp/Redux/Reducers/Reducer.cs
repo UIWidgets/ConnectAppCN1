@@ -1311,7 +1311,7 @@ namespace ConnectApp.redux.reducers {
                 case MainNavigatorPushReplaceSplashAction _: {
                     Router.navigator.pushReplacement(new PageRouteBuilder(
                             pageBuilder: (context, animation, secondaryAnimation) =>
-                                new SplashPage(),
+                                new SplashScreen(),
                             transitionDuration: TimeSpan.FromMilliseconds(600),
                             transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
                                 new FadeTransition( //使用渐隐渐入过渡, 
@@ -1495,7 +1495,8 @@ namespace ConnectApp.redux.reducers {
                                 }
 
                                 return new EventOnlineDetailScreenConnector(eventId: action.eventId);
-                            }
+                            },
+                            push: action.eventType != EventType.offline
                         ));
                     }
 

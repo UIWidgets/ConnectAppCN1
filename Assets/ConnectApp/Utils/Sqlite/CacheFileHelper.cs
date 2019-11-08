@@ -28,12 +28,11 @@ namespace ConnectApp.Utils {
         }
 
         static string GetCacheFilePath(string url, string suffix) {
-            Directory.CreateDirectory(cacheFolderPath);
-            byte[] data = md5Hasher.ComputeHash(Encoding.Default.GetBytes(url));
-            var fileName = new Guid(data).ToString();
+            Directory.CreateDirectory(path: cacheFolderPath);
+            byte[] data = md5Hasher.ComputeHash(Encoding.Default.GetBytes(s: url));
+            var fileName = new Guid(b: data).ToString();
             return $"{cacheFolderPath}/{fileName}.{suffix}";
         }
-
 
         public static void ClearCacheFiles() {
 #if UNITY_EDITOR
@@ -41,25 +40,23 @@ namespace ConnectApp.Utils {
 #else
             var cacheFolder = $"{Application.temporaryCachePath}/imgCache";
 #endif
-            var folder = new DirectoryInfo(cacheFolder);
+            var folder = new DirectoryInfo(path: cacheFolder);
 
-            foreach (FileInfo file in folder.GetFiles())
-            {
+            foreach (FileInfo file in folder.GetFiles()) {
                 file.Delete(); 
             }
         }
 
         public static void SyncSaveCacheFile(string url, byte[] data, string suffix) {
-            var filePath = GetCacheFilePath(url, suffix);
-            File.WriteAllBytes(filePath, data);
-            SQLiteDBManager.instance.UpdateCachedFilePath(url, filePath);
+            var filePath = GetCacheFilePath(url: url, suffix: suffix);
+            File.WriteAllBytes(path: filePath, bytes: data);
+            SQLiteDBManager.instance.UpdateCachedFilePath(url: url, filePath: filePath);
         }
-        
-        
+
         public static void SyncSaveCacheFile(string url, Texture2D texture2D) {
-            var filePath = GetCacheFilePath(url, "png");
-            File.WriteAllBytes(filePath, texture2D.EncodeToPNG());
-            SQLiteDBManager.instance.UpdateCachedFilePath(url, filePath);
+            var filePath = GetCacheFilePath(url: url, "png");
+            File.WriteAllBytes(path: filePath, texture2D.EncodeToPNG());
+            SQLiteDBManager.instance.UpdateCachedFilePath(url: url, filePath: filePath);
         }
     }
 }

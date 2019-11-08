@@ -88,7 +88,8 @@ namespace ConnectApp.Components {
                                             width: imageWidth,
                                             height: imageHeight,
                                             borderRadius: borderRadius,
-                                            fit: BoxFit.cover
+                                            fit: BoxFit.cover,
+                                            true
                                         )
                                     )
                                 }
