@@ -27,9 +27,9 @@
     </activity>
     <activity android:name=".wxapi.WXEntryActivity" android:label="@string/app_name" android:theme="@android:style/Theme.Translucent.NoTitleBar" android:exported="true" android:launchMode="singleTask">
     </activity>
-    <activity android:name="com.google.zxing.android.CaptureActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar">
+    <activity android:name="com.google.zxing.activity.CaptureActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar">
     </activity>
-    <activity android:name=".QRScanActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar">
+    <activity android:name=".QRScanActivity" android:screenOrientation="portrait">
     </activity>
     <activity android:name=".PickImageActivity" android:screenOrientation="portrait">
     </activity>
