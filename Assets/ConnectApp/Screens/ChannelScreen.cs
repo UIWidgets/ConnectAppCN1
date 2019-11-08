@@ -905,7 +905,7 @@ namespace ConnectApp.screens {
         Widget _buildContent() {
             ListView listView = this._buildMessageListView();
             if (this.widget.viewModel.channelError) {
-                return this._buildErrorPage();
+                listView = this._buildErrorPage();
             }
 
             if (this.widget.viewModel.messageLoading &&
