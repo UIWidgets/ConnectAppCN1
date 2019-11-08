@@ -14,7 +14,7 @@ import android.support.v4.app.ActivityCompat;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.google.zxing.android.FinishListener;
+import com.google.zxing.decoding.FinishListener;
 import com.jph.takephoto.app.TakePhoto;
 import com.jph.takephoto.app.TakePhotoActivity;
 import com.jph.takephoto.compress.CompressConfig;
