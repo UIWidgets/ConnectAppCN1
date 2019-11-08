@@ -150,6 +150,7 @@ namespace ConnectApp.Models.Model {
         public bool atBottom = false;
         public bool active = false;
         public ChannelMember currentMember;
+        public bool needFetchMessages;
 
         public static ChannelView fromChannel(Channel channel) {
             return new ChannelView {
@@ -229,7 +230,9 @@ namespace ConnectApp.Models.Model {
             this.groupId = channel?.groupId ?? this.groupId;
             this.thumbnail = channel?.thumbnail ?? this.thumbnail;
             this.name = channel?.name ?? this.name;
-            this.topic = channel?.topic ?? this.topic;
+            this.topic = channel?.groupId.isNotEmpty() ?? false
+                ? this.topic
+                : channel?.topic ?? this.topic;
             this.memberCount = channel?.memberCount ?? this.memberCount;
             this.isMute = channel?.isMute ?? this.isMute;
             this.live = channel?.live ?? this.live;
