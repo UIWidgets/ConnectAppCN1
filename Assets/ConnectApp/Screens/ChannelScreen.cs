@@ -1064,6 +1064,9 @@ namespace ConnectApp.screens {
                             text: newContent,
                             TextSelection.collapsed(offset: newContent.Length)
                         );
+                        if (this._refreshController.scrollController.offset > 0) {
+                            this._refreshController.scrollController.animateTo(0, TimeSpan.FromMilliseconds(100), curve: Curves.linear);
+                        }
                         if (!this._focusNode.hasFocus || !this.showKeyboard) {
                             FocusScope.of(context: this.context).requestFocus(node: this._focusNode);
                             TextInputPlugin.TextInputShow();
