@@ -39,14 +39,10 @@ namespace ConnectApp.screens {
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Login
                         }),
-                        fetchReviewUrl = () => dispatcher.dispatch<IPromise>(Actions.fetchReviewUrl()),
                         pushToReality = () => {
                             dispatcher.dispatch(new EnterRealityAction());
                             AnalyticsManager.AnalyticsClickEgg(1);
-                        },
-                        fetchChannels = () => dispatcher.dispatch<IPromise>(Actions.fetchChannels(1)),
-                        fetchCreateChannelFilter = () =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchCreateChannelFilter())
+                        }
                     };
                     return new ArticlesScreen(viewModel: viewModel, actionModel: actionModel);
                 }
@@ -95,16 +91,6 @@ namespace ConnectApp.screens {
             this._pageController = new PageController(initialPage: this._selectedIndex);
             this._titleFontSize = _maxTitleFontSize;
             this._navBarHeight = _maxNavBarHeight;
-            StatusBarManager.hideStatusBar(false);
-            SplashManager.fetchSplash();
-            AnalyticsManager.AnalyticsOpenApp();
-            SchedulerBinding.instance.addPostFrameCallback(_ => {
-                this.widget.actionModel.fetchReviewUrl();
-                if (this.widget.viewModel.isLoggedIn) {
-                    this.widget.actionModel.fetchChannels();
-                    this.widget.actionModel.fetchCreateChannelFilter();
-                }
-            });
             this._loginSubId = EventBus.subscribe(sName: EventBusConstant.login_success, args => {
                 if (this._selectedIndex != 1) {
                     this._selectedIndex = 1;
