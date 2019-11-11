@@ -1271,7 +1271,31 @@ namespace ConnectApp.screens {
                     ),
                     new Container(
                         padding: EdgeInsets.only(top: 8, bottom: 16),
-                        child: new Text("- 以下为新消息 -", style: CTextStyle.PSmallBody5.copyWith(height: 1))
+                        child: new Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: new List<Widget> {
+                                new Container(
+                                    margin: EdgeInsets.only(right: 10),
+                                    color: new Color(0x20959595),
+                                    height: 1,
+                                    width: 80
+                                ),
+                                new Text(
+                                    "以下为新消息",
+                                    style: new TextStyle(
+                                        fontSize: 12,
+                                        fontFamily: "Roboto-Regular",
+                                        color: new Color(0x88959595)
+                                    )
+                                ),
+                                new Container(
+                                    margin: EdgeInsets.only(left: 10),
+                                    color: new Color(0x20959595),
+                                    height: 1,
+                                    width: 80
+                                )
+                            }
+                        )
                     ),
                     new Expanded(
                         flex: 1,
