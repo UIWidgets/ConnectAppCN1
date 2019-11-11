@@ -3,6 +3,7 @@ namespace ConnectApp.Models.ViewModel {
         public bool isLoggedIn;
         public bool anonymous;
         public bool hasReviewUrl;
+        public bool vibrate;
         public string reviewUrl;
     }
 }

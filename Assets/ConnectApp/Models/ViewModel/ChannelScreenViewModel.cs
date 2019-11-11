@@ -8,6 +8,7 @@ namespace ConnectApp.Models.ViewModel {
         public List<ChannelMessageView> newMessages;
         public int newMessageCount;
         public User me;
+        public bool channelInfoLoading;
         public bool messageLoading;
         public bool socketConnected;
         public bool netWorkConnected;

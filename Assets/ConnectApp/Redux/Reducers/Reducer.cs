@@ -6,8 +6,8 @@ using ConnectApp.Main;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Plugins;
-using ConnectApp.Reality;
 using ConnectApp.redux.actions;
+using ConnectApp.Reality;
 using ConnectApp.screens;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
@@ -1643,6 +1643,11 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case SettingVibrateAction action: {
+                    state.settingState.vibrate = action.vibrate;
+                    break;
+                }
+
                 case SettingClearCacheAction _: {
                     state.articleState.articleHistory = new List<Article>();
                     state.eventState.eventHistory = new List<IEvent>();
@@ -2600,7 +2605,13 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case StartFetchChannelInfoAction action: {
+                    state.channelState.channelInfoLoading = true;
+                    break;
+                }
+
                 case FetchChannelInfoSuccessAction action: {
+                    state.channelState.channelInfoLoading = false;
                     state.channelState.updateChannel(action.channel);
                     if (state.channelState.channelDict.ContainsKey(action.channel.id)) {
                         state.channelState.channelDict[key: action.channel.id].unread = 0;
@@ -2614,6 +2625,7 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case FetchChannelInfoErrorAction action: {
+                    state.channelState.channelInfoLoading = false;
                     state.channelState.channelError = true;
                     break;
                 }

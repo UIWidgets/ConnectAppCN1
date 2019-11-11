@@ -27,16 +27,19 @@ namespace ConnectApp.Components {
             Key key = null,
             AnimatingType animating = AnimatingType.repeat,
             LoadingColor loadingColor = LoadingColor.black,
-            LoadingSize size = LoadingSize.normal
+            LoadingSize size = LoadingSize.normal,
+            AnimationController controller = null
         ) : base(key: key) {
             this.animating = animating;
             this.loadingColor = loadingColor;
             this.size = size;
+            this.controller = controller;
         }
 
         public readonly AnimatingType animating;
         public readonly LoadingColor loadingColor;
         public readonly LoadingSize size;
+        public readonly AnimationController controller;
 
         public override State createState() {
             return new _CustomActivityIndicatorState();
@@ -49,12 +52,17 @@ namespace ConnectApp.Components {
         public override void initState() {
             base.initState();
 
-            this._controller = new AnimationController(
-                duration: new TimeSpan(0, 0, 2),
-                vsync: this
-            );
-            if (this.widget.animating == AnimatingType.repeat) {
-                this._controller.repeat();
+            if (this.widget.controller == null) {
+                this._controller = new AnimationController(
+                    duration: new TimeSpan(0, 0, 2),
+                    vsync: this
+                );
+                if (this.widget.animating == AnimatingType.repeat) {
+                    this._controller.repeat();
+                }
+            }
+            else {
+                this._controller = this.widget.controller;
             }
         }
 
@@ -65,16 +73,30 @@ namespace ConnectApp.Components {
         public override void didUpdateWidget(StatefulWidget oldWidget) {
             base.didUpdateWidget(oldWidget: oldWidget);
             if (oldWidget is CustomActivityIndicator customActivityIndicator) {
-                if (this.widget.animating != customActivityIndicator.animating) {
-                    if (this.widget.animating == AnimatingType.repeat) {
-                        this._controller.repeat();
+                if (this.widget.controller == null) {
+                    if (customActivityIndicator.controller != null) {
+                        this._controller = new AnimationController(
+                            duration: new TimeSpan(0, 0, 2),
+                            vsync: this);
                     }
-                    else if (this.widget.animating == AnimatingType.stop) {
-                        this._controller.stop();
+                    if (this.widget.animating != customActivityIndicator.animating) {
+                        if (this.widget.animating == AnimatingType.repeat) {
+                            this._controller.repeat();
+                        }
+                        else if (this.widget.animating == AnimatingType.stop) {
+                            this._controller.stop();
+                        }
+                        else if (this.widget.animating == AnimatingType.reset) {
+                            this._controller.reset();
+                        }
                     }
-                    else if (this.widget.animating == AnimatingType.reset) {
-                        this._controller.reset();
+                }
+                else {
+                    if (customActivityIndicator.controller == null) {
+                        this._controller.dispose();
                     }
+
+                    this._controller = this.widget.controller;
                 }
             }
         }
@@ -112,7 +134,9 @@ namespace ConnectApp.Components {
         }
 
         public override void dispose() {
-            this._controller.dispose();
+            if (this.widget.controller == null) {
+                this._controller.dispose();
+            }
             base.dispose();
         }
     }
