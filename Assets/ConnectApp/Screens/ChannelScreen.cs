@@ -16,8 +16,8 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -117,6 +117,7 @@ namespace ConnectApp.screens {
                     return new ChannelScreenViewModel {
                         hasChannel = state.channelState.channelDict.ContainsKey(this.channelId),
                         channelError = state.channelState.channelError,
+                        channelInfoLoading = state.channelState.channelInfoLoading,
                         channel = channel,
                         messages = messages,
                         newMessages = newMessages,
@@ -413,15 +414,15 @@ namespace ConnectApp.screens {
                 if (this.widget.viewModel.hasChannel) {
                     this.fetchMessagesAndMembers();
                     this.addScrollListener();
+                    this.widget.actionModel.clearUnread();
                 }
                 else {
                     this.widget.actionModel.fetchChannelInfo().Then(() => {
                         this.fetchMessagesAndMembers();
                         this.addScrollListener();
+                        this.widget.actionModel.clearUnread();
                     });
                 }
-
-                this.widget.actionModel.clearUnread();
             });
 
             this._showEmojiBoard = false;
@@ -608,20 +609,12 @@ namespace ConnectApp.screens {
                 if (msg.type == ChannelMessageType.image) {
                     imageUrls.Add(CImageUtils.SizeToScreenImageUrl(imageUrl: msg.content));
                 }
-
-//                if (msg.type == ChannelMessageType.embedImage) {
-//                    imageUrls.Add(CImageUtils.SizeToScreenImageUrl(imageUrl: msg.embeds[0].embedData.imageUrl));
-//                }
             });
             var url = CImageUtils.SizeToScreenImageUrl(imageUrl: imageUrl);
             this.widget.actionModel.browserImage(arg1: url, arg2: imageUrls);
         }
 
         public override Widget build(BuildContext context) {
-            if (this.widget.viewModel.channel.id == null) {
-                return this._buildLoadingPage();
-            }
-
             if (this.widget.viewModel.channel.lastMessageId == this._lastReadMessageId) {
                 this._lastReadMessageId = null;
             }
@@ -908,8 +901,9 @@ namespace ConnectApp.screens {
                 listView = this._buildErrorPage();
             }
 
-            if (this.widget.viewModel.messageLoading &&
-                this.widget.viewModel.messages.isEmpty()) {
+            if ((this.widget.viewModel.messageLoading &&
+                 this.widget.viewModel.messages.isEmpty()) ||
+                (this.widget.viewModel.channel.id == null && this.widget.viewModel.channelInfoLoading)) {
                 listView = this._buildLoadingPage();
             }
 
