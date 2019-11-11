@@ -72,6 +72,7 @@ namespace ConnectApp.redux.actions {
                         AnalyticsManager.LoginEvent("email");
                         AnalyticsManager.AnalyticsLogin("email", loginInfo.userId);
                         JPushPlugin.setJPushAlias(loginInfo.userId);
+                        BuglyAgent.SetUserId(loginInfo.userId);
                         EventBus.publish(sName: EventBusConstant.login_success, new List<object> {loginInfo.userId});
                     })
                     .Catch(error => {

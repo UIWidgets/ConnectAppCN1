@@ -13,8 +13,6 @@ using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
-using EventType = ConnectApp.Models.State.EventType;
 
 namespace ConnectApp.redux.reducers {
     public static class AppReducer {
@@ -98,6 +96,7 @@ namespace ConnectApp.redux.reducers {
                     state.loginState.loginInfo = new LoginInfo();
                     state.loginState.isLoggedIn = false;
                     UserInfoManager.clearUserInfo();
+                    BuglyAgent.SetUserId("anonymous");
                     state.articleState.articleHistory = HistoryManager.articleHistoryList();
                     state.eventState.eventHistory = HistoryManager.eventHistoryList();
                     state.searchState.searchArticleHistoryList = HistoryManager.searchArticleHistoryList();
@@ -943,6 +942,7 @@ namespace ConnectApp.redux.reducers {
                             $"{action.message.author.id}:{action.message.channelId}:{action.message.id}");
                         var channel = state.channelState.channelDict[action.message.channelId];
                     }
+
                     break;
                 }
 
@@ -2639,6 +2639,7 @@ namespace ConnectApp.redux.reducers {
                         channel.newMessageIds.last().hexToLong() > lastMessageId.hexToLong()) {
                         lastMessageId = channel.newMessageIds.last();
                     }
+
                     for (var i = 0; i < action.messages.Count; i++) {
                         var channelMessage = ChannelMessageView.fromChannelMessage(action.messages[i]);
                         state.channelState.messageDict[channelMessage.id] = channelMessage;
@@ -2654,6 +2655,7 @@ namespace ConnectApp.redux.reducers {
                                 channel.messageIds.Add(channelMessage.id);
                             }
                         }
+
                         if (channelMessage.id.hexToLong() > channel.lastMessage.id.hexToLong()) {
                             channel.lastMessage = channelMessage;
                             channel.lastMessageId = channelMessage.id;
@@ -2731,7 +2733,7 @@ namespace ConnectApp.redux.reducers {
                     if (state.channelState.messageDict.ContainsKey(action.messageId)) {
                         state.channelState.messageDict[action.messageId].deleted = true;
                     }
-                    
+
                     break;
                 }
 
@@ -3142,6 +3144,7 @@ namespace ConnectApp.redux.reducers {
                             }
                         });
                     }
+
                     state.channelState.socketConnected = action.connected;
                     break;
                 }

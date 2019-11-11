@@ -20,9 +20,9 @@ namespace ConnectApp.Constants {
 
         public const string miniId = "gh_f731aec0bdd0";
 
-        public const string versionName = "1.2.3";
+        public const string versionName = "1.2.4";
 
-        public const int versionCode = 85;
+        public const int versionCode = 86;
 
         public const string messengerTag = "messenger";
 
@@ -39,6 +39,7 @@ namespace ConnectApp.Constants {
 #if UNITY_IOS
         public const string platform = "ios";
         public const string store = "appstore";
+        public const string buglyId = "f3e3717b9f";
 #elif UNITY_ANDROID
         public const string platform = "android";
 //        public const string store = "test";
@@ -47,9 +48,11 @@ namespace ConnectApp.Constants {
 //        public const string store = "huawei";
 //        public const string store = "ali";
 //        public const string store = "yingyongbao";
+        public const string buglyId = "f56bb28093";
 #else
         public const string platform = "";
         public const string store = "";
+        public const string buglyId = "";
 #endif
     }
 }
