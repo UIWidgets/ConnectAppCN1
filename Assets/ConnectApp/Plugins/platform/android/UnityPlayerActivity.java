@@ -12,8 +12,6 @@ import android.view.Window;
 public class UnityPlayerActivity extends Activity {
     protected UnityPlayer mUnityPlayer; // don't change the name of this variable; referenced from native code
 
-
-
     // Setup activity layout
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,7 +23,6 @@ public class UnityPlayerActivity extends Activity {
         setContentView(mUnityPlayer);
         mUnityPlayer.requestFocus();
     }
-
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -92,7 +89,6 @@ public class UnityPlayerActivity extends Activity {
         super.onConfigurationChanged(newConfig);
         mUnityPlayer.configurationChanged(newConfig);
     }
-
 
     // Notify Unity of the focus change.
     @Override

@@ -13,7 +13,6 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using EventType = ConnectApp.Models.State.EventType;
-
 #if UNITY_IOS
 using System.Runtime.InteropServices;
 
@@ -43,7 +42,7 @@ namespace ConnectApp.Plugins {
                 }
 
                 setJPushTags(
-                    new List<string> {Config.versionCode.ToString(), Config.messengerTag, Config.versionNumber});
+                    new List<string> {Config.versionCode.ToString(), Config.messengerTag, Config.versionName});
             }
         }
 

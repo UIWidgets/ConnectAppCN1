@@ -29,7 +29,7 @@ namespace ConnectApp.Utils {
         [Preserve] 
         public List<DBUser> users;
     }
-    
+
     public class DBMessageLite {
         [Preserve][PrimaryKey][Indexed]
         public long messageKey { get; set; }

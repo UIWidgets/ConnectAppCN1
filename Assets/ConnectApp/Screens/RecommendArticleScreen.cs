@@ -35,7 +35,6 @@ namespace ConnectApp.screens {
                     isLoggedIn = state.loginState.isLoggedIn,
                     hosttestOffset = state.articleState.recommendArticleIds.Count,
                     currentUserId = state.loginState.loginInfo.userId ?? "",
-                    showFirstEgg = state.serviceConfigState.showFirstEgg
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new ArticlesScreenActionModel {

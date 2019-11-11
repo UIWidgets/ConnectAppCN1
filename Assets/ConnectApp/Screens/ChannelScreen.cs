@@ -117,6 +117,7 @@ namespace ConnectApp.screens {
                     return new ChannelScreenViewModel {
                         hasChannel = state.channelState.channelDict.ContainsKey(this.channelId),
                         channelError = state.channelState.channelError,
+                        channelInfoLoading = state.channelState.channelInfoLoading,
                         channel = channel,
                         messages = messages,
                         newMessages = newMessages,
@@ -290,7 +291,7 @@ namespace ConnectApp.screens {
 
         readonly Dictionary<string, string> _headers = new Dictionary<string, string> {
             {HttpManager.COOKIE, HttpManager.getCookie()},
-            {"ConnectAppVersion", Config.versionNumber},
+            {"ConnectAppVersion", Config.versionName},
             {"X-Requested-With", "XmlHttpRequest"}
         };
 
@@ -413,15 +414,15 @@ namespace ConnectApp.screens {
                 if (this.widget.viewModel.hasChannel) {
                     this.fetchMessagesAndMembers();
                     this.addScrollListener();
+                    this.widget.actionModel.clearUnread();
                 }
                 else {
                     this.widget.actionModel.fetchChannelInfo().Then(() => {
                         this.fetchMessagesAndMembers();
                         this.addScrollListener();
+                        this.widget.actionModel.clearUnread();
                     });
                 }
-
-                this.widget.actionModel.clearUnread();
             });
 
             this._showEmojiBoard = false;
@@ -608,20 +609,12 @@ namespace ConnectApp.screens {
                 if (msg.type == ChannelMessageType.image) {
                     imageUrls.Add(CImageUtils.SizeToScreenImageUrl(imageUrl: msg.content));
                 }
-
-//                if (msg.type == ChannelMessageType.embedImage) {
-//                    imageUrls.Add(CImageUtils.SizeToScreenImageUrl(imageUrl: msg.embeds[0].embedData.imageUrl));
-//                }
             });
             var url = CImageUtils.SizeToScreenImageUrl(imageUrl: imageUrl);
             this.widget.actionModel.browserImage(arg1: url, arg2: imageUrls);
         }
 
         public override Widget build(BuildContext context) {
-            if (this.widget.viewModel.channel.id == null) {
-                return this._buildLoadingPage();
-            }
-
             if (this.widget.viewModel.channel.lastMessageId == this._lastReadMessageId) {
                 this._lastReadMessageId = null;
             }
@@ -903,8 +896,15 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildContent() {
+            ListView listView = this._buildMessageListView();
             if (this.widget.viewModel.channelError) {
-                return this._buildErrorPage();
+                listView = this._buildErrorPage();
+            }
+
+            if ((this.widget.viewModel.messageLoading &&
+                 this.widget.viewModel.messages.isEmpty()) ||
+                (this.widget.viewModel.channel.id == null && this.widget.viewModel.channelInfoLoading)) {
+                listView = this._buildLoadingPage();
             }
 
             Widget content = new Container(
@@ -918,10 +918,7 @@ namespace ConnectApp.screens {
                         onRefresh: this._onRefresh,
                         reverse: true,
                         headerBuilder: (context, mode) => new SmartRefreshHeader(mode: mode),
-                        child: this.widget.viewModel.messageLoading &&
-                               this.widget.viewModel.messages.isEmpty()
-                            ? this._buildLoadingPage()
-                            : this._buildMessageListView()
+                        child: listView
                     )
                 )
             );
@@ -971,10 +968,10 @@ namespace ConnectApp.screens {
             return new ListView(
                 children: new List<Widget> {
                     new Container(
-                        child: new GlobalLoading(),
-                        width: MediaQuery.of(this.context).size.width,
-                        height: MediaQuery.of(this.context).size.height
-                    )
+                        padding: EdgeInsets.only(top: 44 + MediaQuery.of(this.context).padding.top,
+                            bottom: 49 + MediaQuery.of(this.context).padding.bottom),
+                        height: MediaQuery.of(this.context).size.height,
+                        child: new Center(child: new GlobalLoading()))
                 });
         }
 
@@ -982,10 +979,10 @@ namespace ConnectApp.screens {
             return new ListView(
                 children: new List<Widget> {
                     new Container(
-                        child: new Center(child: new Text("你已不在该群组", style: CTextStyle.PLargeBody.copyWith(height: 1))),
-                        width: MediaQuery.of(this.context).size.width,
-                        height: MediaQuery.of(this.context).size.height
-                    )
+                        padding: EdgeInsets.only(top: 44 + MediaQuery.of(this.context).padding.top,
+                            bottom: 49 + MediaQuery.of(this.context).padding.bottom),
+                        height: MediaQuery.of(this.context).size.height,
+                        child: new Center(child: new Text("你已不在该群组", style: CTextStyle.PLargeBody.copyWith(height: 1))))
                 });
         }
 

@@ -205,16 +205,6 @@ namespace ConnectApp.Models.Api {
     [Serializable]
     public class FetchInitDataResponse {
         public string VS;
-        public List<bool> showEggs;
-        public bool scanEnabled;
-        public InitDataConfig config;
-        public TimeMap nationalDay;
-    }
-
-    [Serializable]
-    public class InitDataConfig {
-        public Dictionary<string, bool> eggs;
-        public bool scan;
     }
 
     [Serializable]
@@ -315,5 +305,17 @@ namespace ConnectApp.Models.Api {
     [Serializable]
     public class FetchChannelMemberQueryResponse {
         public List<ChannelMember> searchMembers;
+    }
+
+    [Serializable]
+    public class CheckNewVersionResponse {
+        public string platform;
+        public string store;
+        public string versionName;
+        public string versionCode;
+        public string forceUpdateVersionCode;
+        public string status;
+        public string url;
+        public string changeLog;
     }
 }

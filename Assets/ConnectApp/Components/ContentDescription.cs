@@ -500,7 +500,8 @@ namespace ConnectApp.Components {
                                 imageUrl: imageUrl,
                                 width: width,
                                 height: height,
-                                fit: BoxFit.cover
+                                fit: BoxFit.cover,
+                                useCachedNetworkImage: true
                             ), onTap: () => {
                                 if (dataUrl.isNotEmpty()) {
                                     openUrl(obj: dataUrl);
