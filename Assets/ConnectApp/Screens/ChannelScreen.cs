@@ -304,6 +304,7 @@ namespace ConnectApp.screens {
         AnimationController _emojiBoardController;
         AnimationController _viewInsetsBottomController;
         Animation<float> _viewInsetsBottomAnimation;
+        AnimationController _messageActivityIndicatorController;
 
         bool _showUnreadMessageNotification = false;
         bool _showNewMessageNotification = false;
@@ -449,6 +450,10 @@ namespace ConnectApp.screens {
             this._newMessageNotificationController.addListener(() => { this.setState(() => { }); });
             this._emojiBoardController.addListener(() => { this.setState(() => { }); });
             this._viewInsetsBottomController.addListener(() => { this.setState(() => { }); });
+            this._messageActivityIndicatorController = new AnimationController(
+                duration: new TimeSpan(0, 0, 2),
+                vsync: this);
+            this._messageActivityIndicatorController.repeat();
         }
 
         bool _onMessageLoadedCalled = false;
@@ -551,6 +556,7 @@ namespace ConnectApp.screens {
             this._newMessageNotificationController.dispose();
             this._emojiBoardController.dispose();
             this._viewInsetsBottomController.dispose();
+            this._messageActivityIndicatorController.dispose();
             base.dispose();
         }
 
@@ -1018,7 +1024,9 @@ namespace ConnectApp.screens {
 
             if (message.status != "normal" && message.status != "local") {
                 Widget symbol = message.status == "sending" || message.status == "waiting"
-                    ? (Widget) new CustomActivityIndicator(size: LoadingSize.small)
+                    ? (Widget) new CustomActivityIndicator(
+                        size: LoadingSize.small,
+                        controller: this._messageActivityIndicatorController)
                     : new GestureDetector(
                         onTap: () => { this.widget.actionModel.resendMessage(message); },
                         child: new Icon(icon: Icons.error, color: CColors.Error, size: 24)
