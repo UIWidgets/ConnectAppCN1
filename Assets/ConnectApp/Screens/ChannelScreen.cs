@@ -1574,6 +1574,7 @@ namespace ConnectApp.screens {
         }
 
         public void didPop() {
+            MessageUtils.currentChannelId = null;
             this.mentionMap.Clear();
             if (this._focusNode.hasFocus) {
                 this._focusNode.unfocus();
@@ -1583,13 +1584,16 @@ namespace ConnectApp.screens {
         }
 
         public void didPopNext() {
+            MessageUtils.currentChannelId = this.widget.viewModel.channel.id ?? "";
             StatusBarManager.statusBarStyle(false);
         }
 
         public void didPush() {
+            MessageUtils.currentChannelId = this.widget.viewModel.channel.id ?? "";
         }
 
         public void didPushNext() {
+            MessageUtils.currentChannelId = null;
             if (this.showKeyboard || this.showEmojiBoard) {
                 this.setState(fn: this._dismissKeyboard);
             }

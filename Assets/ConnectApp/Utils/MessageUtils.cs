@@ -14,6 +14,8 @@ namespace ConnectApp.Utils {
     public static class MessageUtils {
         public static string lastWaitingMessageId;
 
+        public static string currentChannelId;
+
         public static string AnalyzeMessage(string content, List<User> mentions, bool mentionEveryone) {
             if (content.isEmpty()) {
                 return "";

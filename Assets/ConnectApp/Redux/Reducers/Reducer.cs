@@ -1642,6 +1642,11 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case SettingVibrateAction action: {
+                    state.settingState.vibrate = action.vibrate;
+                    break;
+                }
+
                 case SettingClearCacheAction _: {
                     state.articleState.articleHistory = new List<Article>();
                     state.eventState.eventHistory = new List<IEvent>();

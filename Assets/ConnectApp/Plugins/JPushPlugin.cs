@@ -13,6 +13,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using EventType = ConnectApp.Models.State.EventType;
+
 #if UNITY_IOS
 using System.Runtime.InteropServices;
 
@@ -83,7 +84,11 @@ namespace ConnectApp.Plugins {
                                 EventBus.publish(EventBusConstant.newNotifications, new List<object>());
                             }
 
-                            playMessageSound();
+                            var id = dict["id"] ?? "";
+                            if (MessageUtils.currentChannelId.isEmpty() || id != MessageUtils.currentChannelId) {
+                                playMessageSound();
+                            }
+
                             break;
                         }
                         case "OnReceiveMessage": {
@@ -304,6 +309,10 @@ namespace ConnectApp.Plugins {
                 return;
             }
 
+            if (!StoreProvider.store.getState().settingState.vibrate) {
+                return;
+            }
+
             playSystemSound();
         }
 
@@ -377,11 +386,11 @@ namespace ConnectApp.Plugins {
         static void setTags(int sequence, string tagsJsonStr) {
             Plugin().Call("setTags", sequence, tagsJsonStr);
         }
-        
+
         static void playSystemSound() {
             Plugin().Call("playSystemSound");
         }
-        
+
         static void updateShowAlert(bool isShow) {
             Plugin().Call("updateShowAlert");
         }

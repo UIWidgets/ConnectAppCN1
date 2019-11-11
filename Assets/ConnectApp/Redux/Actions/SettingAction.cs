@@ -14,6 +14,10 @@ namespace ConnectApp.redux.actions {
     public class SettingClearCacheAction : BaseAction {
     }
 
+    public class SettingVibrateAction : BaseAction {
+        public bool vibrate;
+    }
+
     public static partial class Actions {
         public static object fetchReviewUrl() {
             return new ThunkAction<AppState>((dispatcher, getState) => {
