@@ -903,14 +903,17 @@ namespace ConnectApp.screens {
 
         Widget _buildContent() {
             ListView listView = this._buildMessageListView();
+            var enablePull = true;
             if (this.widget.viewModel.channelError) {
                 listView = this._buildErrorPage();
+                enablePull = false;
             }
 
             if ((this.widget.viewModel.messageLoading &&
                  this.widget.viewModel.messages.isEmpty()) ||
                 (this.widget.viewModel.channel.id == null && this.widget.viewModel.channelInfoLoading)) {
                 listView = this._buildLoadingPage();
+                enablePull = false;
             }
 
             Widget content = new Container(
@@ -920,7 +923,7 @@ namespace ConnectApp.screens {
                         key: this._smartRefresherKey,
                         controller: this._refreshController,
                         enablePullDown: false,
-                        enablePullUp: this.widget.viewModel.channel.hasMore,
+                        enablePullUp: enablePull && this.widget.viewModel.channel.hasMore,
                         onRefresh: this._onRefresh,
                         reverse: true,
                         headerBuilder: (context, mode) => new SmartRefreshHeader(mode: mode),
