@@ -157,6 +157,7 @@ namespace ConnectApp.redux.actions {
 
         public static object fetchChannelInfo(string channelId, bool ignoreError = false) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
+                dispatcher.dispatch(new StartFetchChannelInfoAction {channelId = channelId});
                 return ChannelApi.FetchChannelInfo(channelId: channelId)
                     .Then(channelInfoResponse => {
                         if (channelInfoResponse.channelMember == null && !ignoreError) {
@@ -533,6 +534,10 @@ namespace ConnectApp.redux.actions {
     }
 
     public class FetchUnMuteChannelSuccessAction : BaseAction {
+        public string channelId;
+    }
+
+    public class StartFetchChannelInfoAction : BaseAction {
         public string channelId;
     }
 

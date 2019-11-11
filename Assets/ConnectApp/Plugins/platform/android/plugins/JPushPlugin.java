@@ -1,6 +1,7 @@
 package com.unity3d.unityconnect.plugins;
 
 import android.content.Context;
+import android.os.Vibrator;
 import android.text.TextUtils;
 import com.google.gson.Gson;
 import com.unity.uiwidgets.plugin.UIWidgetsMessageManager;
@@ -83,5 +84,10 @@ public class JPushPlugin {
         }
 
         JPushInterface.setTags(mContext, sequence, tagSet);
+    }
+    
+    public void playSystemSound(){
+        Vibrator vibrator = (Vibrator)mContext.getSystemService(Context.VIBRATOR_SERVICE);
+        vibrator.vibrate(200L);
     }
 }

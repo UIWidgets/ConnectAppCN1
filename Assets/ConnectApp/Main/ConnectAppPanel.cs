@@ -23,7 +23,28 @@ namespace ConnectApp.Main {
             LoadFonts();
             VideoPlayerManager.instance.initPlayer(this.gameObject);
             WebViewManager.instance.initWebView(this.gameObject);
+            InitBugly();
             AnalyticsManager.EnterApp();
+        }
+
+        static void InitBugly() {
+            // Enable the debug log print
+            BuglyAgent.ConfigDebugMode(enable: Config.enableDebug);
+            // Config default channel, version, user 
+            BuglyAgent.ConfigDefault(channel: Config.store, version: Config.versionName,
+                user: UserInfoManager.initUserInfo().userId ?? "anonymous", 0);
+            // Config auto report log level, default is LogSeverity.LogError, so the LogError, LogException log will auto report
+            BuglyAgent.ConfigAutoReportLogLevel(LogSeverity.LogError);
+            // Config auto quit the application make sure only the first one c# exception log will be report, please don't set TRUE if you do not known what are you doing.
+            BuglyAgent.ConfigAutoQuitApplication(false);
+            // If you need register Application.RegisterLogCallback(LogCallback), you can replace it with this method to make sure your function is ok.
+            BuglyAgent.RegisterLogCallback(null);
+
+            // Init the bugly sdk and enable the c# exception handler.
+            BuglyAgent.InitWithAppId(appId: Config.buglyId);
+
+            // please call this method to enable c# exception handler only.
+            BuglyAgent.EnableExceptionHandler();
         }
 
         static void CustomFrameRateCoolDown() {

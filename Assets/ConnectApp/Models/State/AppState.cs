@@ -153,6 +153,7 @@ namespace ConnectApp.Models.State {
                 },
                 settingState = new SettingState {
                     hasReviewUrl = false,
+                    vibrate = PreferencesManager.initVibrate(),
                     reviewUrl = ""
                 },
                 reportState = new ReportState {
