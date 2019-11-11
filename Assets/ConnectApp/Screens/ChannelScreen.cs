@@ -1052,6 +1052,30 @@ namespace ConnectApp.screens {
                 ));
             }
 
+            if (message.type == ChannelMessageType.text) {
+                tipMenuItems.Add(new TipMenuItem(
+                    "引用",
+                    () => {
+                        var content = MessageUtils.AnalyzeMessage(
+                            content: message.content,
+                            mentions: message.mentions,
+                            mentionEveryone: message.mentionEveryone
+                        );
+                        var newContent = this._textController.text + "「 " + message.author.fullName + ": " + content +
+                                         " 」" + "\n" + "- - - - - - - - - - - - - - -" + "\n";
+                        this._textController.value = new TextEditingValue(
+                            text: newContent,
+                            TextSelection.collapsed(offset: newContent.Length)
+                        );
+                        if (!this._focusNode.hasFocus || !this.showKeyboard) {
+                            FocusScope.of(context: this.context).requestFocus(node: this._focusNode);
+                            TextInputPlugin.TextInputShow();
+                            Promise.Delayed(TimeSpan.FromMilliseconds(200)).Then(
+                                () =>  this.setState(() => this.showEmojiBoard = false));
+                        }
+                    }
+                ));
+            }
             if (message.author.id == this.widget.viewModel.me.id) {
                 tipMenuItems.Add(new TipMenuItem(
                     "删除",
