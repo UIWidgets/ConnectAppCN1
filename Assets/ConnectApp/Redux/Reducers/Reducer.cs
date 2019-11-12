@@ -2638,6 +2638,16 @@ namespace ConnectApp.redux.reducers {
                         channel.newMessageIds.last().hexToLong() > lastMessageId.hexToLong()) {
                         lastMessageId = channel.newMessageIds.last();
                     }
+
+                    // If the oldest fetched message is newer than the existing messages
+                    // there is possibility that some messages are missing in between
+                    // In that case, clean the existing messages
+                    if (action.messages.isNotEmpty() &&
+                        action.messages.last().id.hexToLong() > lastMessageId.hexToLong()) {
+                        channel.messageIds = new List<string>();
+                        channel.newMessageIds = new List<string>();
+                    }
+                    
                     for (var i = 0; i < action.messages.Count; i++) {
                         var channelMessage = ChannelMessageView.fromChannelMessage(action.messages[i]);
                         state.channelState.messageDict[channelMessage.id] = channelMessage;
