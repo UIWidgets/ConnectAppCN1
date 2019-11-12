@@ -10,6 +10,7 @@ using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
@@ -223,8 +224,6 @@ namespace ConnectApp.Components {
 
         public override void initState() {
             base.initState();
-            
-            this._size = MediaQuery.of(this.context).size; 
             this._scaleAnimationController = new AnimationController(
                 duration: TimeSpan.FromMilliseconds(100),
                 vsync: this);
@@ -247,6 +246,9 @@ namespace ConnectApp.Components {
                     }
                 }
             );
+            SchedulerBinding.instance.addPostFrameCallback(_ => {
+                this._size = MediaQuery.of(this.context).size;
+            });
         }
 
         public override void dispose() {
@@ -277,6 +279,7 @@ namespace ConnectApp.Components {
                 onScaleStart: this._onScaleStart,
                 onScaleUpdate: this._onScaleUpdate,
                 onScaleEnd: this._onScaleEnd,
+                onDoubleTap: this._onDoubleTap,
                 child: result);
             
             return result;
@@ -293,6 +296,32 @@ namespace ConnectApp.Components {
 
             float max = (scale - 1.0f) / 2;
             return new Offset(position.dx.clamp(-max, max), position.dy.clamp(-max, max));
+        }
+
+        void _onDoubleTap(DoubleTapDetails doubleTapDetails) {
+            if (this._scaleAnimation.value < this.widget.maxScale) {
+                this._scaleAnimation = new FloatTween(
+                        begin: this._scaleAnimation.value,
+                        end: this.widget.maxScale)
+                    .animate(this._scaleAnimationController);
+                this._positionAnimation = new OffsetTween(
+                    begin: this._positionAnimation.value,
+                    end: Offset.zero).animate(this._positionAnimationController);
+            }
+            else {
+                this._scaleAnimation = new FloatTween(
+                        begin: this._scaleAnimation.value,
+                        end: 1)
+                    .animate(this._scaleAnimationController);
+                this._positionAnimation = new OffsetTween(
+                        begin: this._positionAnimation.value,
+                        end: Offset.zero)
+                    .animate(this._positionAnimationController);
+            }
+            this._scaleAnimationController.setValue(0);
+            this._scaleAnimationController.animateTo(1);
+            this._positionAnimationController.setValue(0);
+            this._positionAnimationController.animateTo(1);
         }
 
         void _onScaleStart(ScaleStartDetails scaleStartDetails) {
