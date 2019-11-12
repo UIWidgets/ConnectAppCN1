@@ -1,5 +1,6 @@
 package com.unity3d.unityconnect.plugins;
 
+import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Vibrator;
 import android.text.TextUtils;
@@ -14,6 +15,8 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import cn.jpush.android.api.JPushInterface;
+
+import static android.content.Context.NOTIFICATION_SERVICE;
 
 public class JPushPlugin {
 
@@ -89,5 +92,10 @@ public class JPushPlugin {
     public void playSystemSound(){
         Vibrator vibrator = (Vibrator)mContext.getSystemService(Context.VIBRATOR_SERVICE);
         vibrator.vibrate(200L);
+    }
+
+    public void clearAllAlert(){
+        NotificationManager notiManager = (NotificationManager)this.mContext.getSystemService(NOTIFICATION_SERVICE);
+        notiManager.cancelAll();
     }
 }

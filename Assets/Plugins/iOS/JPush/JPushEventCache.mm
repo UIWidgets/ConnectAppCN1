@@ -103,10 +103,9 @@
     if(!_isShowAlert&&[[userInfo objectForKey:@"type"] isEqualToString:@"messenger"]){
         completionHandler(UNNotificationPresentationOptionSound);
     }else{
-        [[JPushEventCache sharedInstance] sendEvent: userInfo withKey: @"JPushPluginReceiveNotification"];
         completionHandler(UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionSound);
     }
-  
+    [[JPushEventCache sharedInstance] sendEvent: userInfo withKey: @"JPushPluginReceiveNotification"];
 }
 
 // iOS 10 Support

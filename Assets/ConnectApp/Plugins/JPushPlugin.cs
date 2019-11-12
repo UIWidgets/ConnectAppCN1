@@ -309,10 +309,6 @@ namespace ConnectApp.Plugins {
                 return;
             }
 
-            if (!StoreProvider.store.getState().settingState.vibrate) {
-                return;
-            }
-
             playSystemSound();
         }
 
@@ -327,6 +323,14 @@ namespace ConnectApp.Plugins {
 
             isShowPushAlert = isShow;
             updateShowAlert(isShow);
+        }
+
+        public static void clearNotifications() {
+            if (Application.isEditor) {
+                return;
+            }
+
+            clearAllAlert();
         }
 
 
@@ -351,6 +355,9 @@ namespace ConnectApp.Plugins {
 
         [DllImport("__Internal")]
         static extern void updateShowAlert(bool isShow);
+
+        [DllImport("__Internal")]
+        static extern void clearAllAlert();
 
 #elif UNITY_ANDROID
         static AndroidJavaObject _plugin;
@@ -394,6 +401,10 @@ namespace ConnectApp.Plugins {
         static void updateShowAlert(bool isShow) {
             Plugin().Call("updateShowAlert");
         }
+
+        static void clearAllAlert() {
+            Plugin().Call("clearAllAlert");
+        }
 #else
         static void listenCompleted() {}
         static void setChannel(string channel) {}
@@ -401,6 +412,7 @@ namespace ConnectApp.Plugins {
         static void deleteAlias(int sequence) {}
         static void setTags(int sequence, string tagsJsonStr) {}
         static void updateShowAlert(bool isShow) {}
+        static void clearAllAlert() {}
 #endif
     }
 }

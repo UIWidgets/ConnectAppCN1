@@ -189,6 +189,7 @@ extern "C"  {
     bool isEnableNotification();
     void playSystemSound();
     void updateShowAlert(bool isShow);
+    void clearAllAlert();
 }
 
 void pauseAudioSession(){
@@ -248,14 +249,17 @@ bool isEnableNotification(){
     if ([[UIDevice currentDevice].systemVersion floatValue] >= 8.0f) { // iOS版本 >=8.0 处理逻辑
         UIUserNotificationSettings *setting = [[UIApplication sharedApplication] currentUserNotificationSettings];
         isEnable = (UIUserNotificationTypeNone == setting.types) ? NO : YES;
-    } else { // iOS版本 <8.0 处理逻辑
-        UIRemoteNotificationType type = [[UIApplication sharedApplication] enabledRemoteNotificationTypes];
-        isEnable = (UIRemoteNotificationTypeNone == type) ? NO : YES;
     }
     return isEnable;
 }
 
 void playSystemSound(){
+    NSURL *url = [[NSBundle mainBundle] URLForResource:@"Data/notification.caf" withExtension:nil];
+    if (url) {
+        SystemSoundID soundID;
+        AudioServicesCreateSystemSoundID((__bridge CFURLRef)url, &soundID);
+        AudioServicesPlaySystemSound(soundID);
+    }
     AudioServicesPlaySystemSound(kSystemSoundID_Vibrate);
 }
 
@@ -263,5 +267,9 @@ void updateShowAlert(bool isShow){
     [[JPushEventCache sharedInstance]updateShowAlert:isShow];
 }
 
+void clearAllAlert(){
+    [UIApplication sharedApplication].applicationIconBadgeNumber = 1;
+    [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
+}
 
 @end
