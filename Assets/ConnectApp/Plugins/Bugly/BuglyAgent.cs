@@ -17,6 +17,9 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
+#if UNITY_IOS
+using System.Runtime.InteropServices;
+#endif
 using Debug = UnityEngine.Debug;
 
 // We dont use the LogType enum in Unity as the numerical order doesnt suit our purposes

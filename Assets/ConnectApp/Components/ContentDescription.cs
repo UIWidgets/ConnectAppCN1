@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using ConnectApp.Constants;
 using ConnectApp.Models.Model;
 using ConnectApp.Utils;
@@ -649,7 +650,10 @@ namespace ConnectApp.Components {
             if (text == null) {
                 return null;
             }
-
+            
+            // 过滤 emoji
+            text = Regex.Replace(input: text, @"\p{Cs}", "");
+            
             if (entityRanges == null
                 && entityRanges.Count <= 0
                 && inlineStyleRanges == null
