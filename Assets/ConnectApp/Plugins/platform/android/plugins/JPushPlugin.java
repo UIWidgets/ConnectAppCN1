@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Vibrator;
 import android.text.TextUtils;
 import com.google.gson.Gson;
+import com.google.zxing.util.FeedbackUtil;
 import com.unity.uiwidgets.plugin.UIWidgetsMessageManager;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -90,8 +91,7 @@ public class JPushPlugin {
     }
     
     public void playSystemSound(){
-        Vibrator vibrator = (Vibrator)mContext.getSystemService(Context.VIBRATOR_SERVICE);
-        vibrator.vibrate(200L);
+        FeedbackUtil.playBeepSoundAndVibrate(mContext,FeedbackUtil.SoundType.NOTIFICATION,true,true);
     }
 
     public void clearAllAlert(){
