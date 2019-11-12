@@ -46,13 +46,12 @@ namespace ConnectApp.redux.actions {
             });
         }
 
-
         public static object fetchCreateChannelFilter() {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ChannelApi.FetchChannels(page: 1, joined: false, discoverAll: true)
                     .Then(channelResponse => {
                         dispatcher.dispatch(new FetchDiscoverChannelFilterSuccessAction {
-                            discoverList = channelResponse.discoverList ?? new List<string>(),
+                            discoverList = channelResponse.discoverList ?? new List<string>()
                         });
                     })
                     .Catch(error => {
@@ -415,9 +414,11 @@ namespace ConnectApp.redux.actions {
             });
         }
 
-        public static object sendImage(string channelId, string nonce, byte[] imageData) {
+        static object sendAttachment(string channelId, string nonce, byte[] attachmentData, string filename,
+            string fileType) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return ChannelApi.SendImage(channelId, "", nonce, imageData)
+                return ChannelApi.SendAttachment(channelId: channelId, "", nonce: nonce, attachmentData: attachmentData,
+                        filename: filename, fileType: fileType)
                     .Then(responseText => {
                         dispatcher.dispatch(new SendChannelMessageSuccessAction {
                             channelId = channelId,
@@ -436,26 +437,14 @@ namespace ConnectApp.redux.actions {
             });
         }
 
+        public static object sendImage(string channelId, string nonce, byte[] imageData) {
+            return sendAttachment(channelId: channelId, nonce: nonce, attachmentData: imageData, "image.png",
+                "image/png");
+        }
+
         public static object sendVideo(string channelId, string nonce, byte[] videoData, string fileName) {
-            return new ThunkAction<AppState>((dispatcher, getState) => {
-                return ChannelApi.SendVideo(channelId: channelId, "", nonce: nonce, videoData: videoData,
-                        fileName: fileName)
-                    .Then(responseText => {
-                        dispatcher.dispatch(new SendChannelMessageSuccessAction {
-                            channelId = channelId,
-                            content = "",
-                            nonce = nonce,
-                            isImage = false
-                        });
-                    })
-                    .Catch(error => {
-                        dispatcher.dispatch(new SendChannelMessageFailureAction {
-                            channelId = channelId,
-                            messageId = nonce
-                        });
-                        Debuger.LogError(message: error);
-                    });
-            });
+            return sendAttachment(channelId: channelId, nonce: nonce, attachmentData: videoData, filename: fileName,
+                "video/mp4");
         }
 
         public static object saveMessagesToDB(List<ChannelMessage> messages) {
