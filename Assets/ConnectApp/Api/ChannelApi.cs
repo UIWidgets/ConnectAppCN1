@@ -131,14 +131,8 @@ namespace ConnectApp.Api {
 
         public static Promise<JoinChannelResponse> JoinChannel(string channelId, string groupId = null) {
             var promise = new Promise<JoinChannelResponse>();
-            UnityWebRequest request = null;
-
-            if (string.IsNullOrEmpty(groupId)) {
-                request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/join");
-            }
-            else {
-                request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/groups/{groupId}/join");
-            }
+            UnityWebRequest request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}" +
+                (groupId.isEmpty() ? $"/channels/{channelId}/join" : $"/groups/{groupId}/join"));
 
             HttpManager.resume(request: request).Then(responseText => {
                 promise.Resolve(JsonConvert.DeserializeObject<JoinChannelResponse>(value: responseText));
@@ -146,11 +140,11 @@ namespace ConnectApp.Api {
             return promise;
         }
 
-        public static Promise<LeaveChannelResponse> LeaveChannel(
-            string channelId, string memberId = null, string groupId = null) {
+        public static Promise<LeaveChannelResponse> LeaveChannel(string channelId, string memberId = null,
+            string groupId = null) {
             var promise = new Promise<LeaveChannelResponse>();
             UnityWebRequest request;
-            if (string.IsNullOrEmpty(groupId) || string.IsNullOrEmpty(memberId)) {
+            if (groupId.isEmpty() || memberId.isEmpty()) {
                 request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/leave");
             }
             else {
@@ -166,48 +160,22 @@ namespace ConnectApp.Api {
             return promise;
         }
 
-        public static Promise<FetchSendMessageResponse> SendImage(string channelId, string content, string nonce,
-            byte[] imageData, string parentMessageId = "") {
+        public static Promise<FetchSendMessageResponse> SendAttachment(string channelId, string content, string nonce,
+            byte[] attachmentData, string filename, string fileType, string parentMessageId = "") {
             var promise = new Promise<FetchSendMessageResponse>();
             var request = HttpManager.POST(
                 $"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/messages/attachments",
-                parameter: new List<List<object>> {
+                new List<List<object>> {
                     new List<object> {"channel", channelId},
                     new List<object> {"content", content},
                     new List<object> {"parentMessageId", parentMessageId},
                     new List<object> {"nonce", nonce},
-                    new List<object> {"size", $"{imageData.Length}"},
-                    new List<object> {"file", imageData}
+                    new List<object> {"size", $"{attachmentData.Length}"},
+                    new List<object> {"file", attachmentData}
                 },
-                multipart: true,
-                filename: "image.png",
-                fileType: "image/png");
-            HttpManager.resume(request: request).Then(responseText => {
-                promise.Resolve(new FetchSendMessageResponse {
-                    channelId = channelId,
-                    content = content,
-                    nonce = nonce
-                });
-            }).Catch(exception => promise.Reject(ex: exception));
-            return promise;
-        }
-
-        public static Promise<FetchSendMessageResponse> SendVideo(string channelId, string content, string nonce,
-            byte[] videoData, string fileName, string parentMessageId = "") {
-            var promise = new Promise<FetchSendMessageResponse>();
-            var request = HttpManager.POST(
-                $"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/messages/attachments",
-                parameter: new List<List<object>> {
-                    new List<object> {"channel", channelId},
-                    new List<object> {"content", content},
-                    new List<object> {"parentMessageId", parentMessageId},
-                    new List<object> {"nonce", nonce},
-                    new List<object> {"size", $"{videoData.Length}"},
-                    new List<object> {"file", videoData}
-                },
-                multipart: true,
-                filename: fileName,
-                fileType: "video/mp4");
+                true,
+                filename: filename,
+                fileType: fileType);
             HttpManager.resume(request: request).Then(responseText => {
                 promise.Resolve(new FetchSendMessageResponse {
                     channelId = channelId,
