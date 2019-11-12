@@ -105,20 +105,28 @@ namespace Plugins.Editor {
                 "#define UNITY_USES_REMOTE_NOTIFICATIONS 1");
 
             var blackDestDict = path + "/Unity-iPhone/Images.xcassets/unityConnectBlack.imageset";
-            var blackSourceFile = "iOS/unityConnectBlack.imageset";
+            var blackSourceFile = "image/iOS/unityConnectBlack.imageset";
             writeFile(blackSourceFile, blackDestDict);
 
             var madeDestDict = path + "/Unity-iPhone/Images.xcassets/madeWithUnity.imageset";
-            var madeSourceFile = "iOS/madeWithUnity.imageset";
+            var madeSourceFile = "image/iOS/madeWithUnity.imageset";
             writeFile(madeSourceFile, madeDestDict);
 
             var arrowBackDestDict = path + "/Unity-iPhone/Images.xcassets/arrowBack.imageset";
-            var arrowBackSourceFile = "iOS/arrowBack.imageset";
+            var arrowBackSourceFile = "image/iOS/arrowBack.imageset";
             writeFile(arrowBackSourceFile, arrowBackDestDict);
 
             var qrScanLineDestDict = path + "/Unity-iPhone/Images.xcassets/qrScanLine.imageset";
-            var qrScanLineSourceFile = "iOS/qrScanLine.imageset";
+            var qrScanLineSourceFile = "image/iOS/qrScanLine.imageset";
             writeFile(qrScanLineSourceFile, qrScanLineDestDict);
+
+            var messageCafDestDict = path + "/Data/notification.caf";
+            var messageCafSourceFile = "files/notification.caf";
+            writeFile(messageCafSourceFile, messageCafDestDict);
+
+            var noticeWavDestDict = path + "/Data/noticeMusic.wav";
+            var noticeWavSourceFile = "files/noticeMusic.wav";
+            writeFile(noticeWavSourceFile, noticeWavDestDict);
 
             var destFile = path + "/Classes/UI/UnityVIewControllerBase+iOS.mm";
 
@@ -141,7 +149,7 @@ namespace Plugins.Editor {
 
         static void writeFile(string sourceFile, string destDict) {
             FileUtil.DeleteFileOrDirectory(destDict);
-            FileUtil.CopyFileOrDirectory(Application.dataPath + "/ConnectApp/Resources/image/" + sourceFile, destDict);
+            FileUtil.CopyFileOrDirectory(Application.dataPath + "/ConnectApp/Resources/" + sourceFile, destDict);
         }
 
         static void ModifyPlist(string path) {

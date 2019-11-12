@@ -1,6 +1,5 @@
 using System;
 using ConnectApp.Models.Api;
-using ConnectApp.Plugins;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
@@ -108,15 +107,9 @@ namespace ConnectApp.Api {
                             StoreProvider.store.dispatcher.dispatch(new PushNewMessageAction {
                                 messageData = messageData
                             });
-                            if (MessageUtils.currentChannelId.isEmpty() ||
-                                messageData.channelId != MessageUtils.currentChannelId) {
-                                JPushPlugin.playMessageSound();
-                            }
-
                             break;
                         case DispatchMsgType.MESSAGE_UPDATE:
                             var updateMessageData = (SocketResponseMessageData) data;
-
                             StoreProvider.store.dispatcher.dispatch(new PushModifyMessageAction {
                                 messageData = updateMessageData
                             });

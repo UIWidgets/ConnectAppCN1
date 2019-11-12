@@ -132,11 +132,6 @@ namespace ConnectApp.screens {
                                     this.widget.actionModel.mainRouterPushTo(MainNavigatorRoutes.AboutUs);
                                 }),
                             _buildGapView(),
-                            _switchRow("振动", this.widget.viewModel.vibrate, value => {
-                                this.widget.actionModel.updateVibrate(value);
-                                PreferencesManager.updateVibrate(value);
-                            }),
-                            _buildGapView(),
                             _buildCellView("检查更新", () => {
                                 AnalyticsManager.ClickCheckUpdate();
                                 VersionManager.checkForUpdates(CheckVersionType.setting);
@@ -167,26 +162,6 @@ namespace ConnectApp.screens {
         static Widget _buildGapView() {
             return new CustomDivider(
                 color: CColors.BgGrey
-            );
-        }
-
-        static Widget _switchRow(string content, bool value, ValueChanged<bool> onChanged) {
-            return new Container(
-                color: CColors.White,
-                padding: EdgeInsets.symmetric(16, 18),
-                child: new Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: new List<Widget> {
-                        new Expanded(
-                            child: new Text(
-                                data: content,
-                                style: CTextStyle.PLargeBody,
-                                overflow: TextOverflow.ellipsis
-                            )
-                        ),
-                        new CustomSwitch(value: value, onChanged: onChanged, activeColor: CColors.PrimaryBlue)
-                    }
-                )
             );
         }
 

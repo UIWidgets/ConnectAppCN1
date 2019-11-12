@@ -175,10 +175,10 @@
 
 - (void)playBeep
 {
-    NSString *path = [[NSBundle mainBundle] pathForResource:@"noticeMusic" ofType:@"wav"];
-    if (path) {
+    NSURL *url = [[NSBundle mainBundle] URLForResource:@"Data/noticeMusic.wav" withExtension:nil];
+    if (url) {
         SystemSoundID soundID;
-        AudioServicesCreateSystemSoundID((__bridge CFURLRef)[NSURL fileURLWithPath:path], &soundID);
+        AudioServicesCreateSystemSoundID((__bridge CFURLRef)url, &soundID);
         AudioServicesPlaySystemSound(soundID);
     }
     AudioServicesPlaySystemSound(kSystemSoundID_Vibrate);
