@@ -56,9 +56,7 @@ namespace ConnectApp.Plugins {
                         var type = dict["type"];
                         if (type == "code") {
                             var code = dict["code"];
-                            if (this.codeCallBack != null) {
-                                this.codeCallBack(obj: code);
-                            }
+                            this.codeCallBack?.Invoke(obj: code);
                         }
                     }
                         break;
@@ -120,49 +118,60 @@ namespace ConnectApp.Plugins {
         }
 
         public void login(string stateId) {
-            if (!Application.isEditor) {
-                this.addListener();
-                loginWechat(stateId: stateId);
+            if (Application.isEditor) {
+                return;
             }
+
+            this.addListener();
+            loginWechat(stateId: stateId);
         }
 
         public void shareToFriend(string title, string description, string url, string imageBytes) {
-            if (!Application.isEditor) {
-                this.addListener();
-                toFriends(title: title, description: description, url: url, imageBytes: imageBytes);
+            if (Application.isEditor) {
+                return;
             }
+
+            this.addListener();
+            toFriends(title: title, description: description, url: url, imageBytes: imageBytes);
         }
 
         public void shareToTimeline(string title, string description, string url, string imageBytes) {
-            if (!Application.isEditor) {
-                this.addListener();
-                toTimeline(title: title, description: description, url: url, imageBytes: imageBytes);
+            if (Application.isEditor) {
+                return;
             }
+
+            this.addListener();
+            toTimeline(title: title, description: description, url: url, imageBytes: imageBytes);
         }
 
         public void shareToMiniProgram(string title, string description, string url, string imageBytes, string path) {
-            if (!Application.isEditor) {
-                this.addListener();
-                toMiNiProgram(title: title, description: description, url: url, imageBytes: imageBytes,
-                    ysId: Config.miniId, path: path, miniProgramType: Config.miniProgramType);
+            if (Application.isEditor) {
+                return;
             }
+
+            this.addListener();
+            toMiNiProgram(title: title, description: description, url: url, imageBytes: imageBytes,
+                ysId: Config.miniId, path: path, miniProgramType: Config.miniProgramType);
         }
 
 
         public bool isInstalled() {
-            if (!Application.isEditor) {
-                this.addListener();
-                return isInstallWechat();
+            if (Application.isEditor) {
+                return false;
             }
 
-            return false;
+            this.addListener();
+            return isInstallWechat();
+
         }
 
         public void toOpenMiNi(string path) {
-            if (!Application.isEditor) {
-                this.addListener();
-                openMiNi(ysId: Config.miniId, path: path, miniProgramType: Config.miniProgramType);
+            if (Application.isEditor) {
+                return;
             }
+
+            this.addListener();
+            openMiNi(ysId: Config.miniId, path: path, miniProgramType: Config.miniProgramType);
         }
 #if UNITY_IOS
         [DllImport("__Internal")]

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Constants;
 using ConnectApp.Main;
+using ConnectApp.redux;
+using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
@@ -106,11 +108,14 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
-            Widget progressWidget = new Container();
+            Widget progressWidget;
             if (this._progress < 1.0f) {
                 progressWidget = new CustomProgress(this._progress,
                     CColors.White
                 );
+            }
+            else {
+                progressWidget = new Container();
             }
 
             if (!Application.isEditor) {
@@ -173,7 +178,7 @@ namespace ConnectApp.screens {
                     }
                 },
                 rightWidget: new CustomButton(
-                    onPressed: () => Application.OpenURL(url: this.widget.url),
+                    onPressed: () => StoreProvider.store.dispatcher.dispatch(new OpenUrlAction {url = this.widget.url}),
                     child: new Icon(
                         icon: Icons.open_in_browser,
                         size: 24,

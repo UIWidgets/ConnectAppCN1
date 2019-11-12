@@ -183,9 +183,10 @@ namespace ConnectApp.screens {
                             }
                             else {
                                 dispatcher.dispatch<IPromise>(Actions.sendImage(
-                                    this.channelId,
+                                    channelId: this.channelId,
                                     nonce: viewModel.waitingMessage.id,
-                                    imageData: viewModel.waitingMessage.imageData));
+                                    imageData: viewModel.waitingMessage.imageData)
+                                );
                             }
                         });
                     }
@@ -1019,6 +1020,7 @@ namespace ConnectApp.screens {
                 child: this._buildMessageContent(message: message)
             );
 
+            bool showDeleteButton;
             if (message.status != "normal" && message.status != "local") {
                 Widget symbol = message.status == "sending" || message.status == "waiting"
                     ? (Widget) new CustomActivityIndicator(
@@ -1033,6 +1035,10 @@ namespace ConnectApp.screens {
                     mainAxisSize: MainAxisSize.min,
                     children: new List<Widget> {symbol, new SizedBox(width: 8), ret}
                 );
+                showDeleteButton = false;
+            }
+            else {
+                showDeleteButton = true;
             }
 
             var tipMenuItems = new List<TipMenuItem>();
@@ -1079,7 +1085,7 @@ namespace ConnectApp.screens {
                     }
                 ));
             }
-            if (message.author.id == this.widget.viewModel.me.id) {
+            if (message.author.id == this.widget.viewModel.me.id && showDeleteButton) {
                 tipMenuItems.Add(new TipMenuItem(
                     "删除",
                     () => this._deleteMessage(message: message)

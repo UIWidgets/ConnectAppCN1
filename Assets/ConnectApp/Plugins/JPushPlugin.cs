@@ -32,7 +32,7 @@ namespace ConnectApp.Plugins {
 
             if (!isListen) {
                 isListen = true;
-                UIWidgetsMessageManager.instance.AddChannelMessageDelegate("jpush", _handleMethodCall);
+                UIWidgetsMessageManager.instance.AddChannelMessageDelegate("jpush", del: _handleMethodCall);
                 completed();
                 setJPushChannel(channel: Config.store);
                 if (StoreProvider.store.getState().loginState.isLoggedIn) {
@@ -264,15 +264,23 @@ namespace ConnectApp.Plugins {
         }
 
         static void completed() {
+            if (Application.isEditor) {
+                return;
+            }
+
             listenCompleted();
         }
 
-        public static void setJPushChannel(string channel) {
+        static void setJPushChannel(string channel) {
+            if (Application.isEditor) {
+                return;
+            }
+
             if (channel.isEmpty()) {
                 return;
             }
 
-            setChannel(channel);
+            setChannel(channel: channel);
         }
 
         public static void setJPushAlias(string alias) {
@@ -284,7 +292,7 @@ namespace ConnectApp.Plugins {
                 return;
             }
 
-            setAlias(callbackId++, alias);
+            setAlias(sequence: callbackId++, alias: alias);
         }
 
         public static void deleteJPushAlias() {
@@ -292,16 +300,20 @@ namespace ConnectApp.Plugins {
                 return;
             }
 
-            deleteAlias(callbackId++);
+            deleteAlias(sequence: callbackId++);
         }
 
-        public static void setJPushTags(List<string> tags) {
-            string tagsJsonStr = JsonHelper.ToJson(tags);
+        static void setJPushTags(List<string> tags) {
+            if (Application.isEditor) {
+                return;
+            }
+
+            string tagsJsonStr = JsonHelper.ToJson(list: tags);
             if (tagsJsonStr.isEmpty()) {
                 return;
             }
 
-            setTags(callbackId++, tagsJsonStr);
+            setTags(sequence: callbackId++, tagsJsonStr: tagsJsonStr);
         }
 
         public static void playMessageSound() {
