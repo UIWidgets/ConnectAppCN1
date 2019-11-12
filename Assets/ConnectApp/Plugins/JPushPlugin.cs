@@ -127,7 +127,7 @@ namespace ConnectApp.Plugins {
                                 });
                             }
                             else {
-                                if (SplashManager.isExistSplash()) {
+                                if (PreferencesManager.initTabIndex()==0&&SplashManager.isExistSplash()) {
                                     StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushReplaceSplashAction());
                                 }
                                 else {
