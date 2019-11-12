@@ -6,15 +6,13 @@ using ConnectApp.Main;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Plugins;
-using ConnectApp.Reality;
 using ConnectApp.redux.actions;
+using ConnectApp.Reality;
 using ConnectApp.screens;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
-using EventType = ConnectApp.Models.State.EventType;
 
 namespace ConnectApp.redux.reducers {
     public static class AppReducer {
@@ -98,6 +96,7 @@ namespace ConnectApp.redux.reducers {
                     state.loginState.loginInfo = new LoginInfo();
                     state.loginState.isLoggedIn = false;
                     UserInfoManager.clearUserInfo();
+                    BuglyAgent.SetUserId("anonymous");
                     state.articleState.articleHistory = HistoryManager.articleHistoryList();
                     state.eventState.eventHistory = HistoryManager.eventHistoryList();
                     state.searchState.searchArticleHistoryList = HistoryManager.searchArticleHistoryList();
@@ -943,6 +942,7 @@ namespace ConnectApp.redux.reducers {
                             $"{action.message.author.id}:{action.message.channelId}:{action.message.id}");
                         var channel = state.channelState.channelDict[action.message.channelId];
                     }
+
                     break;
                 }
 
@@ -1311,7 +1311,7 @@ namespace ConnectApp.redux.reducers {
                 case MainNavigatorPushReplaceSplashAction _: {
                     Router.navigator.pushReplacement(new PageRouteBuilder(
                             pageBuilder: (context, animation, secondaryAnimation) =>
-                                new SplashPage(),
+                                new SplashScreen(),
                             transitionDuration: TimeSpan.FromMilliseconds(600),
                             transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
                                 new FadeTransition( //使用渐隐渐入过渡, 
@@ -1495,7 +1495,8 @@ namespace ConnectApp.redux.reducers {
                                 }
 
                                 return new EventOnlineDetailScreenConnector(eventId: action.eventId);
-                            }
+                            },
+                            push: action.eventType != EventType.offline
                         ));
                     }
 
@@ -1639,6 +1640,11 @@ namespace ConnectApp.redux.reducers {
                 case FetchReviewUrlFailureAction _: {
                     state.settingState.reviewUrl = "";
                     state.settingState.hasReviewUrl = false;
+                    break;
+                }
+
+                case SettingVibrateAction action: {
+                    state.settingState.vibrate = action.vibrate;
                     break;
                 }
 
@@ -2599,7 +2605,13 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case StartFetchChannelInfoAction action: {
+                    state.channelState.channelInfoLoading = true;
+                    break;
+                }
+
                 case FetchChannelInfoSuccessAction action: {
+                    state.channelState.channelInfoLoading = false;
                     state.channelState.updateChannel(action.channel);
                     if (state.channelState.channelDict.ContainsKey(action.channel.id)) {
                         state.channelState.channelDict[key: action.channel.id].unread = 0;
@@ -2613,6 +2625,7 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case FetchChannelInfoErrorAction action: {
+                    state.channelState.channelInfoLoading = false;
                     state.channelState.channelError = true;
                     break;
                 }
@@ -2663,6 +2676,7 @@ namespace ConnectApp.redux.reducers {
                                 channel.messageIds.Add(channelMessage.id);
                             }
                         }
+
                         if (channelMessage.id.hexToLong() > channel.lastMessage.id.hexToLong()) {
                             channel.lastMessage = channelMessage;
                             channel.lastMessageId = channelMessage.id;
@@ -2740,7 +2754,7 @@ namespace ConnectApp.redux.reducers {
                     if (state.channelState.messageDict.ContainsKey(action.messageId)) {
                         state.channelState.messageDict[action.messageId].deleted = true;
                     }
-                    
+
                     break;
                 }
 
@@ -3151,6 +3165,7 @@ namespace ConnectApp.redux.reducers {
                             }
                         });
                     }
+
                     state.channelState.socketConnected = action.connected;
                     break;
                 }

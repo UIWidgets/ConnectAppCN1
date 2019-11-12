@@ -1,8 +1,8 @@
-
 using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Constants;
 using ConnectApp.Main;
+using ConnectApp.Plugins;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
@@ -56,12 +56,15 @@ namespace ConnectApp.screens {
                             if (toIndex != 2 || StoreProvider.store.getState().loginState.isLoggedIn) {
                                 StatusBarManager.statusBarStyle(toIndex == 3 && UserInfoManager.isLogin());
                                 StoreProvider.store.dispatcher.dispatch(new SwitchTabBarIndexAction {index = toIndex});
+                                JPushPlugin.showPushAlert(toIndex != 2);
+                                PreferencesManager.updateTabIndex(toIndex);
                                 return true;
                             }
 
                             Router.navigator.pushNamed(routeName: MainNavigatorRoutes.Login);
                             return false;
-                        }
+                        },
+                        initialTabIndex: PreferencesManager.initTabIndex()
                     )
                 )
             );

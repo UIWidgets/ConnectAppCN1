@@ -117,6 +117,7 @@ namespace ConnectApp.screens {
                     return new ChannelScreenViewModel {
                         hasChannel = state.channelState.channelDict.ContainsKey(this.channelId),
                         channelError = state.channelState.channelError,
+                        channelInfoLoading = state.channelState.channelInfoLoading,
                         channel = channel,
                         messages = messages,
                         newMessages = newMessages,
@@ -290,7 +291,7 @@ namespace ConnectApp.screens {
 
         readonly Dictionary<string, string> _headers = new Dictionary<string, string> {
             {HttpManager.COOKIE, HttpManager.getCookie()},
-            {"ConnectAppVersion", Config.versionNumber},
+            {"ConnectAppVersion", Config.versionName},
             {"X-Requested-With", "XmlHttpRequest"}
         };
 
@@ -414,15 +415,15 @@ namespace ConnectApp.screens {
                 if (this.widget.viewModel.hasChannel) {
                     this.fetchMessagesAndMembers();
                     this.addScrollListener();
+                    this.widget.actionModel.clearUnread();
                 }
                 else {
                     this.widget.actionModel.fetchChannelInfo().Then(() => {
                         this.fetchMessagesAndMembers();
                         this.addScrollListener();
+                        this.widget.actionModel.clearUnread();
                     });
                 }
-
-                this.widget.actionModel.clearUnread();
             });
 
             this._showEmojiBoard = false;
@@ -614,20 +615,12 @@ namespace ConnectApp.screens {
                 if (msg.type == ChannelMessageType.image) {
                     imageUrls.Add(CImageUtils.SizeToScreenImageUrl(imageUrl: msg.content));
                 }
-
-//                if (msg.type == ChannelMessageType.embedImage) {
-//                    imageUrls.Add(CImageUtils.SizeToScreenImageUrl(imageUrl: msg.embeds[0].embedData.imageUrl));
-//                }
             });
             var url = CImageUtils.SizeToScreenImageUrl(imageUrl: imageUrl);
             this.widget.actionModel.browserImage(arg1: url, arg2: imageUrls);
         }
 
         public override Widget build(BuildContext context) {
-            if (this.widget.viewModel.channel.id == null) {
-                return this._buildLoadingPage();
-            }
-
             if (this.widget.viewModel.channel.lastMessageId == this._lastReadMessageId) {
                 this._lastReadMessageId = null;
             }
@@ -909,8 +902,18 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildContent() {
+            ListView listView = this._buildMessageListView();
+            var enablePull = true;
             if (this.widget.viewModel.channelError) {
-                return this._buildErrorPage();
+                listView = this._buildErrorPage();
+                enablePull = false;
+            }
+
+            if ((this.widget.viewModel.messageLoading &&
+                 this.widget.viewModel.messages.isEmpty()) ||
+                (this.widget.viewModel.channel.id == null && this.widget.viewModel.channelInfoLoading)) {
+                listView = this._buildLoadingPage();
+                enablePull = false;
             }
 
             Widget content = new Container(
@@ -920,14 +923,11 @@ namespace ConnectApp.screens {
                         key: this._smartRefresherKey,
                         controller: this._refreshController,
                         enablePullDown: false,
-                        enablePullUp: this.widget.viewModel.channel.hasMore,
+                        enablePullUp: enablePull && this.widget.viewModel.channel.hasMore,
                         onRefresh: this._onRefresh,
                         reverse: true,
                         headerBuilder: (context, mode) => new SmartRefreshHeader(mode: mode),
-                        child: this.widget.viewModel.messageLoading &&
-                               this.widget.viewModel.messages.isEmpty()
-                            ? this._buildLoadingPage()
-                            : this._buildMessageListView()
+                        child: listView
                     )
                 )
             );
@@ -977,10 +977,10 @@ namespace ConnectApp.screens {
             return new ListView(
                 children: new List<Widget> {
                     new Container(
-                        child: new GlobalLoading(),
-                        width: MediaQuery.of(this.context).size.width,
-                        height: MediaQuery.of(this.context).size.height
-                    )
+                        padding: EdgeInsets.only(top: 44 + MediaQuery.of(this.context).padding.top,
+                            bottom: 49 + MediaQuery.of(this.context).padding.bottom),
+                        height: MediaQuery.of(this.context).size.height,
+                        child: new Center(child: new GlobalLoading()))
                 });
         }
 
@@ -988,10 +988,10 @@ namespace ConnectApp.screens {
             return new ListView(
                 children: new List<Widget> {
                     new Container(
-                        child: new Center(child: new Text("你已不在该群组", style: CTextStyle.PLargeBody.copyWith(height: 1))),
-                        width: MediaQuery.of(this.context).size.width,
-                        height: MediaQuery.of(this.context).size.height
-                    )
+                        padding: EdgeInsets.only(top: 44 + MediaQuery.of(this.context).padding.top,
+                            bottom: 49 + MediaQuery.of(this.context).padding.bottom),
+                        height: MediaQuery.of(this.context).size.height,
+                        child: new Center(child: new Text("你已不在该群组", style: CTextStyle.PLargeBody.copyWith(height: 1))))
                 });
         }
 
@@ -1052,6 +1052,33 @@ namespace ConnectApp.screens {
                 ));
             }
 
+            if (message.type == ChannelMessageType.text) {
+                tipMenuItems.Add(new TipMenuItem(
+                    "引用",
+                    () => {
+                        var content = MessageUtils.AnalyzeMessage(
+                            content: message.content,
+                            mentions: message.mentions,
+                            mentionEveryone: message.mentionEveryone
+                        );
+                        var newContent = this._textController.text + "「 " + message.author.fullName + ": " + content +
+                                         " 」" + "\n" + "- - - - - - - - - - - - - - -" + "\n";
+                        this._textController.value = new TextEditingValue(
+                            text: newContent,
+                            TextSelection.collapsed(offset: newContent.Length)
+                        );
+                        if (this._refreshController.scrollController.offset > 0) {
+                            this._refreshController.scrollController.animateTo(0, TimeSpan.FromMilliseconds(100), curve: Curves.linear);
+                        }
+                        if (!this._focusNode.hasFocus || !this.showKeyboard) {
+                            FocusScope.of(context: this.context).requestFocus(node: this._focusNode);
+                            TextInputPlugin.TextInputShow();
+                            Promise.Delayed(TimeSpan.FromMilliseconds(200)).Then(
+                                () =>  this.setState(() => this.showEmojiBoard = false));
+                        }
+                    }
+                ));
+            }
             if (message.author.id == this.widget.viewModel.me.id) {
                 tipMenuItems.Add(new TipMenuItem(
                     "删除",
@@ -1271,7 +1298,31 @@ namespace ConnectApp.screens {
                     ),
                     new Container(
                         padding: EdgeInsets.only(top: 8, bottom: 16),
-                        child: new Text("- 以下为新消息 -", style: CTextStyle.PSmallBody5.copyWith(height: 1))
+                        child: new Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: new List<Widget> {
+                                new Container(
+                                    margin: EdgeInsets.only(right: 10),
+                                    color: new Color(0x20959595),
+                                    height: 1,
+                                    width: 80
+                                ),
+                                new Text(
+                                    "以下为新消息",
+                                    style: new TextStyle(
+                                        fontSize: 12,
+                                        fontFamily: "Roboto-Regular",
+                                        color: new Color(0x88959595)
+                                    )
+                                ),
+                                new Container(
+                                    margin: EdgeInsets.only(left: 10),
+                                    color: new Color(0x20959595),
+                                    height: 1,
+                                    width: 80
+                                )
+                            }
+                        )
                     ),
                     new Expanded(
                         flex: 1,
@@ -1585,6 +1636,7 @@ namespace ConnectApp.screens {
         }
 
         public void didPop() {
+            MessageUtils.currentChannelId = null;
             this.mentionMap.Clear();
             if (this._focusNode.hasFocus) {
                 this._focusNode.unfocus();
@@ -1594,13 +1646,16 @@ namespace ConnectApp.screens {
         }
 
         public void didPopNext() {
+            MessageUtils.currentChannelId = this.widget.viewModel.channel.id ?? "";
             StatusBarManager.statusBarStyle(false);
         }
 
         public void didPush() {
+            MessageUtils.currentChannelId = this.widget.viewModel.channel.id ?? "";
         }
 
         public void didPushNext() {
+            MessageUtils.currentChannelId = null;
             if (this.showKeyboard || this.showEmojiBoard) {
                 this.setState(fn: this._dismissKeyboard);
             }

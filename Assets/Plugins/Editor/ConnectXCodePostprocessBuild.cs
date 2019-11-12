@@ -39,43 +39,13 @@ namespace Plugins.Editor {
             File.WriteAllText(pbxPath, sb.ToString());
         }
 
-        static void ModifyPbxProject(string path) {
-            string projPath = PBXProject.GetPBXProjectPath(buildPath: path);
-            PBXProject proj = new PBXProject();
-
-            proj.ReadFromString(File.ReadAllText(path: projPath));
-            string target = proj.TargetGuidByName("Unity-iPhone");
-
-            proj.SetBuildProperty(target, "LIBRARY_SEARCH_PATHS", "$(inherited)");
-            proj.AddBuildProperty(target, "LIBRARY_SEARCH_PATHS", "$(SRCROOT)");
-            proj.AddBuildProperty(target, "LIBRARY_SEARCH_PATHS", "$(PROJECT_DIR)/Libraries");
-            proj.AddBuildProperty(target, "LIBRARY_SEARCH_PATHS", "$(PROJECT_DIR)/Libraries/Plugins/iOS");
-            proj.AddBuildProperty(target, "LIBRARY_SEARCH_PATHS",
-                "$(PROJECT_DIR)/Libraries/Plugins/iOS/WeChatSDK1.8.4");
-
-            // Add Framework
-            proj.AddFrameworkToProject(target, "libz.tbd", true);
-            proj.AddFrameworkToProject(target, "libc++.tbd", true);
-            proj.AddFrameworkToProject(target, "libsqlite3.0.tbd", true);
-            proj.AddFrameworkToProject(target, "CoreFoundation.framework", false);
-            proj.AddFrameworkToProject(target, "libresolv.tbd", false);
-            proj.AddFrameworkToProject(target, "UserNotifications.framework", false);
-            proj.AddFrameworkToProject(target, "CoreTelephony.framework", true);
-            proj.AddFrameworkToProject(target, "CoreServices.framework", true);
-            proj.AddFrameworkToProject(target, "MediaPlayer.framework", true);
-            proj.AddFrameworkToProject(target, "Photos.framework", false);
-            proj.AddFrameworkToProject(target, "SafariServices.framework", false);
-            proj.AddBuildProperty(target, "OTHER_LDFLAGS", "-all_load");
-
-            //associated-domains
-
-            string fileName = "unityconnect.entitlements";
-            string filePath = Path.Combine(path, fileName);
-            //Debug.Log ("filePath: " + filePath);
-            string fileContent =
-                @"<?xml version=""1.0"" encoding=""UTF-8""?><!DOCTYPE plist PUBLIC ""-//Apple//DTD PLIST 1.0//EN"" ""http://www.apple.com/DTDs/PropertyList-1.0.dtd"">
+        const string Entitlements = @"
+<?xml version=""1.0"" encoding=""UTF-8""?>
+<!DOCTYPE plist PUBLIC ""-//Apple//DTD PLIST 1.0//EN"" ""http://www.apple.com/DTDs/PropertyList-1.0.dtd"">
 <plist version=""1.0"">
 <dict>
+    <key>aps-environment</key>
+    <string>development</string>
     <key>com.apple.developer.associated-domains</key>
     <array>
         <string>applinks:connect-download.unity.com</string>
@@ -83,12 +53,51 @@ namespace Plugins.Editor {
     </array>
 </dict>
 </plist>";
-            File.WriteAllText(filePath, fileContent);
-            proj.AddFile(filePath, fileName);
-            proj.SetBuildProperty(target, "CODE_SIGN_ENTITLEMENTS", fileName);
-            // save changed
-            File.WriteAllText(projPath, proj.WriteToString());
 
+        static void ModifyPbxProject(string path) {
+            var projPath = PBXProject.GetPBXProjectPath(buildPath: path);
+            var proj = new PBXProject();
+
+            proj.ReadFromString(File.ReadAllText(path: projPath));
+            var targetName = PBXProject.GetUnityTargetName();
+            var targetGuid = proj.TargetGuidByName(name: targetName);
+
+            proj.SetBuildProperty(targetGuid: targetGuid, "LIBRARY_SEARCH_PATHS", "$(inherited)");
+            proj.AddBuildProperty(targetGuid: targetGuid, "LIBRARY_SEARCH_PATHS", "$(SRCROOT)");
+            proj.AddBuildProperty(targetGuid: targetGuid, "LIBRARY_SEARCH_PATHS", "$(PROJECT_DIR)/Libraries");
+            proj.AddBuildProperty(targetGuid: targetGuid, "LIBRARY_SEARCH_PATHS",
+                "$(PROJECT_DIR)/Libraries/Plugins/iOS");
+            proj.AddBuildProperty(targetGuid: targetGuid, "LIBRARY_SEARCH_PATHS",
+                "$(PROJECT_DIR)/Libraries/Plugins/iOS/WeChatSDK1.8.4");
+            proj.AddBuildProperty(targetGuid: targetGuid, "LIBRARY_SEARCH_PATHS",
+                "$(PROJECT_DIR)/Libraries/Plugins/iOS/Bugly");
+
+            // Add Framework
+            proj.AddFrameworkToProject(targetGuid: targetGuid, "libz.tbd", true);
+            proj.AddFrameworkToProject(targetGuid: targetGuid, "libc++.tbd", true);
+            proj.AddFrameworkToProject(targetGuid: targetGuid, "libsqlite3.0.tbd", true);
+            proj.AddFrameworkToProject(targetGuid: targetGuid, "CoreFoundation.framework", false);
+            proj.AddFrameworkToProject(targetGuid: targetGuid, "libresolv.tbd", false);
+            proj.AddFrameworkToProject(targetGuid: targetGuid, "UserNotifications.framework", false);
+            proj.AddFrameworkToProject(targetGuid: targetGuid, "CoreTelephony.framework", true);
+            proj.AddFrameworkToProject(targetGuid: targetGuid, "CoreServices.framework", true);
+            proj.AddFrameworkToProject(targetGuid: targetGuid, "MediaPlayer.framework", true);
+            proj.AddFrameworkToProject(targetGuid: targetGuid, "Photos.framework", false);
+            proj.AddFrameworkToProject(targetGuid: targetGuid, "SafariServices.framework", false);
+
+            // Update Build Setting
+            proj.SetBuildProperty(targetGuid: targetGuid, "ENABLE_BITCODE", "NO");
+            proj.AddBuildProperty(targetGuid: targetGuid, "OTHER_LDFLAGS", "-all_load");
+            proj.AddBuildProperty(targetGuid: targetGuid, "OTHER_LDFLAGS", "-ObjC");
+
+            // Add Entitlements
+            const string fileName = "unityconnect.entitlements";
+            var filePath = Path.Combine(path1: path, path2: fileName);
+            File.WriteAllText(path: filePath, contents: Entitlements);
+            proj.AddFile(path: filePath, projectPath: fileName);
+            proj.SetBuildProperty(targetGuid: targetGuid, "CODE_SIGN_ENTITLEMENTS", value: fileName);
+            // save changed
+            File.WriteAllText(path: projPath, proj.WriteToString());
 
             // 读取 Preprocessor.h 文件
             var preprocessor = new XClass(path + "/Classes/Preprocessor.h");
@@ -154,12 +163,13 @@ namespace Plugins.Editor {
             wxUrlScheme.AddString(val: Config.wechatAppId);
 
             // Add URLScheme For jiguang
-            PlistElementDict jgUrl = urlTypes.AddDict();
-            jgUrl.SetString("CFBundleTypeRole", "Editor");
-            jgUrl.SetString("CFBundleURLName", "jiguang");
-            jgUrl.SetString("CFBundleURLSchemes", val: "jiguang-" + Config.jgAppKey);
-            PlistElementArray jgUrlScheme = jgUrl.CreateArray("CFBundleURLSchemes");
-            jgUrlScheme.AddString(val: "jiguang-" + Config.jgAppKey);
+            // 暂时注释 https://community.jiguang.cn/t/topic/33910
+//            PlistElementDict jgUrl = urlTypes.AddDict();
+//            jgUrl.SetString("CFBundleTypeRole", "Editor");
+//            jgUrl.SetString("CFBundleURLName", "jiguang");
+//            jgUrl.SetString("CFBundleURLSchemes", val: "jiguang-" + Config.jgAppKey);
+//            PlistElementArray jgUrlScheme = jgUrl.CreateArray("CFBundleURLSchemes");
+//            jgUrlScheme.AddString(val: "jiguang-" + Config.jgAppKey);
 
             // Add URLScheme For unityconnect
             PlistElementDict appUrl = urlTypes.AddDict();

@@ -5,7 +5,6 @@ using ConnectApp.Models.Api;
 using ConnectApp.Models.Model;
 using Newtonsoft.Json;
 
-
 namespace ConnectApp.Utils {
     public static class MessengerDBApi {
 
@@ -40,11 +39,11 @@ namespace ConnectApp.Utils {
                 }
             );
         }
-        
+
         static long MessageIdToKey(string messageId) {
             return string.IsNullOrEmpty(messageId) ? 0 : Convert.ToInt64(messageId, 16);
         }
-        
+
         /**
          *
          * load messages from DB and convert them into List<ChannelMessageView>. The results are ordered by nonce from new to old
@@ -95,7 +94,6 @@ namespace ConnectApp.Utils {
         public static void SyncSaveMessage(ChannelMessageView message) {
             SyncSaveMessages(new List<ChannelMessageView> {message});
         }
-
 
         static DBMessageLite ConvertToDbMessageLite(ChannelMessageView message) {
             var embedsList = new DBEmbedList {
