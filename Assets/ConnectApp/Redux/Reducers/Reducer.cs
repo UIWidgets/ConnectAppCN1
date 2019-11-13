@@ -953,6 +953,9 @@ namespace ConnectApp.redux.reducers {
                         var message = state.channelState.localMessageDict[key];
                         if (message.status == "failed") {
                             message.status = "waiting";
+                            if (MessageUtils.lastWaitingMessageId == message.id) {
+                                MessageUtils.lastWaitingMessageId = "";
+                            }
                         }
                     }
 
