@@ -32,7 +32,7 @@ namespace ConnectApp.Plugins {
 
             if (!isListen) {
                 isListen = true;
-                UIWidgetsMessageManager.instance.AddChannelMessageDelegate("jpush", _handleMethodCall);
+                UIWidgetsMessageManager.instance.AddChannelMessageDelegate("jpush", del: _handleMethodCall);
                 completed();
                 setJPushChannel(channel: Config.store);
                 if (StoreProvider.store.getState().loginState.isLoggedIn) {
@@ -127,7 +127,7 @@ namespace ConnectApp.Plugins {
                                 });
                             }
                             else {
-                                if (SplashManager.isExistSplash()) {
+                                if (PreferencesManager.initTabIndex()==0&&SplashManager.isExistSplash()) {
                                     StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushReplaceSplashAction());
                                 }
                                 else {
@@ -264,15 +264,23 @@ namespace ConnectApp.Plugins {
         }
 
         static void completed() {
+            if (Application.isEditor) {
+                return;
+            }
+
             listenCompleted();
         }
 
-        public static void setJPushChannel(string channel) {
+        static void setJPushChannel(string channel) {
+            if (Application.isEditor) {
+                return;
+            }
+
             if (channel.isEmpty()) {
                 return;
             }
 
-            setChannel(channel);
+            setChannel(channel: channel);
         }
 
         public static void setJPushAlias(string alias) {
@@ -284,7 +292,7 @@ namespace ConnectApp.Plugins {
                 return;
             }
 
-            setAlias(callbackId++, alias);
+            setAlias(sequence: callbackId++, alias: alias);
         }
 
         public static void deleteJPushAlias() {
@@ -292,24 +300,24 @@ namespace ConnectApp.Plugins {
                 return;
             }
 
-            deleteAlias(callbackId++);
+            deleteAlias(sequence: callbackId++);
         }
 
-        public static void setJPushTags(List<string> tags) {
-            string tagsJsonStr = JsonHelper.ToJson(tags);
-            if (tagsJsonStr.isEmpty()) {
-                return;
-            }
-
-            setTags(callbackId++, tagsJsonStr);
-        }
-
-        public static void playMessageSound() {
+        static void setJPushTags(List<string> tags) {
             if (Application.isEditor) {
                 return;
             }
 
-            if (!StoreProvider.store.getState().settingState.vibrate) {
+            string tagsJsonStr = JsonHelper.ToJson(list: tags);
+            if (tagsJsonStr.isEmpty()) {
+                return;
+            }
+
+            setTags(sequence: callbackId++, tagsJsonStr: tagsJsonStr);
+        }
+
+        public static void playMessageSound() {
+            if (Application.isEditor) {
                 return;
             }
 
@@ -327,6 +335,14 @@ namespace ConnectApp.Plugins {
 
             isShowPushAlert = isShow;
             updateShowAlert(isShow);
+        }
+
+        public static void clearNotifications() {
+            if (Application.isEditor) {
+                return;
+            }
+
+            clearAllAlert();
         }
 
 
@@ -351,6 +367,9 @@ namespace ConnectApp.Plugins {
 
         [DllImport("__Internal")]
         static extern void updateShowAlert(bool isShow);
+
+        [DllImport("__Internal")]
+        static extern void clearAllAlert();
 
 #elif UNITY_ANDROID
         static AndroidJavaObject _plugin;
@@ -394,6 +413,10 @@ namespace ConnectApp.Plugins {
         static void updateShowAlert(bool isShow) {
             Plugin().Call("updateShowAlert");
         }
+
+        static void clearAllAlert() {
+            Plugin().Call("clearAllAlert");
+        }
 #else
         static void listenCompleted() {}
         static void setChannel(string channel) {}
@@ -401,6 +424,7 @@ namespace ConnectApp.Plugins {
         static void deleteAlias(int sequence) {}
         static void setTags(int sequence, string tagsJsonStr) {}
         static void updateShowAlert(bool isShow) {}
+        static void clearAllAlert() {}
 #endif
     }
 }

@@ -90,6 +90,7 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case LogoutAction _: {
+                    JPushPlugin.clearNotifications();
                     EventBus.publish(sName: EventBusConstant.logout_success, new List<object>());
                     HistoryManager.deleteHomeAfterTime(state.loginState.loginInfo.userId);
                     HttpManager.clearCookie();
@@ -2614,6 +2615,7 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case FetchChannelInfoSuccessAction action: {
+                    state.channelState.channelError = false;
                     state.channelState.channelInfoLoading = false;
                     state.channelState.updateChannel(action.channel);
                     if (state.channelState.channelDict.ContainsKey(action.channel.id)) {

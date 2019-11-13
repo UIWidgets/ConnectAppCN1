@@ -1,9 +1,11 @@
 package com.unity3d.unityconnect.plugins;
 
+import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Vibrator;
 import android.text.TextUtils;
 import com.google.gson.Gson;
+import com.google.zxing.util.FeedbackUtil;
 import com.unity.uiwidgets.plugin.UIWidgetsMessageManager;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -14,6 +16,8 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import cn.jpush.android.api.JPushInterface;
+
+import static android.content.Context.NOTIFICATION_SERVICE;
 
 public class JPushPlugin {
 
@@ -87,7 +91,11 @@ public class JPushPlugin {
     }
     
     public void playSystemSound(){
-        Vibrator vibrator = (Vibrator)mContext.getSystemService(Context.VIBRATOR_SERVICE);
-        vibrator.vibrate(200L);
+        FeedbackUtil.playBeepSoundAndVibrate(mContext,FeedbackUtil.SoundType.NOTIFICATION,true,true);
+    }
+
+    public void clearAllAlert(){
+        NotificationManager notiManager = (NotificationManager)this.mContext.getSystemService(NOTIFICATION_SERVICE);
+        notiManager.cancelAll();
     }
 }
