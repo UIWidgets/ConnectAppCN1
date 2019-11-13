@@ -31,8 +31,6 @@ IMPL_APP_CONTROLLER_SUBCLASS (CustomAppController)
 {
     
     [super application:application didFinishLaunchingWithOptions:launchOptions];
-    
-    [application setApplicationIconBadgeNumber:0];
     [WXApi registerApp: @"wx0ab79f0c7db7ca52"];
     [[JPushEventCache sharedInstance] handFinishLaunchOption:launchOptions];
     [JPUSHService setupWithOption:launchOptions appKey:@"a50eff2d99416a0495f02766" channel:@"appstore" apsForProduction:YES];
@@ -96,6 +94,7 @@ IMPL_APP_CONTROLLER_SUBCLASS (CustomAppController)
         NSData *data = APNativeJSONData(notification.object);
         NSString *jsonStr = [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
         UIWidgetsMethodMessage(gameObjectName, @"OnReceiveNotification", @[jsonStr]);
+        playSystemSound();
     }
 }
 
@@ -190,6 +189,7 @@ extern "C"  {
     void playSystemSound();
     void updateShowAlert(bool isShow);
     void clearAllAlert();
+    void clearBadge();
 }
 
 void pauseAudioSession(){
@@ -254,12 +254,6 @@ bool isEnableNotification(){
 }
 
 void playSystemSound(){
-    NSURL *url = [[NSBundle mainBundle] URLForResource:@"Data/notification.caf" withExtension:nil];
-    if (url) {
-        SystemSoundID soundID;
-        AudioServicesCreateSystemSoundID((__bridge CFURLRef)url, &soundID);
-        AudioServicesPlaySystemSound(soundID);
-    }
     AudioServicesPlaySystemSound(kSystemSoundID_Vibrate);
 }
 
@@ -270,6 +264,10 @@ void updateShowAlert(bool isShow){
 void clearAllAlert(){
     [UIApplication sharedApplication].applicationIconBadgeNumber = 1;
     [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
+}
+void clearBadge(){
+    [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
+    [JPUSHService resetBadge];
 }
 
 @end

@@ -91,11 +91,14 @@ public class JPushPlugin {
     }
     
     public void playSystemSound(){
-        FeedbackUtil.playBeepSoundAndVibrate(mContext,FeedbackUtil.SoundType.NOTIFICATION,true,true);
+        FeedbackUtil.playBeepSoundAndVibrate(mContext,FeedbackUtil.SoundType.NOTIFICATION,false,true);
     }
 
     public void clearAllAlert(){
         NotificationManager notiManager = (NotificationManager)this.mContext.getSystemService(NOTIFICATION_SERVICE);
         notiManager.cancelAll();
+    }
+
+    public void clearBadge(){
     }
 }
