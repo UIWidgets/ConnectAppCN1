@@ -62,42 +62,42 @@ namespace Plugins.Editor {
             var targetName = PBXProject.GetUnityTargetName();
             var targetGuid = proj.TargetGuidByName(name: targetName);
 
-            proj.SetBuildProperty(targetGuid: targetGuid, "LIBRARY_SEARCH_PATHS", "$(inherited)");
-            proj.AddBuildProperty(targetGuid: targetGuid, "LIBRARY_SEARCH_PATHS", "$(SRCROOT)");
-            proj.AddBuildProperty(targetGuid: targetGuid, "LIBRARY_SEARCH_PATHS", "$(PROJECT_DIR)/Libraries");
-            proj.AddBuildProperty(targetGuid: targetGuid, "LIBRARY_SEARCH_PATHS",
-                "$(PROJECT_DIR)/Libraries/Plugins/iOS");
-            proj.AddBuildProperty(targetGuid: targetGuid, "LIBRARY_SEARCH_PATHS",
-                "$(PROJECT_DIR)/Libraries/Plugins/iOS/WeChatSDK1.8.4");
-            proj.AddBuildProperty(targetGuid: targetGuid, "LIBRARY_SEARCH_PATHS",
-                "$(PROJECT_DIR)/Libraries/Plugins/iOS/Bugly");
+            proj.SetBuildProperty(targetGuid: targetGuid, name: "LIBRARY_SEARCH_PATHS", value: "$(inherited)");
+            proj.AddBuildProperty(targetGuid: targetGuid, name: "LIBRARY_SEARCH_PATHS", value: "$(SRCROOT)");
+            proj.AddBuildProperty(targetGuid: targetGuid, name: "LIBRARY_SEARCH_PATHS", value: "$(PROJECT_DIR)/Libraries");
+            proj.AddBuildProperty(targetGuid: targetGuid, name: "LIBRARY_SEARCH_PATHS",
+                value: "$(PROJECT_DIR)/Libraries/Plugins/iOS");
+            proj.AddBuildProperty(targetGuid: targetGuid, name: "LIBRARY_SEARCH_PATHS",
+                value: "$(PROJECT_DIR)/Libraries/Plugins/iOS/WeChatSDK1.8.4");
+            proj.AddBuildProperty(targetGuid: targetGuid, name: "LIBRARY_SEARCH_PATHS",
+                value: "$(PROJECT_DIR)/Libraries/Plugins/iOS/Bugly");
 
             // Add Framework
-            proj.AddFrameworkToProject(targetGuid: targetGuid, "libz.tbd", true);
-            proj.AddFrameworkToProject(targetGuid: targetGuid, "libc++.tbd", true);
-            proj.AddFrameworkToProject(targetGuid: targetGuid, "libsqlite3.0.tbd", true);
-            proj.AddFrameworkToProject(targetGuid: targetGuid, "CoreFoundation.framework", false);
-            proj.AddFrameworkToProject(targetGuid: targetGuid, "libresolv.tbd", false);
-            proj.AddFrameworkToProject(targetGuid: targetGuid, "UserNotifications.framework", false);
-            proj.AddFrameworkToProject(targetGuid: targetGuid, "CoreTelephony.framework", true);
-            proj.AddFrameworkToProject(targetGuid: targetGuid, "CoreServices.framework", true);
-            proj.AddFrameworkToProject(targetGuid: targetGuid, "MediaPlayer.framework", true);
-            proj.AddFrameworkToProject(targetGuid: targetGuid, "Photos.framework", false);
-            proj.AddFrameworkToProject(targetGuid: targetGuid, "SafariServices.framework", false);
+            proj.AddFrameworkToProject(targetGuid: targetGuid, framework: "libz.tbd", weak: true);
+            proj.AddFrameworkToProject(targetGuid: targetGuid, framework: "libc++.tbd", weak: true);
+            proj.AddFrameworkToProject(targetGuid: targetGuid, framework: "libsqlite3.0.tbd", weak: true);
+            proj.AddFrameworkToProject(targetGuid: targetGuid, framework: "CoreFoundation.framework", weak: false);
+            proj.AddFrameworkToProject(targetGuid: targetGuid, framework: "libresolv.tbd", weak: false);
+            proj.AddFrameworkToProject(targetGuid: targetGuid, framework: "UserNotifications.framework", weak: false);
+            proj.AddFrameworkToProject(targetGuid: targetGuid, framework: "CoreTelephony.framework", weak: true);
+            proj.AddFrameworkToProject(targetGuid: targetGuid, framework: "CoreServices.framework", weak: true);
+            proj.AddFrameworkToProject(targetGuid: targetGuid, framework: "MediaPlayer.framework", weak: true);
+            proj.AddFrameworkToProject(targetGuid: targetGuid, framework: "Photos.framework", weak: false);
+            proj.AddFrameworkToProject(targetGuid: targetGuid, framework: "SafariServices.framework", weak: false);
 
             // Update Build Setting
-            proj.SetBuildProperty(targetGuid: targetGuid, "ENABLE_BITCODE", "NO");
-            proj.AddBuildProperty(targetGuid: targetGuid, "OTHER_LDFLAGS", "-all_load");
-            proj.AddBuildProperty(targetGuid: targetGuid, "OTHER_LDFLAGS", "-ObjC");
+            proj.SetBuildProperty(targetGuid: targetGuid, name: "ENABLE_BITCODE", value: "NO");
+            proj.AddBuildProperty(targetGuid: targetGuid, name: "OTHER_LDFLAGS", value: "-all_load");
+            proj.AddBuildProperty(targetGuid: targetGuid, name: "OTHER_LDFLAGS", value: "-ObjC");
 
             // Add Entitlements
             const string fileName = "unityconnect.entitlements";
             var filePath = Path.Combine(path1: path, path2: fileName);
             File.WriteAllText(path: filePath, contents: Entitlements);
             proj.AddFile(path: filePath, projectPath: fileName);
-            proj.SetBuildProperty(targetGuid: targetGuid, "CODE_SIGN_ENTITLEMENTS", value: fileName);
+            proj.SetBuildProperty(targetGuid: targetGuid, name: "CODE_SIGN_ENTITLEMENTS", value: fileName);
             // save changed
-            File.WriteAllText(path: projPath, proj.WriteToString());
+            File.WriteAllText(path: projPath, contents: proj.WriteToString());
 
             // 读取 Preprocessor.h 文件
             var preprocessor = new XClass(path + "/Classes/Preprocessor.h");
