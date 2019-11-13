@@ -13,7 +13,6 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using EventType = ConnectApp.Models.State.EventType;
-
 #if UNITY_IOS
 using System.Runtime.InteropServices;
 
@@ -118,6 +117,7 @@ namespace ConnectApp.Plugins {
                                 return;
                             }
 
+                            clearIconBadge();
                             var node = args.first();
                             var dict = JSON.Parse(node);
                             var isPush = (bool) dict["push"];
@@ -127,7 +127,7 @@ namespace ConnectApp.Plugins {
                                 });
                             }
                             else {
-                                if (PreferencesManager.initTabIndex()==0&&SplashManager.isExistSplash()) {
+                                if (PreferencesManager.initTabIndex() == 0 && SplashManager.isExistSplash()) {
                                     StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushReplaceSplashAction());
                                 }
                                 else {
@@ -345,6 +345,14 @@ namespace ConnectApp.Plugins {
             clearAllAlert();
         }
 
+        public static void clearIconBadge() {
+            if (Application.isEditor) {
+                return;
+            }
+
+            clearBadge();
+        }
+
 
 #if UNITY_IOS
         [DllImport("__Internal")]
@@ -370,6 +378,9 @@ namespace ConnectApp.Plugins {
 
         [DllImport("__Internal")]
         static extern void clearAllAlert();
+
+        [DllImport("__Internal")]
+        static extern void clearBadge();
 
 #elif UNITY_ANDROID
         static AndroidJavaObject _plugin;
@@ -417,6 +428,10 @@ namespace ConnectApp.Plugins {
         static void clearAllAlert() {
             Plugin().Call("clearAllAlert");
         }
+
+        static void clearBadge() {
+            Plugin().Call("clearBadge");
+        }
 #else
         static void listenCompleted() {}
         static void setChannel(string channel) {}
@@ -425,6 +440,7 @@ namespace ConnectApp.Plugins {
         static void setTags(int sequence, string tagsJsonStr) {}
         static void updateShowAlert(bool isShow) {}
         static void clearAllAlert() {}
+        static void clearBadge() {}
 #endif
     }
 }

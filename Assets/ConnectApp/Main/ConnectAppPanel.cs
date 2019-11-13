@@ -101,6 +101,7 @@ namespace ConnectApp.Main {
             }
             else {
                 using (WindowProvider.of(GlobalContext.context).getScope()) {
+                    JPushPlugin.clearIconBadge();
                     if (AnalyticsManager.foucsTime.isNotEmpty()) {
                         AnalyticsManager.AnalyticsActiveTime(
                             (DateTime.UtcNow - DateTime.Parse(AnalyticsManager.foucsTime)).Milliseconds);
