@@ -25,6 +25,7 @@ namespace ConnectApp.Models.State {
         public ReportState reportState { get; set; }
         public FeedbackState feedbackState { get; set; }
         public ChannelState channelState { get; set; }
+        public NetworkState networkState { get; set; }
         public TabBarState tabBarState { get; set; }
         public FavoriteState favoriteState { get; set; }
 
@@ -195,6 +196,10 @@ namespace ConnectApp.Models.State {
                     favoriteTagHasMore = false,
                     favoriteDetailHasMore = false,
                     favoriteTagDict = new Dictionary<string, FavoriteTag>()
+                },
+                networkState = new NetworkState {
+                    networkConnected = true,
+                    dismissNoNetworkBanner = true
                 }
             };
         }

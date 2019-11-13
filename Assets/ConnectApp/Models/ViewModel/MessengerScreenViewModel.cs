@@ -10,7 +10,8 @@ namespace ConnectApp.Models.ViewModel {
         public bool hasMore;
         public bool hasUnreadNotifications;
         public bool socketConnected;
-        public bool netWorkConnected;
+        public bool networkConnected;
+        public bool dismissNoNetworkBanner;
         public Dictionary<string, string> lastMessageMap;
         public List<ChannelView> joinedChannels;
         public List<ChannelView> popularChannels;

@@ -36,9 +36,11 @@ namespace ConnectApp.Components {
                     if (userId.isNotEmpty()) {
                         StoreProvider.store.dispatcher.dispatch(Actions.fetchUserProfile(userId: userId));
                     }
+
                     StoreProvider.store.dispatcher.dispatch(Actions.fetchChannels(1));
                     StoreProvider.store.dispatcher.dispatch(Actions.fetchCreateChannelFilter());
                 }
+
                 StoreProvider.store.dispatcher.dispatch(Actions.fetchReviewUrl());
             });
         }
@@ -48,7 +50,10 @@ namespace ConnectApp.Components {
                 if (initDataResponse.VS.isNotEmpty()) {
                     HttpManager.updateCookie($"VS={initDataResponse.VS}");
                 }
-            }).Catch(onRejected: Debuger.LogError);
+            }).Catch(exception => {
+                StoreProvider.store.dispatcher.dispatch(new NetworkAvailableStateAction {available = false});
+                Debuger.LogError(message: exception);
+            });
         }
 
         public override Widget build(BuildContext context) {

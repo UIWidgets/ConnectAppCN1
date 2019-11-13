@@ -16,8 +16,8 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -129,7 +129,8 @@ namespace ConnectApp.screens {
                         messageLoading = state.channelState.messageLoading,
                         newMessageCount = newMessages.Count,
                         socketConnected = state.channelState.socketConnected,
-                        netWorkConnected = state.channelState.netWorkConnected,
+                        networkConnected = state.networkState.networkConnected,
+                        dismissNoNetworkBanner = state.networkState.dismissNoNetworkBanner,
                         mentionAutoFocus = state.channelState.mentionAutoFocus,
                         mentionUserId = state.channelState.mentionUserId,
                         mentionUserName = state.channelState.mentionUserName,
@@ -492,7 +493,7 @@ namespace ConnectApp.screens {
         }
 
         void jumpToMessage(string id) {
-            var index = this.widget.viewModel.messages.FindIndex(message => 
+            var index = this.widget.viewModel.messages.FindIndex(message =>
                 message.id.hexToLong() > id.hexToLong());
             if (index >= 0) {
                 this.jumpToIndex(index);
@@ -500,7 +501,7 @@ namespace ConnectApp.screens {
         }
 
         float calculateTotalHeightFromMessage(string id) {
-            var index = this.widget.viewModel.messages.FindIndex(message => 
+            var index = this.widget.viewModel.messages.FindIndex(message =>
                 message.id.hexToLong() > id.hexToLong());
             if (index >= 0) {
                 return this.calculateMessageHeightFromIndex(index);
@@ -510,7 +511,7 @@ namespace ConnectApp.screens {
         }
 
         float calculateOffsetFromMessage(string id) {
-            var index = this.widget.viewModel.messages.FindIndex(message => 
+            var index = this.widget.viewModel.messages.FindIndex(message =>
                 message.id.hexToLong() > id.hexToLong());
             if (index >= 0) {
                 return this.calculateOffsetFromIndex(index);
@@ -669,7 +670,7 @@ namespace ConnectApp.screens {
                         child: new Column(
                             children: new List<Widget> {
                                 this._buildNavigationBar(),
-                                !this.widget.viewModel.netWorkConnected
+                                !this.widget.viewModel.dismissNoNetworkBanner
                                     ? this._buildNetworkDisconnectedNote()
                                     : new Container(),
                                 new Flexible(child: ret),
@@ -864,7 +865,7 @@ namespace ConnectApp.screens {
                         children: new List<Widget> {
                             new Flexible(
                                 child: new Text(
-                                    !this.widget.viewModel.netWorkConnected
+                                    !this.widget.viewModel.networkConnected
                                         ? this.widget.viewModel.channel.name + " (未连接)"
                                         : this.widget.viewModel.socketConnected && !this.widget.viewModel.messageLoading
                                             ? this.widget.viewModel.channel.name
@@ -888,6 +889,7 @@ namespace ConnectApp.screens {
                     )
                 ),
                 new CustomButton(
+                    width: 58,
                     onPressed: () => this.widget.actionModel.pushToChannelDetail(),
                     child: new Container(
                         width: 28,
