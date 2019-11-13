@@ -57,10 +57,65 @@ namespace ConnectApp.Components {
 
         void _createTipMenu(BuildContext context, ArrowDirection arrowDirection, Offset position, Size size) {
             dismiss();
+            var width = MediaQuery.of(context: context).size.width - 32 * this.tipMenuItems.Count;
+            float tipMenuHeight = this._getTipMenuHeight(context: context);
             float triangleY = arrowDirection == ArrowDirection.up
                 ? position.dy
                 : position.dy - CustomTextSelectionControlsUtils._kToolbarTriangleSize.height
-                              - this._getTipMenuHeight(context: context);
+                              - tipMenuHeight;
+            float left;
+            float childCenterX = size.width / 2.0f + position.dx;
+            if (childCenterX >= width) {
+                left = width - 32 * this.tipMenuItems.Count - 16;
+            }
+            else {
+                left = childCenterX - 32 * this.tipMenuItems.Count;
+            }
+
+            Widget triangle = SizedBox.fromSize(
+                size: CustomTextSelectionControlsUtils._kToolbarTriangleSize,
+                child: new CustomPaint(
+                    painter: new TrianglePainter(
+                        arrowDirection: arrowDirection
+                    )
+                )
+            );
+
+            List<Widget> children;
+            if (arrowDirection == ArrowDirection.down) {
+                children = new List<Widget> {
+                    new Positioned(
+                        top: triangleY,
+                        left: left,
+                        child: new _TipMenuContent(
+                            tipMenuItems: this.tipMenuItems,
+                            arrowDirection: arrowDirection
+                        )
+                    ),
+                    new Positioned(
+                        top: triangleY + tipMenuHeight,
+                        left: childCenterX,
+                        child: triangle
+                    )
+                };
+            }
+            else {
+                children = new List<Widget> {
+                    new Positioned(
+                        top: triangleY,
+                        left: childCenterX,
+                        child: triangle
+                    ),
+                    new Positioned(
+                        top: triangleY + CustomTextSelectionControlsUtils._kToolbarTriangleSize.height,
+                        left: left,
+                        child: new _TipMenuContent(
+                            tipMenuItems: this.tipMenuItems,
+                            arrowDirection: arrowDirection
+                        )
+                    )
+                };
+            }
 
             _overlayState = Overlay.of(context: context);
             _overlayEntry = new OverlayEntry(
@@ -70,16 +125,7 @@ namespace ConnectApp.Components {
                         child: new Container(
                             color: CColors.Transparent,
                             child: new Stack(
-                                children: new List<Widget> {
-                                    new Positioned(
-                                        top: triangleY,
-                                        left: size.width / 2.0f + position.dx - 25 * this.tipMenuItems.Count,
-                                        child: new _TipMenuContent(
-                                            tipMenuItems: this.tipMenuItems,
-                                            arrowDirection: arrowDirection
-                                        )
-                                    )
-                                }
+                                children: children
                             )
                         )
                     )
@@ -167,15 +213,6 @@ namespace ConnectApp.Components {
                 }
             });
 
-            Widget triangle = SizedBox.fromSize(
-                size: CustomTextSelectionControlsUtils._kToolbarTriangleSize,
-                child: new CustomPaint(
-                    painter: new TrianglePainter(
-                        arrowDirection: this.arrowDirection
-                    )
-                )
-            );
-
             Widget toolbar = new ClipRRect(
                 borderRadius: CustomTextSelectionControlsUtils._kToolbarBorderRadius,
                 child: new DecoratedBox(
@@ -188,14 +225,7 @@ namespace ConnectApp.Components {
                 )
             );
 
-            List<Widget> menus = this.arrowDirection == ArrowDirection.down
-                ? new List<Widget> {toolbar, triangle}
-                : new List<Widget> {triangle, toolbar};
-
-            return new Column(
-                mainAxisSize: MainAxisSize.min,
-                children: menus
-            );
+            return toolbar;
         }
 
         static CustomButton _buildToolbarButton(string text, VoidCallback onPressed) {

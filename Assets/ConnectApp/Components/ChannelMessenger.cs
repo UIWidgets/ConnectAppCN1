@@ -400,7 +400,7 @@ namespace ConnectApp.Components {
         public readonly float srcWidth;
         public readonly float srcHeight;
         public readonly Dictionary<string, string> headers;
-        public bool isOriginalImage;
+        public readonly bool isOriginalImage;
 
         public static float CalculateTextHeight(ChannelMessageView message) {
             if (message.width > message.height * 16.0f / 9.0f) {

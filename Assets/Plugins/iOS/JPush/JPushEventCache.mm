@@ -69,15 +69,15 @@
   [_eventCache removeAllObjects];
 }
 
-- (void)handFinishLaunchOption:(NSDictionary *)launchOptons {
+- (void)handFinishLaunchOption:(NSDictionary *)launchOptions {
   
   JPUSHRegisterEntity * entity = [[JPUSHRegisterEntity alloc] init];
   entity.types = JPAuthorizationOptionAlert | JPAuthorizationOptionSound;
   [JPUSHService registerForRemoteNotificationConfig:entity delegate:[JPushEventCache sharedInstance]];
   
-  if ([[UIDevice currentDevice].systemVersion floatValue] >= 10.0) {
-  } else { // iOS 9 and later
-    [self sendEvent:launchOptons withKey:@"JPushPluginOpenNotification"];
+  if ([[UIDevice currentDevice].systemVersion floatValue] < 10.0) {
+      // iOS 9 and later
+      [self sendEvent:launchOptions withKey:@"JPushPluginOpenNotification"];
   }
 }
 
