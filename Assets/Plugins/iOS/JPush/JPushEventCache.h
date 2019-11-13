@@ -14,6 +14,6 @@
 - (void)sendEvent:(NSDictionary *)notification withKey:(NSString *)key;
 - (void)scheduleNotificationQueue;
 - (void)updateShowAlert:(bool)isShow;
-- (void)handFinishLaunchOption:(NSDictionary *)launchOptons;
+- (void)handFinishLaunchOption:(NSDictionary *)launchOptions;
 @end
 

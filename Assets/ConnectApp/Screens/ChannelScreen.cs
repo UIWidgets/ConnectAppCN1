@@ -192,7 +192,7 @@ namespace ConnectApp.screens {
                     }
 
                     var actionModel = new ChannelScreenActionModel {
-                        mainRouterPop = () => { dispatcher.dispatch(new MainNavigatorPopAction()); },
+                        mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
                         openUrl = url => OpenUrlUtil.OpenUrl(url: url, dispatcher: dispatcher),
                         browserImage = (url, imageUrls) => dispatcher.dispatch(new MainNavigatorPushToPhotoViewAction {
                             url = url,
@@ -492,18 +492,16 @@ namespace ConnectApp.screens {
         }
 
         void jumpToMessage(string id) {
-            var index = this.widget.viewModel.messages.FindIndex(message => {
-                return message.id.hexToLong() > id.hexToLong();
-            });
+            var index = this.widget.viewModel.messages.FindIndex(message => 
+                message.id.hexToLong() > id.hexToLong());
             if (index >= 0) {
                 this.jumpToIndex(index);
             }
         }
 
         float calculateTotalHeightFromMessage(string id) {
-            var index = this.widget.viewModel.messages.FindIndex(message => {
-                return message.id.hexToLong() > id.hexToLong();
-            });
+            var index = this.widget.viewModel.messages.FindIndex(message => 
+                message.id.hexToLong() > id.hexToLong());
             if (index >= 0) {
                 return this.calculateMessageHeightFromIndex(index);
             }
@@ -512,9 +510,8 @@ namespace ConnectApp.screens {
         }
 
         float calculateOffsetFromMessage(string id) {
-            var index = this.widget.viewModel.messages.FindIndex(message => {
-                return message.id.hexToLong() > id.hexToLong();
-            });
+            var index = this.widget.viewModel.messages.FindIndex(message => 
+                message.id.hexToLong() > id.hexToLong());
             if (index >= 0) {
                 return this.calculateOffsetFromIndex(index);
             }

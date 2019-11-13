@@ -43,12 +43,12 @@ IMPL_APP_CONTROLLER_SUBCLASS (CustomAppController)
     [JANALYTICSService crashLogON];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(networkDidRecieveMessage:)
+                                             selector:@selector(networkDidReceiveMessage:)
                                                  name:kJPFNetworkDidReceiveMessageNotification
                                                object:nil];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(networkDidRecievePushNotification:)
+                                             selector:@selector(networkDidReceivePushNotification:)
                                                  name:@"JPushPluginReceiveNotification"
                                                object:nil];
     
@@ -78,9 +78,11 @@ IMPL_APP_CONTROLLER_SUBCLASS (CustomAppController)
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))handler {
     [super application:application didReceiveRemoteNotification:userInfo fetchCompletionHandler:handler];
     [[JPushEventCache sharedInstance] sendEvent:userInfo withKey:@"JPushPluginReceiveNotification"];
+    [JPUSHService handleRemoteNotification:userInfo];
+    handler(UIBackgroundFetchResultNewData);
 }
 
-- (void)networkDidRecieveMessage:(NSNotification *)notification {
+- (void)networkDidReceiveMessage:(NSNotification *)notification {
     if (notification.name == kJPFNetworkDidReceiveMessageNotification && notification.userInfo){
         NSData *data = APNativeJSONData(notification.userInfo);
         NSString *jsonStr = [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
@@ -88,7 +90,7 @@ IMPL_APP_CONTROLLER_SUBCLASS (CustomAppController)
     }
 }
 
-- (void)networkDidRecievePushNotification:(NSNotification *)notification {
+- (void)networkDidReceivePushNotification:(NSNotification *)notification {
     if ([notification.name isEqual:@"JPushPluginReceiveNotification"] && notification.object){
         NSData *data = APNativeJSONData(notification.object);
         NSString *jsonStr = [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
