@@ -478,7 +478,10 @@ namespace ConnectApp.Components {
                 this._positionAnimation = new OffsetTween(
                         begin: this._position,
                         end: this._clampPosition(
-                            position: this._position,
+                            position: this._position +
+                                      this._initialPosition *
+                                      (this._scale - this._effectiveMaxScale) /
+                                      this._initialScale,
                             scale: this._effectiveMaxScale))
                     .animate(this._positionAnimationController);
                 this._positionAnimationController.setValue(0);
