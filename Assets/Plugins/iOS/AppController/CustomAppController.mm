@@ -34,7 +34,6 @@ IMPL_APP_CONTROLLER_SUBCLASS (CustomAppController)
     [WXApi registerApp: @"wx0ab79f0c7db7ca52"];
     [[JPushEventCache sharedInstance] handFinishLaunchOption:launchOptions];
     [JPUSHService setupWithOption:launchOptions appKey:@"a50eff2d99416a0495f02766" channel:@"appstore" apsForProduction:YES];
-    [JPUSHService setBadge:0];
     [JPUSHService setLogOFF];
     
     JANALYTICSLaunchConfig * config = [[JANALYTICSLaunchConfig alloc] init];
