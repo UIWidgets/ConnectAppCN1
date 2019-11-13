@@ -469,7 +469,7 @@ namespace ConnectApp.Components {
                     this.widget.isOriginalImage ? this.widget.url : CImageUtils.SizeToScreenImageUrl(this.widget.url),
                     fit: BoxFit.cover,
                     headers: this.widget.headers)
-                : Image.memory(bytes: this.widget.data);
+                : Image.memory(bytes: this.widget.data, fit: BoxFit.cover);
         }
 
         public override void initState() {
