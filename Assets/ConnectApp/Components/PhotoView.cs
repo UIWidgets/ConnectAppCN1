@@ -18,7 +18,7 @@ using Image = Unity.UIWidgets.widgets.Image;
 using ImageUtils = Unity.UIWidgets.widgets.ImageUtils;
 
 namespace ConnectApp.Components {
-    public delegate void OnScaleChangedCallback(float scale, Offset position, bool scaling);
+    public delegate void OnScaleChangedCallback(float scale, float horizontalScale, float verticalScale, Offset position, bool scaling);
     public delegate void OnOverScrollCallback(float offset);
     public class PhotoView : StatefulWidget {
         public readonly List<string> urls;
@@ -88,10 +88,10 @@ namespace ConnectApp.Components {
                 useCachedNetworkImage: this.widget.useCachedNetworkImage,
                 maxScale: this.widget.maxScale,
                 minScale: this.widget.minScale,
-                onScaleChanged: (scale, position, scaling) => {
+                onScaleChanged: (scale, horizontalScale, verticalScale, position, scaling) => {
                     Debuger.Log($"Scale: {scale}");
                     this.setState(() => {
-                        this.locked = scale > 1.01f;
+                        this.locked = horizontalScale > 1.0f;
                     });
                 },
                 onOverScroll: (offset) => {
@@ -331,6 +331,8 @@ namespace ConnectApp.Components {
             if (this.widget.onScaleChanged != null) {
                 this.widget.onScaleChanged(
                     this._scale,
+                    this._scale * this._originalHorizontalScale,
+                    this._scale * this._originalVerticalScale,
                     this._position,
                     this._scaling);
             }
@@ -343,6 +345,9 @@ namespace ConnectApp.Components {
                                            this._imageInfo.image.width * this._size.height
                                               ? this._size.height / this._imageInfo.image.height
                                               : this._size.width / this._imageInfo.image.width);
+                if (this._effectiveMaxScale < this.widget.maxScale) {
+                    this._effectiveMaxScale = this.widget.maxScale;
+                }
             }
         }
 
@@ -353,44 +358,52 @@ namespace ConnectApp.Components {
             });
         }
 
-        public Offset toFractional(Offset offset) {
+        Offset _toFractional(Offset offset) {
             return this._size != null
                 ? new Offset(offset.dx / this._size.width, offset.dy / this._size.height)
                 : Offset.zero;
+        }
+
+        float _originalHorizontalScale {
+            get {
+                return this._size != null && this._imageInfo != null &&
+                       this._size.width * this._imageInfo.image.height >
+                       this._imageInfo.image.width * this._size.height
+                    ? (this._imageInfo.image.width * this._size.height) /
+                      (this._size.width * this._imageInfo.image.height)
+                    : 1.0f;
+            }
+        }
+
+        float _originalVerticalScale {
+            get {
+                return this._size != null && this._imageInfo != null &&
+                       this._size.width * this._imageInfo.image.height <
+                       this._imageInfo.image.width * this._size.height
+                    ? (this._size.width * this._imageInfo.image.height) /
+                      (this._imageInfo.image.width * this._size.height)
+                    : 1.0f;
+            }
         }
 
         Offset _clampPosition(Offset position, float scale) {
             if (scale <= 1.0f) {
                 return Offset.zero;
             }
-            
-            float horizontalOriginalScale = 1.0f, verticalOriginalScale = 1.0f;
-            if (this._size != null && this._imageInfo != null) {
-                if (this._size.width * this._imageInfo.image.height >
-                    this._imageInfo.image.width * this._size.height) {
-                    horizontalOriginalScale = (this._imageInfo.image.width * this._size.height) /
-                                              (this._size.width * this._imageInfo.image.height);
-                }
-                else if (this._size.width * this._imageInfo.image.height <
-                         this._imageInfo.image.width * this._size.height) {
-                    verticalOriginalScale = (this._size.width * this._imageInfo.image.height) /
-                                            (this._imageInfo.image.width * this._size.height);
-                }
-            }
 
-            float horizontalMax = scale * horizontalOriginalScale <= 1.0f
+            float horizontalMax = scale * this._originalHorizontalScale <= 1.0f
                 ? 0
-                : (scale * horizontalOriginalScale - 1.0f) / 2;
-            float verticalMax = scale * verticalOriginalScale <= 1.0f
+                : (scale * this._originalHorizontalScale - 1.0f) / 2;
+            float verticalMax = scale * this._originalVerticalScale <= 1.0f
                 ? 0
-                : (scale * verticalOriginalScale - 1.0f) / 2;
+                : (scale * this._originalVerticalScale - 1.0f) / 2;
             return new Offset(position.dx.clamp(-horizontalMax, horizontalMax),
                 position.dy.clamp(-verticalMax, verticalMax));
         }
 
         void _onDoubleTap(DoubleTapDetails doubleTapDetails) {
             if (this._scale < this._effectiveMaxScale) {
-                Offset tapPosition = this.toFractional(doubleTapDetails.firstGlobalPosition) - new Offset(0.5f, 0.5f);
+                Offset tapPosition = this._toFractional(doubleTapDetails.firstGlobalPosition) - new Offset(0.5f, 0.5f);
                 Offset endPosition = (this._position - tapPosition) * this._effectiveMaxScale /
                                      this._scale + tapPosition;
                 this._scaleAnimation = new FloatTween(
@@ -419,7 +432,7 @@ namespace ConnectApp.Components {
 
         void _onScaleStart(ScaleStartDetails scaleStartDetails) {
             this._initialScale = this._scale;
-            this._initialPosition = this.toFractional(scaleStartDetails.focalPoint) - this._position;
+            this._initialPosition = this._toFractional(scaleStartDetails.focalPoint) - this._position;
             this._scaling = true;
         }
 
@@ -429,7 +442,7 @@ namespace ConnectApp.Components {
                 .animate(this._scaleAnimationController);
             this._scaleAnimationController.reset();
 
-            var newPosition = this._clampPosition(this.toFractional(scaleUpdateDetails.focalPoint) - this._initialPosition,
+            var newPosition = this._clampPosition(this._toFractional(scaleUpdateDetails.focalPoint) - this._initialPosition,
                 this._initialScale * scaleUpdateDetails.scale);
             this._positionAnimation = new OffsetTween(begin: newPosition, end: newPosition)
                 .animate(this._positionAnimationController);
@@ -438,7 +451,7 @@ namespace ConnectApp.Components {
             if (scaleUpdateDetails.scale == 1) {
                 // This is panning
                 this._panning = true;
-                var offset = this.toFractional(scaleUpdateDetails.focalPoint) - this._initialPosition;
+                var offset = this._toFractional(scaleUpdateDetails.focalPoint) - this._initialPosition;
                 if (offset.dx.abs() > (this._scale - 1) / 2) {
                     if (this.widget.onOverScroll != null) {
                         if (offset.dx > (this._scale - 1) / 2) {
@@ -483,7 +496,7 @@ namespace ConnectApp.Components {
                 if (this._panning && scaleEndDetails.velocity != null) {
                     var velocity = scaleEndDetails.velocity.clampMagnitude(0, this.widget.maxVelocity).pixelsPerSecond;
                     var duration = velocity.distance / this.widget.deceleration;
-                    velocity = this.toFractional(velocity);
+                    velocity = this._toFractional(velocity);
                     var end = this._position + velocity * duration / 2;
                     this._inertiaAnimationController.duration = TimeSpan.FromSeconds(duration);
                     this._positionAnimation = new OffsetTween(begin: this._position, end: end)
