@@ -35,6 +35,17 @@ namespace ConnectApp.Api {
             }
         }
 
+        public static void OnApplicationFocus(bool focus) {
+            if (focus) {
+                if (!string.IsNullOrEmpty(m_lastSessionId)) {
+                    ReConnectToWSS(m_lastSessionId);
+                }
+            }
+            else {
+                DisConnectFromWSS();
+            }
+        }
+
         public static void OnNetworkConnected() {
             NetworkStatusManager.isAvailable = true;
             //init session id by default
