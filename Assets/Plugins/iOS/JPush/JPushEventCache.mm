@@ -72,7 +72,7 @@
 - (void)handFinishLaunchOption:(NSDictionary *)launchOptions {
   
   JPUSHRegisterEntity * entity = [[JPUSHRegisterEntity alloc] init];
-  entity.types = JPAuthorizationOptionAlert | JPAuthorizationOptionSound;
+  entity.types = JPAuthorizationOptionAlert | JPAuthorizationOptionSound|JPAuthorizationOptionBadge;
   [JPUSHService registerForRemoteNotificationConfig:entity delegate:[JPushEventCache sharedInstance]];
   
   if ([[UIDevice currentDevice].systemVersion floatValue] < 10.0) {

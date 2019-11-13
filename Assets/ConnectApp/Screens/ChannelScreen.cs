@@ -689,7 +689,7 @@ namespace ConnectApp.screens {
                 color: CColors.Error.withAlpha((int) (255 * 0.16)),
                 child: new Center(
                     child: new Text(
-                        "网络未连接",
+                        "网络连接不可用，请检查你的网络设置",
                         style: CTextStyle.PRegularError.copyWith(height: 1f)
                     )
                 )
@@ -865,7 +865,7 @@ namespace ConnectApp.screens {
                             new Flexible(
                                 child: new Text(
                                     !this.widget.viewModel.netWorkConnected
-                                        ? this.widget.viewModel.channel.name + "(未连接)"
+                                        ? this.widget.viewModel.channel.name + " (未连接)"
                                         : this.widget.viewModel.socketConnected && !this.widget.viewModel.messageLoading
                                             ? this.widget.viewModel.channel.name
                                             : "收取中...",
@@ -902,7 +902,7 @@ namespace ConnectApp.screens {
         Widget _buildContent() {
             ListView listView = this._buildMessageListView();
             var enablePull = true;
-            if (this.widget.viewModel.channelError) {
+            if (this.widget.viewModel.channelError || !this.widget.viewModel.channel.joined) {
                 listView = this._buildErrorPage();
                 enablePull = false;
             }
@@ -1071,17 +1071,20 @@ namespace ConnectApp.screens {
                             TextSelection.collapsed(offset: newContent.Length)
                         );
                         if (this._refreshController.scrollController.offset > 0) {
-                            this._refreshController.scrollController.animateTo(0, TimeSpan.FromMilliseconds(100), curve: Curves.linear);
+                            this._refreshController.scrollController.animateTo(0, TimeSpan.FromMilliseconds(100),
+                                curve: Curves.linear);
                         }
+
                         if (!this._focusNode.hasFocus || !this.showKeyboard) {
                             FocusScope.of(context: this.context).requestFocus(node: this._focusNode);
                             TextInputPlugin.TextInputShow();
                             Promise.Delayed(TimeSpan.FromMilliseconds(200)).Then(
-                                () =>  this.setState(() => this.showEmojiBoard = false));
+                                () => this.setState(() => this.showEmojiBoard = false));
                         }
                     }
                 ));
             }
+
             if (message.author.id == this.widget.viewModel.me.id && showDeleteButton) {
                 tipMenuItems.Add(new TipMenuItem(
                     "删除",

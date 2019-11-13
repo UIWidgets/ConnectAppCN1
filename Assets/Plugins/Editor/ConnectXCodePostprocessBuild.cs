@@ -120,10 +120,6 @@ namespace Plugins.Editor {
             var qrScanLineSourceFile = "image/iOS/qrScanLine.imageset";
             writeFile(qrScanLineSourceFile, qrScanLineDestDict);
 
-            var messageCafDestDict = path + "/Data/notification.caf";
-            var messageCafSourceFile = "files/notification.caf";
-            writeFile(messageCafSourceFile, messageCafDestDict);
-
             var noticeWavDestDict = path + "/Data/noticeMusic.wav";
             var noticeWavSourceFile = "files/noticeMusic.wav";
             writeFile(noticeWavSourceFile, noticeWavDestDict);
