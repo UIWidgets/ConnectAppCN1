@@ -155,7 +155,6 @@ namespace ConnectApp.Components {
 
         void _updatePhase() {
             this.setState(() => {
-                var oldPhase = this._phase;
                 switch (this._phase) {
                     case CachedImagePhase.start:
                         this._phase = this._imageResolver._imageInfo != null
