@@ -23,6 +23,8 @@ public class SystemReceiver extends BroadcastReceiver {
                     //normal
                     builder.notificationDefaults =  Notification.DEFAULT_VIBRATE
                             | Notification.DEFAULT_LIGHTS | Notification.DEFAULT_SOUND; // 设置为声音、震动、呼吸灯闪烁
+                    JPushInterface.setPushNotificationBuilder(1, builder);
+
                     break;
                 case AudioManager.RINGER_MODE_VIBRATE:
                     //vibrate
