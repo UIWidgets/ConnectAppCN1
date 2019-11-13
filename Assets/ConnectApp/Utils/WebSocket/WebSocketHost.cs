@@ -19,6 +19,16 @@ namespace ConnectApp.Utils {
 
         NetworkReachability m_InternetState;
 
+        void OnApplicationPause(bool paused) {
+            if (paused) {
+                this._executionQueue.Clear();
+                this._delayCalls.Clear();
+                this._delayCallId = 0;
+            }
+
+            SocketApi.OnApplicationFocus(!paused);
+        }
+
         public void Update() {
             using (WindowProvider.of(context: GlobalContext.context).getScope()) {
                 lock (this._executionQueue) {
