@@ -95,7 +95,6 @@ IMPL_APP_CONTROLLER_SUBCLASS (CustomAppController)
         NSData *data = APNativeJSONData(notification.object);
         NSString *jsonStr = [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
         UIWidgetsMethodMessage(gameObjectName, @"OnReceiveNotification", @[jsonStr]);
-        playSystemSound();
     }
 }
 

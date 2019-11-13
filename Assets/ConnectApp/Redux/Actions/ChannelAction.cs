@@ -713,8 +713,12 @@ namespace ConnectApp.redux.actions {
         public bool connected;
     }
 
-    public class NetWorkStateAction : BaseAction {
+    public class NetworkAvailableStateAction : BaseAction {
         public bool available;
+    }
+
+    public class DismissNoNetworkBannerAction : BaseAction {
+        public bool isDismiss;
     }
 
     public class ChannelChooseMentionConfirmAction : BaseAction {

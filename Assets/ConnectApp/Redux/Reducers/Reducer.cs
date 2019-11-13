@@ -6,13 +6,15 @@ using ConnectApp.Main;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Plugins;
-using ConnectApp.redux.actions;
 using ConnectApp.Reality;
+using ConnectApp.redux.actions;
 using ConnectApp.screens;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using EventType = ConnectApp.Models.State.EventType;
 
 namespace ConnectApp.redux.reducers {
     public static class AppReducer {
@@ -1557,8 +1559,13 @@ namespace ConnectApp.redux.reducers {
 
                 case OpenUrlAction action: {
                     if (action.url.isNotEmpty()) {
-                        if (UrlLauncherPlugin.CanLaunch(urlString: action.url)) {
-                            UrlLauncherPlugin.Launch(urlString: action.url);
+                        if (!action.url.StartsWith("http")) {
+                            Application.OpenURL(action.url);
+                        }
+                        else {
+                            if (UrlLauncherPlugin.CanLaunch(urlString: action.url)) {
+                                UrlLauncherPlugin.Launch(urlString: action.url);
+                            }
                         }
                     }
 
@@ -2580,6 +2587,7 @@ namespace ConnectApp.redux.reducers {
 
                 case FetchChannelsFailureAction _: {
                     NetworkStatusManager.isConnected = false;
+                    NetworkStatusManager.isAvailable = false;
                     state.channelState.channelLoading = false;
                     break;
                 }
@@ -2665,7 +2673,7 @@ namespace ConnectApp.redux.reducers {
                         channel.messageIds = new List<string>();
                         channel.newMessageIds = new List<string>();
                     }
-                    
+
                     for (var i = 0; i < action.messages.Count; i++) {
                         var channelMessage = ChannelMessageView.fromChannelMessage(action.messages[i]);
                         state.channelState.messageDict[channelMessage.id] = channelMessage;
@@ -3175,8 +3183,13 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
-                case NetWorkStateAction action: {
-                    state.channelState.netWorkConnected = action.available;
+                case NetworkAvailableStateAction action: {
+                    state.networkState.networkConnected = action.available;
+                    break;
+                }
+
+                case DismissNoNetworkBannerAction action: {
+                    state.networkState.dismissNoNetworkBanner = action.isDismiss;
                     break;
                 }
 

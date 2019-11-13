@@ -11,7 +11,8 @@ namespace ConnectApp.Models.ViewModel {
         public bool channelInfoLoading;
         public bool messageLoading;
         public bool socketConnected;
-        public bool netWorkConnected;
+        public bool networkConnected;
+        public bool dismissNoNetworkBanner;
         public bool mentionAutoFocus;
         public string mentionUserId;
         public string mentionUserName;

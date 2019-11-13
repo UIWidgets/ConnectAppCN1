@@ -21,7 +21,6 @@ namespace ConnectApp.Models.State {
         public Dictionary<string, ChannelMessageView> localMessageDict;
         public Dictionary<string, bool> channelTop;
         public bool socketConnected;
-        public bool netWorkConnected;
         public string mentionUserId;
         public string mentionUserName;
         public bool mentionAutoFocus;

@@ -31,7 +31,7 @@ namespace ConnectApp.Main {
             // Enable the debug log print
             BuglyAgent.ConfigDebugMode(enable: Config.enableDebug);
             // Config default channel, version, user 
-            BuglyAgent.ConfigDefault(channel: Config.store, $"{Config.versionName}({Config.versionCode})",
+            BuglyAgent.ConfigDefault(channel: Config.store, $"{Config.versionName}-{Config.versionCode}",
                 user: UserInfoManager.initUserInfo().userId ?? "anonymous", 0);
             // Config auto report log level, default is LogSeverity.LogError, so the LogError, LogException log will auto report
             BuglyAgent.ConfigAutoReportLogLevel(level: LogSeverity.LogWarning);
