@@ -76,7 +76,6 @@
   [JPUSHService registerForRemoteNotificationConfig:entity delegate:[JPushEventCache sharedInstance]];
   
   if ([[UIDevice currentDevice].systemVersion floatValue] < 10.0) {
-      // iOS 9 and later
       [self sendEvent:launchOptions withKey:@"JPushPluginOpenNotification"];
   }
 }
