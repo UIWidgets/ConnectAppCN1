@@ -21,16 +21,18 @@ public class SystemReceiver extends BroadcastReceiver {
             switch (ringerMode) {
                 case AudioManager.RINGER_MODE_NORMAL:
                     //normal
+                    builder.notificationDefaults =  Notification.DEFAULT_VIBRATE
+                            | Notification.DEFAULT_LIGHTS | Notification.DEFAULT_SOUND; // 设置为声音、震动、呼吸灯闪烁
                     break;
                 case AudioManager.RINGER_MODE_VIBRATE:
                     //vibrate
                     builder.notificationDefaults =  Notification.DEFAULT_VIBRATE
-                            | Notification.DEFAULT_LIGHTS; // 设置为铃声、震动、呼吸灯闪烁都要
+                            | Notification.DEFAULT_LIGHTS; // 设置为震动、呼吸灯闪烁
                     JPushInterface.setPushNotificationBuilder(1, builder);
                     break;
                 case AudioManager.RINGER_MODE_SILENT:
                     //silent
-                    builder.notificationDefaults = Notification.DEFAULT_LIGHTS; // 设置为铃声、震动、呼吸灯闪烁都要
+                    builder.notificationDefaults = Notification.DEFAULT_LIGHTS; // 设置为呼吸灯闪烁
                     JPushInterface.setPushNotificationBuilder(1, builder);
                     break;
             }
