@@ -13,9 +13,9 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
 using Image = Unity.UIWidgets.widgets.Image;
+using ImageUtils = Unity.UIWidgets.widgets.ImageUtils;
 
 namespace ConnectApp.Components {
     public delegate void OnScaleChangedCallback(float scale, Offset position, bool scaling);
@@ -95,7 +95,8 @@ namespace ConnectApp.Components {
                     });
                 },
                 onOverScroll: (offset) => {
-                });
+                },
+                placeholder: new CustomActivityIndicator(loadingColor: LoadingColor.white));
         }
 
         public override Widget build(BuildContext context) {
@@ -185,6 +186,7 @@ namespace ConnectApp.Components {
         public readonly float minScale;
         public readonly OnScaleChangedCallback onScaleChanged;
         public readonly OnOverScrollCallback onOverScroll;
+        public readonly Widget placeholder;
 
         public ImageWrapper(
             Key key = null,
@@ -194,7 +196,8 @@ namespace ConnectApp.Components {
             bool useCachedNetworkImage = false,
             Dictionary<string, string> headers = null,
             OnScaleChangedCallback onScaleChanged = null,
-            OnOverScrollCallback onOverScroll = null) : base(key: key) {
+            OnOverScrollCallback onOverScroll = null,
+            Widget placeholder = null) : base(key: key) {
             D.assert(minScale >= 0.0f && minScale <= 1.0f);
             D.assert(maxScale >= 1.0f);
             this.url = url;
@@ -204,6 +207,7 @@ namespace ConnectApp.Components {
             this.minScale = minScale;
             this.onScaleChanged = onScaleChanged;
             this.onOverScroll = onOverScroll;
+            this.placeholder = placeholder;
         }
 
         public override State createState() {
@@ -215,8 +219,11 @@ namespace ConnectApp.Components {
         AnimationController _scaleAnimationController;
         Animation<float> _scaleAnimation;
         float _initialScale = 1.0f;
-        Size _size = new Size(1, 1);
-
+        float _effectiveMaxScale = 2.0f;
+        float _effectiveMinScale = 1.0f;
+        Size _size = null;
+        ImageInfo _imageInfo;
+        ImageStream _imageStream;
         AnimationController _positionAnimationController;
         Animation<Offset> _positionAnimation;
         Offset _initialPosition = Offset.zero;
@@ -248,25 +255,38 @@ namespace ConnectApp.Components {
             );
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this._size = MediaQuery.of(this.context).size;
+                this._updateEffectiveMaxScale();
             });
+            if (!this.widget.useCachedNetworkImage) {
+                this._imageStream = new NetworkImage(this.widget.url,
+                    headers: this.widget.headers).resolve(ImageUtils.createLocalImageConfiguration(
+                    this.context
+                ));
+                this._imageStream.addListener(this._onImageResolved);
+            }
+
+            this._effectiveMaxScale = this.widget.maxScale;
+            this._effectiveMinScale = this.widget.minScale;
         }
 
         public override void dispose() {
             this._scaleAnimationController.dispose();
             this._positionAnimationController.dispose();
+            this._imageStream?.removeListener(this._onImageResolved);
             base.dispose();
         }
 
         public override Widget build(BuildContext context) {
             Widget result = this.widget.useCachedNetworkImage
-                ? (Widget) new CachedNetworkImage(
+                ? new CachedNetworkImage(
                     this.widget.url,
-                    new CustomActivityIndicator(loadingColor: LoadingColor.white),
+                    this.widget.placeholder,
                     fit: BoxFit.contain,
-                    headers: this.widget.headers)
-                : Image.network(this.widget.url,
-                    fit: BoxFit.contain,
-                    headers: this.widget.headers);
+                    headers: this.widget.headers,
+                    onImageResolved: imageInfo => this._onImageResolved(imageInfo))
+                : this._imageInfo != null
+                    ? new RawImage(image: this._imageInfo.image, fit: BoxFit.contain)
+                    : this.widget.placeholder;
             
             result = new ScaleTransition(
                 scale: this._scaleAnimation, child: result);
@@ -285,29 +305,68 @@ namespace ConnectApp.Components {
             return result;
         }
 
-        public Offset toFractional(Offset offset) {
-            return new Offset(offset.dx / this._size.width, offset.dy / this._size.height);
+        void _updateEffectiveMaxScale() {
+            if (this._size != null && this._imageInfo != null) {
+                this._effectiveMaxScale = this.widget.maxScale /
+                                          (this._size.width * this._imageInfo.image.height >
+                                           this._imageInfo.image.width * this._size.height
+                                              ? this._size.height / this._imageInfo.image.height
+                                              : this._size.width / this._imageInfo.image.width);
+            }
         }
 
-        static Offset _clampPosition(Offset position, float scale) {
+        void _onImageResolved(ImageInfo imageInfo, bool synchronousCall = false) {
+            this.setState(() => {
+                this._imageInfo = imageInfo;
+                this._updateEffectiveMaxScale();
+            });
+        }
+
+        public Offset toFractional(Offset offset) {
+            return this._size != null
+                ? new Offset(offset.dx / this._size.width, offset.dy / this._size.height)
+                : Offset.zero;
+        }
+
+        Offset _clampPosition(Offset position, float scale) {
             if (scale <= 1.0f) {
                 return Offset.zero;
             }
+            
+            float horizontalOriginalScale = 1.0f, verticalOriginalScale = 1.0f;
+            if (this._size != null && this._imageInfo != null) {
+                if (this._size.width * this._imageInfo.image.height >
+                    this._imageInfo.image.width * this._size.height) {
+                    horizontalOriginalScale = (this._imageInfo.image.width * this._size.height) /
+                                              (this._size.width * this._imageInfo.image.height);
+                }
+                else if (this._size.width * this._imageInfo.image.height <
+                         this._imageInfo.image.width * this._size.height) {
+                    verticalOriginalScale = (this._size.width * this._imageInfo.image.height) /
+                                            (this._imageInfo.image.width * this._size.height);
+                }
+            }
 
-            float max = (scale - 1.0f) / 2;
-            return new Offset(position.dx.clamp(-max, max), position.dy.clamp(-max, max));
+            float horizontalMax = scale * horizontalOriginalScale <= 1.0f
+                ? 0
+                : (scale * horizontalOriginalScale - 1.0f) / 2;
+            float verticalMax = scale * verticalOriginalScale <= 1.0f
+                ? 0
+                : (scale * verticalOriginalScale - 1.0f) / 2;
+            return new Offset(position.dx.clamp(-horizontalMax, horizontalMax),
+                position.dy.clamp(-verticalMax, verticalMax));
         }
 
         void _onDoubleTap(DoubleTapDetails doubleTapDetails) {
-            if (this._scaleAnimation.value < this.widget.maxScale) {
+            if (this._scaleAnimation.value < this._effectiveMaxScale) {
                 Offset tapPosition = this.toFractional(doubleTapDetails.firstGlobalPosition) - new Offset(0.5f, 0.5f);
-                Offset endPosition = (this._positionAnimation.value - tapPosition) * this.widget.maxScale /
+                Offset endPosition = (this._positionAnimation.value - tapPosition) * this._effectiveMaxScale /
                                      this._scaleAnimation.value + tapPosition;
                 this._scaleAnimation = new FloatTween(
                         begin: this._scaleAnimation.value,
-                        end: this.widget.maxScale)
+                        end: this._effectiveMaxScale)
                     .animate(this._scaleAnimationController);
-                endPosition = _clampPosition(endPosition, this.widget.maxScale);
+                endPosition = this._clampPosition(endPosition, this._effectiveMaxScale);
 
                 this._positionAnimation = new OffsetTween(
                     begin: this._positionAnimation.value,
@@ -341,7 +400,7 @@ namespace ConnectApp.Components {
                 .animate(this._scaleAnimationController);
             this._scaleAnimationController.reset();
 
-            var newPosition = _clampPosition(this.toFractional(scaleUpdateDetails.focalPoint) - this._initialPosition,
+            var newPosition = this._clampPosition(this.toFractional(scaleUpdateDetails.focalPoint) - this._initialPosition,
                 this._initialScale * scaleUpdateDetails.scale);
             this._positionAnimation = new OffsetTween(begin: newPosition, end: newPosition)
                 .animate(this._positionAnimationController);
@@ -367,22 +426,22 @@ namespace ConnectApp.Components {
 
         void _onScaleEnd(ScaleEndDetails scaleEndDetails) {
             this.scaling = false;
-            if (this._scaleAnimation.value > this.widget.maxScale) {
+            if (this._scaleAnimation.value > this._effectiveMaxScale) {
                 this._scaleAnimation = new FloatTween(
                         begin: this._scaleAnimation.value,
-                        end: this.widget.maxScale)
+                        end: this._effectiveMaxScale)
                     .animate(this._scaleAnimationController);
                 this._positionAnimation = new OffsetTween(
                     begin: this._positionAnimation.value,
-                    end: _clampPosition(
+                    end: this._clampPosition(
                         position: this._positionAnimation.value,
-                        scale: this.widget.maxScale))
+                        scale: this._effectiveMaxScale))
                     .animate(this._positionAnimationController);
             }
-            else if (this._scaleAnimation.value < this.widget.minScale) {
+            else if (this._scaleAnimation.value < this._effectiveMinScale) {
                 this._scaleAnimation = new FloatTween(
                         begin: this._scaleAnimation.value,
-                        end: this.widget.minScale)
+                        end: this._effectiveMinScale)
                     .animate(this._scaleAnimationController);
                 this._positionAnimation = new OffsetTween(
                     begin: this._positionAnimation.value,

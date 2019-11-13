@@ -11,6 +11,7 @@ using Image = Unity.UIWidgets.widgets.Image;
 using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace ConnectApp.Components {
+    public delegate void OnImageResolved(ImageInfo imageInfo);
     /*
      * use CachedNetworkImageProvider.cachedNetworkImage to replace Image.network so that:
      * (1) the image file will be stored locally after fetching from the internet when first load
@@ -31,6 +32,7 @@ namespace ConnectApp.Components {
             Rect centerSlice = null,
             FilterMode filterMode = FilterMode.Bilinear,
             IDictionary<string, string> headers = null,
+            OnImageResolved onImageResolved = null,
             Key key = null
         ) : base(key: key) {
             this.src = src;
@@ -46,6 +48,7 @@ namespace ConnectApp.Components {
             this.centerSlice = centerSlice;
             this.filterMode = filterMode;
             this.headers = headers;
+            this.onImageResolved = onImageResolved;
         }
 
         public static Image cachedNetworkImage(
@@ -94,6 +97,7 @@ namespace ConnectApp.Components {
         public readonly Rect centerSlice;
         public readonly FilterMode filterMode;
         public readonly IDictionary<string, string> headers;
+        public readonly OnImageResolved onImageResolved;
 
         public override State createState() {
             return new _CachedNetworkImageState();
@@ -151,6 +155,7 @@ namespace ConnectApp.Components {
 
         void _updatePhase() {
             this.setState(() => {
+                var oldPhase = this._phase;
                 switch (this._phase) {
                     case CachedImagePhase.start:
                         this._phase = this._imageResolver._imageInfo != null
@@ -182,6 +187,10 @@ namespace ConnectApp.Components {
                         break;
                     case CachedImagePhase.completed:
                         break;
+                }
+
+                if (this._imageResolver._imageInfo != null && this.widget.onImageResolved != null) {
+                    this.widget.onImageResolved(this._imageResolver._imageInfo);
                 }
             });
         }
