@@ -432,7 +432,8 @@ namespace ConnectApp.Components {
 
         void _onScaleStart(ScaleStartDetails scaleStartDetails) {
             this._initialScale = this._scale;
-            this._initialPosition = this._toFractional(scaleStartDetails.focalPoint) - this._position;
+            this._initialPosition = this._toFractional(scaleStartDetails.focalPoint) -
+                                    new Offset(0.5f, 0.5f) - this._position;
             this._scaling = true;
         }
 
@@ -442,7 +443,9 @@ namespace ConnectApp.Components {
                 .animate(this._scaleAnimationController);
             this._scaleAnimationController.reset();
 
-            var newPosition = this._clampPosition(this._toFractional(scaleUpdateDetails.focalPoint) - this._initialPosition,
+            var newPosition = this._clampPosition(this._toFractional(scaleUpdateDetails.focalPoint) -
+                                                  new Offset(0.5f, 0.5f) -
+                                                  this._initialPosition * scaleUpdateDetails.scale,
                 this._initialScale * scaleUpdateDetails.scale);
             this._positionAnimation = new OffsetTween(begin: newPosition, end: newPosition)
                 .animate(this._positionAnimationController);
