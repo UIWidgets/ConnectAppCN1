@@ -300,13 +300,18 @@ namespace ConnectApp.Components {
 
         void _onDoubleTap(DoubleTapDetails doubleTapDetails) {
             if (this._scaleAnimation.value < this.widget.maxScale) {
+                Offset tapPosition = this.toFractional(doubleTapDetails.firstGlobalPosition) - new Offset(0.5f, 0.5f);
+                Offset endPosition = (this._positionAnimation.value - tapPosition) * this.widget.maxScale /
+                                     this._scaleAnimation.value + tapPosition;
                 this._scaleAnimation = new FloatTween(
                         begin: this._scaleAnimation.value,
                         end: this.widget.maxScale)
                     .animate(this._scaleAnimationController);
+                endPosition = _clampPosition(endPosition, this.widget.maxScale);
+
                 this._positionAnimation = new OffsetTween(
                     begin: this._positionAnimation.value,
-                    end: Offset.zero).animate(this._positionAnimationController);
+                    end: endPosition).animate(this._positionAnimationController);
             }
             else {
                 this._scaleAnimation = new FloatTween(
