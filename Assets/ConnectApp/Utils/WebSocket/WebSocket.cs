@@ -85,13 +85,17 @@ namespace ConnectApp.Utils {
             this.m_Socket.ConnectAsync();
         }
 
+        public bool connected {
+            get { return this.m_State == WebSocketState.Connected && (this.m_Socket?.IsAlive ?? false); }
+        }
+
         public void Send(string content) {
             DebugerUtils.DebugAssert(this.m_State == WebSocketState.Connected,
                 "fatal error: Cannot send data before connect!");
             DebugerUtils.DebugAssert(this.m_Socket != null,
                 "fatal error: Cannot send data because the websocket is null.");
 
-            if (this.m_State != WebSocketState.Connected || this.m_Socket == null) {
+            if (!this.connected) {
                 return;
             }
 
