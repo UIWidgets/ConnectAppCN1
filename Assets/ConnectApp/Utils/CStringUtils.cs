@@ -29,7 +29,6 @@ namespace ConnectApp.Utils {
 
         public static string genAvatarName(string name) {
             var avatarName = "";
-            // 过滤 emoji
             string[] nameList = Regex.Split(input: name.Trim(), @"\s{1,}");
             if (nameList.Length > 0) {
                 for (int i = 0; i < 2 && i < nameList.Length; i++) {
