@@ -904,9 +904,9 @@ namespace ConnectApp.screens {
         Widget _buildContent() {
             ListView listView = this._buildMessageListView();
             var enablePull = true;
-            if (this.widget.viewModel.channelError ||
-                !this.widget.viewModel.channel.joined && this.widget.viewModel.networkConnected) {
-                listView = this._buildErrorPage();
+            if ((this.widget.viewModel.channelError || !this.widget.viewModel.channel.joined) &&
+                this.widget.viewModel.networkConnected) {
+                listView = this._buildNotJoinPage();
                 enablePull = false;
             }
 
@@ -985,7 +985,7 @@ namespace ConnectApp.screens {
                 });
         }
 
-        ListView _buildErrorPage() {
+        ListView _buildNotJoinPage() {
             return new ListView(
                 children: new List<Widget> {
                     new Container(
