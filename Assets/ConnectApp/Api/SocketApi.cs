@@ -70,7 +70,7 @@ namespace ConnectApp.Api {
 
 
         static void DisConnectFromWSS() {
-            SocketGateway.instance.Close();
+            SocketGateway.instance?.Close();
         }
 
         static void ReConnectToWSS(string sessionId) {

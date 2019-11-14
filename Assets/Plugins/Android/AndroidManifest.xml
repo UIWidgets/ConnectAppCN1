@@ -106,11 +106,6 @@
         <action android:name="cn.jiguang.user.service.action" />
       </intent-filter>
     </service>
-    <receiver android:name=".SystemReceiver">
-      <intent-filter android:priority="1000">
-        <action android:name="android.media.RINGER_MODE_CHANGED"/>
-      </intent-filter>
-    </receiver>
     <!-- Required  . Enable it you can get statistics data with channel -->
     <meta-data android:name="JPUSH_CHANNEL" android:value="official" />
     <meta-data android:name="JPUSH_APPKEY" android:value="a50eff2d99416a0495f02766" />
