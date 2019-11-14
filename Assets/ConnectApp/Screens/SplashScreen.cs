@@ -20,7 +20,6 @@ namespace ConnectApp.screens {
         public SplashScreen(
             Key key = null
         ) : base(key: key) {
-            
         }
 
         public override State createState() {
@@ -119,7 +118,7 @@ namespace ConnectApp.screens {
                                     alignment: Alignment.center,
                                     child: new Text($"跳过 {this._lastSecond}", style: new TextStyle(
                                         fontSize: 14,
-                                        fontFamily: "PingFangSC-Regular",
+                                        fontFamily: "Roboto-Regular",
                                         color: CColors.White
                                     ))
                                 ),

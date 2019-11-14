@@ -21,6 +21,7 @@ namespace ConnectApp.Components {
             bool autofocus = false,
             int? maxLines = null,
             int? minLines = null,
+            int? maxLength = null,
             bool loading = false,
             bool showEmojiBoard = false,
             bool isShowImageButton = false,
@@ -38,6 +39,7 @@ namespace ConnectApp.Components {
             this.autofocus = autofocus;
             this.maxLines = maxLines;
             this.minLines = minLines;
+            this.maxLength = maxLength;
             this.loading = loading;
             this.showEmojiBoard = showEmojiBoard;
             this.isShowImageButton = isShowImageButton;
@@ -55,6 +57,7 @@ namespace ConnectApp.Components {
         public readonly bool autofocus;
         public readonly int? maxLines;
         public readonly int? minLines;
+        public readonly int? maxLength;
         public readonly bool loading;
         public readonly bool showEmojiBoard;
         public readonly bool isShowImageButton;
@@ -106,7 +109,7 @@ namespace ConnectApp.Components {
                                 }
                             )
                         ),
-                        this._buildShowEmojiBoardButton(context: context),
+                        this._buildShowEmojiBoardButton(),
                         this._buildPickImageButton(),
                         new Container(width: 8)
                     }
@@ -132,6 +135,7 @@ namespace ConnectApp.Components {
                     height: null,
                     maxLines: this.widget.maxLines,
                     minLines: this.widget.minLines,
+                    maxLength: this.widget.maxLength ?? 2000,
                     cursorColor: CColors.PrimaryBlue,
                     textInputAction: CCommonUtils.isIPhone ? TextInputAction.send : TextInputAction.newline,
                     onSubmitted: this.widget.onSubmitted
@@ -207,12 +211,10 @@ namespace ConnectApp.Components {
             );
         }
 
-        Widget _buildShowEmojiBoardButton(BuildContext context) {
+        Widget _buildShowEmojiBoardButton() {
             return new CustomButton(
                 padding: EdgeInsets.zero,
-                onPressed: () => {
-                    this.widget.onPressEmoji();
-                },
+                onPressed: () => this.widget.onPressEmoji(),
                 child: new Container(
                     width: 44,
                     height: 49,
