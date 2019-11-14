@@ -161,7 +161,7 @@ namespace ConnectApp.screens {
 
         static Widget _buildGapView() {
             return new CustomDivider(
-                color: CColors.BgGrey
+                color: CColors.Background
             );
         }
 
@@ -184,9 +184,7 @@ namespace ConnectApp.screens {
                 },
                 child: new Container(
                     height: 60,
-                    decoration: new BoxDecoration(
-                        CColors.White
-                    ),
+                    color: CColors.White,
                     child: new Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,

@@ -13,8 +13,6 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using Color = Unity.UIWidgets.ui.Color;
-using Image = Unity.UIWidgets.widgets.Image;
 using ImageUtils = Unity.UIWidgets.widgets.ImageUtils;
 
 namespace ConnectApp.Components {

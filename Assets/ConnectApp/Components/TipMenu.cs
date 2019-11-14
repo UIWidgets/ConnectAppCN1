@@ -1,9 +1,12 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.Constants;
 using ConnectApp.Utils;
+using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
@@ -72,15 +75,6 @@ namespace ConnectApp.Components {
                 left = childCenterX - 32 * this.tipMenuItems.Count;
             }
 
-            Widget triangle = SizedBox.fromSize(
-                size: CustomTextSelectionControlsUtils._kToolbarTriangleSize,
-                child: new CustomPaint(
-                    painter: new TrianglePainter(
-                        arrowDirection: arrowDirection
-                    )
-                )
-            );
-
             List<Widget> children;
             if (arrowDirection == ArrowDirection.down) {
                 children = new List<Widget> {
@@ -88,14 +82,15 @@ namespace ConnectApp.Components {
                         top: triangleY,
                         left: left,
                         child: new _TipMenuContent(
-                            tipMenuItems: this.tipMenuItems,
-                            arrowDirection: arrowDirection
+                            tipMenuItems: this.tipMenuItems
                         )
                     ),
                     new Positioned(
                         top: triangleY + tipMenuHeight,
                         left: childCenterX,
-                        child: triangle
+                        child: new _TipMenuTriangle(
+                            arrowDirection: arrowDirection
+                        )
                     )
                 };
             }
@@ -104,14 +99,15 @@ namespace ConnectApp.Components {
                     new Positioned(
                         top: triangleY,
                         left: childCenterX,
-                        child: triangle
+                        child: new _TipMenuTriangle(
+                            arrowDirection: arrowDirection
+                        )
                     ),
                     new Positioned(
                         top: triangleY + CustomTextSelectionControlsUtils._kToolbarTriangleSize.height,
                         left: left,
                         child: new _TipMenuContent(
-                            tipMenuItems: this.tipMenuItems,
-                            arrowDirection: arrowDirection
+                            tipMenuItems: this.tipMenuItems
                         )
                     )
                 };
@@ -187,28 +183,54 @@ namespace ConnectApp.Components {
         }
     }
 
-    class _TipMenuContent : StatelessWidget {
+    class _TipMenuContent : StatefulWidget {
         public _TipMenuContent(
             List<TipMenuItem> tipMenuItems,
-            ArrowDirection arrowDirection,
             Key key = null
         ) : base(key: key) {
             this.tipMenuItems = tipMenuItems;
-            this.arrowDirection = arrowDirection;
         }
 
-        readonly List<TipMenuItem> tipMenuItems;
-        readonly ArrowDirection arrowDirection;
+        public readonly List<TipMenuItem> tipMenuItems;
+
+        public override State createState() {
+            return new _TipMenuContentState();
+        }
+    }
+
+    class _TipMenuContentState : State<_TipMenuContent>, TickerProvider {
+        Animation<float> _animationOpacity;
+        AnimationController _animationController;
+
+        public override void initState() {
+            base.initState();
+            this._animationController = new AnimationController(
+                duration: TimeSpan.FromMilliseconds(150),
+                vsync: this
+            );
+            CurvedAnimation curve = new CurvedAnimation(parent: this._animationController, curve: Curves.linear);
+            this._animationOpacity = new FloatTween(0, 1).animate(parent: curve);
+            this._animationController.forward();
+        }
+
+        public override void dispose() {
+            this._animationController.dispose();
+            base.dispose();
+        }
+
+        public Ticker createTicker(TickerCallback onTick) {
+            return new Ticker(onTick: onTick, () => $"created by {this}");
+        }
 
         public override Widget build(BuildContext context) {
             List<Widget> items = new List<Widget>();
             Widget onePhysicalPixelVerticalDivider =
                 new SizedBox(width: 1.0f / MediaQuery.of(context: context).devicePixelRatio);
 
-            this.tipMenuItems.ForEach(tipMenuItem => {
+            this.widget.tipMenuItems.ForEach(tipMenuItem => {
                 items.Add(_buildToolbarButton(text: tipMenuItem.title, onPressed: tipMenuItem.onTap));
-                var index = this.tipMenuItems.IndexOf(item: tipMenuItem);
-                if (this.tipMenuItems.Count > 1 && index < this.tipMenuItems.Count) {
+                var index = this.widget.tipMenuItems.IndexOf(item: tipMenuItem);
+                if (this.widget.tipMenuItems.Count > 1 && index < this.widget.tipMenuItems.Count) {
                     items.Add(item: onePhysicalPixelVerticalDivider);
                 }
             });
@@ -225,7 +247,13 @@ namespace ConnectApp.Components {
                 )
             );
 
-            return toolbar;
+            return new AnimatedBuilder(
+                animation: this._animationController,
+                builder: (cxt, child) => new Opacity(
+                    opacity: this._animationOpacity.value,
+                    child: toolbar
+                )
+            );
         }
 
         static CustomButton _buildToolbarButton(string text, VoidCallback onPressed) {
@@ -237,6 +265,64 @@ namespace ConnectApp.Components {
                     onPressed();
                     TipMenu.dismiss();
                 }
+            );
+        }
+    }
+
+    class _TipMenuTriangle : StatefulWidget {
+        public _TipMenuTriangle(
+            ArrowDirection arrowDirection,
+            Key key = null
+        ) : base(key: key) {
+            this.arrowDirection = arrowDirection;
+        }
+
+        public readonly ArrowDirection arrowDirection;
+
+        public override State createState() {
+            return new _TipMenuTriangleState();
+        }
+    }
+
+    class _TipMenuTriangleState : State<_TipMenuTriangle>, TickerProvider {
+        Animation<float> _animationOpacity;
+        AnimationController _animationController;
+
+        public override void initState() {
+            base.initState();
+            this._animationController = new AnimationController(
+                duration: TimeSpan.FromMilliseconds(150),
+                vsync: this
+            );
+            CurvedAnimation curve = new CurvedAnimation(parent: this._animationController, curve: Curves.linear);
+            this._animationOpacity = new FloatTween(0, 1).animate(parent: curve);
+            this._animationController.forward();
+        }
+
+        public override void dispose() {
+            this._animationController.dispose();
+            base.dispose();
+        }
+
+        public Ticker createTicker(TickerCallback onTick) {
+            return new Ticker(onTick: onTick, () => $"created by {this}");
+        }
+
+        public override Widget build(BuildContext context) {
+            Widget triangle = SizedBox.fromSize(
+                size: CustomTextSelectionControlsUtils._kToolbarTriangleSize,
+                child: new CustomPaint(
+                    painter: new TrianglePainter(
+                        arrowDirection: this.widget.arrowDirection
+                    )
+                )
+            );
+            return new AnimatedBuilder(
+                animation: this._animationController,
+                builder: (cxt, child) => new Opacity(
+                    opacity: this._animationOpacity.value,
+                    child: triangle
+                )
             );
         }
     }

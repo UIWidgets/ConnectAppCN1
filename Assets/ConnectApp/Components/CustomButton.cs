@@ -14,7 +14,7 @@ namespace ConnectApp.Components {
             bool enable = true,
             Decoration decoration = null,
             Widget child = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.onPressed = onPressed;
             this.padding = padding ?? EdgeInsets.all(8.0f);
             this.decoration = decoration ?? new BoxDecoration();
