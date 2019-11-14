@@ -16,8 +16,8 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -904,8 +904,9 @@ namespace ConnectApp.screens {
         Widget _buildContent() {
             ListView listView = this._buildMessageListView();
             var enablePull = true;
-            if (this.widget.viewModel.channelError || !this.widget.viewModel.channel.joined) {
-                listView = this._buildErrorPage();
+            if ((this.widget.viewModel.channelError || !this.widget.viewModel.channel.joined) &&
+                this.widget.viewModel.networkConnected) {
+                listView = this._buildNotJoinPage();
                 enablePull = false;
             }
 
@@ -984,7 +985,7 @@ namespace ConnectApp.screens {
                 });
         }
 
-        ListView _buildErrorPage() {
+        ListView _buildNotJoinPage() {
             return new ListView(
                 children: new List<Widget> {
                     new Container(

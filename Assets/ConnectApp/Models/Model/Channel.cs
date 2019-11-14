@@ -160,7 +160,7 @@ namespace ConnectApp.Models.Model {
                 id = channel?.id,
                 groupId = channel?.groupId,
                 thumbnail = channel?.thumbnail ?? "",
-                name = channel?.name ?? "未命名",
+                name = channel?.name ?? "",
                 topic = channel?.topic,
                 memberCount = channel?.memberCount ?? 0,
                 isMute = channel?.isMute ?? false,
