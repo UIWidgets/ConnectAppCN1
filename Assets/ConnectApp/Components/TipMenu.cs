@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using ConnectApp.Constants;
 using ConnectApp.Utils;
 using Unity.UIWidgets.animation;
@@ -50,7 +51,7 @@ namespace ConnectApp.Components {
 
             var width = MediaQuery.of(context: context).size.width;
             var textHeight = CTextUtils.CalculateTextHeight(
-                text: this.tipMenuItems[0].title,
+                this.tipMenuItems.FirstOrDefault()?.title ?? "",
                 textStyle: CustomTextSelectionControlsUtils._kToolbarButtonFontStyle,
                 textWidth: width,
                 1
