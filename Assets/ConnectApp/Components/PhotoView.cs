@@ -225,9 +225,6 @@ namespace ConnectApp.Components {
         AnimationController _scaleAnimationController;
         Animation<float> _scaleAnimation;
         float _initialScale = 1.0f;
-        float _effectiveMaxScale = 2.0f;
-        float _effectiveMinScale = 1.0f;
-        Size _size = null;
         ImageInfo _imageInfo;
         ImageStream _imageStream;
         AnimationController _positionAnimationController;
@@ -263,27 +260,25 @@ namespace ConnectApp.Components {
                     this._positionAnimationController.reset();
                 }
             });
-            SchedulerBinding.instance.addPostFrameCallback(_ => {
-                this._size = MediaQuery.of(this.context).size;
-                this._updateEffectiveMaxScale();
-            });
             if (!this.widget.useCachedNetworkImage) {
-                this._imageStream = new NetworkImage(this.widget.url,
-                    headers: this.widget.headers).resolve(ImageUtils.createLocalImageConfiguration(
-                    this.context
-                ));
-                this._imageStream.addListener(this._onImageResolved);
+                SchedulerBinding.instance.addPostFrameCallback(_ => {
+                    this._imageStream = new NetworkImage(this.widget.url,
+                        headers: this.widget.headers).resolve(ImageUtils.createLocalImageConfiguration(
+                        this.context
+                    ));
+                    this._imageStream.addListener((imageInfo, __) => {
+                        this.setState(() => {
+                            this._onImageResolved(imageInfo);
+                        });
+                    });
+                });
             }
-
-            this._effectiveMaxScale = this.widget.maxScale;
-            this._effectiveMinScale = this.widget.minScale;
         }
 
         public override void dispose() {
             this._scaleAnimationController.dispose();
             this._positionAnimationController.dispose();
             this._inertiaAnimationController.dispose();
-            this._imageStream?.removeListener(this._onImageResolved);
             base.dispose();
         }
 
@@ -294,7 +289,7 @@ namespace ConnectApp.Components {
                     this.widget.placeholder,
                     fit: BoxFit.contain,
                     headers: this.widget.headers,
-                    onImageResolved: imageInfo => this._onImageResolved(imageInfo))
+                    onImageResolved: this._onImageResolved)
                 : this._imageInfo != null
                     ? new RawImage(image: this._imageInfo.image, fit: BoxFit.contain)
                     : this.widget.placeholder;
@@ -326,6 +321,33 @@ namespace ConnectApp.Components {
             }
         }
 
+        float _effectiveMaxScale {
+            get {
+                return this._imageInfo != null
+                    ? this.widget.maxScale /
+                      (this._size.width * this._imageInfo.image.height >
+                       this._imageInfo.image.width * this._size.height
+                          ? this._size.height / this._imageInfo.image.height
+                          : this._size.width / this._imageInfo.image.width)
+                      .clamp(0, 1)
+                    : this.widget.maxScale;
+            }
+        }
+        float _effectiveMinScale {
+            get { return this.widget.minScale; }
+        }
+
+        Size _cachedSize;
+        Size _size {
+            get {
+                if (this._cachedSize == null) {
+                    this._cachedSize = MediaQuery.of(this.context).size;
+                }
+
+                return this._cachedSize;
+            }
+        }
+
         void _onScaleAndPositionChanged() {
             this.setState(() => {});
             if (this.widget.onScaleChanged != null) {
@@ -338,24 +360,8 @@ namespace ConnectApp.Components {
             }
         }
 
-        void _updateEffectiveMaxScale() {
-            if (this._size != null && this._imageInfo != null) {
-                this._effectiveMaxScale = this.widget.maxScale /
-                                          (this._size.width * this._imageInfo.image.height >
-                                           this._imageInfo.image.width * this._size.height
-                                              ? this._size.height / this._imageInfo.image.height
-                                              : this._size.width / this._imageInfo.image.width);
-                if (this._effectiveMaxScale < this.widget.maxScale) {
-                    this._effectiveMaxScale = this.widget.maxScale;
-                }
-            }
-        }
-
-        void _onImageResolved(ImageInfo imageInfo, bool synchronousCall = false) {
-            this.setState(() => {
-                this._imageInfo = imageInfo;
-                this._updateEffectiveMaxScale();
-            });
+        void _onImageResolved(ImageInfo imageInfo) {
+            this._imageInfo = imageInfo;
         }
 
         Offset _toFractional(Offset offset) {
@@ -366,7 +372,7 @@ namespace ConnectApp.Components {
 
         float _originalHorizontalScale {
             get {
-                return this._size != null && this._imageInfo != null &&
+                return this._imageInfo != null &&
                        this._size.width * this._imageInfo.image.height >
                        this._imageInfo.image.width * this._size.height
                     ? (this._imageInfo.image.width * this._size.height) /
@@ -377,7 +383,7 @@ namespace ConnectApp.Components {
 
         float _originalVerticalScale {
             get {
-                return this._size != null && this._imageInfo != null &&
+                return this._imageInfo != null &&
                        this._size.width * this._imageInfo.image.height <
                        this._imageInfo.image.width * this._size.height
                     ? (this._size.width * this._imageInfo.image.height) /
