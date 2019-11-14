@@ -72,7 +72,7 @@ namespace ConnectApp.screens {
                 ? MediaQuery.of(context: context).padding.top
                 : 0f;
 
-            var isShowLogo = SplashManager.getSplash().isShowLogo;
+            var isShowLogo = SplashManager.getSplash()?.isShowLogo ?? false;
             Widget logoWidget;
             if (isShowLogo) {
                 logoWidget = new Positioned(

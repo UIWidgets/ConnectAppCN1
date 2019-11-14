@@ -188,8 +188,8 @@ namespace ConnectApp.Components {
                         break;
                 }
 
-                if (this._imageResolver._imageInfo != null && this.widget.onImageResolved != null) {
-                    this.widget.onImageResolved(this._imageResolver._imageInfo);
+                if (this._imageResolver._imageInfo != null) {
+                    this.widget.onImageResolved?.Invoke(imageInfo: this._imageResolver._imageInfo);
                 }
             });
         }

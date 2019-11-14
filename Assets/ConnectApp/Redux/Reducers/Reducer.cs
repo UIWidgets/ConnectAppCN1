@@ -1527,11 +1527,6 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
-                case MainNavigatorPushToRouteAction action: {
-                    Router.navigator.push(route: action.route);
-                    break;
-                }
-
                 case MainNavigatorPopAction action: {
                     for (var i = 0; i < action.index; i++) {
                         if (Router.navigator.canPop()) {
