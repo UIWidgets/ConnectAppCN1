@@ -13,6 +13,8 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 using ImageUtils = Unity.UIWidgets.widgets.ImageUtils;
 
 namespace ConnectApp.Components {
@@ -299,6 +301,10 @@ namespace ConnectApp.Components {
                 onScaleUpdate: this._onScaleUpdate,
                 onScaleEnd: this._onScaleEnd,
                 onDoubleTap: this._onDoubleTap,
+                child: result);
+
+            result = new Hero(
+                tag: this.widget.url,
                 child: result);
             
             return result;
