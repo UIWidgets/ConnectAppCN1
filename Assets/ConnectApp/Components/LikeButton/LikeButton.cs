@@ -95,7 +95,7 @@ namespace ConnectApp.Components.LikeButton {
         Animation<float> _opacityAnimation;
 
         bool _isLiked;
-        int _likeCount;
+        int? _likeCount;
         int? _preLikeCount;
 
         public override void initState() {
@@ -135,7 +135,7 @@ namespace ConnectApp.Components.LikeButton {
                     mainAxisAlignment: this.widget.mainAxisAlignment,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: new List<Widget> {
-                        this._buildLikeButtonWidget(), 
+                        this._buildLikeButtonWidget(),
                         this._buildLikeCountWidget()
                     }
                 )
@@ -148,7 +148,7 @@ namespace ConnectApp.Components.LikeButton {
                 : new Container(
                     margin: EdgeInsets.only(4),
                     child: new Text(
-                        CStringUtils.CountToString(count: this._likeCount, "点赞"),
+                        CStringUtils.CountToString(count: this._likeCount ?? 0, "点赞"),
                         style: CTextStyle.PRegularBody5.merge(new TextStyle(height: 1))
                     )
                 );
