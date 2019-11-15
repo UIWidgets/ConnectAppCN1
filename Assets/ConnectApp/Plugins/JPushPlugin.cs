@@ -13,7 +13,6 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using EventType = ConnectApp.Models.State.EventType;
-
 #if UNITY_IOS
 using System.Runtime.InteropServices;
 
@@ -330,7 +329,7 @@ namespace ConnectApp.Plugins {
         }
 
         public static void showPushAlert(bool isShow) {
-            if (Application.isEditor) {
+            if (!CCommonUtils.isIPhone) {
                 return;
             }
 

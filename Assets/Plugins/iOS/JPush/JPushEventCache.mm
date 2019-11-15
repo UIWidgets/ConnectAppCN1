@@ -100,7 +100,7 @@
   }
     // 需要执行这个方法，选择是否提醒用户，有 Badge、Sound、Alert 三种类型可以选择设置
     if(!_isShowAlert&&[[userInfo objectForKey:@"type"] isEqualToString:@"messenger"]){
-        completionHandler(UNNotificationPresentationOptionSound);
+        completionHandler(UNNotificationPresentationOptionNone);
     }else{
         completionHandler(UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionSound);
     }

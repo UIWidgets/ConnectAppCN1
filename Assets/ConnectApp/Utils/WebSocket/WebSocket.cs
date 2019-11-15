@@ -1,7 +1,6 @@
 using System;
 using System.Security.Authentication;
 using System.Text;
-using WebSocketSharp;
 
 namespace ConnectApp.Utils {
     public enum WebSocketState {
@@ -19,7 +18,7 @@ namespace ConnectApp.Utils {
     }
 
     public class WebSocket {
-        const bool EnableWebSocketSharpLog = false;
+//        const bool EnableWebSocketSharpLog = false;
 
         const SslProtocols sslProtocolHack =
             (SslProtocols) (SslProtocolsHack.Tls12 | SslProtocolsHack.Tls11 | SslProtocolsHack.Tls);
@@ -56,10 +55,10 @@ namespace ConnectApp.Utils {
                 this.m_Socket.SslConfiguration.EnabledSslProtocols = sslProtocolHack;
             }
 
-            if (EnableWebSocketSharpLog) {
-                this.m_Socket.Log.Level = LogLevel.Debug;
-                this.m_Socket.Log.File = @"log.txt";
-            }
+//            if (EnableWebSocketSharpLog) {
+//                this.m_Socket.Log.Level = LogLevel.Debug;
+//                this.m_Socket.Log.File = @"log.txt";
+//            }
 
             this.m_Socket.OnOpen += (sender, e) => {
                 this.m_State = WebSocketState.Connected;
