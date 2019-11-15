@@ -87,7 +87,8 @@ namespace ConnectApp.screens {
                             .ToList(),
                         currentTabBarIndex = state.tabBarState.currentTabIndex,
                         socketConnected = state.channelState.socketConnected,
-                        netWorkConnected = state.channelState.netWorkConnected
+                        networkConnected = state.networkState.networkConnected,
+                        dismissNoNetworkBanner = state.networkState.dismissNoNetworkBanner
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -229,7 +230,7 @@ namespace ConnectApp.screens {
                 child: new Column(
                     children: new List<Widget> {
                         this._buildNavigationBar(),
-                        !this.widget.viewModel.netWorkConnected
+                        !this.widget.viewModel.dismissNoNetworkBanner
                             ? this._buildNetworkDisconnectedNote()
                             : new Container(color: CColors.Separator2, height: 1),
                         new Flexible(child: content)
@@ -240,8 +241,8 @@ namespace ConnectApp.screens {
 
         Widget _buildNavigationBar() {
             return new CustomNavigationBar(
-                !this.widget.viewModel.netWorkConnected
-                    ? new Text("群聊(未连接)", style: CTextStyle.H2)
+                !this.widget.viewModel.networkConnected
+                    ? new Text("群聊 (未连接)", style: CTextStyle.H2)
                     : this.widget.viewModel.socketConnected
                         ? new Text("群聊", style: CTextStyle.H2)
                         : new Text("收取中...", style: CTextStyle.H2Body4),
@@ -283,7 +284,7 @@ namespace ConnectApp.screens {
                 color: CColors.Error.withAlpha((int) (255 * 0.16)),
                 child: new Center(
                     child: new Text(
-                        "网络未连接",
+                        "网络连接不可用，请检查你的网络设置",
                         style: CTextStyle.PRegularError.copyWith(height: 1f)
                     )
                 )

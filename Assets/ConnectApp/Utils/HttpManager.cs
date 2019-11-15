@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using ConnectApp.Api;
 using ConnectApp.Constants;
@@ -28,7 +27,6 @@ namespace ConnectApp.Utils {
 
     public static class HttpManager {
         public const string COOKIE = "Cookie";
-        static string vsCookie;
 
         static UnityWebRequest initRequest(
             string url,
@@ -41,7 +39,7 @@ namespace ConnectApp.Utils {
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
             UnityWebRequest.ClearCookieCache();
             request.SetRequestHeader(COOKIE, _cookieHeader());
-            request.SetRequestHeader("ConnectAppVersion", Config.versionNumber);
+            request.SetRequestHeader("ConnectAppVersion", Config.versionName);
             return request;
         }
 
@@ -78,8 +76,10 @@ namespace ConnectApp.Utils {
                             if (item[1] == null) {
                                 continue;
                             }
+
                             if (item[1] is byte[]) {
-                                var itemStr = $"--{boundary}\r\nContent-Disposition: form-data; name=\"{item[0]}\"; filename=\"{filename}\"\r\n" +
+                                var itemStr =
+                                    $"--{boundary}\r\nContent-Disposition: form-data; name=\"{item[0]}\"; filename=\"{filename}\"\r\n" +
                                     $"Content-Type: {fileType}\r\n\r\n";
                                 results.Add(Encoding.UTF8.GetBytes(itemStr));
                                 size += results.last().Length;
@@ -90,7 +90,8 @@ namespace ConnectApp.Utils {
                             }
                             else {
                                 string s = $"{item[1]}";
-                                var itemStr = $"--{boundary}\r\nContent-Disposition: form-data; name=\"{item[0]}\"\r\n\r\n{s}\r\n";
+                                var itemStr =
+                                    $"--{boundary}\r\nContent-Disposition: form-data; name=\"{item[0]}\"\r\n\r\n{s}\r\n";
                                 results.Add(Encoding.UTF8.GetBytes(itemStr));
                                 size += results.last().Length;
                             }
@@ -99,6 +100,7 @@ namespace ConnectApp.Utils {
                     else {
                         D.assert(false, () => "Parameter must be list of lists");
                     }
+
                     results.Add(Encoding.UTF8.GetBytes($"--{boundary}--"));
                     size += results.last().Length;
                     byte[] bodyRaw = new byte[size];
@@ -107,7 +109,7 @@ namespace ConnectApp.Utils {
                         Buffer.BlockCopy(bytes, 0, bodyRaw, offset, bytes.Length);
                         offset += bytes.Length;
                     }
-                    
+
                     request.uploadHandler = new UploadHandlerRaw(bodyRaw);
                     request.SetRequestHeader("Content-Type", $"multipart/form-data; boundary={boundary}");
                 }
@@ -139,7 +141,7 @@ namespace ConnectApp.Utils {
             Window.instance.startCoroutine(sendRequestAll(promise, request));
             return promise;
         }
-        
+
         static IEnumerator sendRequestAll(Promise<HttpResponseContent> promise, UnityWebRequest request) {
             yield return request.SendWebRequest();
             if (request.isNetworkError) {
@@ -162,7 +164,7 @@ namespace ConnectApp.Utils {
                     text = request.downloadHandler.text,
                     headers = request.GetResponseHeaders()
                 };
-                
+
                 promise.Resolve(content);
             }
         }
@@ -184,7 +186,7 @@ namespace ConnectApp.Utils {
                     var cookie = request.GetResponseHeaders()["Set-Cookie"];
                     updateCookie(cookie);
                 }
-                
+
                 promise.Resolve(request.downloadHandler.text);
             }
         }
@@ -219,7 +221,7 @@ namespace ConnectApp.Utils {
         }
 
         public static void clearCookie() {
-            PlayerPrefs.SetString(COOKIE, vsCookie);
+            PlayerPrefs.SetString(COOKIE, "");
             PlayerPrefs.Save();
 
             SocketApi.OnCookieChanged();
@@ -239,6 +241,7 @@ namespace ConnectApp.Utils {
                     if (carr.Length != 2) {
                         continue;
                     }
+
                     var name = carr[0].Trim();
                     var value = carr[1].Trim();
                     if (name == key) {
@@ -250,7 +253,7 @@ namespace ConnectApp.Utils {
             return "";
         }
 
-        static void updateCookie(string newCookie) {
+        public static void updateCookie(string newCookie) {
             var cookie = PlayerPrefs.GetString(COOKIE);
             var cookieDict = new Dictionary<string, string>();
             var updateCookie = "";
@@ -282,69 +285,13 @@ namespace ConnectApp.Utils {
             if (updateCookie.isNotEmpty()) {
                 PlayerPrefs.SetString(COOKIE, updateCookie);
                 PlayerPrefs.Save();
-                
+
                 SocketApi.OnCookieChanged();
             }
         }
 
         public static bool isNetWorkError() {
             return Application.internetReachability == NetworkReachability.NotReachable;
-        }
-
-        public static void initVSCode() {
-            LoginApi.InitData().Then(initDataResponse => {
-                if (initDataResponse.VS.isNotEmpty()) {
-                    vsCookie = $"VS={initDataResponse.VS}";
-                    updateCookie(newCookie: vsCookie);
-                }
-
-                var firstEgg = true;
-                var scan = true;
-
-                if (initDataResponse.config != null) {
-                    if (initDataResponse.config.eggs != null && initDataResponse.config.eggs.ContainsKey("firstEgg")) {
-                        firstEgg = initDataResponse.config.eggs["firstEgg"];
-                    }
-
-                    scan = initDataResponse.config.scan;
-                }
-
-                if (initDataResponse.showEggs.isNotEmpty()) {
-                    StoreProvider.store.dispatcher.dispatch(new InitEggsAction {firstEgg = firstEgg});
-                }
-
-                StoreProvider.store.dispatcher.dispatch(new ScanEnabledAction {
-                    scanEnabled = scan
-                });
-
-                DateTime endTime;
-                if (initDataResponse.nationalDay.endTime.isNotEmpty()) {
-                    DateTime.TryParse(s: initDataResponse.nationalDay.endTime, result: out endTime);
-                }
-                else {
-                    endTime = DateTime.Parse("2019-10-31T00:00:00Z");
-                }
-
-                if (DateTime.Compare(t1: endTime, t2: DateTime.Now) > 0) {
-                    StoreProvider.store.dispatcher.dispatch(new NationalDayEnabledAction {nationalDayEnabled = true});
-                    CImageUtils.isNationalDay = true;
-                }
-                else {
-                    StoreProvider.store.dispatcher.dispatch(new NationalDayEnabledAction {nationalDayEnabled = false});
-                    CImageUtils.isNationalDay = false;
-                }
-            }).Catch(exception => {
-                StoreProvider.store.dispatcher.dispatch(new InitEggsAction {firstEgg = true});
-                StoreProvider.store.dispatcher.dispatch(new ScanEnabledAction {scanEnabled = true});
-                if (DateTime.Compare(DateTime.Parse("2019-10-31T00:00:00Z"), t2: DateTime.Now) > 0) {
-                    StoreProvider.store.dispatcher.dispatch(new NationalDayEnabledAction {nationalDayEnabled = true});
-                    CImageUtils.isNationalDay = true;
-                }
-                else {
-                    StoreProvider.store.dispatcher.dispatch(new NationalDayEnabledAction {nationalDayEnabled = false});
-                    CImageUtils.isNationalDay = false;
-                }
-            });
         }
     }
 }

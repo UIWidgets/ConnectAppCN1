@@ -1,4 +1,3 @@
-using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
@@ -35,7 +34,7 @@ namespace ConnectApp.Components {
 
         public override Widget build(BuildContext context) {
             Widget child;
-            if (this.imageUrl == null || this.imageUrl.Length <= 0) {
+            if (this.imageUrl.isEmpty()) {
                 child = new Container(
                     width: this.width,
                     height: this.height,
@@ -53,7 +52,7 @@ namespace ConnectApp.Components {
                             width: this.width,
                             height: this.height,
                             fit: this.fit
-                        ) : CachedNetworkImageProvider.cachedNetworkImage(
+                        ) : (Widget) new CachedNetworkImage(
                             src: this.imageUrl,
                             fit: this.fit
                         )

@@ -22,6 +22,7 @@ namespace ConnectApp.Models.ActionModel {
         public Func<IPromise> fetchMembers;
         public Func<IPromise> fetchMember;
         public Func<string, IPromise> deleteChannelMessage;
+        public Action<ChannelMessageView> deleteLocalMessage;
         public Action pushToChannelMention;
         public Action clearLastChannelMention;
         public Action<ChannelMessageView> addLocalMessage;

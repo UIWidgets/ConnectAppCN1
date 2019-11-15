@@ -12,8 +12,8 @@ using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
@@ -25,13 +25,17 @@ namespace ConnectApp.screens {
                     isLoggedIn = state.loginState.isLoggedIn,
                     anonymous = state.loginState.loginInfo.anonymous,
                     hasReviewUrl = state.settingState.hasReviewUrl,
-                    reviewUrl = state.settingState.reviewUrl
+                    reviewUrl = state.settingState.reviewUrl,
+                    vibrate = state.settingState.vibrate
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new SettingScreenActionModel {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
                         mainRouterPushTo = routeName => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = routeName
+                        }),
+                        updateVibrate = vibrate => dispatcher.dispatch(new SettingVibrateAction {
+                            vibrate = vibrate
                         }),
                         openUrl = url => dispatcher.dispatch(new OpenUrlAction {url = url}),
                         clearCache = () => dispatcher.dispatch(new SettingClearCacheAction()),
@@ -157,7 +161,7 @@ namespace ConnectApp.screens {
 
         static Widget _buildGapView() {
             return new CustomDivider(
-                color: CColors.BgGrey
+                color: CColors.Background
             );
         }
 
@@ -180,9 +184,7 @@ namespace ConnectApp.screens {
                 },
                 child: new Container(
                     height: 60,
-                    decoration: new BoxDecoration(
-                        CColors.White
-                    ),
+                    color: CColors.White,
                     child: new Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,

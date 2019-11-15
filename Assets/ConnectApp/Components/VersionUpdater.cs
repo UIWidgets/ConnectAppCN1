@@ -1,7 +1,9 @@
+using ConnectApp.Api;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.Components {
@@ -23,18 +25,35 @@ namespace ConnectApp.Components {
     public class _VersionUpdaterState : State<VersionUpdater> {
         public override void initState() {
             base.initState();
-            HttpManager.initVSCode();
-            if (UserInfoManager.isLogin()) {
-                var userId = UserInfoManager.initUserInfo().userId ?? "";
-                if (userId.isNotEmpty()) {
-                    StoreProvider.store.dispatcher.dispatch(Actions.fetchUserProfile(userId: userId));
-                }
-            }
+            fetchInitData();
+            VersionManager.checkForUpdates(type: CheckVersionType.initialize);
+            StatusBarManager.hideStatusBar(false);
+            SplashManager.fetchSplash();
+            AnalyticsManager.AnalyticsOpenApp();
+            SchedulerBinding.instance.addPostFrameCallback(_ => {
+                if (UserInfoManager.isLogin()) {
+                    var userId = UserInfoManager.initUserInfo().userId ?? "";
+                    if (userId.isNotEmpty()) {
+                        StoreProvider.store.dispatcher.dispatch(Actions.fetchUserProfile(userId: userId));
+                    }
 
-            var needCheckUpdater = VersionManager.needCheckUpdater();
-            if (needCheckUpdater) {
-                VersionManager.checkForUpdates(type: CheckVersionType.first);
-            }
+                    StoreProvider.store.dispatcher.dispatch(Actions.fetchChannels(1));
+                    StoreProvider.store.dispatcher.dispatch(Actions.fetchCreateChannelFilter());
+                }
+
+                StoreProvider.store.dispatcher.dispatch(Actions.fetchReviewUrl());
+            });
+        }
+
+        static void fetchInitData() {
+            LoginApi.InitData().Then(initDataResponse => {
+                if (initDataResponse.VS.isNotEmpty()) {
+                    HttpManager.updateCookie($"VS={initDataResponse.VS}");
+                }
+            }).Catch(exception => {
+                StoreProvider.store.dispatcher.dispatch(new NetworkAvailableStateAction {available = false});
+                Debuger.LogError(message: exception);
+            });
         }
 
         public override Widget build(BuildContext context) {

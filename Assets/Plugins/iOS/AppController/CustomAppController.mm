@@ -21,25 +21,19 @@
 static NSString *gameObjectName = @"jpush";
 
 @interface CustomAppController : UnityAppController<WXApiDelegate>
-
-
+@property (nonatomic,assign) NSInteger tabIndex;
 @end
 IMPL_APP_CONTROLLER_SUBCLASS (CustomAppController)
 
 @implementation CustomAppController
 
-
-
 - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions
 {
     
     [super application:application didFinishLaunchingWithOptions:launchOptions];
-    
-    [application setApplicationIconBadgeNumber:0];
     [WXApi registerApp: @"wx0ab79f0c7db7ca52"];
     [[JPushEventCache sharedInstance] handFinishLaunchOption:launchOptions];
     [JPUSHService setupWithOption:launchOptions appKey:@"a50eff2d99416a0495f02766" channel:@"appstore" apsForProduction:YES];
-    [JPUSHService setBadge:0];
     [JPUSHService setLogOFF];
     
     JANALYTICSLaunchConfig * config = [[JANALYTICSLaunchConfig alloc] init];
@@ -49,12 +43,12 @@ IMPL_APP_CONTROLLER_SUBCLASS (CustomAppController)
     [JANALYTICSService crashLogON];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(networkDidRecieveMessage:)
+                                             selector:@selector(networkDidReceiveMessage:)
                                                  name:kJPFNetworkDidReceiveMessageNotification
                                                object:nil];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(networkDidRecievePushNotification:)
+                                             selector:@selector(networkDidReceivePushNotification:)
                                                  name:@"JPushPluginReceiveNotification"
                                                object:nil];
     
@@ -84,9 +78,11 @@ IMPL_APP_CONTROLLER_SUBCLASS (CustomAppController)
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))handler {
     [super application:application didReceiveRemoteNotification:userInfo fetchCompletionHandler:handler];
     [[JPushEventCache sharedInstance] sendEvent:userInfo withKey:@"JPushPluginReceiveNotification"];
+    [JPUSHService handleRemoteNotification:userInfo];
+    handler(UIBackgroundFetchResultNewData);
 }
 
-- (void)networkDidRecieveMessage:(NSNotification *)notification {
+- (void)networkDidReceiveMessage:(NSNotification *)notification {
     if (notification.name == kJPFNetworkDidReceiveMessageNotification && notification.userInfo){
         NSData *data = APNativeJSONData(notification.userInfo);
         NSString *jsonStr = [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
@@ -94,7 +90,7 @@ IMPL_APP_CONTROLLER_SUBCLASS (CustomAppController)
     }
 }
 
-- (void)networkDidRecievePushNotification:(NSNotification *)notification {
+- (void)networkDidReceivePushNotification:(NSNotification *)notification {
     if ([notification.name isEqual:@"JPushPluginReceiveNotification"] && notification.object){
         NSData *data = APNativeJSONData(notification.object);
         NSString *jsonStr = [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
@@ -175,73 +171,103 @@ NSData *APNativeJSONData(id obj) {
         UIWidgetsMethodMessage(@"jpush", @"SaveImageError",@[]);
     }
 }
+-(void)updateTabIndex:(NSInteger)index{
+    self.tabIndex = index;
+}
 extern "C"  {
+    void pauseAudioSession();
+    void setStatusBarStyle(bool isLight);
+    void hiddenStatusBar(bool hidden);
+    bool isOpenSensor();
+    const char *getDeviceID();
+    void pickImage(const char *source, bool cropped, int maxSize);
+    void pickVideo(const char *source);
+    void saveImage(const char *path);
+    bool isPhotoLibraryAuthorization ();
+    bool isCameraAuthorization ();
+    bool isEnableNotification();
+    void playSystemSound();
+    void updateShowAlert(bool isShow);
+    void clearAllAlert();
+    void clearBadge();
+}
+
+void pauseAudioSession(){
+    AVAudioSession *session = [AVAudioSession sharedInstance];
+    [session setCategory:AVAudioSessionCategoryPlayback error:nil];
+    [session setActive:YES error:nil];
+}
+void setStatusBarStyle(bool isLight){
+    AppController_SendNotificationWithArg(@"UpdateStatusBarStyle",
+                                          @{@"key":@"style",@"value":@(isLight)});
+}
+void hiddenStatusBar(bool hidden){
+    AppController_SendNotificationWithArg(@"UpdateStatusBarStyle",
+                                          @{@"key":@"hidden",@"value":@(hidden)});
+}
+bool isOpenSensor() {
+    return true;
+}
+
+const char *getDeviceID()
+{
+    NSString *result = [UUIDUtils getUUID];
+    if (!result) {
+        return NULL;
+    }
+    const char *s = [result UTF8String];
+    char *r = (char *)malloc(strlen(s) + 1);
+    strcpy(r, s);
+    return r;
+}
+
+void pickImage(const char *source, bool cropped, int maxSize) {
+    NSString *sourceString = [NSString stringWithUTF8String:source];
+    [[PickImageController sharedInstance] pickImageWithSource:sourceString cropped:cropped maxSize:maxSize];
     
-    void pauseAudioSession(){
-        AVAudioSession *session = [AVAudioSession sharedInstance];
-        [session setCategory:AVAudioSessionCategoryPlayback error:nil];
-        [session setActive:YES error:nil];
-    }
-    void setStatusBarStyle(bool isLight){
-        AppController_SendNotificationWithArg(@"UpdateStatusBarStyle",
-                                              @{@"key":@"style",@"value":@(isLight)});
-    }
-    void hiddenStatusBar(bool hidden){
-        AppController_SendNotificationWithArg(@"UpdateStatusBarStyle",
-                                              @{@"key":@"hidden",@"value":@(hidden)});
-    }
-    bool isOpenSensor() {
-        return true;
-    }
+}
+void pickVideo(const char *source) {
+    NSString *sourceString = [NSString stringWithUTF8String:source];
+    [[PickImageController sharedInstance] pickVideoWithSource:sourceString];
+}
+
+void saveImage(const char *path)//相册
+{
+    NSString *imageStr = [NSString stringWithUTF8String:path];
+    [CustomAppController saveImage:imageStr];
+}
+
+bool isPhotoLibraryAuthorization (){
+    return [[PickImageController sharedInstance] isPhotoLibraryAuthorization];
+}
+bool isCameraAuthorization (){
+    return [[PickImageController sharedInstance] isCameraAuthorization];
     
-    const char *getDeviceID()
-    {
-        NSString *result = [UUIDUtils getUUID];
-        if (!result) {
-            return NULL;
-        }
-        const char *s = [result UTF8String];
-        char *r = (char *)malloc(strlen(s) + 1);
-        strcpy(r, s);
-        return r;
+}
+bool isEnableNotification(){
+    BOOL isEnable = NO;
+    if ([[UIDevice currentDevice].systemVersion floatValue] >= 8.0f) { // iOS版本 >=8.0 处理逻辑
+        UIUserNotificationSettings *setting = [[UIApplication sharedApplication] currentUserNotificationSettings];
+        isEnable = (UIUserNotificationTypeNone == setting.types) ? NO : YES;
     }
-    
-    void pickImage(const char *source, bool cropped, int maxSize) {
-        NSString *sourceString = [NSString stringWithUTF8String:source];
-        [[PickImageController sharedInstance] pickImageWithSource:sourceString cropped:cropped maxSize:maxSize];
-        
-    }
-    void pickVideo(const char *source) {
-        NSString *sourceString = [NSString stringWithUTF8String:source];
-        [[PickImageController sharedInstance] pickVideoWithSource:sourceString];
-    }
-    
-    void saveImage(const char *path)//相册
-    {
-        NSString *imageStr = [NSString stringWithUTF8String:path];
-        [CustomAppController saveImage:imageStr];
-    }
-    
-    
-    bool isPhotoLibraryAuthorization (){
-        return [[PickImageController sharedInstance] isPhotoLibraryAuthorization];
-    }
-    bool isCameraAuthorization (){
-        return [[PickImageController sharedInstance] isCameraAuthorization];
-        
-    }
-    bool isEnableNotification(){
-        BOOL isEnable = NO;
-        if ([[UIDevice currentDevice].systemVersion floatValue] >= 8.0f) { // iOS版本 >=8.0 处理逻辑
-            UIUserNotificationSettings *setting = [[UIApplication sharedApplication] currentUserNotificationSettings];
-            isEnable = (UIUserNotificationTypeNone == setting.types) ? NO : YES;
-        } else { // iOS版本 <8.0 处理逻辑
-            UIRemoteNotificationType type = [[UIApplication sharedApplication] enabledRemoteNotificationTypes];
-            isEnable = (UIRemoteNotificationTypeNone == type) ? NO : YES;
-        }
-        return isEnable;
-    }
-    
+    return isEnable;
+}
+
+void playSystemSound(){
+    AudioServicesPlaySystemSound(kSystemSoundID_Vibrate);
+}
+
+void updateShowAlert(bool isShow){
+    [[JPushEventCache sharedInstance]updateShowAlert:isShow];
+}
+
+void clearAllAlert(){
+    [UIApplication sharedApplication].applicationIconBadgeNumber = 1;
+    [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
+}
+void clearBadge(){
+    [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
+    [JPUSHService resetBadge];
 }
 
 @end

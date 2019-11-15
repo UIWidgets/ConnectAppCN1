@@ -320,7 +320,7 @@ namespace ConnectApp.Components {
                 children: new List<Widget> {
                     image == null
                         ? (Widget) new Container(width: 14, height: 14)
-                        : CachedNetworkImageProvider.cachedNetworkImage(
+                        : new CachedNetworkImage(
                             src: image,
                             width: 14, height: 14, fit: BoxFit.cover
                         ),
@@ -400,7 +400,7 @@ namespace ConnectApp.Components {
         public readonly float srcWidth;
         public readonly float srcHeight;
         public readonly Dictionary<string, string> headers;
-        public bool isOriginalImage;
+        public readonly bool isOriginalImage;
 
         public static float CalculateTextHeight(ChannelMessageView message) {
             if (message.width > message.height * 16.0f / 9.0f) {
@@ -465,11 +465,11 @@ namespace ConnectApp.Components {
 
         Image _getImage() {
             return this.widget.data == null
-                ? CachedNetworkImageProvider.cachedNetworkImage(
+                ? CachedNetworkImage.cachedNetworkImage(
                     this.widget.isOriginalImage ? this.widget.url : CImageUtils.SizeToScreenImageUrl(this.widget.url),
                     fit: BoxFit.cover,
                     headers: this.widget.headers)
-                : Image.memory(bytes: this.widget.data);
+                : Image.memory(bytes: this.widget.data, fit: BoxFit.cover);
         }
 
         public override void initState() {

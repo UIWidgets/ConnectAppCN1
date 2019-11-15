@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using ConnectApp.Constants;
 using ConnectApp.Models.Model;
 using ConnectApp.Utils;
@@ -38,6 +39,10 @@ namespace ConnectApp.Components {
                 var block = blocks[i];
                 var type = block.type;
                 var text = block.text;
+                if (text.isEmpty()) {
+                    continue;
+                }
+
                 if (text.Contains("\u0000")) {
                     text = text.Replace("\u0000", "");
                 }
@@ -496,7 +501,8 @@ namespace ConnectApp.Components {
                                 imageUrl: imageUrl,
                                 width: width,
                                 height: height,
-                                fit: BoxFit.cover
+                                fit: BoxFit.cover,
+                                useCachedNetworkImage: true
                             ), onTap: () => {
                                 if (dataUrl.isNotEmpty()) {
                                     openUrl(obj: dataUrl);
@@ -644,6 +650,9 @@ namespace ConnectApp.Components {
             if (text == null) {
                 return null;
             }
+
+            // 过滤 emoji
+            text = Regex.Replace(input: text, @"\p{Cs}", $"{(char) EmojiUtils.emptyEmojiCode}");
 
             if (entityRanges == null
                 && entityRanges.Count <= 0

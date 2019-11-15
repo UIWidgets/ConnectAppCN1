@@ -35,6 +35,17 @@ namespace ConnectApp.Api {
             }
         }
 
+        public static void OnApplicationFocus(bool focus) {
+            if (focus) {
+                if (!string.IsNullOrEmpty(m_lastSessionId)) {
+                    ReConnectToWSS(m_lastSessionId);
+                }
+            }
+            else {
+                DisConnectFromWSS();
+            }
+        }
+
         public static void OnNetworkConnected() {
             NetworkStatusManager.isAvailable = true;
             //init session id by default
@@ -59,7 +70,7 @@ namespace ConnectApp.Api {
 
 
         static void DisConnectFromWSS() {
-            SocketGateway.instance.Close();
+            SocketGateway.instance?.Close();
         }
 
         static void ReConnectToWSS(string sessionId) {
@@ -104,14 +115,12 @@ namespace ConnectApp.Api {
                             break;
                         case DispatchMsgType.MESSAGE_CREATE:
                             var messageData = (SocketResponseMessageData) data;
-
                             StoreProvider.store.dispatcher.dispatch(new PushNewMessageAction {
                                 messageData = messageData
                             });
                             break;
                         case DispatchMsgType.MESSAGE_UPDATE:
                             var updateMessageData = (SocketResponseMessageData) data;
-
                             StoreProvider.store.dispatcher.dispatch(new PushModifyMessageAction {
                                 messageData = updateMessageData
                             });

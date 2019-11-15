@@ -39,10 +39,6 @@ namespace ConnectApp.redux.actions {
         public string channelId;
     }
 
-    public class MainNavigatorPushToRouteAction : BaseAction {
-        public Route route;
-    }
-
     public class MainNavigatorPushToEventDetailAction : BaseAction {
         public string eventId;
         public EventType eventType;

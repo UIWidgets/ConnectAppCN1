@@ -46,13 +46,12 @@ namespace ConnectApp.redux.actions {
             });
         }
 
-
         public static object fetchCreateChannelFilter() {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ChannelApi.FetchChannels(page: 1, joined: false, discoverAll: true)
                     .Then(channelResponse => {
                         dispatcher.dispatch(new FetchDiscoverChannelFilterSuccessAction {
-                            discoverList = channelResponse.discoverList ?? new List<string>(),
+                            discoverList = channelResponse.discoverList ?? new List<string>()
                         });
                     })
                     .Catch(error => {
@@ -157,6 +156,7 @@ namespace ConnectApp.redux.actions {
 
         public static object fetchChannelInfo(string channelId, bool ignoreError = false) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
+                dispatcher.dispatch(new StartFetchChannelInfoAction {channelId = channelId});
                 return ChannelApi.FetchChannelInfo(channelId: channelId)
                     .Then(channelInfoResponse => {
                         if (channelInfoResponse.channelMember == null && !ignoreError) {
@@ -173,7 +173,7 @@ namespace ConnectApp.redux.actions {
 
         public static object fetchChannelMessages(string channelId, string before = null, string after = null) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                dispatcher.dispatch(new StartFetchChannelMessageAction());
+                dispatcher.dispatch(new StartFetchChannelMessageAction {channelId = channelId});
                 return ChannelApi.FetchChannelMessages(channelId: channelId, before: before, after: after)
                     .Then(channelMessagesResponse => {
                         dispatcher.dispatch(new UserLicenseMapAction
@@ -387,10 +387,15 @@ namespace ConnectApp.redux.actions {
             });
         }
 
-        public static object deleteChannelMessage(string messageId) {
+        public static object deleteChannelMessage(string channelId, string messageId) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ChannelApi.DeleteChannelMessage(messageId: messageId)
-                    .Then(ackMessageResponse => { dispatcher.dispatch(new DeleteChannelMessageSuccessAction()); })
+                    .Then(ackMessageResponse => {
+                        dispatcher.dispatch(new DeleteChannelMessageSuccessAction {
+                            channelId = channelId,
+                            messageId = messageId
+                        });
+                    })
                     .Catch(error => {
                         dispatcher.dispatch(new DeleteChannelMessageFailureAction());
                         Debuger.LogError(message: error);
@@ -409,9 +414,11 @@ namespace ConnectApp.redux.actions {
             });
         }
 
-        public static object sendImage(string channelId, string nonce, byte[] imageData) {
+        static object sendAttachment(string channelId, string nonce, byte[] attachmentData, string filename,
+            string fileType) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return ChannelApi.SendImage(channelId, "", nonce, imageData)
+                return ChannelApi.SendAttachment(channelId: channelId, "", nonce: nonce, attachmentData: attachmentData,
+                        filename: filename, fileType: fileType)
                     .Then(responseText => {
                         dispatcher.dispatch(new SendChannelMessageSuccessAction {
                             channelId = channelId,
@@ -430,26 +437,14 @@ namespace ConnectApp.redux.actions {
             });
         }
 
+        public static object sendImage(string channelId, string nonce, byte[] imageData) {
+            return sendAttachment(channelId: channelId, nonce: nonce, attachmentData: imageData, "image.png",
+                "image/png");
+        }
+
         public static object sendVideo(string channelId, string nonce, byte[] videoData, string fileName) {
-            return new ThunkAction<AppState>((dispatcher, getState) => {
-                return ChannelApi.SendVideo(channelId: channelId, "", nonce: nonce, videoData: videoData,
-                        fileName: fileName)
-                    .Then(responseText => {
-                        dispatcher.dispatch(new SendChannelMessageSuccessAction {
-                            channelId = channelId,
-                            content = "",
-                            nonce = nonce,
-                            isImage = false
-                        });
-                    })
-                    .Catch(error => {
-                        dispatcher.dispatch(new SendChannelMessageFailureAction {
-                            channelId = channelId,
-                            messageId = nonce
-                        });
-                        Debuger.LogError(message: error);
-                    });
-            });
+            return sendAttachment(channelId: channelId, nonce: nonce, attachmentData: videoData, filename: fileName,
+                "video/mp4");
         }
 
         public static object saveMessagesToDB(List<ChannelMessage> messages) {
@@ -531,6 +526,10 @@ namespace ConnectApp.redux.actions {
         public string channelId;
     }
 
+    public class StartFetchChannelInfoAction : BaseAction {
+        public string channelId;
+    }
+
     public class FetchChannelInfoSuccessAction : BaseAction {
         public Channel channel;
     }
@@ -539,6 +538,7 @@ namespace ConnectApp.redux.actions {
     }
 
     public class StartFetchChannelMessageAction : BaseAction {
+        public string channelId;
     }
 
     public class FetchChannelMessagesSuccessAction : BaseAction {
@@ -607,7 +607,13 @@ namespace ConnectApp.redux.actions {
         public string messageId;
     }
 
+    public class DeleteLocalMessageAction : BaseAction {
+        public ChannelMessageView message;
+    }
+
     public class DeleteChannelMessageSuccessAction : BaseAction {
+        public string channelId;
+        public string messageId;
     }
 
     public class DeleteChannelMessageFailureAction : BaseAction {
@@ -707,8 +713,12 @@ namespace ConnectApp.redux.actions {
         public bool connected;
     }
 
-    public class NetWorkStateAction : BaseAction {
+    public class NetworkAvailableStateAction : BaseAction {
         public bool available;
+    }
+
+    public class DismissNoNetworkBannerAction : BaseAction {
+        public bool isDismiss;
     }
 
     public class ChannelChooseMentionConfirmAction : BaseAction {

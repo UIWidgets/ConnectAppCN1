@@ -11,7 +11,7 @@ namespace ConnectApp.Utils {
             set {
                 if (value != _isConnected) {
                     Promise.Delayed(TimeSpan.FromMilliseconds(1000))
-                        .Then(_update);
+                        .Then(onResolved: _updateConnectedState);
                     _isConnected = value;
                 }
             }
@@ -22,8 +22,11 @@ namespace ConnectApp.Utils {
 
             set {
                 if (value != _isAvailable) {
+                    Promise.Delayed(TimeSpan.FromMilliseconds(_isAvailable ? 5000 : 1000))
+                        .Then(onResolved: _updateShowNoNetworkBanner);
+                    _isShowNoNetworkBanner = value;
                     Promise.Delayed(TimeSpan.FromMilliseconds(1000))
-                        .Then(_update);
+                        .Then(onResolved: _updateAvailableState);
                     _isAvailable = value;
                 }
             }
@@ -35,16 +38,35 @@ namespace ConnectApp.Utils {
         static bool _isAvailable;
         static bool _isAvailableInState;
 
-        static void _update() {
-            if (_isConnectedInState != _isConnected) {
-                StoreProvider.store.dispatcher.dispatch(new SocketConnectStateAction {connected = _isConnected});
-                _isConnectedInState = _isConnected;
+        static bool _isShowNoNetworkBanner;
+        static bool _isShowNoNetworkBannerInState;
+
+        static void _updateConnectedState() {
+            if (_isConnectedInState == _isConnected) {
+                return;
             }
 
-            if (_isAvailable != _isAvailableInState) {
-                StoreProvider.store.dispatcher.dispatch(new NetWorkStateAction {available = _isAvailable});
-                _isAvailableInState = _isAvailable;
+            StoreProvider.store.dispatcher.dispatch(new SocketConnectStateAction {connected = _isConnected});
+            _isConnectedInState = _isConnected;
+        }
+
+        static void _updateAvailableState() {
+            if (_isAvailable == _isAvailableInState) {
+                return;
             }
+
+            StoreProvider.store.dispatcher.dispatch(new NetworkAvailableStateAction {available = _isAvailable});
+            _isAvailableInState = _isAvailable;
+        }
+
+        static void _updateShowNoNetworkBanner() {
+            if (_isShowNoNetworkBanner == _isShowNoNetworkBannerInState) {
+                return;
+            }
+
+            StoreProvider.store.dispatcher.dispatch(new DismissNoNetworkBannerAction
+                {isDismiss = _isShowNoNetworkBanner});
+            _isShowNoNetworkBannerInState = _isShowNoNetworkBanner;
         }
     }
 }

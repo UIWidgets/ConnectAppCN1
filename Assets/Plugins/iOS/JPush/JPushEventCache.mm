@@ -10,6 +10,7 @@
 @interface JPushEventCache()
 @property(strong, nonatomic) NSMutableDictionary *eventCache;
 @property(assign, nonatomic) BOOL isJPushDidLoad;
+@property(assign, nonatomic) BOOL isShowAlert;
 @end
 
 @implementation JPushEventCache
@@ -32,6 +33,9 @@
   }
   
   return self;
+}
+- (void)updateShowAlert:(bool)isShow{
+    _isShowAlert = isShow;
 }
 
 - (void)sendEvent:(NSDictionary *)userInfo withKey:(NSString *)key {
@@ -65,15 +69,14 @@
   [_eventCache removeAllObjects];
 }
 
-- (void)handFinishLaunchOption:(NSDictionary *)launchOptons {
+- (void)handFinishLaunchOption:(NSDictionary *)launchOptions {
   
   JPUSHRegisterEntity * entity = [[JPUSHRegisterEntity alloc] init];
-  entity.types = JPAuthorizationOptionAlert | JPAuthorizationOptionSound;
+  entity.types = JPAuthorizationOptionAlert | JPAuthorizationOptionSound|JPAuthorizationOptionBadge;
   [JPUSHService registerForRemoteNotificationConfig:entity delegate:[JPushEventCache sharedInstance]];
   
-  if ([[UIDevice currentDevice].systemVersion floatValue] >= 10.0) {
-  } else { // iOS 9 and later
-    [self sendEvent:launchOptons withKey:@"JPushPluginOpenNotification"];
+  if ([[UIDevice currentDevice].systemVersion floatValue] < 10.0) {
+      [self sendEvent:launchOptions withKey:@"JPushPluginOpenNotification"];
   }
 }
 
@@ -95,11 +98,13 @@
     
     userInfo[@"identifier"] = notification.request.identifier;
   }
-  [[JPushEventCache sharedInstance] sendEvent: userInfo withKey: @"JPushPluginReceiveNotification"];
-
-  
-  // 需要执行这个方法，选择是否提醒用户，有 Badge、Sound、Alert 三种类型可以选择设置
-  completionHandler(UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionSound);
+    // 需要执行这个方法，选择是否提醒用户，有 Badge、Sound、Alert 三种类型可以选择设置
+    if(!_isShowAlert&&[[userInfo objectForKey:@"type"] isEqualToString:@"messenger"]){
+        completionHandler(UNNotificationPresentationOptionNone);
+    }else{
+        completionHandler(UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionSound);
+    }
+    [[JPushEventCache sharedInstance] sendEvent: userInfo withKey: @"JPushPluginReceiveNotification"];
 }
 
 // iOS 10 Support

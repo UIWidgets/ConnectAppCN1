@@ -14,8 +14,8 @@ using Newtonsoft.Json;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
@@ -254,7 +254,7 @@ namespace ConnectApp.screens {
                             controller: this._fullNameController,
                             focusNode: this._fullNameFocusNode,
                             fullName => this.widget.actionModel.changeFullName(obj: fullName),
-                            70
+                            15
                         ),
                         _buildInputItem(
                             "头衔",
@@ -262,7 +262,7 @@ namespace ConnectApp.screens {
                             controller: this._titleController,
                             focusNode: this._titleFocusNode,
                             title => this.widget.actionModel.changeTitle(obj: title),
-                            45
+                            10
                         ),
                         new CustomDivider(
                             color: CColors.BgGrey

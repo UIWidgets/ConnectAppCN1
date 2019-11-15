@@ -5,6 +5,7 @@ using ConnectApp.Components;
 using ConnectApp.Main;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
+using ConnectApp.Plugins;
 using ConnectApp.Reality;
 using ConnectApp.redux.actions;
 using ConnectApp.screens;
@@ -91,12 +92,14 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case LogoutAction _: {
+                    JPushPlugin.clearNotifications();
                     EventBus.publish(sName: EventBusConstant.logout_success, new List<object>());
                     HistoryManager.deleteHomeAfterTime(state.loginState.loginInfo.userId);
                     HttpManager.clearCookie();
                     state.loginState.loginInfo = new LoginInfo();
                     state.loginState.isLoggedIn = false;
                     UserInfoManager.clearUserInfo();
+                    BuglyAgent.SetUserId("anonymous");
                     state.articleState.articleHistory = HistoryManager.articleHistoryList();
                     state.eventState.eventHistory = HistoryManager.eventHistoryList();
                     state.searchState.searchArticleHistoryList = HistoryManager.searchArticleHistoryList();
@@ -106,6 +109,9 @@ namespace ConnectApp.redux.reducers {
                     state.favoriteState.favoriteDetailArticleIdDict = new Dictionary<string, List<string>>();
                     state.channelState.clearMentions();
                     state.channelState.mentionSuggestions.Clear();
+                    state.channelState.channelDict.Clear();
+                    state.channelState.joinedChannels.Clear();
+                    state.channelState.publicChannels.Clear();
                     break;
                 }
 
@@ -933,6 +939,16 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case DeleteLocalMessageAction action: {
+                    if (state.channelState.channelDict.ContainsKey(action.message.channelId)) {
+                        state.channelState.localMessageDict.Remove(
+                            $"{action.message.author.id}:{action.message.channelId}:{action.message.id}");
+                        var channel = state.channelState.channelDict[action.message.channelId];
+                    }
+
+                    break;
+                }
+
                 case ResendMessageAction action: {
                     var key = $"{action.message.author.id}:{action.message.channelId}:{action.message.id}";
                     if (state.channelState.channelDict.ContainsKey(action.message.channelId) &&
@@ -940,6 +956,9 @@ namespace ConnectApp.redux.reducers {
                         var message = state.channelState.localMessageDict[key];
                         if (message.status == "failed") {
                             message.status = "waiting";
+                            if (MessageUtils.lastWaitingMessageId == message.id) {
+                                MessageUtils.lastWaitingMessageId = "";
+                            }
                         }
                     }
 
@@ -1298,7 +1317,7 @@ namespace ConnectApp.redux.reducers {
                 case MainNavigatorPushReplaceSplashAction _: {
                     Router.navigator.pushReplacement(new PageRouteBuilder(
                             pageBuilder: (context, animation, secondaryAnimation) =>
-                                new SplashPage(),
+                                new SplashScreen(),
                             transitionDuration: TimeSpan.FromMilliseconds(600),
                             transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
                                 new FadeTransition( //使用渐隐渐入过渡, 
@@ -1482,7 +1501,8 @@ namespace ConnectApp.redux.reducers {
                                 }
 
                                 return new EventOnlineDetailScreenConnector(eventId: action.eventId);
-                            }
+                            },
+                            push: action.eventType != EventType.offline
                         ));
                     }
 
@@ -1504,11 +1524,6 @@ namespace ConnectApp.redux.reducers {
 
                 case MainNavigatorReplaceToAction action: {
                     Router.navigator.pushReplacementNamed(routeName: action.routeName);
-                    break;
-                }
-
-                case MainNavigatorPushToRouteAction action: {
-                    Router.navigator.push(route: action.route);
                     break;
                 }
 
@@ -1538,8 +1553,15 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case OpenUrlAction action: {
-                    if (action.url != null || action.url.Length > 0) {
-                        Application.OpenURL(url: action.url);
+                    if (action.url.isNotEmpty()) {
+                        if (!action.url.StartsWith("http")) {
+                            Application.OpenURL(action.url);
+                        }
+                        else {
+                            if (UrlLauncherPlugin.CanLaunch(urlString: action.url)) {
+                                UrlLauncherPlugin.Launch(urlString: action.url);
+                            }
+                        }
                     }
 
                     break;
@@ -1624,6 +1646,11 @@ namespace ConnectApp.redux.reducers {
                 case FetchReviewUrlFailureAction _: {
                     state.settingState.reviewUrl = "";
                     state.settingState.hasReviewUrl = false;
+                    break;
+                }
+
+                case SettingVibrateAction action: {
+                    state.settingState.vibrate = action.vibrate;
                     break;
                 }
 
@@ -2555,6 +2582,7 @@ namespace ConnectApp.redux.reducers {
 
                 case FetchChannelsFailureAction _: {
                     NetworkStatusManager.isConnected = false;
+                    NetworkStatusManager.isAvailable = false;
                     state.channelState.channelLoading = false;
                     break;
                 }
@@ -2584,7 +2612,14 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case StartFetchChannelInfoAction action: {
+                    state.channelState.channelInfoLoading = true;
+                    break;
+                }
+
                 case FetchChannelInfoSuccessAction action: {
+                    state.channelState.channelError = false;
+                    state.channelState.channelInfoLoading = false;
                     state.channelState.updateChannel(action.channel);
                     if (state.channelState.channelDict.ContainsKey(action.channel.id)) {
                         state.channelState.channelDict[key: action.channel.id].unread = 0;
@@ -2598,12 +2633,15 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case FetchChannelInfoErrorAction action: {
+                    state.channelState.channelInfoLoading = false;
                     state.channelState.channelError = true;
                     break;
                 }
 
-                case StartFetchChannelMessageAction _: {
+                case StartFetchChannelMessageAction action: {
                     state.channelState.messageLoading = true;
+                    var channel = state.channelState.channelDict[key: action.channelId];
+                    channel.needFetchMessages = false;
                     break;
                 }
 
@@ -2616,10 +2654,37 @@ namespace ConnectApp.redux.reducers {
                     channel.hasMore = action.hasMore;
                     channel.hasMoreNew = action.hasMoreNew;
 
+                    var lastMessageId = channel.messageIds.isNotEmpty() ? channel.messageIds.last() : "";
+                    if (channel.newMessageIds.isNotEmpty() &&
+                        channel.newMessageIds.last().hexToLong() > lastMessageId.hexToLong()) {
+                        lastMessageId = channel.newMessageIds.last();
+                    }
+
+                    // If the oldest fetched message is newer than the existing messages
+                    // there is possibility that some messages are missing in between
+                    // In that case, clean the existing messages
+                    if (action.messages.isNotEmpty() &&
+                        action.messages.last().id.hexToLong() > lastMessageId.hexToLong()) {
+                        channel.messageIds = new List<string>();
+                        channel.newMessageIds = new List<string>();
+                    }
+
                     for (var i = 0; i < action.messages.Count; i++) {
                         var channelMessage = ChannelMessageView.fromChannelMessage(action.messages[i]);
                         state.channelState.messageDict[channelMessage.id] = channelMessage;
-                        channel.messageIds.Add(channelMessage.id);
+
+                        if (!channel.newMessageIds.Contains(channelMessage.id) &&
+                            !channel.messageIds.Contains(channelMessage.id)) {
+                            if (lastMessageId.isNotEmpty() && !channel.atBottom &&
+                                channelMessage.author.id != state.loginState.loginInfo.userId &&
+                                channelMessage.id.hexToLong() > lastMessageId.hexToLong()) {
+                                channel.newMessageIds.Add(channelMessage.id);
+                            }
+                            else {
+                                channel.messageIds.Add(channelMessage.id);
+                            }
+                        }
+
                         if (channelMessage.id.hexToLong() > channel.lastMessage.id.hexToLong()) {
                             channel.lastMessage = channelMessage;
                             channel.lastMessageId = channelMessage.id;
@@ -2690,6 +2755,14 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case ClearSentChannelMessage action: {
+                    break;
+                }
+
+                case DeleteChannelMessageSuccessAction action: {
+                    if (state.channelState.messageDict.ContainsKey(action.messageId)) {
+                        state.channelState.messageDict[action.messageId].deleted = true;
+                    }
+
                     break;
                 }
 
@@ -2940,11 +3013,12 @@ namespace ConnectApp.redux.reducers {
                     }
 
                     var channel = state.channelState.channelDict[message.channelId];
-                    channel.lastMessage.deleted = true;
+                    if (channel.lastMessage.id == message.id) {
+                        channel.lastMessage.deleted = true;
+                    }
 
-                    var messageId = message.id;
-                    if (state.channelState.messageDict.ContainsKey(messageId)) {
-                        state.channelState.messageDict[messageId].deleted = true;
+                    if (state.channelState.messageDict.ContainsKey(message.id)) {
+                        state.channelState.messageDict[message.id].deleted = true;
                     }
 
                     break;
@@ -3089,12 +3163,28 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case SocketConnectStateAction action: {
+                    if (!state.channelState.socketConnected && action.connected) {
+                        state.channelState.joinedChannels.ForEach(channelId => {
+                            if (state.channelState.channelDict.ContainsKey(channelId)) {
+                                var channel = state.channelState.channelDict[channelId];
+                                if (channel.active) {
+                                    channel.needFetchMessages = true;
+                                }
+                            }
+                        });
+                    }
+
                     state.channelState.socketConnected = action.connected;
                     break;
                 }
 
-                case NetWorkStateAction action: {
-                    state.channelState.netWorkConnected = action.available;
+                case NetworkAvailableStateAction action: {
+                    state.networkState.networkConnected = action.available;
+                    break;
+                }
+
+                case DismissNoNetworkBannerAction action: {
+                    state.networkState.dismissNoNetworkBanner = action.isDismiss;
                     break;
                 }
 

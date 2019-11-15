@@ -12,6 +12,7 @@ namespace ConnectApp.Models.State {
         public List<string> createChannelFilterIds;
         public int discoverPage;
         public bool discoverHasMore;
+        public bool channelInfoLoading;
         public bool messageLoading;
         public int totalUnread;
         public int totalMention;
@@ -20,7 +21,6 @@ namespace ConnectApp.Models.State {
         public Dictionary<string, ChannelMessageView> localMessageDict;
         public Dictionary<string, bool> channelTop;
         public bool socketConnected;
-        public bool netWorkConnected;
         public string mentionUserId;
         public string mentionUserName;
         public bool mentionAutoFocus;

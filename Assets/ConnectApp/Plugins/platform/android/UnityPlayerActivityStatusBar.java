@@ -1,37 +1,27 @@
 package com.unity3d.unityconnect;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewManager;
 import android.view.WindowManager;
 
-import com.dueeeke.videoplayer.listener.OnVideoViewStateChangeListener;
 import com.dueeeke.videoplayer.player.VideoView;
-import com.dueeeke.videoplayer.player.VideoViewManager;
 import com.unity.uiwidgets.plugin.UIWidgetsMessageManager;
 import com.unity3d.unityconnect.plugins.AVPlayerPlugin;
-import com.unity3d.unityconnect.plugins.CommonPlugin;
 import com.unity3d.unityconnect.plugins.JPushPlugin;
 
 import java.util.Arrays;
 
-import cn.jpush.android.api.JPushInterface;
-
-public class UnityPlayerActivityStatusBar extends UnityPlayerActivity
-{
+public class UnityPlayerActivityStatusBar extends UnityPlayerActivity {
     VideoView videoView;
 
     CustomVideoController controller;
+
     @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (this.getIntent().getScheme()!=null && this.getIntent().getScheme().equals("unityconnect")){
             JPushPlugin.getInstance().schemeUrl = this.getIntent().getDataString();
@@ -42,7 +32,6 @@ public class UnityPlayerActivityStatusBar extends UnityPlayerActivity
             getWindow().setStatusBarColor(Color.WHITE);
         }
 
-
         showSystemUi();
 
         addUiVisibilityChangeListener();
@@ -50,7 +39,6 @@ public class UnityPlayerActivityStatusBar extends UnityPlayerActivity
         applePermission();
 
         addDKPlayView();
-
     }
 
     void addDKPlayView(){
@@ -65,12 +53,9 @@ public class UnityPlayerActivityStatusBar extends UnityPlayerActivity
 
         AVPlayerPlugin.getInstance().videoView = videoView;
         AVPlayerPlugin.getInstance().controller = controller;
-
     }
 
-
     public void applePermission(){
-
         final int REQUEST_EXTERNAL_STORAGE = 1;
         String[] PERMISSIONS_STORAGE = {
                 "android.permission.READ_EXTERNAL_STORAGE",
@@ -97,7 +82,6 @@ public class UnityPlayerActivityStatusBar extends UnityPlayerActivity
     protected void onPause() {
         super.onPause();
         videoView.pause();
-
     }
 
     // Resume Unity
@@ -119,17 +103,16 @@ public class UnityPlayerActivityStatusBar extends UnityPlayerActivity
         super.onRestart();
         if (this.getIntent().getScheme() != null && this.getIntent().getScheme().equals("unityconnect") ){
             String data = this.getIntent().getDataString();
-            if (JPushPlugin.getInstance().isListenCompleted&&!CommonPlugin.isPushNative){
+            if (JPushPlugin.getInstance().isListenCompleted){
+                this.getIntent().setData(null);
                 UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("jpush", "OnOpenUrl", Arrays.asList(data));
             }else {
                 JPushPlugin.getInstance().schemeUrl = data;
             }
-            CommonPlugin.isPushNative = false;
         }
     }
 
-    private static int getLowProfileFlag()
-    {
+    private static int getLowProfileFlag() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT
                 ?
                 View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY |
@@ -142,8 +125,7 @@ public class UnityPlayerActivityStatusBar extends UnityPlayerActivity
                 View.SYSTEM_UI_FLAG_LOW_PROFILE;
     }
 
-    private void showSystemUi()
-    {
+    private void showSystemUi() {
         // Works from API level 11
         if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB)
             return;
@@ -151,17 +133,14 @@ public class UnityPlayerActivityStatusBar extends UnityPlayerActivity
         mUnityPlayer.setSystemUiVisibility(mUnityPlayer.getSystemUiVisibility() & ~getLowProfileFlag());
     }
 
-    private void addUiVisibilityChangeListener()
-    {
+    private void addUiVisibilityChangeListener() {
         // Works from API level 11
         if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB)
             return;
 
-        mUnityPlayer.setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener()
-        {
+        mUnityPlayer.setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
             @Override
-            public void onSystemUiVisibilityChange(final int visibility)
-            {
+            public void onSystemUiVisibilityChange(final int visibility) {
                 // Whatever changes - force status/nav bar to be visible
                 showSystemUi();
             }

@@ -21,6 +21,7 @@ using System.Runtime.InteropServices;
 namespace ConnectApp.Plugins {
     public static class JPushPlugin {
         public static bool isListen;
+        public static bool isShowPushAlert;
         static int callbackId = 0;
 
         public static void addListener() {
@@ -30,11 +31,18 @@ namespace ConnectApp.Plugins {
 
             if (!isListen) {
                 isListen = true;
-                UIWidgetsMessageManager.instance.AddChannelMessageDelegate("jpush", _handleMethodCall);
+                UIWidgetsMessageManager.instance.AddChannelMessageDelegate("jpush", del: _handleMethodCall);
                 completed();
-                setJPushChannel(Config.store);
+                setJPushChannel(channel: Config.store);
+                if (StoreProvider.store.getState().loginState.isLoggedIn) {
+                    setJPushAlias(alias: StoreProvider.store.getState().loginState.loginInfo.userId);
+                }
+                else {
+                    deleteJPushAlias();
+                }
+
                 setJPushTags(
-                    new List<string> {Config.versionCode.ToString(), Config.messengerTag, Config.versionNumber});
+                    new List<string> {Config.versionCode.ToString(), Config.messengerTag, Config.versionName});
             }
         }
 
@@ -75,6 +83,11 @@ namespace ConnectApp.Plugins {
                                 EventBus.publish(EventBusConstant.newNotifications, new List<object>());
                             }
 
+                            var id = dict["id"] ?? "";
+                            if (MessageUtils.currentChannelId.isEmpty() || id != MessageUtils.currentChannelId) {
+                                playMessageSound();
+                            }
+
                             break;
                         }
                         case "OnReceiveMessage": {
@@ -104,6 +117,7 @@ namespace ConnectApp.Plugins {
                                 return;
                             }
 
+                            clearIconBadge();
                             var node = args.first();
                             var dict = JSON.Parse(node);
                             var isPush = (bool) dict["push"];
@@ -113,7 +127,7 @@ namespace ConnectApp.Plugins {
                                 });
                             }
                             else {
-                                if (SplashManager.isExistSplash()) {
+                                if (PreferencesManager.initTabIndex() == 0 && SplashManager.isExistSplash()) {
                                     StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushReplaceSplashAction());
                                 }
                                 else {
@@ -238,6 +252,10 @@ namespace ConnectApp.Plugins {
                     new MainNavigatorPushToWebViewAction {url = id});
             }
             else if (type == "messenger") {
+                if (MessageUtils.currentChannelId.isNotEmpty() && id == MessageUtils.currentChannelId) {
+                    return;
+                }
+
                 if (subType == "channelAt") {
                     StoreProvider.store.dispatcher.dispatch(
                         new MainNavigatorPushToChannelAction {channelId = id});
@@ -250,15 +268,23 @@ namespace ConnectApp.Plugins {
         }
 
         static void completed() {
+            if (Application.isEditor) {
+                return;
+            }
+
             listenCompleted();
         }
 
-        public static void setJPushChannel(string channel) {
+        static void setJPushChannel(string channel) {
+            if (Application.isEditor) {
+                return;
+            }
+
             if (channel.isEmpty()) {
                 return;
             }
 
-            setChannel(channel);
+            setChannel(channel: channel);
         }
 
         public static void setJPushAlias(string alias) {
@@ -270,7 +296,7 @@ namespace ConnectApp.Plugins {
                 return;
             }
 
-            setAlias(callbackId++, alias);
+            setAlias(sequence: callbackId++, alias: alias);
         }
 
         public static void deleteJPushAlias() {
@@ -278,17 +304,59 @@ namespace ConnectApp.Plugins {
                 return;
             }
 
-            deleteAlias(callbackId++);
+            deleteAlias(sequence: callbackId++);
         }
 
-        public static void setJPushTags(List<string> tags) {
-            string tagsJsonStr = JsonHelper.ToJson(tags);
+        static void setJPushTags(List<string> tags) {
+            if (Application.isEditor) {
+                return;
+            }
+
+            string tagsJsonStr = JsonHelper.ToJson(list: tags);
             if (tagsJsonStr.isEmpty()) {
                 return;
             }
 
-            setTags(callbackId++, tagsJsonStr);
+            setTags(sequence: callbackId++, tagsJsonStr: tagsJsonStr);
         }
+
+        public static void playMessageSound() {
+            if (Application.isEditor) {
+                return;
+            }
+
+            playSystemSound();
+        }
+
+        public static void showPushAlert(bool isShow) {
+            if (!CCommonUtils.isIPhone) {
+                return;
+            }
+
+            if (isShowPushAlert == isShow) {
+                return;
+            }
+
+            isShowPushAlert = isShow;
+            updateShowAlert(isShow);
+        }
+
+        public static void clearNotifications() {
+            if (Application.isEditor) {
+                return;
+            }
+
+            clearAllAlert();
+        }
+
+        public static void clearIconBadge() {
+            if (Application.isEditor) {
+                return;
+            }
+
+            clearBadge();
+        }
+
 
 #if UNITY_IOS
         [DllImport("__Internal")]
@@ -305,6 +373,18 @@ namespace ConnectApp.Plugins {
 
         [DllImport("__Internal")]
         static extern void setTags(int sequence, string tagsJsonStr);
+
+        [DllImport("__Internal")]
+        static extern void playSystemSound();
+
+        [DllImport("__Internal")]
+        static extern void updateShowAlert(bool isShow);
+
+        [DllImport("__Internal")]
+        static extern void clearAllAlert();
+
+        [DllImport("__Internal")]
+        static extern void clearBadge();
 
 #elif UNITY_ANDROID
         static AndroidJavaObject _plugin;
@@ -340,12 +420,31 @@ namespace ConnectApp.Plugins {
         static void setTags(int sequence, string tagsJsonStr) {
             Plugin().Call("setTags", sequence, tagsJsonStr);
         }
+
+        static void playSystemSound() {
+            Plugin().Call("playSystemSound");
+        }
+
+        static void updateShowAlert(bool isShow) {
+            Plugin().Call("updateShowAlert");
+        }
+
+        static void clearAllAlert() {
+            Plugin().Call("clearAllAlert");
+        }
+
+        static void clearBadge() {
+            Plugin().Call("clearBadge");
+        }
 #else
         static void listenCompleted() {}
         static void setChannel(string channel) {}
         static void setAlias(int sequence, string channel) {}
         static void deleteAlias(int sequence) {}
         static void setTags(int sequence, string tagsJsonStr) {}
+        static void updateShowAlert(bool isShow) {}
+        static void clearAllAlert() {}
+        static void clearBadge() {}
 #endif
     }
 }

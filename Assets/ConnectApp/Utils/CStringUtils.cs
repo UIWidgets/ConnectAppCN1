@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using ConnectApp.Constants;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.ui;
 
 namespace ConnectApp.Utils {
     public static class CStringUtils {
@@ -28,17 +29,22 @@ namespace ConnectApp.Utils {
 
         public static string genAvatarName(string name) {
             var avatarName = "";
-            name = name.Trim();
-            string[] nameList = Regex.Split(input: name, @"\s{1,}");
+            string[] nameList = Regex.Split(input: name.Trim(), @"\s{1,}");
             if (nameList.Length > 0) {
-                for (int i = 0; i < nameList.Length; i++) {
-                    if (i == 2) {
-                        break;
-                    }
-
+                for (int i = 0; i < 2 && i < nameList.Length; i++) {
                     var str = nameList[i].ToCharArray();
                     if (i == 0) {
                         avatarName += str.first();
+                        if (char.IsHighSurrogate(str[0])) {
+                            if (str.Length > 1 && char.IsLowSurrogate(str[1])) {
+                                avatarName += str[1];
+                                break;
+                            }
+                            // There is a single high surrogate char, which will cause crash.
+                            // This should never happen.
+                            avatarName = $"{(char) EmojiUtils.emptyEmojiCode}";
+                            break;
+                        }
                         if (!IsLetterOrNumber(str.first().ToString())) {
                             break;
                         }

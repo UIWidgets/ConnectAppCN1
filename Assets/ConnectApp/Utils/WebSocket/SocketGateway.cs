@@ -53,6 +53,7 @@ namespace ConnectApp.Utils {
 
         //Gateway Data
         List<string> m_CandidateURLs;
+        int m_CandidateIndex;
         string m_GatewayUrl;
 
         //Callback Cache
@@ -69,8 +70,8 @@ namespace ConnectApp.Utils {
         bool m_SslHandShakeError = false;
 
 
-        bool connected {
-            get { return this.m_ReadyState == GatewayState.OPEN; }
+        public bool connected {
+            get { return this.m_ReadyState == GatewayState.OPEN && (this.m_Socket?.connected ?? false); }
         }
 
         public bool readyForConnect {
@@ -91,6 +92,7 @@ namespace ConnectApp.Utils {
             this.m_Host = host;
 
             this.m_CandidateURLs = new List<string>();
+            this.m_CandidateIndex = 0;
             this.m_PayloadQueue = new List<string>();
             this.m_BackOff = new BackOff(host, 1000, 30000);
             this.m_CommitId = null;
@@ -100,7 +102,6 @@ namespace ConnectApp.Utils {
         }
 
         public void Close() {
-            this.m_CandidateURLs.Clear();
             this.m_GatewayUrl = null;
 
             this.m_CommitId = null;
@@ -142,6 +143,9 @@ namespace ConnectApp.Utils {
             this._Reset(isInit: false);
 
             bool reset = !this.resumable || this.m_BackOff.fail > 0;
+            if (code != 0) {
+                this.m_CandidateIndex++;
+            }
             var delay = this._OnFail(reset);
             NetworkStatusManager.isConnected = false;
             DebugerUtils.DebugAssert(false, $"connection failed, retry in {delay / 1000f} seconds");
@@ -246,9 +250,13 @@ namespace ConnectApp.Utils {
                 createWebSocketFunc:
                 url => {
                     if (url != null) {
+                        this._Reset(isInit: true);
+                        this.m_Socket?.Close();
+                        this.m_Socket = null;
+                        
                         this.m_Socket = new WebSocket(this.m_Host, this.m_SslHandShakeError);
                         this.m_Socket.Connect(url,
-                            OnError: msg => { this._OnClose(); },
+                            OnError: msg => { this._OnClose(1); },
                             OnClose: this._OnClose,
                             OnConnected: () => {
                                 NetworkStatusManager.isConnected = true;
@@ -286,13 +294,15 @@ namespace ConnectApp.Utils {
                 return;
             }
 
-            if (this.m_CandidateURLs.Count > 0) {
-                var url = this.m_CandidateURLs[0];
-                this.m_CandidateURLs.RemoveAt(0);
+            if (this.m_CandidateIndex < this.m_CandidateURLs.Count) {
+                var url = this.m_CandidateURLs[this.m_CandidateIndex];
                 this.m_GatewayUrl = $"{url}/v1";
                 createWebSocketFunc(this.m_GatewayUrl);
                 return;
             }
+
+            this.m_CandidateIndex = 0;
+            this.m_CandidateURLs.Clear();
 
             var requestUrl = $"{Config.apiAddress}{Config.apiPath}/socketgw";
             var request = HttpManager.GET(requestUrl, null);
@@ -388,7 +398,7 @@ namespace ConnectApp.Utils {
         void _Send(SocketRequestPayload requestPayload) {
             var payload = JsonConvert.SerializeObject(requestPayload);
             if (this.connected) {
-                this.m_Socket.Send(payload);
+                this.m_Socket?.Send(payload);
             }
             else {
                 this.m_PayloadQueue.Add(payload);
