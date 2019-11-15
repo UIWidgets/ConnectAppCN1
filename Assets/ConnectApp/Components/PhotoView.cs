@@ -13,13 +13,10 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
-using Color = Unity.UIWidgets.ui.Color;
 using ImageUtils = Unity.UIWidgets.widgets.ImageUtils;
 
 namespace ConnectApp.Components {
     public delegate void OnScaleChangedCallback(float scale, float horizontalScale, float verticalScale, Offset position, bool scaling);
-    public delegate void OnOverScrollCallback(float offset);
     public class PhotoView : StatefulWidget {
         public readonly List<string> urls;
         public readonly PageController controller;
