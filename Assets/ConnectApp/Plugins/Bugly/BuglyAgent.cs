@@ -17,10 +17,6 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
-#if UNITY_IOS
-using System.Runtime.InteropServices;
-#endif
-using Debug = UnityEngine.Debug;
 
 // We dont use the LogType enum in Unity as the numerical order doesnt suit our purposes
 /// <summary>
@@ -670,7 +666,7 @@ public sealed class BuglyAgent {
     static string _crashReporterPackage = "com.tencent.bugly";
 #endif
 #if UNITY_IOS
-    private static int _crashReproterCustomizedLogLevel = 2; // Off=0,Error=1,Warn=2,Info=3,Debug=4
+    static int _crashReproterCustomizedLogLevel = 2; // Off=0,Error=1,Warn=2,Info=3,Debug=4
 #endif
 
 #pragma warning disable 414
@@ -714,12 +710,7 @@ public sealed class BuglyAgent {
     static void _RegisterExceptionHandler() {
         try {
             // hold only one instance 
-
-#if UNITY_5
             Application.logMessageReceived += _OnLogCallbackHandler;
-#else
-            Application.RegisterLogCallback(_OnLogCallbackHandler);
-#endif
             AppDomain.CurrentDomain.UnhandledException += _OnUncaughtExceptionHandler;
 
             _isInitialized = true;
@@ -734,11 +725,7 @@ public sealed class BuglyAgent {
 
     static void _UnregisterExceptionHandler() {
         try {
-#if UNITY_5
             Application.logMessageReceived -= _OnLogCallbackHandler;
-#else
-            Application.RegisterLogCallback(null);
-#endif
             AppDomain.CurrentDomain.UnhandledException -= _OnUncaughtExceptionHandler;
             DebugLog(null, "Unregister the log callback in unity {0}", Application.unityVersion);
         }
@@ -802,11 +789,8 @@ public sealed class BuglyAgent {
                 return;
             }
         }
-        catch {
-            if (Debug.isDebugBuild == true) {
-                Debug.Log("BuglyAgent: Failed to report uncaught exception");
-            }
-
+        catch { 
+            Debuger.LogError("BuglyAgent: Failed to report uncaught exception");
             return;
         }
 

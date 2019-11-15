@@ -1627,10 +1627,15 @@ namespace ConnectApp.redux.reducers {
                 case MainNavigatorPushToPhotoViewAction action: {
                     if (action.url.isNotEmpty() && action.urls.isNotEmpty() && action.urls.Contains(action.url)) {
                         var index = action.urls.IndexOf(action.url);
-                        Router.navigator.push(new CustomPageRoute(
-                            context => new PhotoView(urls: action.urls, index: index,
+                        Router.navigator.push(new PageRouteBuilder(
+                            pageBuilder: (context, _, __) => new PhotoView(urls: action.urls, index: index,
                                 useCachedNetworkImage: action.useCachedNetworkImage),
-                            fullscreenDialog: true
+                            transitionDuration: TimeSpan.FromMilliseconds(200),
+                            transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
+                                new FadeTransition( //使用渐隐渐入过渡, 
+                                    opacity: animation,
+                                    child: child
+                                )
                         ));
                     }
 

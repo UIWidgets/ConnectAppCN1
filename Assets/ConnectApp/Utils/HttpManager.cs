@@ -27,7 +27,6 @@ namespace ConnectApp.Utils {
 
     public static class HttpManager {
         public const string COOKIE = "Cookie";
-        static string vsCookie;
 
         static UnityWebRequest initRequest(
             string url,
@@ -222,7 +221,7 @@ namespace ConnectApp.Utils {
         }
 
         public static void clearCookie() {
-            PlayerPrefs.SetString(COOKIE, vsCookie);
+            PlayerPrefs.SetString(COOKIE, "");
             PlayerPrefs.Save();
 
             SocketApi.OnCookieChanged();
