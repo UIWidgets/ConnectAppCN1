@@ -252,6 +252,10 @@ namespace ConnectApp.Plugins {
                     new MainNavigatorPushToWebViewAction {url = id});
             }
             else if (type == "messenger") {
+                if (MessageUtils.currentChannelId.isNotEmpty() && id == MessageUtils.currentChannelId) {
+                    return;
+                }
+
                 if (subType == "channelAt") {
                     StoreProvider.store.dispatcher.dispatch(
                         new MainNavigatorPushToChannelAction {channelId = id});
@@ -325,7 +329,7 @@ namespace ConnectApp.Plugins {
         }
 
         public static void showPushAlert(bool isShow) {
-            if (Application.isEditor) {
+            if (!CCommonUtils.isIPhone) {
                 return;
             }
 
