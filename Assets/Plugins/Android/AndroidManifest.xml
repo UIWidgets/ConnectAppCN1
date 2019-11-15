@@ -30,6 +30,8 @@
     </activity>
     <activity android:name=".QRScanActivity" android:screenOrientation="portrait">
     </activity>
+    <activity android:name="com.custom.webview.WebViewActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar">
+    </activity>
     <activity android:name=".PickImageActivity" android:screenOrientation="portrait">
     </activity>
     <!-- Required SDK核心功能-->
