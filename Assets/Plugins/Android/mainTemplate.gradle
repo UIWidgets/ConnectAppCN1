@@ -27,6 +27,7 @@ apply plugin: 'com.android.application'
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation(name: 'zxing-lib', ext: 'aar')
+    implementation(name: 'webview', ext: 'aar')
     implementation(name:'dkplayer-java', ext:'aar')
     implementation(name:'dkplayer-ui', ext:'aar')
     implementation 'com.tencent.mm.opensdk:wechat-sdk-android-without-mta:+'
