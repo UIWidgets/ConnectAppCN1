@@ -1173,7 +1173,6 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
     CMTime playerDuration = [self playerItemDuration];
     CGFloat totalTime = (CGFloat)CMTimeGetSeconds(playerDuration);
     long long nowTime = self.currentItem.currentTime.value/self.currentItem.currentTime.timescale;
-    
     if (self.playerModel.needUpdateLincense&&self.playerModel.limitSeconds>0) {
         if (nowTime>=self.playerModel.limitSeconds) {
             self.updateView.hidden = NO;
@@ -1183,7 +1182,6 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
             [self hiddenControlView];
             return;
         }
-        
     }
     
     self.leftTimeLabel.text = [self convertTime:nowTime];
@@ -1194,19 +1192,15 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
         self.rightTimeLabel.text = @"";
         NSLog(@"NaN");
     }
-    if (CMTIME_IS_INVALID(playerDuration)){
-
-        
-    }
-    
-    
-        if (self.isDragingSlider==YES) {//拖拽slider中，不更新slider的值
-            
-        }else if(self.isDragingSlider==NO){
-            CGFloat value = (self.progressSlider.maximumValue - self.progressSlider.minimumValue) * nowTime / self.totalTime + self.progressSlider.minimumValue;
-            self.progressSlider.value = value;
-            [self.bottomProgress setProgress:nowTime/(self.totalTime) animated:YES];
+    if(!self.isDragingSlider){
+        CGFloat value = (self.progressSlider.maximumValue - self.progressSlider.minimumValue) * nowTime / totalTime + self.progressSlider.minimumValue;
+        if (self.totalTime-value<1) {
+            [self.progressSlider setValue:self.totalTime];
+        }else{
+            [self.progressSlider setValue:value];
         }
+        [self.bottomProgress setProgress:nowTime/(totalTime) animated:YES];
+    }
 }
 //seekTime跳到time处播放
 - (void)seekToTimeToPlay:(double)seekTime{

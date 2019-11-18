@@ -1648,7 +1648,11 @@ namespace ConnectApp.screens {
         }
 
         public void didPop() {
-            MessageUtils.currentChannelId = null;
+            if (MessageUtils.currentChannelId.isNotEmpty() &&
+                this.widget.viewModel.channel.id == MessageUtils.currentChannelId) {
+                MessageUtils.currentChannelId = null;
+            }
+
             this.mentionMap.Clear();
             if (this._focusNode.hasFocus) {
                 this._focusNode.unfocus();
