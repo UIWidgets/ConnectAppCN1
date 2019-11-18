@@ -412,6 +412,7 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
+            var id = MessageUtils.currentChannelId;
             this._lastReadMessageId = this.widget.viewModel.channel.lastReadMessageId;
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 if (this.widget.viewModel.hasChannel) {
@@ -1645,7 +1646,11 @@ namespace ConnectApp.screens {
         }
 
         public void didPop() {
-            MessageUtils.currentChannelId = null;
+            if (MessageUtils.currentChannelId.isNotEmpty() &&
+                this.widget.viewModel.channel.id == MessageUtils.currentChannelId) {
+                MessageUtils.currentChannelId = null;
+            }
+
             this.mentionMap.Clear();
             if (this._focusNode.hasFocus) {
                 this._focusNode.unfocus();
