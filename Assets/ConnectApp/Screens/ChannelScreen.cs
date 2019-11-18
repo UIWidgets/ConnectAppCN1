@@ -412,7 +412,6 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
-            var id = MessageUtils.currentChannelId;
             this._lastReadMessageId = this.widget.viewModel.channel.lastReadMessageId;
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 if (this.widget.viewModel.hasChannel) {
