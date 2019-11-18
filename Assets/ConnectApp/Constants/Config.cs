@@ -38,12 +38,13 @@ namespace ConnectApp.Constants {
 
 #if UNITY_IOS
         public const string platform = "ios";
-        public const string store = "appstore";
+//        public const string store = "appstore";
+        public const string store = "test-2019.3";
         public const string buglyId = "f3e3717b9f";
 #elif UNITY_ANDROID
         public const string platform = "android";
-//        public const string store = "test";
-        public const string store = "official";
+        public const string store = "test-2019.3";
+//        public const string store = "official";
 //        public const string store = "xiaomi";
 //        public const string store = "huawei";
 //        public const string store = "ali";

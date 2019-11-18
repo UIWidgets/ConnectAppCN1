@@ -10,10 +10,12 @@ import android.view.WindowManager;
 
 import com.dueeeke.videoplayer.player.VideoView;
 import com.unity.uiwidgets.plugin.UIWidgetsMessageManager;
+import com.unity3d.player.R;
+import com.unity3d.player.UnityPlayerActivity;
 import com.unity3d.unityconnect.plugins.AVPlayerPlugin;
 import com.unity3d.unityconnect.plugins.JPushPlugin;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 public class UnityPlayerActivityStatusBar extends UnityPlayerActivity {
     VideoView videoView;
@@ -105,7 +107,7 @@ public class UnityPlayerActivityStatusBar extends UnityPlayerActivity {
             String data = this.getIntent().getDataString();
             if (JPushPlugin.getInstance().isListenCompleted){
                 this.getIntent().setData(null);
-                UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("jpush", "OnOpenUrl", Arrays.asList(data));
+                UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("jpush", "OnOpenUrl", Collections.singletonList(data));
             }else {
                 JPushPlugin.getInstance().schemeUrl = data;
             }
@@ -113,37 +115,19 @@ public class UnityPlayerActivityStatusBar extends UnityPlayerActivity {
     }
 
     private static int getLowProfileFlag() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT
-                ?
-                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY |
-                        View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
-                        View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
-                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
-                        View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
-                        View.SYSTEM_UI_FLAG_FULLSCREEN
-                :
-                View.SYSTEM_UI_FLAG_LOW_PROFILE;
+        return View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN;
     }
 
     private void showSystemUi() {
         // Works from API level 11
-        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB)
-            return;
-
         mUnityPlayer.setSystemUiVisibility(mUnityPlayer.getSystemUiVisibility() & ~getLowProfileFlag());
     }
 
     private void addUiVisibilityChangeListener() {
         // Works from API level 11
-        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB)
-            return;
-
-        mUnityPlayer.setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
-            @Override
-            public void onSystemUiVisibilityChange(final int visibility) {
-                // Whatever changes - force status/nav bar to be visible
-                showSystemUi();
-            }
+        mUnityPlayer.setOnSystemUiVisibilityChangeListener(visibility -> {
+            // Whatever changes - force status/nav bar to be visible
+            showSystemUi();
         });
     }
 }

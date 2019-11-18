@@ -19,7 +19,7 @@ namespace ConnectApp.Main {
             Debuger.EnableLog = Config.enableDebug;
             Screen.fullScreen = false;
             Screen.orientation = ScreenOrientation.Portrait;
-            Window.onFrameRateCoolDown = CustomFrameRateCoolDown;
+//            Window.onFrameRateCoolDown = CustomFrameRateCoolDown;
             LoadFonts();
             VideoPlayerManager.instance.initPlayer(this.gameObject);
             WebViewManager.instance.initWebView(this.gameObject);

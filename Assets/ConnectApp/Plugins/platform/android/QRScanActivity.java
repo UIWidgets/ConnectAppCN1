@@ -14,6 +14,7 @@ import android.support.v4.app.ActivityCompat;
 import com.google.zxing.activity.CaptureActivity;
 import com.google.zxing.decoding.FinishListener;
 import com.unity.uiwidgets.plugin.UIWidgetsMessageManager;
+import com.unity3d.player.R;
 
 import java.util.Arrays;
 

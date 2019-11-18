@@ -307,7 +307,7 @@ public sealed class BuglyAgent {
     static readonly int GAME_TYPE_UNITY = 2;
     static bool hasSetGameType = false;
     static AndroidJavaClass _gameAgentClass = null;
-
+    
     public static AndroidJavaClass GameAgent {
         get {
             if (_gameAgentClass == null) {

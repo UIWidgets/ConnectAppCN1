@@ -59,8 +59,8 @@ namespace Plugins.Editor {
             var proj = new PBXProject();
 
             proj.ReadFromString(File.ReadAllText(path: projPath));
-            var targetName = PBXProject.GetUnityTargetName();
-            var targetGuid = proj.TargetGuidByName(name: targetName);
+//            var targetName = PBXProject.GetUnityTargetName();
+            var targetGuid = proj.GetUnityFrameworkTargetGuid();
 
             proj.SetBuildProperty(targetGuid: targetGuid, name: "LIBRARY_SEARCH_PATHS", value: "$(inherited)");
             proj.AddBuildProperty(targetGuid: targetGuid, name: "LIBRARY_SEARCH_PATHS", value: "$(SRCROOT)");
