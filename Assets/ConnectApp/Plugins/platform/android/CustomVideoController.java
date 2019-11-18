@@ -98,6 +98,17 @@ public class CustomVideoController extends StandardVideoController {
     }
 
     @Override
+    public void setPlayState(int playState) {
+        super.setPlayState(playState);
+        if (playState == VideoView.STATE_PLAYBACK_COMPLETED){
+            mVideoProgress.setProgress(mVideoProgress.getMax());
+        }else if (playState == VideoView.STATE_PREPARING){
+            mVideoProgress.setProgress(0);
+
+        }
+    }
+
+    @Override
     protected int setProgress() {
         int position = (int) mMediaPlayer.getCurrentPosition();
         if (AVPlayerPlugin.getInstance().needUpdate&&AVPlayerPlugin.getInstance().limitSeconds*1000<position){
