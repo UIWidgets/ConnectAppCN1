@@ -17,7 +17,6 @@ using ImageUtils = Unity.UIWidgets.widgets.ImageUtils;
 
 namespace ConnectApp.Components {
     public delegate void OnScaleChangedCallback(float scale, float horizontalScale, float verticalScale, Offset position, bool scaling);
-    public delegate void OnOverScrollCallback(float offset);
     public class PhotoView : StatefulWidget {
         public readonly List<string> urls;
         public readonly PageController controller;
@@ -299,6 +298,10 @@ namespace ConnectApp.Components {
                 onScaleUpdate: this._onScaleUpdate,
                 onScaleEnd: this._onScaleEnd,
                 onDoubleTap: this._onDoubleTap,
+                child: result);
+
+            result = new Hero(
+                tag: this.widget.url,
                 child: result);
             
             return result;

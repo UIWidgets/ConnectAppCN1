@@ -1225,14 +1225,17 @@ namespace ConnectApp.screens {
         Widget _buildImageMessageContent(ChannelMessageView message) {
             return new GestureDetector(
                 onTap: () => this._browserImage(imageUrl: message.content),
-                child: new ImageMessage(
-                    url: message.content,
-                    data: message.imageData,
-                    size: 140,
-                    ratio: 16.0f / 9.0f,
-                    srcWidth: message.width,
-                    srcHeight: message.height,
-                    headers: this._headers
+                child: new Hero(
+                    tag: CImageUtils.SizeToScreenImageUrl(imageUrl: message.content),
+                    child: new ImageMessage(
+                        url: message.content,
+                        data: message.imageData,
+                        size: 140,
+                        ratio: 16.0f / 9.0f,
+                        srcWidth: message.width,
+                        srcHeight: message.height,
+                        headers: this._headers
+                    )
                 )
             );
         }
