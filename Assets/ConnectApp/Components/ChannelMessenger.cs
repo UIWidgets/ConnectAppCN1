@@ -13,6 +13,33 @@ using Unity.UIWidgets.widgets;
 using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.Components {
+    public class DeletedMessage : StatelessWidget {
+        public DeletedMessage(
+            Key key = null
+        ) : base(key: key) {
+        }
+
+        const string _content = "[此消息已被删除]";
+        static readonly EdgeInsets _contentPadding = EdgeInsets.symmetric(8, 12);
+        static readonly TextStyle _contentStyle = CTextStyle.PLargeBody2;
+
+        public static float CalculateTextHeight(float width) {
+            var contentHeight = CTextUtils.CalculateTextHeight(text: _content, textStyle: _contentStyle,
+                width - _contentPadding.horizontal);
+            return _contentPadding.vertical + contentHeight;
+        }
+
+        public override Widget build(BuildContext context) {
+            return new Container(
+                padding: _contentPadding,
+                child: new Text(
+                    data: _content,
+                    style: _contentStyle
+                )
+            );
+        }
+    }
+
     public class TextMessage : StatelessWidget {
         public TextMessage(
             ChannelMessageView message,
