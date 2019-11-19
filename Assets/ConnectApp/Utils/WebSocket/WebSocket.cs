@@ -85,7 +85,7 @@ namespace ConnectApp.Utils {
         }
 
         public bool connected {
-            get { return this.m_State == WebSocketState.Connected && (this.m_Socket?.IsAlive ?? false); }
+            get { return this.m_State == WebSocketState.Connected; }
         }
 
         public void Send(string content) {
