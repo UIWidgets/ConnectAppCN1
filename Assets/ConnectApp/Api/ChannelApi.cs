@@ -65,16 +65,20 @@ namespace ConnectApp.Api {
             return promise;
         }
 
-        public static Promise<FetchChannelMessagesResponse> FetchChannelMessages(
-            string channelId, string before = null, string after = null) {
+        public static Promise<FetchChannelMessagesResponse> FetchChannelMessages(string channelId, string before = null,
+            string after = null) {
             D.assert(before == null || after == null);
             var promise = new Promise<FetchChannelMessagesResponse>();
+            var para = new Dictionary<string, object> {
+                {"needDeleted", "true"}
+            };
+            if (before != null) {
+                para.Add("before", value: before);
+            } else if (after != null) {
+                para.Add("after", value: after);
+            }
             var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/messages",
-                parameter: before != null
-                    ? new Dictionary<string, object> {{"before", before}}
-                    : after != null
-                        ? new Dictionary<string, object> {{"after", after}}
-                        : null);
+                parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 promise.Resolve(JsonConvert.DeserializeObject<FetchChannelMessagesResponse>(value: responseText));
             }).Catch(exception => promise.Reject(ex: exception));

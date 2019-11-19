@@ -82,7 +82,6 @@ namespace ConnectApp.screens {
                     }
 
                     if (messages.isNotEmpty()) {
-                        messages = messages.Where(message => !message.shouldSkip()).ToList();
                         if (channel.localMessageIds.isNotEmpty()) {
                             messages.Sort((m1, m2) => {
                                 if ((m1.status != "sending" && m1.status != "waiting") &&
@@ -106,12 +105,6 @@ namespace ConnectApp.screens {
                                 return 0;
                             });
                         }
-                    }
-
-                    if (newMessages.isNotEmpty()) {
-                        newMessages = newMessages
-                            .Where(message => !message.shouldSkip())
-                            .ToList();
                     }
 
                     return new ChannelScreenViewModel {
@@ -1008,7 +1001,7 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildMessage(ChannelMessageView message, bool showTime, bool left, bool showUnreadLine = false) {
-            if (message.shouldSkip() || message.type == ChannelMessageType.skip) {
+            if (message.type == ChannelMessageType.skip) {
                 return new Container();
             }
 
@@ -1088,7 +1081,9 @@ namespace ConnectApp.screens {
                 ));
             }
 
-            if (message.author.id == this.widget.viewModel.me.id && showDeleteButton) {
+            if (message.author.id == this.widget.viewModel.me.id
+                && showDeleteButton
+                && message.type != ChannelMessageType.deleted) {
                 tipMenuItems.Add(new TipMenuItem(
                     "删除",
                     () => this._deleteMessage(message: message)
@@ -1241,6 +1236,8 @@ namespace ConnectApp.screens {
 
         Widget _buildMessageContent(ChannelMessageView message) {
             switch (message.type) {
+                case ChannelMessageType.deleted:
+                    return new DeletedMessage();
                 case ChannelMessageType.text:
                     return new TextMessage(
                         message: message,
@@ -1676,6 +1673,9 @@ namespace ConnectApp.screens {
         static float calculateMessageHeight(ChannelMessageView message, bool showTime, float width) {
             float height = 20 + 6 + 16 + (showTime ? 36 : 0); // Name + Internal + Bottom padding + time
             switch (message.type) {
+                case ChannelMessageType.deleted:
+                    height += DeletedMessage.CalculateTextHeight(width: width);
+                    break;
                 case ChannelMessageType.text:
                     height += TextMessage.CalculateTextHeight(content: message.content, width: width);
                     break;

@@ -315,6 +315,7 @@ namespace ConnectApp.Models.Model {
     }
 
     public enum ChannelMessageType {
+        deleted,
         text,
         image,
         file,
@@ -351,12 +352,12 @@ namespace ConnectApp.Models.Model {
         public byte[] imageData;
         public byte[] videoData;
 
-        public bool shouldSkip() {
-            return this.deleted || (this.type == ChannelMessageType.text && this.content.isEmpty());
-        }
-
-        static ChannelMessageType getType(string content, List<Attachment> attachments = null,
+        static ChannelMessageType getType(string content, bool deleted, List<Attachment> attachments = null,
             List<Embed> embeds = null) {
+            if (deleted) {
+                return ChannelMessageType.deleted;
+            }
+
             if (content != null || (attachments?.Count ?? 0) == 0) {
                 if ((embeds?.Count ?? 0) == 0) {
                     return ChannelMessageType.text;
@@ -382,8 +383,8 @@ namespace ConnectApp.Models.Model {
             return nonce.isEmpty() ? 0 : Convert.ToInt64(nonce, 16);
         }
 
-        static string getContent(string content, List<Attachment> attachments = null, List<Embed> embeds = null) {
-            switch (getType(content, attachments, embeds)) {
+        static string getContent(string content, bool deleted, List<Attachment> attachments = null, List<Embed> embeds = null) {
+            switch (getType(content, deleted, attachments, embeds)) {
                 case ChannelMessageType.text:
                 case ChannelMessageType.embedExternal:
                 case ChannelMessageType.embedImage:
@@ -393,22 +394,23 @@ namespace ConnectApp.Models.Model {
                 case ChannelMessageType.file:
                     return attachments.FirstOrDefault().filename;
                 case ChannelMessageType.skip:
+                case ChannelMessageType.deleted:
                     return "";
                 default:
                     return "";
             }
         }
 
-        static int getFileSize(string content, List<Attachment> attachments = null, List<Embed> embeds = null) {
-            return getType(content, attachments, embeds) == ChannelMessageType.file ? attachments[0].size : 0;
+        static int getFileSize(string content, bool deleted, List<Attachment> attachments = null, List<Embed> embeds = null) {
+            return getType(content, deleted, attachments, embeds) == ChannelMessageType.file ? attachments[0].size : 0;
         }
 
-        static int getImageWidth(string content, List<Attachment> attachments = null, List<Embed> embeds = null) {
-            return getType(content, attachments, embeds) == ChannelMessageType.image ? attachments[0].width : 0;
+        static int getImageWidth(string content, bool deleted, List<Attachment> attachments = null, List<Embed> embeds = null) {
+            return getType(content, deleted, attachments, embeds) == ChannelMessageType.image ? attachments[0].width : 0;
         }
 
-        static int getImageHeight(string content, List<Attachment> attachments = null, List<Embed> embeds = null) {
-            return getType(content, attachments, embeds) == ChannelMessageType.image ? attachments[0].height : 0;
+        static int getImageHeight(string content, bool deleted, List<Attachment> attachments = null, List<Embed> embeds = null) {
+            return getType(content, deleted, attachments, embeds) == ChannelMessageType.image ? attachments[0].height : 0;
         }
 
         public static ChannelMessageView fromPushMessage(SocketResponseMessageData message) {
@@ -419,13 +421,13 @@ namespace ConnectApp.Models.Model {
                     nonce = getNonce(message.nonce),
                     channelId = message.channelId,
                     author = message.author,
-                    content = getContent(message.content, message.attachments, message.embeds),
-                    fileSize = getFileSize(message.content, message.attachments, message.embeds),
-                    width = getImageWidth(message.content, message.attachments, message.embeds),
-                    height = getImageHeight(message.content, message.attachments, message.embeds),
+                    content = getContent(message.content, message.deletedTime.isNotEmpty(), message.attachments, message.embeds),
+                    fileSize = getFileSize(message.content, message.deletedTime.isNotEmpty(), message.attachments, message.embeds),
+                    width = getImageWidth(message.content, message.deletedTime.isNotEmpty(), message.attachments, message.embeds),
+                    height = getImageHeight(message.content, message.deletedTime.isNotEmpty(), message.attachments, message.embeds),
                     time = DateConvert.DateTimeFromNonce(message.id),
                     attachments = message.attachments,
-                    type = getType(message.content, message.attachments, message.embeds),
+                    type = getType(message.content, message.deletedTime.isNotEmpty(), message.attachments, message.embeds),
                     mentionEveryone = message.mentionEveryone,
                     mentions = message.mentions,
                     starred = message.starred,
@@ -448,13 +450,13 @@ namespace ConnectApp.Models.Model {
                     nonce = getNonce(message.nonce),
                     channelId = message.channelId,
                     author = new User {id = message.author.id},
-                    content = getContent(message.content, message.attachments),
-                    fileSize = getFileSize(message.content, message.attachments),
-                    width = getImageWidth(message.content, message.attachments),
-                    height = getImageHeight(message.content, message.attachments),
+                    content = getContent(message.content, message.deletedTime.isNotEmpty(), message.attachments),
+                    fileSize = getFileSize(message.content, message.deletedTime.isNotEmpty(), message.attachments),
+                    width = getImageWidth(message.content, message.deletedTime.isNotEmpty(), message.attachments),
+                    height = getImageHeight(message.content, message.deletedTime.isNotEmpty(), message.attachments),
                     time = DateConvert.DateTimeFromNonce(message.id),
                     attachments = message.attachments,
-                    type = getType(message.content, message.attachments),
+                    type = getType(message.content, message.deletedTime.isNotEmpty(), message.attachments),
                     mentionEveryone = message.mentionEveryone,
                     mentions = message.mentions?.Select(user => new User {id = user.id}).ToList(),
                     deleted = message.deletedTime != null
@@ -469,13 +471,13 @@ namespace ConnectApp.Models.Model {
                     nonce = getNonce(message.nonce),
                     channelId = message.channelId,
                     author = message.author,
-                    content = getContent(message.content, message.attachments, message.embeds),
-                    fileSize = getFileSize(message.content, message.attachments, message.embeds),
-                    width = getImageWidth(message.content, message.attachments, message.embeds),
-                    height = getImageHeight(message.content, message.attachments, message.embeds),
+                    content = getContent(message.content, message.deletedTime.isNotEmpty(), message.attachments, message.embeds),
+                    fileSize = getFileSize(message.content, message.deletedTime.isNotEmpty(), message.attachments, message.embeds),
+                    width = getImageWidth(message.content, message.deletedTime.isNotEmpty(), message.attachments, message.embeds),
+                    height = getImageHeight(message.content, message.deletedTime.isNotEmpty(), message.attachments, message.embeds),
                     time = DateConvert.DateTimeFromNonce(message.id),
                     attachments = message.attachments,
-                    type = getType(message.content, message.attachments, message.embeds),
+                    type = getType(message.content, message.deletedTime.isNotEmpty(), message.attachments, message.embeds),
                     mentionEveryone = message.mentionEveryone,
                     mentions = message.mentions,
                     starred = message.starred,
