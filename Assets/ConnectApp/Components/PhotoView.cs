@@ -16,15 +16,17 @@ using Unity.UIWidgets.widgets;
 using ImageUtils = Unity.UIWidgets.widgets.ImageUtils;
 
 namespace ConnectApp.Components {
-    public delegate void OnScaleChangedCallback(float scale, float horizontalScale, float verticalScale, Offset position, bool scaling);
+    public delegate void OnScaleChangedCallback(float scale, float horizontalScale, float verticalScale,
+        Offset position, bool scaling);
+
     public class PhotoView : StatefulWidget {
-        public readonly List<string> urls;
         public readonly PageController controller;
         public readonly Dictionary<string, string> headers;
-        public readonly bool useCachedNetworkImage;
         public readonly int index;
         public readonly float maxScale;
         public readonly float minScale;
+        public readonly List<string> urls;
+        public readonly bool useCachedNetworkImage;
 
         public PhotoView(
             List<string> urls = null,
@@ -54,14 +56,29 @@ namespace ConnectApp.Components {
     }
 
     class _PhotoViewState : TickerProviderStateMixin<PhotoView>, RouteAware {
-        int currentIndex;
         readonly Dictionary<string, string> _defaultHeaders = new Dictionary<string, string> {
             {HttpManager.COOKIE, HttpManager.getCookie()},
             {"ConnectAppVersion", Config.versionName},
             {"X-Requested-With", "XmlHttpRequest"}
         };
 
+        int currentIndex;
+
         bool locked;
+
+        public void didPopNext() {
+        }
+
+        public void didPush() {
+            StatusBarManager.hideStatusBar(true);
+        }
+
+        public void didPop() {
+            StatusBarManager.hideStatusBar(false);
+        }
+
+        public void didPushNext() {
+        }
 
         public override void initState() {
             base.initState();
@@ -87,9 +104,7 @@ namespace ConnectApp.Components {
                 minScale: this.widget.minScale,
                 onScaleChanged: (scale, horizontalScale, verticalScale, position, scaling) => {
                     Debuger.Log($"Scale: {scale}");
-                    this.setState(() => {
-                        this.locked = horizontalScale > 1.0f;
-                    });
+                    this.setState(() => { this.locked = horizontalScale > 1.0f; });
                 },
                 placeholder: new CustomActivityIndicator(loadingColor: LoadingColor.white));
         }
@@ -97,7 +112,7 @@ namespace ConnectApp.Components {
         public override Widget build(BuildContext context) {
             var pageView = new PageView(
                 controller: this.widget.controller,
-                physics: this.locked ? (ScrollPhysics) new NeverScrollableScrollPhysics() : new PageScrollPhysics(), 
+                physics: this.locked ? (ScrollPhysics) new NeverScrollableScrollPhysics() : new PageScrollPhysics(),
                 onPageChanged: index => this.setState(() => this.currentIndex = index),
                 itemCount: this.widget.urls.Count,
                 itemBuilder: (cxt, index) => {
@@ -121,7 +136,7 @@ namespace ConnectApp.Components {
                                     padding: EdgeInsets.symmetric(0, 24),
                                     alignment: Alignment.center,
                                     decoration: new BoxDecoration(
-                                        color: Color.fromRGBO(0, 0, 0, 0.5f),
+                                        Color.fromRGBO(0, 0, 0, 0.5f),
                                         borderRadius: BorderRadius.all(20)
                                     ),
                                     child: new Text($"{this.currentIndex + 1}/{this.widget.urls.Count}",
@@ -156,33 +171,19 @@ namespace ConnectApp.Components {
                 items: items
             ));
         }
-
-        public void didPopNext() {
-        }
-
-        public void didPush() {
-            StatusBarManager.hideStatusBar(true);
-        }
-
-        public void didPop() {
-            StatusBarManager.hideStatusBar(false);
-        }
-
-        public void didPushNext() {
-        }
     }
 
     public class ImageWrapper : StatefulWidget {
+        public readonly float deceleration;
+        public readonly Dictionary<string, string> headers;
+        public readonly float maxScale;
+        public readonly float maxVelocity;
+        public readonly float minScale;
+        public readonly OnScaleChangedCallback onScaleChanged;
+        public readonly Widget placeholder;
 
         public readonly string url;
         public readonly bool useCachedNetworkImage;
-        public readonly Dictionary<string, string> headers;
-        public readonly float maxScale;
-        public readonly float minScale;
-        public readonly float deceleration;
-        public readonly float maxVelocity;
-        public readonly OnScaleChangedCallback onScaleChanged;
-        public readonly Widget placeholder;
 
         public ImageWrapper(
             Key key = null,
@@ -214,54 +215,118 @@ namespace ConnectApp.Components {
     }
 
     class _ImageWrapperState : TickerProviderStateMixin<ImageWrapper> {
-        AnimationController _scaleAnimationController;
-        Animation<float> _scaleAnimation;
-        float _initialScale = 1.0f;
+        Size _cachedSize;
         ImageInfo _imageInfo;
         ImageStream _imageStream;
-        AnimationController _positionAnimationController;
-        Animation<Offset> _positionAnimation;
-        AnimationController _inertiaAnimationController;
         Animation<Offset> _inertiaAnimation;
+        AnimationController _inertiaAnimationController;
         Offset _initialPosition = Offset.zero;
-        bool _scaling = false;
-        bool _panning = false;
+        float _initialScale = 1.0f;
+        bool _panning;
+        Animation<Offset> _positionAnimation;
+        AnimationController _positionAnimationController;
+        Animation<float> _scaleAnimation;
+        AnimationController _scaleAnimationController;
+        bool _scaling;
+
+        float _scale {
+            get { return this._scaleAnimation.value; }
+        }
+
+        Offset _position {
+            get { return this._clampPosition(position: this._positionAnimation.value, scale: this._scale); }
+        }
+
+        float _effectiveMaxScale {
+            get {
+                return this.widget.maxScale * this._originalImageScale
+                           .clamp(1, max: float.PositiveInfinity);
+            }
+        }
+
+        float _effectiveMinScale {
+            get { return this.widget.minScale; }
+        }
+
+        float _originalImageScale {
+            get {
+                return this._imageInfo != null
+                    ? this._size.width * this._imageInfo.image.height >
+                      this._imageInfo.image.width * this._size.height
+                        ? this._imageInfo.image.height / this._size.height
+                        : this._imageInfo.image.width / this._size.width
+                    : 1.0f;
+            }
+        }
+
+        Size _size {
+            get {
+                if (this._cachedSize == null) {
+                    this._cachedSize = MediaQuery.of(context: this.context).size;
+                }
+
+                return this._cachedSize;
+            }
+        }
+
+        float _initialHorizontalScale {
+            get {
+                return this._imageInfo != null &&
+                       this._size.width * this._imageInfo.image.height >
+                       this._imageInfo.image.width * this._size.height
+                    ? this._imageInfo.image.width * this._size.height /
+                      (this._size.width * this._imageInfo.image.height)
+                    : 1.0f;
+            }
+        }
+
+        float _initialVerticalScale {
+            get {
+                return this._imageInfo != null &&
+                       this._size.width * this._imageInfo.image.height <
+                       this._imageInfo.image.width * this._size.height
+                    ? this._size.width * this._imageInfo.image.height /
+                      (this._imageInfo.image.width * this._size.height)
+                    : 1.0f;
+            }
+        }
 
         public override void initState() {
             base.initState();
             this._scaleAnimationController = new AnimationController(
                 duration: TimeSpan.FromMilliseconds(100),
                 vsync: this);
-            this._scaleAnimationController.addListener(this._onScaleAndPositionChanged);
-            this._scaleAnimation = new FloatTween(1.0f, 1.0f).animate(this._scaleAnimationController);
+            this._scaleAnimationController.addListener(listener: this._onScaleAndPositionChanged);
+            this._scaleAnimation = new FloatTween(1.0f, 1.0f).animate(parent: this._scaleAnimationController);
             this._positionAnimationController = new AnimationController(
                 duration: TimeSpan.FromMilliseconds(100),
                 vsync: this);
-            this._positionAnimation = new OffsetTween(Offset.zero, Offset.zero).animate(this._scaleAnimationController);
+            this._positionAnimation =
+                new OffsetTween(begin: Offset.zero, end: Offset.zero).animate(parent: this._scaleAnimationController);
             this._positionAnimationController.addListener(
-                this._onScaleAndPositionChanged
+                listener: this._onScaleAndPositionChanged
             );
             this._inertiaAnimationController = new AnimationController(
                 duration: TimeSpan.FromMilliseconds(1000),
                 vsync: this);
-            this._inertiaAnimationController.addListener(this._onScaleAndPositionChanged);
+            this._inertiaAnimationController.addListener(listener: this._onScaleAndPositionChanged);
             this._inertiaAnimationController.addStatusListener(status => {
                 if (status == AnimationStatus.completed) {
-                    var clampedPosition = this._clampPosition(this._position, this._scale);
-                    this._positionAnimation = new OffsetTween(clampedPosition, clampedPosition).animate(this._positionAnimationController);
+                    var clampedPosition = this._clampPosition(position: this._position, scale: this._scale);
+                    this._positionAnimation =
+                        new OffsetTween(begin: clampedPosition, end: clampedPosition).animate(
+                            parent: this._positionAnimationController);
                     this._positionAnimationController.reset();
                 }
             });
             if (!this.widget.useCachedNetworkImage) {
                 SchedulerBinding.instance.addPostFrameCallback(_ => {
-                    this._imageStream = new NetworkImage(this.widget.url,
+                    this._imageStream = new NetworkImage(url: this.widget.url,
                         headers: this.widget.headers).resolve(ImageUtils.createLocalImageConfiguration(
-                        this.context
+                        context: this.context
                     ));
                     this._imageStream.addListener((imageInfo, __) => {
-                        this.setState(() => {
-                            this._onImageResolved(imageInfo);
-                        });
+                        this.setState(() => { this._onImageResolved(imageInfo: imageInfo); });
                     });
                 });
             }
@@ -277,22 +342,22 @@ namespace ConnectApp.Components {
         public override Widget build(BuildContext context) {
             Widget result = this.widget.useCachedNetworkImage
                 ? new CachedNetworkImage(
-                    this.widget.url,
-                    this.widget.placeholder,
+                    src: this.widget.url,
+                    placeholder: this.widget.placeholder,
                     fit: BoxFit.contain,
                     headers: this.widget.headers,
                     onImageResolved: this._onImageResolved)
                 : this._imageInfo != null
                     ? new RawImage(image: this._imageInfo.image, fit: BoxFit.contain)
                     : this.widget.placeholder;
-            
+
             result = new ScaleTransition(
                 scale: this._scaleAnimation, child: result);
-            
+
             result = new FractionalTranslation(
                 translation: this._position,
                 child: result);
-            
+
             result = new GestureDetector(
                 onScaleStart: this._onScaleStart,
                 onScaleUpdate: this._onScaleUpdate,
@@ -302,62 +367,21 @@ namespace ConnectApp.Components {
 
             result = new Hero(
                 tag: this.widget.url,
+                flightShuttleBuilder: (_1, _2, _3, _4, _5) => { return result; },
                 child: result);
-            
+
             return result;
         }
 
-        float _scale {
-            get { return this._scaleAnimation.value; }
-        }
-
-        Offset _position {
-            get {
-                return this._clampPosition(this._positionAnimation.value, this._scale);
-            }
-        }
-
-        float _effectiveMaxScale {
-            get {
-                return this.widget.maxScale * this._originalImageScale
-                           .clamp(1, float.PositiveInfinity);
-            }
-        }
-        float _effectiveMinScale {
-            get { return this.widget.minScale; }
-        }
-
-        float _originalImageScale {
-            get {
-                return this._imageInfo != null
-                    ? this._size.width * this._imageInfo.image.height >
-                      this._imageInfo.image.width * this._size.height
-                        ? this._imageInfo.image.height / this._size.height 
-                        : this._imageInfo.image.width / this._size.width 
-                    : 1.0f;
-            }
-        }
-
-        Size _cachedSize;
-        Size _size {
-            get {
-                if (this._cachedSize == null) {
-                    this._cachedSize = MediaQuery.of(this.context).size;
-                }
-
-                return this._cachedSize;
-            }
-        }
-
         void _onScaleAndPositionChanged() {
-            this.setState(() => {});
+            this.setState(() => { });
             if (this.widget.onScaleChanged != null) {
                 this.widget.onScaleChanged(
-                    this._scale,
+                    scale: this._scale,
                     this._scale * this._initialHorizontalScale,
                     this._scale * this._initialVerticalScale,
-                    this._position,
-                    this._scaling);
+                    position: this._position,
+                    scaling: this._scaling);
             }
         }
 
@@ -372,29 +396,7 @@ namespace ConnectApp.Components {
         }
 
         Offset _screenToFractional(Offset offset) {
-            return this._toFractional(offset) - new Offset(0.5f, 0.5f);
-        }
-
-        float _initialHorizontalScale {
-            get {
-                return this._imageInfo != null &&
-                       this._size.width * this._imageInfo.image.height >
-                       this._imageInfo.image.width * this._size.height
-                    ? (this._imageInfo.image.width * this._size.height) /
-                      (this._size.width * this._imageInfo.image.height)
-                    : 1.0f;
-            }
-        }
-
-        float _initialVerticalScale {
-            get {
-                return this._imageInfo != null &&
-                       this._size.width * this._imageInfo.image.height <
-                       this._imageInfo.image.width * this._size.height
-                    ? (this._size.width * this._imageInfo.image.height) /
-                      (this._imageInfo.image.width * this._size.height)
-                    : 1.0f;
-            }
+            return this._toFractional(offset: offset) - new Offset(0.5f, 0.5f);
         }
 
         Offset _clampPosition(Offset position, float scale) {
@@ -403,34 +405,37 @@ namespace ConnectApp.Components {
             }
 
             float horizontalMax = scale * this._initialHorizontalScale > 1.0f
-                ? (scale * this._initialHorizontalScale - 1.0f) / 2 : 0;
+                ? (scale * this._initialHorizontalScale - 1.0f) / 2
+                : 0;
             float verticalMax = scale * this._initialVerticalScale > 1.0f
-                ? (scale * this._initialVerticalScale - 1.0f) / 2 : 0;
-            return new Offset(position.dx.clamp(-horizontalMax, horizontalMax),
-                position.dy.clamp(-verticalMax, verticalMax));
+                ? (scale * this._initialVerticalScale - 1.0f) / 2
+                : 0;
+            return new Offset(position.dx.clamp(min: -horizontalMax, max: horizontalMax),
+                position.dy.clamp(min: -verticalMax, max: verticalMax));
         }
 
         void _scaleAndMoveTo(float targetScale, Offset targetPosition) {
             this._scaleAnimation = new FloatTween(
                     begin: this._scale,
                     end: targetScale)
-                .animate(this._scaleAnimationController);
+                .animate(parent: this._scaleAnimationController);
 
             this._positionAnimation = new OffsetTween(
                     begin: this._position,
                     end: targetPosition)
-                .animate(this._positionAnimationController);
+                .animate(parent: this._positionAnimationController);
         }
 
         void _scaleAndMoveToClamped(float targetScale, Offset targetPosition) {
-            this._scaleAndMoveTo(targetScale, this._clampPosition(targetPosition, targetScale));
+            this._scaleAndMoveTo(targetScale: targetScale,
+                this._clampPosition(position: targetPosition, scale: targetScale));
         }
 
         void _setScaleAndPosition(float scale, Offset position) {
             this._scaleAnimation = new FloatTween(begin: scale, end: scale)
-                .animate(this._scaleAnimationController);
+                .animate(parent: this._scaleAnimationController);
             this._positionAnimation = new OffsetTween(begin: position, end: position)
-                .animate(this._positionAnimationController);
+                .animate(parent: this._positionAnimationController);
             this._scaleAnimationController.reset();
             this._positionAnimationController.reset();
         }
@@ -441,15 +446,16 @@ namespace ConnectApp.Components {
 
         void _onDoubleTap(DoubleTapDetails doubleTapDetails) {
             if (this._scale < this._originalImageScale ||
-                (this._originalImageScale < 1.0f && this._scale > this._originalImageScale)) {
+                this._originalImageScale < 1.0f && this._scale > this._originalImageScale) {
                 this._scaleAndMoveToClamped(
-                    this._originalImageScale,
-                    this._computeNewPositionAfterScaleTo(this._originalImageScale,
-                        this._screenToFractional(doubleTapDetails.firstGlobalPosition)));
+                    targetScale: this._originalImageScale,
+                    this._computeNewPositionAfterScaleTo(targetScale: this._originalImageScale,
+                        this._screenToFractional(offset: doubleTapDetails.firstGlobalPosition)));
             }
             else {
-                this._scaleAndMoveTo(1, Offset.zero);
+                this._scaleAndMoveTo(1, targetPosition: Offset.zero);
             }
+
             this._scaleAnimationController.setValue(0);
             this._scaleAnimationController.animateTo(1);
             this._positionAnimationController.setValue(0);
@@ -458,7 +464,7 @@ namespace ConnectApp.Components {
 
         void _onScaleStart(ScaleStartDetails scaleStartDetails) {
             this._initialScale = this._scale;
-            this._initialPosition = this._screenToFractional(scaleStartDetails.focalPoint) - this._position;
+            this._initialPosition = this._screenToFractional(offset: scaleStartDetails.focalPoint) - this._position;
             this._scaling = true;
         }
 
@@ -466,7 +472,7 @@ namespace ConnectApp.Components {
             this._setScaleAndPosition(
                 this._initialScale * scaleUpdateDetails.scale,
                 this._clampPosition(
-                    this._screenToFractional(scaleUpdateDetails.focalPoint) -
+                    this._screenToFractional(offset: scaleUpdateDetails.focalPoint) -
                     this._initialPosition * scaleUpdateDetails.scale,
                     this._initialScale * scaleUpdateDetails.scale)
             );
@@ -476,31 +482,33 @@ namespace ConnectApp.Components {
         void _onScaleEnd(ScaleEndDetails scaleEndDetails) {
             if (this._scale > this._effectiveMaxScale) {
                 this._scaleAndMoveToClamped(
-                    this._effectiveMaxScale,
+                    targetScale: this._effectiveMaxScale,
                     this._position + this._initialPosition *
                     (this._scale - this._effectiveMaxScale) / this._initialScale);
                 this._positionAnimationController.setValue(0);
                 this._positionAnimationController.animateTo(1);
             }
             else if (this._scale < this._effectiveMinScale) {
-                this._scaleAndMoveTo(this._effectiveMinScale, Offset.zero);
+                this._scaleAndMoveTo(targetScale: this._effectiveMinScale, targetPosition: Offset.zero);
                 this._positionAnimationController.setValue(0);
                 this._positionAnimationController.animateTo(1);
             }
             else {
                 if (this._panning && scaleEndDetails.velocity != null) {
-                    var velocity = scaleEndDetails.velocity.clampMagnitude(0, this.widget.maxVelocity).pixelsPerSecond;
+                    var velocity = scaleEndDetails.velocity.clampMagnitude(0, maxValue: this.widget.maxVelocity)
+                        .pixelsPerSecond;
                     var duration = velocity.distance / this.widget.deceleration;
-                    velocity = this._toFractional(velocity);
-                    this._inertiaAnimationController.duration = TimeSpan.FromSeconds(duration);
+                    velocity = this._toFractional(offset: velocity);
+                    this._inertiaAnimationController.duration = TimeSpan.FromSeconds(value: duration);
                     this._positionAnimation = new OffsetTween(
                             begin: this._position,
-                            end: this._position + velocity * duration / 2)
-                        .animate(this._inertiaAnimationController);
+                            this._position + velocity * duration / 2)
+                        .animate(parent: this._inertiaAnimationController);
                     this._inertiaAnimationController.setValue(0);
                     this._inertiaAnimationController.animateTo(1, curve: Curves.decelerate);
                 }
             }
+
             this._scaleAnimationController.setValue(0);
             this._scaleAnimationController.animateTo(1);
             this._panning = false;
