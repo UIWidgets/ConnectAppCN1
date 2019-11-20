@@ -19,9 +19,9 @@ namespace ConnectApp.Components {
         ) : base(key: key) {
         }
 
-        const string _content = "[此消息已被删除]";
+        const string _content = "此消息已被删除";
         static readonly EdgeInsets _contentPadding = EdgeInsets.symmetric(8, 12);
-        static readonly TextStyle _contentStyle = CTextStyle.PLargeBody2;
+        static readonly TextStyle _contentStyle = CTextStyle.PLargeBody4;
 
         public static float CalculateTextHeight(float width) {
             var contentHeight = CTextUtils.CalculateTextHeight(text: _content, textStyle: _contentStyle,
