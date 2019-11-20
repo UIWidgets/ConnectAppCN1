@@ -284,7 +284,7 @@ namespace ConnectApp.Components {
                     onImageResolved: this._onImageResolved)
                 : this._imageInfo != null
                     ? new RawImage(image: this._imageInfo.image, fit: BoxFit.contain)
-                    : this.widget.placeholder;
+                    : this.widget.placeholder;          
             
             result = new ScaleTransition(
                 scale: this._scaleAnimation, child: result);
@@ -302,8 +302,9 @@ namespace ConnectApp.Components {
 
             result = new Hero(
                 tag: this.widget.url,
-                child: result);
-            
+                flightShuttleBuilder: (_1, _2, _3, _4, _5) => { return result; },
+                child: result);  
+
             return result;
         }
 
