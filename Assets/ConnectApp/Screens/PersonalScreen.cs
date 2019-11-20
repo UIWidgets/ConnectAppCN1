@@ -184,6 +184,7 @@ namespace ConnectApp.screens {
                                 ),
                                 new Expanded(
                                     child: new Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: new List<Widget> {
                                             new Row(
@@ -192,7 +193,7 @@ namespace ConnectApp.screens {
                                                     new Flexible(
                                                         child: new Text(
                                                             user.fullName ?? user.name,
-                                                            style: CTextStyle.H4White,
+                                                            style: CTextStyle.H4White.merge(new TextStyle(height: 1)),
                                                             maxLines: 1,
                                                             overflow: TextOverflow.ellipsis
                                                         )

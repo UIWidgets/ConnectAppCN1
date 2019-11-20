@@ -52,7 +52,6 @@ namespace ConnectApp.Components {
                             child: new Text(
                                 data: message,
                                 style: new TextStyle(
-                                    height: 1.33f,
                                     fontSize: 16,
                                     fontFamily: "Roboto-Regular",
                                     color: new Color(0xFF959595)
@@ -69,6 +68,7 @@ namespace ConnectApp.Components {
             if (!this.canRefresh) {
                 return new Container();
             }
+
             return new CustomButton(
                 onPressed: this.tapCallback,
                 padding: EdgeInsets.zero,

@@ -20,9 +20,9 @@ namespace ConnectApp.Constants {
 
         public const string miniId = "gh_f731aec0bdd0";
 
-        public const string versionName = "1.2.4";
+        public const string versionName = "1.2.5";
 
-        public const int versionCode = 92;
+        public const int versionCode = 93;
 
         public const string messengerTag = "messenger";
 
@@ -35,15 +35,16 @@ namespace ConnectApp.Constants {
         public const string unityLearnPremiumUrl = "https://unity.com/learn-premium";
 
         public const int miniProgramType = 0; // 0 -> 正式版  1 -> 开发版  2 -> 体验版
-
+        
+        public const string store = "dev";
+        
 #if UNITY_IOS
         public const string platform = "ios";
-        public const string store = "appstore";
+//        public const string store = "appstore";
         public const string buglyId = "f3e3717b9f";
 #elif UNITY_ANDROID
         public const string platform = "android";
-//        public const string store = "test";
-        public const string store = "official";
+//        public const string store = "official";
 //        public const string store = "xiaomi";
 //        public const string store = "huawei";
 //        public const string store = "ali";

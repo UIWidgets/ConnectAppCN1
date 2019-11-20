@@ -26,7 +26,7 @@ namespace ConnectApp.Components {
             Widget coverImageWidget;
             Color coverImageColor;
             var coverImageWidth = MediaQuery.of(context).size.width;
-            if (this.coverImage != null && this.coverImage.isNotEmpty()) {
+            if (this.coverImage.isNotEmpty()) {
                 coverImageWidget = new PlaceholderImage(
                     imageUrl: this.coverImage,
                     height: this.height,
