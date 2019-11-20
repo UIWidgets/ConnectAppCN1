@@ -28,6 +28,10 @@ namespace ConnectApp.Main {
         }
 
         static void InitBugly() {
+            if (Application.isEditor) {
+                return;
+            }
+
             // Enable the debug log print
             BuglyAgent.ConfigDebugMode(enable: Config.enableDebug);
             // Config default channel, version, user 
