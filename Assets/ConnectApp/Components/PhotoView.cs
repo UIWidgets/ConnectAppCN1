@@ -284,7 +284,7 @@ namespace ConnectApp.Components {
                     onImageResolved: this._onImageResolved)
                 : this._imageInfo != null
                     ? new RawImage(image: this._imageInfo.image, fit: BoxFit.contain)
-                    : this.widget.placeholder;          
+                    : this.widget.placeholder;
             
             result = new ScaleTransition(
                 scale: this._scaleAnimation, child: result);
