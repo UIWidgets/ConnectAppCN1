@@ -15,8 +15,8 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -140,6 +140,7 @@ namespace ConnectApp.screens {
         string _shareActionSubId;
         bool _showNavBarShadow;
         float _bottomPadding;
+        bool _showPlayer;
 
 
         public override void initState() {
@@ -197,46 +198,6 @@ namespace ConnectApp.screens {
 
         public Ticker createTicker(TickerCallback onTick) {
             return new Ticker(onTick, () => $"created by {this}");
-        }
-
-        bool _onNotification(BuildContext context, ScrollNotification notification, EventStatus eventStatus,
-            IEvent eventObj) {
-            if (eventStatus == EventStatus.past && eventObj.record.isEmpty()) {
-                var pixels = notification.metrics.pixels;
-                if (this._titleHeight == 0.0f) {
-                    var width = MediaQuery.of(context).size.width;
-                    var imageHeight = 9.0f / 16.0f * width;
-                    this._titleHeight = imageHeight + eventTitleKey.currentContext.size.height + 32 - 64;
-                }
-
-                if (pixels >= 44) {
-                    if (this._showNavBarShadow) {
-                        this.setState(() => { this._showNavBarShadow = false; });
-                    }
-                }
-                else {
-                    if (!this._showNavBarShadow) {
-                        this.setState(() => { this._showNavBarShadow = true; });
-                    }
-                }
-
-                if (pixels >= this._titleHeight) {
-                    if (!this._isHaveTitle) {
-                        this._titleAnimationController.forward();
-                        this.setState(() => { this._isHaveTitle = true; });
-                    }
-                }
-                else {
-                    if (this._isHaveTitle) {
-                        this._titleAnimationController.reverse();
-                        this.setState(() => { this._isHaveTitle = false; });
-                    }
-                }
-
-                return true;
-            }
-
-            return false;
         }
 
         public override Widget build(BuildContext context) {
@@ -390,6 +351,7 @@ namespace ConnectApp.screens {
                 if (eventObj.record.isNotEmpty() && !AVPlayerPlugin.isConfigPlayer && AVPlayerPlugin.isExistPlayer) {
                     AVPlayerPlugin.configVideoPlayer(eventObj.record, HttpManager.getCookie());
                     AVPlayerPlugin.showPlayer();
+                    this._showPlayer = true;
                 }
 
                 return new Container(
@@ -413,28 +375,6 @@ namespace ConnectApp.screens {
 
         Widget _buildEventDetail(BuildContext context, IEvent eventObj, EventType eventType, EventStatus eventStatus,
             bool isLoggedIn) {
-//            if (eventObj.record.isEmpty() && eventStatus == EventStatus.past) {
-//                return new Expanded(
-//                    child: new Stack(
-//                        children: new List<Widget> {
-//                            new EventDetail(
-//                                false,
-//                                eventObj,
-//                                this.widget.actionModel.openUrl,
-//                                topWidget: new EventHeader(eventObj, eventType, eventStatus, isLoggedIn),
-//                                titleKey: eventTitleKey
-//                            ),
-//                            new Positioned(
-//                                left: 0,
-//                                top: 0,
-//                                right: 0,
-//                                child: this._buildHeadTop(true, eventObj)
-//                            )
-//                        }
-//                    )
-//                );
-//            }
-
             return new Expanded(
                 child: new EventDetail(
                     false,
@@ -521,147 +461,6 @@ namespace ConnectApp.screens {
                     )
                 )
             );
-
-//            var onlineCount = eventObj.onlineMemberCount;
-//            var recordWatchCount = eventObj.recordWatchCount;
-//            var userIsCheckedIn = eventObj.userIsCheckedIn;
-//            var title = "";
-//            var subTitle = "";
-//            if (eventStatus == EventStatus.live) {
-//                title = "正在直播";
-//                subTitle = $"{onlineCount}人正在观看";
-//            }
-//
-//            if (eventStatus == EventStatus.past) {
-//                title = "回放";
-//                subTitle = $"{recordWatchCount}次观看";
-//            }
-//
-//            if (eventStatus == EventStatus.future || eventStatus == EventStatus.countDown) {
-//                var begin = eventObj.begin != null ? eventObj.begin : new TimeMap();
-//                var startTime = begin.startTime;
-//                if (startTime.isNotEmpty()) {
-//                    subTitle = DateConvert.GetFutureTimeFromNow(startTime);
-//                }
-//
-//                title = "距离开始还有";
-//            }
-//
-//            var backgroundColor = CColors.PrimaryBlue;
-//            var joinInText = "立即加入";
-//            var textStyle = CTextStyle.PLargeMediumWhite;
-//
-//            Widget child = new Text(
-//                joinInText,
-//                style: textStyle
-//            );
-//
-//            if (this.widget.viewModel.joinEventLoading) {
-//                child = new CustomActivityIndicator(
-//                    loadingColor: LoadingColor.white
-//                );
-//            }
-//
-//            return new Container(
-//                height: 64,
-//                padding: EdgeInsets.symmetric(horizontal: 16),
-//                margin: EdgeInsets.only(bottom: MediaQuery.of(this.context).padding.bottom),
-//                decoration: new BoxDecoration(
-//                    CColors.White,
-//                    border: new Border(new BorderSide(CColors.Separator))
-//                ),
-//                child: new Row(
-//                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                    children: new List<Widget> {
-//                        new Column(
-//                            mainAxisAlignment: MainAxisAlignment.center,
-//                            crossAxisAlignment: CrossAxisAlignment.start,
-//                            children: new List<Widget> {
-//                                new Text(
-//                                    title,
-//                                    style: CTextStyle.PSmallBody4
-//                                ),
-//                                new Container(height: 2),
-//                                new Text(
-//                                    subTitle,
-//                                    style: CTextStyle.H5Body
-//                                )
-//                            }
-//                        ),
-//                        new CustomButton(
-//                            onPressed: () => {
-//                                if (this.widget.viewModel.joinEventLoading) {
-//                                    return;
-//                                }
-//
-//                                if (!this.widget.viewModel.isLoggedIn) {
-//                                    this.widget.actionModel.pushToLogin();
-//                                }
-//                                else {
-//                                    if (!WechatPlugin.instance().isInstalled()) {
-//                                        CustomToast.show(new CustomToastItem(this.context, "需要安装微信才能打开小程序",
-//                                            gravity: ToastGravity.center));
-//                                        return;
-//                                    }
-//
-//                                    CustomDialogUtils.showCustomDialog(
-//                                        barrierColor: Color.fromRGBO(0, 0, 0, 0.5f),
-//                                        child: new CustomAlertDialog(
-//                                            "即将前往微信小程序\n开始观看",
-//                                            null,
-//                                            new List<Widget> {
-//                                                new CustomButton(
-//                                                    child: new Text(
-//                                                        "稍后再说",
-//                                                        style: new TextStyle(
-//                                                            height: 1.33f,
-//                                                            fontSize: 16,
-//                                                            fontFamily: "Roboto-Regular",
-//                                                            color: new Color(0xFF959595)
-//                                                        ),
-//                                                        textAlign: TextAlign.center
-//                                                    ),
-//                                                    onPressed: () => { CustomDialogUtils.hiddenCustomDialog(); }
-//                                                ),
-//                                                new CustomButton(
-//                                                    child: new Text(
-//                                                        "立即前往",
-//                                                        style: CTextStyle.PLargeBlue,
-//                                                        textAlign: TextAlign.center
-//                                                    ),
-//                                                    onPressed: () => {
-//                                                        CustomDialogUtils.hiddenCustomDialog();
-//                                                        WechatPlugin.instance().context = this.context;
-//                                                        WechatPlugin.instance().currentEventId = eventObj.id;
-//                                                        var path =
-//                                                            $"pages/Detail/Detail?id={eventObj.id}&title={eventObj.title}&app=true";
-//                                                        WechatPlugin.instance().toOpenMiNi(path);
-//                                                    }
-//                                                )
-//                                            }
-//                                        )
-//                                    );
-//                                }
-//                            },
-//                            child: new Container(
-//                                width: 96,
-//                                height: 40,
-//                                decoration: new BoxDecoration(
-//                                    backgroundColor,
-//                                    borderRadius: BorderRadius.all(4)
-//                                ),
-//                                alignment: Alignment.center,
-//                                child: new Row(
-//                                    mainAxisAlignment: MainAxisAlignment.center,
-//                                    children: new List<Widget> {
-//                                        child
-//                                    }
-//                                )
-//                            )
-//                        )
-//                    }
-//                )
-//            );
         }
 
         Widget _buildChatWindow() {
@@ -899,7 +698,9 @@ namespace ConnectApp.screens {
 
         public void didPopNext() {
             StatusBarManager.statusBarStyle(false);
-            AVPlayerPlugin.showPlayer();
+            if (this._showPlayer) {
+                AVPlayerPlugin.showPlayer();
+            }
         }
     }
 }
