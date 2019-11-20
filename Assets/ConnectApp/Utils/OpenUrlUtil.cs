@@ -2,6 +2,7 @@ using System;
 using ConnectApp.Constants;
 using ConnectApp.redux.actions;
 using Unity.UIWidgets;
+using Unity.UIWidgets.foundation;
 
 namespace ConnectApp.Utils {
     public static class OpenUrlUtil {
@@ -37,6 +38,10 @@ namespace ConnectApp.Utils {
                 }
                 else if (uri.AbsolutePath.StartsWith("/mconnect/channels/")) {
                     var channelId = uri.AbsolutePath.Remove(0, "/mconnect/channels/".Length);
+                    if (MessageUtils.currentChannelId.isNotEmpty() && channelId == MessageUtils.currentChannelId) {
+                        return;
+                    }
+
                     dispatcher.dispatch(new MainNavigatorPushToChannelShareAction {
                         channelId = channelId
                     });

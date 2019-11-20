@@ -497,20 +497,21 @@ namespace ConnectApp.Components {
                 new Stack(
                     children: new List<Widget> {
                         new GestureDetector(
-                            child: new PlaceholderImage(
-                                imageUrl: imageUrl,
-                                width: width,
-                                height: height,
-                                fit: BoxFit.cover,
-                                useCachedNetworkImage: true
+                            child: new Hero(
+                                tag: imageUrl,
+                                child: new PlaceholderImage(
+                                    imageUrl: imageUrl,
+                                    width: width,
+                                    height: height,
+                                    fit: BoxFit.cover,
+                                    useCachedNetworkImage: true
+                                )
                             ), onTap: () => {
                                 if (dataUrl.isNotEmpty()) {
                                     openUrl(obj: dataUrl);
                                 }
                                 else {
-                                    if (browserImage != null) {
-                                        browserImage(imageUrl);
-                                    }
+                                    browserImage?.Invoke(imageUrl);
                                 }
                             }
                         ),
