@@ -3025,6 +3025,7 @@ namespace ConnectApp.redux.reducers {
 
                     if (state.channelState.messageDict.ContainsKey(message.id)) {
                         state.channelState.messageDict[message.id].type = ChannelMessageType.deleted;
+                        state.channelState.messageDict[message.id].buildHeight = null;
                     }
 
                     break;
