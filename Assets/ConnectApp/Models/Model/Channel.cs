@@ -351,6 +351,7 @@ namespace ConnectApp.Models.Model {
         public string status = "normal";
         public byte[] imageData;
         public byte[] videoData;
+        public float? buildHeight;
 
         static ChannelMessageType getType(string content, bool deleted, List<Attachment> attachments = null,
             List<Embed> embeds = null) {

@@ -1675,6 +1675,9 @@ namespace ConnectApp.screens {
         }
 
         static float calculateMessageHeight(ChannelMessageView message, bool showTime, float width) {
+            if (message.buildHeight != null) {
+                return message.buildHeight.Value;
+            }
             float height = 20 + 6 + 16 + (showTime ? 36 : 0); // Name + Internal + Bottom padding + time
             switch (message.type) {
                 case ChannelMessageType.deleted:
@@ -1695,6 +1698,7 @@ namespace ConnectApp.screens {
                     break;
             }
 
+            message.buildHeight = height;
             return height;
         }
     }
