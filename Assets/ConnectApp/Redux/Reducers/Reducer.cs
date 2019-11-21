@@ -3096,8 +3096,9 @@ namespace ConnectApp.redux.reducers {
                     var channelData = action.channelData;
                     // filter project/event/support channel
                     if (channelData.projectId.isNotEmpty()
+                        || channelData.ticketId.isNotEmpty()
                         || channelData.proposalId.isNotEmpty()
-                        || channelData.ticketId.isNotEmpty()) {
+                        || !(channelData.type == "public" || channelData.type == "private" || channelData.type == "lobby")) {
                         break;
                     }
 
@@ -3136,6 +3137,19 @@ namespace ConnectApp.redux.reducers {
 
                 case PushChannelUpdateChannelAction action: {
                     var channelData = action.channelData;
+                    
+                    // filter project/event/support channel
+                    if (channelData.projectId.isNotEmpty()
+                        || channelData.ticketId.isNotEmpty()
+                        || channelData.proposalId.isNotEmpty()
+                        || !(channelData.type == "public" || channelData.type == "private" || channelData.type == "lobby")) {
+                        break;
+                    }
+
+                    if (!state.channelState.createChannelFilterIds.Contains(channelData.id)) {
+                        break;
+                    }
+                    
                     if (state.channelState.channelDict.ContainsKey(channelData.id)) {
                         ChannelView channel = state.channelState.channelDict[channelData.id];
                         channel.updateFromSocketResponseUpdateChannelData(channelData);
