@@ -2946,6 +2946,7 @@ namespace ConnectApp.redux.reducers {
                 case PushReadyAction action: {
                     state.channelState.updateSessionReadyData(action.readyData);
                     state.channelState.updateTotalMention();
+                    state.channelState.markCurrentChannelAsNeedingFetch();
                     break;
                 }
 
@@ -3168,15 +3169,8 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case SocketConnectStateAction action: {
-                    if (!state.channelState.socketConnected && action.connected) {
-                        state.channelState.joinedChannels.ForEach(channelId => {
-                            if (state.channelState.channelDict.ContainsKey(channelId)) {
-                                var channel = state.channelState.channelDict[channelId];
-                                if (channel.active) {
-                                    channel.needFetchMessages = true;
-                                }
-                            }
-                        });
+                    if (action.connected) {
+                        state.channelState.markCurrentChannelAsNeedingFetch();
                     }
 
                     state.channelState.socketConnected = action.connected;
