@@ -134,20 +134,17 @@ namespace ConnectApp.screens {
         readonly FocusNode _focusNode = new FocusNode();
         readonly RefreshController _refreshController = new RefreshController();
         static readonly GlobalKey eventTitleKey = GlobalKey.key("event-title");
-        float _titleHeight;
         bool _isHaveTitle;
         string _loginSubId;
         string _shareActionSubId;
         bool _showNavBarShadow;
         float _bottomPadding;
         bool _showPlayer;
-
-
+        
         public override void initState() {
             base.initState();
             StatusBarManager.statusBarStyle(false);
             this._showNavBarShadow = true;
-            this._titleHeight = 0.0f;
             this._isHaveTitle = false;
             this._controller = new AnimationController(
                 duration: new TimeSpan(0, 0, 0, 0, 300),
