@@ -741,9 +741,6 @@ namespace ConnectApp.screens {
                     child: new GestureDetector(
                         onTap: () => {
                             this.widget.actionModel.reportHitBottom();
-                            if (this.lastReadMessageLoaded()) {
-                                this.showUnreadMessageNotification = false;
-                            }
 
                             SchedulerBinding.instance.addPostFrameCallback(_ => {
                                 this._refreshController.scrollTo(0);
