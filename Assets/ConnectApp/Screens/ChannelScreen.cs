@@ -236,6 +236,7 @@ namespace ConnectApp.screens {
                         popFromScreen = () => {
                             dispatcher.dispatch(Actions.ackChannelMessage(viewModel.channel.lastMessageId));
                             dispatcher.dispatch(new SetChannelInactive {channelId = this.channelId});
+                            dispatcher.dispatch(new MergeNewChannelMessages {channelId = this.channelId});
                         },
                         pushToChannelMention = () => {
                             dispatcher.dispatch(new MainNavigatorPushToChannelMentionAction {
