@@ -5,11 +5,23 @@ using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
+using Transform = Unity.UIWidgets.widgets.Transform;
 
 namespace ConnectApp.Components {
     public class CustomSegmentedControl : StatefulWidget {
+        public readonly List<Widget> children;
+        public readonly int currentIndex;
+
+        public readonly List<string> items;
+        public readonly ValueChanged<int> onValueChanged;
+        public readonly Color selectedColor;
+        public readonly Color unselectedColor;
+
         public CustomSegmentedControl(
             List<string> items,
             List<Widget> children,
@@ -33,13 +45,6 @@ namespace ConnectApp.Components {
             this.selectedColor = selectedColor ?? CColors.PrimaryBlue;
         }
 
-        public readonly List<string> items;
-        public readonly List<Widget> children;
-        public readonly ValueChanged<int> onValueChanged;
-        public readonly int currentIndex;
-        public readonly Color unselectedColor;
-        public readonly Color selectedColor;
-
         public override State createState() {
             return new _CustomSegmentedControlState();
         }
@@ -48,11 +53,31 @@ namespace ConnectApp.Components {
     class _CustomSegmentedControlState : State<CustomSegmentedControl> {
         PageController _pageController;
         int _selectedIndex;
+        float _selectorWidth;
+        float _selectorOffset;
+
+        float _selectorOriginalWidth {
+            get { return 1.0f / this.widget.items.Count; }
+        }
 
         public override void initState() {
             base.initState();
             this._selectedIndex = this.widget.currentIndex;
             this._pageController = new PageController(initialPage: this._selectedIndex);
+            this._selectorWidth = this._selectorOriginalWidth;
+            this._selectorOffset = 0;
+            SchedulerBinding.instance.addPostFrameCallback(_ => {
+                this._pageController.position.addListener(() => {
+                    this.setState(() => {
+                        this._selectorWidth = this._selectorOriginalWidth *
+                                              ((this._pageController.page - this._pageController.page.round())
+                                               .abs() * 2 + 1);
+                        this._selectorOffset = this._pageController.page.round() == this._pageController.page.floor()
+                            ? this._selectorOriginalWidth * this._pageController.page.floor()
+                            : this._selectorOriginalWidth * (this._pageController.page.ceil() + 1) - this._selectorWidth;
+                    });
+                });
+            });
         }
 
         public override void dispose() {
@@ -72,6 +97,7 @@ namespace ConnectApp.Components {
         public override Widget build(BuildContext context) {
             return new Container(
                 child: new Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
                         this._buildSelectView(),
                         this._buildContentView()
@@ -87,16 +113,37 @@ namespace ConnectApp.Components {
                 var itemWidget = this._buildSelectItem(title: item, index: itemIndex);
                 children.Add(item: itemWidget);
             });
-            return new Container(
-                decoration: new BoxDecoration(
-                    color: CColors.White,
-                    border: new Border(bottom: new BorderSide(color: CColors.Separator2))
-                ),
-                height: 44,
-                child: new Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: children
-                )
+            return new Stack(
+                children: new List<Widget> {
+                    new Container(
+                        decoration: new BoxDecoration(
+                            color: CColors.White,
+                            border: new Border(bottom: new BorderSide(color: CColors.Separator2))
+                        ),
+                        height: 44,
+                        child: new Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: children
+                        )
+                    ),
+                    new Positioned(
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        child: new Container(
+                            height: 2,
+                            child: new FractionalTranslation(
+                                translation: new Offset(this._selectorOffset, 0),
+                                child: new FractionallySizedBox(
+                                    alignment: Alignment.centerLeft,
+                                    widthFactor: this._selectorWidth,
+                                    child: new Container(color: this.widget.selectedColor)
+                                )
+                            )
+                        )
+                    )
+                }
             );
         }
 
@@ -124,25 +171,25 @@ namespace ConnectApp.Components {
         Widget _buildSelectItem(string title, int index) {
             var textColor = this.widget.unselectedColor;
             var fontFamily = "Roboto-Regular";
-            Widget lineView = new Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: new Container(height: 2)
-            );
-            if (index == this._selectedIndex) {
-                textColor = this.widget.selectedColor;
-                fontFamily = "Roboto-Medium";
-                lineView = new Positioned(
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    child: new Container(
-                        height: 2,
-                        color: this.widget.selectedColor
-                    )
-                );
-            }
+//            Widget lineView = new Positioned(
+//                bottom: 0,
+//                left: 0,
+//                right: 0,
+//                child: new Container(height: 2)
+//            );
+//            if (index == this._selectedIndex) {
+//                textColor = this.widget.selectedColor;
+//                fontFamily = "Roboto-Medium";
+//                lineView = new Positioned(
+//                    bottom: 0,
+//                    left: 0,
+//                    right: 0,
+//                    child: new Container(
+//                        height: 2,
+//                        color: this.widget.selectedColor
+//                    )
+//                );
+//            }
 
             return new CustomButton(
                 onPressed: () => {
@@ -176,8 +223,8 @@ namespace ConnectApp.Components {
                                         color: textColor
                                     )
                                 )
-                            ),
-                            lineView
+                            )
+                            // lineView
                         }
                     )
                 )
