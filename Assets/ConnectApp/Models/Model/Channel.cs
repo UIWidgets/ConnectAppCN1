@@ -359,25 +359,29 @@ namespace ConnectApp.Models.Model {
                 return ChannelMessageType.deleted;
             }
 
-            if (content != null || (attachments?.Count ?? 0) == 0) {
-                if ((embeds?.Count ?? 0) == 0) {
+            if ((attachments?.Count ?? 0) == 0 && (embeds?.Count ?? 0) == 0) {
+                if (content.isNotEmpty()) {
                     return ChannelMessageType.text;
                 }
 
-                switch (embeds.First().embedType) {
-                    case "image":
-                        return ChannelMessageType.embedImage;
-                    case "external":
-                        return ChannelMessageType.embedExternal;
-                    default:
-                        return ChannelMessageType.skip;
-                }
+                return ChannelMessageType.skip;
             }
 
-            return attachments.First().contentType.StartsWith("image") &&
-                   !attachments.First().filename.EndsWith(".svg")
-                ? ChannelMessageType.image
-                : ChannelMessageType.file;
+            if ((attachments?.Count ?? 0) != 0) {
+                return attachments.First().contentType.StartsWith("image") &&
+                       !attachments.First().filename.EndsWith(".svg")
+                    ? ChannelMessageType.image
+                    : ChannelMessageType.file;
+            }
+
+            switch (embeds.First().embedType) {
+                case "image":
+                    return ChannelMessageType.embedImage;
+                case "external":
+                    return ChannelMessageType.embedExternal;
+                default:
+                    return ChannelMessageType.skip;
+            }
         }
 
         static long getNonce(string nonce) {

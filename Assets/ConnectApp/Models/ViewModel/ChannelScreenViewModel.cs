@@ -6,7 +6,6 @@ namespace ConnectApp.Models.ViewModel {
         public ChannelView channel;
         public List<ChannelMessageView> messages;
         public List<ChannelMessageView> newMessages;
-        public int newMessageCount;
         public User me;
         public bool channelInfoLoading;
         public bool messageLoading;

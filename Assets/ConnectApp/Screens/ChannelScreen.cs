@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
@@ -120,7 +119,6 @@ namespace ConnectApp.screens {
                             fullName = state.loginState.loginInfo.userFullName
                         },
                         messageLoading = state.channelState.messageLoading,
-                        newMessageCount = newMessages.Count,
                         socketConnected = state.channelState.socketConnected,
                         networkConnected = state.networkState.networkConnected,
                         dismissNoNetworkBanner = state.networkState.dismissNoNetworkBanner,
@@ -617,7 +615,7 @@ namespace ConnectApp.screens {
                 this._lastReadMessageId = null;
             }
 
-            this.showNewMessageNotification = this.widget.viewModel.newMessageCount > 0;
+            this.showNewMessageNotification = this.widget.viewModel.newMessages.Count > 0;
 
             if (this.widget.viewModel.mentionAutoFocus) {
                 SchedulerBinding.instance.addPostFrameCallback(_ => {
@@ -693,8 +691,8 @@ namespace ConnectApp.screens {
         int _newMessageCount = 0;
 
         Widget _buildNewMessageNotification() {
-            if (this.widget.viewModel.newMessageCount > 0) {
-                this._newMessageCount = this.widget.viewModel.newMessageCount;
+            if (this.widget.viewModel.newMessages.Count > 0) {
+                this._newMessageCount = this.widget.viewModel.newMessages.Count;
             }
 
             if (this._newMessageNotificationController.value < 0.1f) {
