@@ -37,6 +37,19 @@ namespace ConnectApp.Utils {
             return parsingContent;
         }
 
+        public static string truncateMessage(string content, int head = 1000, int tail = 1000, string connector = "...") {
+            if (content.isEmpty() || content.Length <= head + tail + connector.Length) {
+                return content;
+            }
+            return content.Substring(0, head > 0 && char.IsHighSurrogate(content[head-1])
+                       ? head-1
+                       : head) +
+                   connector +
+                   content.Substring(tail > 0 && char.IsLowSurrogate(content[content.Length - tail])
+                       ? content.Length - tail + 1
+                       : content.Length - tail);
+        }
+
         public static IEnumerable<TextSpan> messageToTextSpans(string content, List<User> mentions,
             bool mentionEveryone, MentionTapCallback onTap) {
             var userDict = StoreProvider.store.getState().userState.userDict;
