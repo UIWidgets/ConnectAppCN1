@@ -2672,6 +2672,7 @@ namespace ConnectApp.redux.reducers {
                         action.messages.last().id.hexToLong() > lastMessageId.hexToLong()) {
                         channel.messageIds = new List<string>();
                         channel.newMessageIds = new List<string>();
+                        lastMessageId = null;
                     }
 
                     for (var i = 0; i < action.messages.Count; i++) {

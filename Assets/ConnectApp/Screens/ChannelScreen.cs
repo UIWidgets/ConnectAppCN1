@@ -616,6 +616,12 @@ namespace ConnectApp.screens {
                 this._lastReadMessageId = null;
             }
 
+            if (this.widget.viewModel.channel.needFetchMessages) {
+                SchedulerBinding.instance.addPostFrameCallback(_ => {
+                    this._refreshController.scrollTo(0);
+                });
+            }
+
             this.showNewMessageNotification = this.widget.viewModel.newMessages.Count > 0;
 
             if (this.widget.viewModel.mentionAutoFocus) {
