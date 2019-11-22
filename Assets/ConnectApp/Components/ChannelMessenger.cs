@@ -19,9 +19,9 @@ namespace ConnectApp.Components {
         ) : base(key: key) {
         }
 
-        const string _content = "[此消息已被删除]";
+        const string _content = "此消息已被删除";
         static readonly EdgeInsets _contentPadding = EdgeInsets.symmetric(8, 12);
-        static readonly TextStyle _contentStyle = CTextStyle.PLargeBody2;
+        static readonly TextStyle _contentStyle = CTextStyle.PLargeBody4;
 
         public static float CalculateTextHeight(float width) {
             var contentHeight = CTextUtils.CalculateTextHeight(text: _content, textStyle: _contentStyle,
@@ -57,8 +57,10 @@ namespace ConnectApp.Components {
         static readonly TextStyle _contentStyle = CTextStyle.PLargeBlack;
 
         public static float CalculateTextHeight(string content, float width) {
-            var contentHeight = CTextUtils.CalculateTextHeight(text: content, textStyle: _contentStyle,
-                width - _contentPadding.horizontal);
+            var contentHeight = CTextUtils.CalculateTextHeight(
+                text: MessageUtils.truncateMessage(content),
+                textStyle: _contentStyle,
+                textWidth: width - _contentPadding.horizontal);
             return _contentPadding.vertical + contentHeight;
         }
 
@@ -77,8 +79,8 @@ namespace ConnectApp.Components {
                     text: new TextSpan(
                         children: MessageUtils.messageWithMarkdownToTextSpans(
                             content: this.message.status == "normal"
-                                ? this.message.content
-                                : this.message.plainText,
+                                ? MessageUtils.truncateMessage(this.message.content)
+                                : MessageUtils.truncateMessage(this.message.plainText),
                             mentions: this.message.mentions,
                             mentionEveryone: this.message.mentionEveryone,
                             onTap: this.onTap,
@@ -256,7 +258,7 @@ namespace ConnectApp.Components {
             return new RichText(
                 text: new TextSpan(
                     children: MessageUtils.messageWithMarkdownToTextSpans(
-                        content: this.message.content,
+                        content: MessageUtils.truncateMessage(this.message.content),
                         mentions: this.message.mentions,
                         mentionEveryone: this.message.mentionEveryone,
                         onTap: this.onClickUser,
@@ -365,8 +367,10 @@ namespace ConnectApp.Components {
         }
 
         public static float CalculateTextHeight(ChannelMessageView message, float width) {
-            var contentHeight = CTextUtils.CalculateTextHeight(text: message.content, textStyle: _contentStyle,
-                width - _contentPadding.horizontal);
+            var contentHeight = CTextUtils.CalculateTextHeight(
+                text: MessageUtils.truncateMessage(message.content),
+                textStyle: _contentStyle,
+                textWidth: width - _contentPadding.horizontal);
             float descriptionHeight;
             if (message.type == ChannelMessageType.embedImage) {
                 descriptionHeight = ImageMessage.CalculateTextHeight(message: message);

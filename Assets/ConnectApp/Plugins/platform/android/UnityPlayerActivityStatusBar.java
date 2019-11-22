@@ -1,4 +1,5 @@
 package com.unity3d.unityconnect;
+
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
@@ -23,7 +24,7 @@ public class UnityPlayerActivityStatusBar extends UnityPlayerActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (this.getIntent().getScheme()!=null && this.getIntent().getScheme().equals("unityconnect")){
+        if (this.getIntent().getScheme() != null && this.getIntent().getScheme().equals("unityconnect")) {
             JPushPlugin.getInstance().schemeUrl = this.getIntent().getDataString();
         }
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -41,7 +42,7 @@ public class UnityPlayerActivityStatusBar extends UnityPlayerActivity {
         addDKPlayView();
     }
 
-    void addDKPlayView(){
+    void addDKPlayView() {
         View view = LayoutInflater.from(this).inflate(R.layout.video_view, null);
         mUnityPlayer.addView(view);
         videoView = (VideoView) view.findViewById(R.id.player);
@@ -49,23 +50,22 @@ public class UnityPlayerActivityStatusBar extends UnityPlayerActivity {
         videoView.setVideoController(controller); //设置控制器，如需定制可继承BaseVideoController
         videoView.setLock(false);
         videoView.setVisibility(View.GONE);
-        videoView.setScreenScale(VideoView.SCREEN_SCALE_16_9);
 
         AVPlayerPlugin.getInstance().videoView = videoView;
         AVPlayerPlugin.getInstance().controller = controller;
     }
 
-    public void applePermission(){
+    public void applePermission() {
         final int REQUEST_EXTERNAL_STORAGE = 1;
         String[] PERMISSIONS_STORAGE = {
                 "android.permission.READ_EXTERNAL_STORAGE",
-                "android.permission.WRITE_EXTERNAL_STORAGE" };
+                "android.permission.WRITE_EXTERNAL_STORAGE"};
 
-        if (Build.VERSION.SDK_INT>=23){
-            int permission = ActivityCompat.checkSelfPermission(getApplicationContext(),"android.permission.WRITE_EXTERNAL_STORAGE");
+        if (Build.VERSION.SDK_INT >= 23) {
+            int permission = ActivityCompat.checkSelfPermission(getApplicationContext(), "android.permission.WRITE_EXTERNAL_STORAGE");
             if (permission != PackageManager.PERMISSION_GRANTED) {
                 // 没有写的权限，去申请写的权限，会弹出对话框
-                ActivityCompat.requestPermissions(UnityPlayerActivityStatusBar.this, PERMISSIONS_STORAGE,REQUEST_EXTERNAL_STORAGE);
+                ActivityCompat.requestPermissions(UnityPlayerActivityStatusBar.this, PERMISSIONS_STORAGE, REQUEST_EXTERNAL_STORAGE);
             }
         }
     }
@@ -101,12 +101,12 @@ public class UnityPlayerActivityStatusBar extends UnityPlayerActivity {
     @Override
     protected void onRestart() {
         super.onRestart();
-        if (this.getIntent().getScheme() != null && this.getIntent().getScheme().equals("unityconnect") ){
+        if (this.getIntent().getScheme() != null && this.getIntent().getScheme().equals("unityconnect")) {
             String data = this.getIntent().getDataString();
-            if (JPushPlugin.getInstance().isListenCompleted){
+            if (JPushPlugin.getInstance().isListenCompleted) {
                 this.getIntent().setData(null);
                 UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("jpush", "OnOpenUrl", Arrays.asList(data));
-            }else {
+            } else {
                 JPushPlugin.getInstance().schemeUrl = data;
             }
         }
