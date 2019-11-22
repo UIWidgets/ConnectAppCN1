@@ -29,7 +29,7 @@ namespace ConnectApp.screens {
         }
     }
 
-    public class _WebViewScreenState : State<WebViewScreen> {
+    public class _WebViewScreenState : State<WebViewScreen>, RouteAware {
         WebViewObject _webViewObject;
         float _progress;
         bool _onClose;
@@ -58,12 +58,18 @@ namespace ConnectApp.screens {
                 if (HttpManager.getCookie().isNotEmpty()) {
                     this._webViewObject.AddCustomHeader("Cookie", HttpManager.getCookie());
                 }
+
                 this._webViewObject.LoadURL(this.widget.url);
                 this._webViewObject.SetVisibility(true);
             }
 
             this._progress = 0;
             this._onClose = false;
+        }
+
+        public override void didChangeDependencies() {
+            base.didChangeDependencies();
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(context: this.context));
         }
 
         public override void dispose() {
@@ -76,6 +82,8 @@ namespace ConnectApp.screens {
                 this._webViewObject.SetVisibility(false);
                 WebViewManager.destroyWebView();
             }
+
+            Router.routeObserve.unsubscribe(this);
 
             base.dispose();
         }
@@ -186,6 +194,31 @@ namespace ConnectApp.screens {
                     )
                 )
             );
+        }
+
+        public void didPopNext() {
+            if (!Application.isEditor) {
+                this._webViewObject.SetVisibility(true);
+            }
+        }
+
+        public void didPush() {
+            if (!Application.isEditor) {
+                this._webViewObject.SetVisibility(true);
+            }
+        }
+
+        public void didPop() {
+            if (!Application.isEditor) {
+                this._webViewObject.SetVisibility(false);
+                WebViewManager.destroyWebView();
+            }
+        }
+
+        public void didPushNext() {
+            if (!Application.isEditor) {
+                this._webViewObject.SetVisibility(false);
+            }
         }
     }
 }
