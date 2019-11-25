@@ -29,6 +29,7 @@ namespace ConnectApp.Components {
             D.assert(children != null);
             D.assert(children.Count >= 2);
             D.assert(children.Count == items.Count);
+            D.assert(currentIndex < children.Count);
             this.items = items;
             this.children = children;
             this.onValueChanged = onValueChanged;
