@@ -14,6 +14,7 @@ namespace ConnectApp.Components {
         public readonly Color selectedColor;
         public readonly Color unselectedColor;
         public readonly int currentIndex;
+        public readonly float? indicatorWidth;
 
         public CustomSegmentedControl(
             List<string> items,
@@ -22,6 +23,7 @@ namespace ConnectApp.Components {
             int currentIndex = 0,
             Color unselectedColor = null,
             Color selectedColor = null,
+            float? indicatorWidth = null,
             Key key = null
         ) : base(key: key) {
             D.assert(items != null);
@@ -36,6 +38,7 @@ namespace ConnectApp.Components {
             this.unselectedColor = unselectedColor ?? CColors.TextTitle;
             this.selectedColor = selectedColor ?? CColors.PrimaryBlue;
             this.currentIndex = currentIndex;
+            this.indicatorWidth = indicatorWidth;
         }
 
         public override State createState() {
@@ -92,9 +95,11 @@ namespace ConnectApp.Components {
             return new CustomTabBarHeader(
                 tabs: children,
                 controller: this._controller,
-                indicator: new BoxDecoration(
-                    border: new Border(bottom: new BorderSide(color: this.widget.selectedColor, 2))),
-                indicatorSize: CustomTabBarIndicatorSize.label,
+                indicator: new CustomUnderlineTabIndicator(
+                    insets: EdgeInsets.zero,
+                    borderSide: new BorderSide( width: 2, color: this.widget.selectedColor)),
+                indicatorSize: CustomTabBarIndicatorSize.fixedOrLabel,
+                indicatorFixedSize: this.widget.indicatorWidth,
                 indicatorChangeStyle: CustomTabBarIndicatorChangeStyle.enlarge,
                 unselectedLabelStyle: _labelStyle,
                 unselectedLabelColor: this.widget.unselectedColor,

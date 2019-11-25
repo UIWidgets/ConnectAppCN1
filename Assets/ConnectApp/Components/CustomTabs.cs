@@ -56,7 +56,9 @@ namespace ConnectApp.Components {
 
     public enum CustomTabBarIndicatorSize {
         tab,
-        label
+        label,
+        fixedOrTab, // if indicatorFixedWidth == null, default to tab
+        fixedOrLabel // if indicatorFixedWidth == null, default to label
     }
 
     public class CustomTab : StatelessWidget {
@@ -285,7 +287,8 @@ namespace ConnectApp.Components {
             CustomTabBarIndicatorSize indicatorSize,
             List<GlobalKey> tabKeys,
             _CustomIndicatorPainter old = null,
-            CustomTabBarIndicatorChangeStyle changeStyle = CustomTabBarIndicatorChangeStyle.slide
+            CustomTabBarIndicatorChangeStyle changeStyle = CustomTabBarIndicatorChangeStyle.slide,
+            float? indicatorFixedSize = null
         ) : base(repaint: controller.animation) {
             this.controller = controller;
             this.indicator = indicator;
@@ -296,6 +299,7 @@ namespace ConnectApp.Components {
             }
 
             this.changeStyle = changeStyle;
+            this.indicatorFixedSize = indicatorFixedSize;
         }
 
         readonly CustomTabController controller;
@@ -303,6 +307,7 @@ namespace ConnectApp.Components {
         readonly CustomTabBarIndicatorSize indicatorSize;
         readonly List<GlobalKey> tabKeys;
         readonly CustomTabBarIndicatorChangeStyle changeStyle;
+        readonly float? indicatorFixedSize;
 
         List<float> _currentTabOffsets;
         Rect _currentRect;
@@ -341,12 +346,23 @@ namespace ConnectApp.Components {
             float tabLeft = this._currentTabOffsets[tabIndex];
             float tabRight = this._currentTabOffsets[tabIndex + 1];
 
-            if (this.indicatorSize == CustomTabBarIndicatorSize.label) {
-                float tabWidth = this.tabKeys[tabIndex].currentContext.size.width;
-                float delta = ((tabRight - tabLeft) - tabWidth) / 2.0f;
-                tabLeft += delta;
-                tabRight -= delta;
+            if (this.indicatorFixedSize == null) {
+                if (this.indicatorSize == CustomTabBarIndicatorSize.label ||
+                    this.indicatorSize == CustomTabBarIndicatorSize.fixedOrLabel) {
+                    float tabWidth = this.tabKeys[tabIndex].currentContext.size.width;
+                    float delta = ((tabRight - tabLeft) - tabWidth) / 2.0f;
+                    tabLeft += delta;
+                    tabRight -= delta;
+                }
             }
+            else {
+                if (this.indicatorSize == CustomTabBarIndicatorSize.fixedOrTab) {
+                    float delta = ((tabRight - tabLeft) - this.indicatorFixedSize.Value) / 2.0f;
+                    tabLeft += delta;
+                    tabRight -= delta;
+                }
+            }
+
 
             return Rect.fromLTWH(tabLeft, 0.0f, tabRight - tabLeft, tabBarSize.height);
         }
@@ -523,6 +539,7 @@ namespace ConnectApp.Components {
             EdgeInsets indicatorPadding = null,
             Decoration indicator = null,
             CustomTabBarIndicatorSize? indicatorSize = null,
+            float? indicatorFixedSize = null,
             CustomTabBarIndicatorChangeStyle indicatorChangeStyle = CustomTabBarIndicatorChangeStyle.slide,
             Color labelColor = null,
             TextStyle labelStyle = null,
@@ -544,6 +561,7 @@ namespace ConnectApp.Components {
             this.indicatorPadding = indicatorPadding;
             this.indicator = indicator;
             this.indicatorSize = indicatorSize;
+            this.indicatorFixedSize = indicatorFixedSize;
             this.indicatorChangeStyle = indicatorChangeStyle;
             this.labelColor = labelColor;
             this.labelStyle = labelStyle;
@@ -569,6 +587,8 @@ namespace ConnectApp.Components {
         public readonly Decoration indicator;
 
         public readonly CustomTabBarIndicatorSize? indicatorSize;
+
+        public readonly float? indicatorFixedSize;
 
         public readonly Color labelColor;
 
@@ -683,10 +703,11 @@ namespace ConnectApp.Components {
                 : new _CustomIndicatorPainter(
                     controller: this._controller,
                     indicator: this._indicator,
-                    this.widget.indicatorSize ?? CustomTabBarIndicatorSize.label,
+                    this.widget.indicatorSize ?? CustomTabBarIndicatorSize.fixedOrLabel,
                     tabKeys: this._tabKeys,
                     old: this._indicatorPainter,
-                    this.widget.indicatorChangeStyle
+                    this.widget.indicatorChangeStyle,
+                    indicatorFixedSize: this.widget.indicatorFixedSize
                 );
         }
 
