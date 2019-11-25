@@ -1,16 +1,10 @@
-using System;
 using System.Collections.Generic;
 using ConnectApp.Constants;
-using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
-using Color = Unity.UIWidgets.ui.Color;
-using Transform = Unity.UIWidgets.widgets.Transform;
 
 namespace ConnectApp.Components {
     public class CustomSegmentedControl : StatefulWidget {
@@ -51,22 +45,19 @@ namespace ConnectApp.Components {
     }
 
     class _CustomSegmentedControlState : TickerProviderStateMixin<CustomSegmentedControl> {
-
-        CustomTabController _controller;
-
         static readonly TextStyle _labelStyle = new TextStyle(
             fontSize: 16,
             fontFamily: "Roboto-Regular"
         );
 
+        CustomTabController _controller;
+
         public override void initState() {
             base.initState();
             this._controller = new CustomTabController(2, this);
-            this._controller.addListener(() => {
-                this.widget.onValueChanged(this._controller.index);
-            });
+            this._controller.addListener(() => { this.widget.onValueChanged(value: this._controller.index); });
         }
-        
+
         public override void dispose() {
             this._controller.dispose();
             base.dispose();
@@ -95,7 +86,7 @@ namespace ConnectApp.Components {
                 tabs: children,
                 controller: this._controller,
                 indicator: new BoxDecoration(
-                    border: new Border(bottom: new BorderSide(color: this.widget.selectedColor, width: 2))),
+                    border: new Border(bottom: new BorderSide(color: this.widget.selectedColor, 2))),
                 indicatorSize: CustomTabBarIndicatorSize.label,
                 indicatorChangeStyle: CustomTabBarIndicatorChangeStyle.enlarge,
                 unselectedLabelStyle: _labelStyle,
