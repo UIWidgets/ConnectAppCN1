@@ -35,8 +35,7 @@ namespace ConnectApp.screens {
                                     new EventCompletedScreenConnector()
                                 },
                                 newValue => AnalyticsManager.ClickEventSegment("Event",
-                                    0 == newValue ? "ongoing" : "completed"),
-                                1
+                                    0 == newValue ? "ongoing" : "completed")
                             )
                         )
                     }

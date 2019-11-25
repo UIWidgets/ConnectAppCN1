@@ -9,7 +9,6 @@ using Unity.UIWidgets.widgets;
 namespace ConnectApp.Components {
     public class CustomSegmentedControl : StatefulWidget {
         public readonly List<Widget> children;
-        public readonly int currentIndex;
 
         public readonly List<string> items;
         public readonly ValueChanged<int> onValueChanged;
@@ -20,7 +19,6 @@ namespace ConnectApp.Components {
             List<string> items,
             List<Widget> children,
             ValueChanged<int> onValueChanged = null,
-            int currentIndex = 0,
             Color unselectedColor = null,
             Color selectedColor = null,
             Key key = null
@@ -30,11 +28,9 @@ namespace ConnectApp.Components {
             D.assert(children != null);
             D.assert(children.Count >= 2);
             D.assert(children.Count == items.Count);
-            D.assert(currentIndex < items.Count);
             this.items = items;
             this.children = children;
             this.onValueChanged = onValueChanged;
-            this.currentIndex = currentIndex;
             this.unselectedColor = unselectedColor ?? CColors.TextTitle;
             this.selectedColor = selectedColor ?? CColors.PrimaryBlue;
         }
@@ -54,7 +50,7 @@ namespace ConnectApp.Components {
 
         public override void initState() {
             base.initState();
-            this._controller = new CustomTabController(2, this);
+            this._controller = new CustomTabController(this.widget.children.Count, this);
             this._controller.addListener(() => { this.widget.onValueChanged(value: this._controller.index); });
         }
 
