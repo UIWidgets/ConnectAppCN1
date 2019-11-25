@@ -49,6 +49,7 @@ namespace ConnectApp.Main {
     class Router : StatelessWidget {
         static readonly GlobalKey globalKey = GlobalKey.key("main-router");
         static readonly RouteObserve<PageRoute> _routeObserve = new RouteObserve<PageRoute>();
+        static readonly HeroController _heroController = new HeroController();
         bool _exitApp;
         Timer _timer;
 
@@ -172,7 +173,8 @@ namespace ConnectApp.Main {
                 child: new Navigator(
                     key: globalKey,
                     observers: new List<NavigatorObserver> {
-                        _routeObserve
+                        _routeObserve,
+                        _heroController
                     },
                     onGenerateRoute: settings => new CustomPageRoute(
                         settings: settings,

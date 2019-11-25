@@ -2,7 +2,6 @@ package com.unity3d.unityconnect.wxapi;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.tencent.mm.opensdk.constants.ConstantsAPI;
 import com.tencent.mm.opensdk.modelbase.BaseReq;
@@ -14,9 +13,6 @@ import com.unity.uiwidgets.plugin.UIWidgetsMessageManager;
 import com.unity3d.unityconnect.plugins.WechatPlugin;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
 
 public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
 

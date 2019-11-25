@@ -2,9 +2,7 @@ package com.unity3d.unityconnect;
 
 import android.app.Application;
 
-import com.dueeeke.videoplayer.BuildConfig;
 import com.dueeeke.videoplayer.ijk.IjkPlayerFactory;
-import com.dueeeke.videoplayer.player.AndroidMediaPlayerFactory;
 import com.dueeeke.videoplayer.player.VideoViewConfig;
 import com.dueeeke.videoplayer.player.VideoViewManager;
 import com.tencent.mm.opensdk.openapi.IWXAPI;
@@ -13,6 +11,7 @@ import com.unity3d.unityconnect.plugins.CommonPlugin;
 import com.unity3d.unityconnect.plugins.JAnalyticsPlugin;
 import com.unity3d.unityconnect.plugins.JPushPlugin;
 import com.unity3d.unityconnect.plugins.QRScanPlugin;
+import com.unity3d.unityconnect.plugins.UrlLauncherPlugin;
 import com.unity3d.unityconnect.plugins.UUIDUtils;
 import com.unity3d.unityconnect.plugins.WechatPlugin;
 
@@ -32,6 +31,7 @@ public class CustomApplication extends Application {
         JPushPlugin.getInstance().mContext = this;
         JAnalyticsPlugin.getInstance().context = this;
         QRScanPlugin.getInstance().context = this;
+        UrlLauncherPlugin.getInstance().context = this;
         CommonPlugin.mContext = this;
 
         JPushInterface.init(this);     		// 初始化 JPush
@@ -44,6 +44,5 @@ public class CustomApplication extends Application {
                 .setPlayerFactory(IjkPlayerFactory.create(this))
                 .setAutoRotate(false)
                 .build());
-
     }
 }

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
@@ -82,7 +81,6 @@ namespace ConnectApp.screens {
                     }
 
                     if (messages.isNotEmpty()) {
-                        messages = messages.Where(message => !message.shouldSkip()).ToList();
                         if (channel.localMessageIds.isNotEmpty()) {
                             messages.Sort((m1, m2) => {
                                 if ((m1.status != "sending" && m1.status != "waiting") &&
@@ -108,12 +106,6 @@ namespace ConnectApp.screens {
                         }
                     }
 
-                    if (newMessages.isNotEmpty()) {
-                        newMessages = newMessages
-                            .Where(message => !message.shouldSkip())
-                            .ToList();
-                    }
-
                     return new ChannelScreenViewModel {
                         hasChannel = state.channelState.channelDict.ContainsKey(this.channelId),
                         channelError = state.channelState.channelError,
@@ -127,7 +119,6 @@ namespace ConnectApp.screens {
                             fullName = state.loginState.loginInfo.userFullName
                         },
                         messageLoading = state.channelState.messageLoading,
-                        newMessageCount = newMessages.Count,
                         socketConnected = state.channelState.socketConnected,
                         networkConnected = state.networkState.networkConnected,
                         dismissNoNetworkBanner = state.networkState.dismissNoNetworkBanner,
@@ -245,6 +236,7 @@ namespace ConnectApp.screens {
                         popFromScreen = () => {
                             dispatcher.dispatch(Actions.ackChannelMessage(viewModel.channel.lastMessageId));
                             dispatcher.dispatch(new SetChannelInactive {channelId = this.channelId});
+                            dispatcher.dispatch(new MergeNewChannelMessages {channelId = this.channelId});
                         },
                         pushToChannelMention = () => {
                             dispatcher.dispatch(new MainNavigatorPushToChannelMentionAction {
@@ -624,7 +616,13 @@ namespace ConnectApp.screens {
                 this._lastReadMessageId = null;
             }
 
-            this.showNewMessageNotification = this.widget.viewModel.newMessageCount > 0;
+            if (this.widget.viewModel.channel.needFetchMessages) {
+                SchedulerBinding.instance.addPostFrameCallback(_ => {
+                    this._refreshController.scrollTo(0);
+                });
+            }
+
+            this.showNewMessageNotification = this.widget.viewModel.newMessages.Count > 0;
 
             if (this.widget.viewModel.mentionAutoFocus) {
                 SchedulerBinding.instance.addPostFrameCallback(_ => {
@@ -700,8 +698,8 @@ namespace ConnectApp.screens {
         int _newMessageCount = 0;
 
         Widget _buildNewMessageNotification() {
-            if (this.widget.viewModel.newMessageCount > 0) {
-                this._newMessageCount = this.widget.viewModel.newMessageCount;
+            if (this.widget.viewModel.newMessages.Count > 0) {
+                this._newMessageCount = this.widget.viewModel.newMessages.Count;
             }
 
             if (this._newMessageNotificationController.value < 0.1f) {
@@ -749,9 +747,6 @@ namespace ConnectApp.screens {
                     child: new GestureDetector(
                         onTap: () => {
                             this.widget.actionModel.reportHitBottom();
-                            if (this.lastReadMessageLoaded()) {
-                                this.showUnreadMessageNotification = false;
-                            }
 
                             SchedulerBinding.instance.addPostFrameCallback(_ => {
                                 this._refreshController.scrollTo(0);
@@ -1008,7 +1003,7 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildMessage(ChannelMessageView message, bool showTime, bool left, bool showUnreadLine = false) {
-            if (message.shouldSkip() || message.type == ChannelMessageType.skip) {
+            if (message.type == ChannelMessageType.skip) {
                 return new Container();
             }
 
@@ -1088,7 +1083,9 @@ namespace ConnectApp.screens {
                 ));
             }
 
-            if (message.author.id == this.widget.viewModel.me.id && showDeleteButton) {
+            if (message.author.id == this.widget.viewModel.me.id
+                && showDeleteButton
+                && message.type != ChannelMessageType.deleted) {
                 tipMenuItems.Add(new TipMenuItem(
                     "删除",
                     () => this._deleteMessage(message: message)
@@ -1224,20 +1221,25 @@ namespace ConnectApp.screens {
         Widget _buildImageMessageContent(ChannelMessageView message) {
             return new GestureDetector(
                 onTap: () => this._browserImage(imageUrl: message.content),
-                child: new ImageMessage(
-                    url: message.content,
-                    data: message.imageData,
-                    size: 140,
-                    ratio: 16.0f / 9.0f,
-                    srcWidth: message.width,
-                    srcHeight: message.height,
-                    headers: this._headers
+                child: new Hero(
+                    tag: CImageUtils.SizeToScreenImageUrl(imageUrl: message.content),
+                    child: new ImageMessage(
+                        url: message.content,
+                        data: message.imageData,
+                        size: 140,
+                        ratio: 16.0f / 9.0f,
+                        srcWidth: message.width,
+                        srcHeight: message.height,
+                        headers: this._headers
+                    )
                 )
             );
         }
 
         Widget _buildMessageContent(ChannelMessageView message) {
             switch (message.type) {
+                case ChannelMessageType.deleted:
+                    return new DeletedMessage();
                 case ChannelMessageType.text:
                     return new TextMessage(
                         message: message,
@@ -1645,7 +1647,11 @@ namespace ConnectApp.screens {
         }
 
         public void didPop() {
-            MessageUtils.currentChannelId = null;
+            if (MessageUtils.currentChannelId.isNotEmpty() &&
+                this.widget.viewModel.channel.id == MessageUtils.currentChannelId) {
+                MessageUtils.currentChannelId = null;
+            }
+
             this.mentionMap.Clear();
             if (this._focusNode.hasFocus) {
                 this._focusNode.unfocus();
@@ -1671,8 +1677,14 @@ namespace ConnectApp.screens {
         }
 
         static float calculateMessageHeight(ChannelMessageView message, bool showTime, float width) {
+            if (message.buildHeight != null) {
+                return message.buildHeight.Value;
+            }
             float height = 20 + 6 + 16 + (showTime ? 36 : 0); // Name + Internal + Bottom padding + time
             switch (message.type) {
+                case ChannelMessageType.deleted:
+                    height += DeletedMessage.CalculateTextHeight(width: width);
+                    break;
                 case ChannelMessageType.text:
                     height += TextMessage.CalculateTextHeight(content: message.content, width: width);
                     break;
@@ -1688,6 +1700,7 @@ namespace ConnectApp.screens {
                     break;
             }
 
+            message.buildHeight = height;
             return height;
         }
     }

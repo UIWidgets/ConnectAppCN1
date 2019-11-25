@@ -154,5 +154,16 @@ namespace ConnectApp.Models.State {
                 }
             });
         }
+
+        public void markCurrentChannelAsNeedingFetch() {
+            this.joinedChannels.ForEach(channelId => {
+                if (this.channelDict.ContainsKey(channelId)) {
+                    var channel = this.channelDict[channelId];
+                    if (channel.active) {
+                        channel.needFetchMessages = true;
+                    }
+                }
+            });
+        }
     }
 }

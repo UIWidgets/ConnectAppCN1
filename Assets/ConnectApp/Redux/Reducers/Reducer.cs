@@ -1627,10 +1627,15 @@ namespace ConnectApp.redux.reducers {
                 case MainNavigatorPushToPhotoViewAction action: {
                     if (action.url.isNotEmpty() && action.urls.isNotEmpty() && action.urls.Contains(action.url)) {
                         var index = action.urls.IndexOf(action.url);
-                        Router.navigator.push(new CustomPageRoute(
-                            context => new PhotoView(urls: action.urls, index: index,
+                        Router.navigator.push(new PageRouteBuilder(
+                            pageBuilder: (context, _, __) => new PhotoView(urls: action.urls, index: index,
                                 useCachedNetworkImage: action.useCachedNetworkImage),
-                            fullscreenDialog: true
+                            transitionDuration: TimeSpan.FromMilliseconds(200),
+                            transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
+                                new FadeTransition( //使用渐隐渐入过渡, 
+                                    opacity: animation,
+                                    child: child
+                                )
                         ));
                     }
 
@@ -2667,6 +2672,7 @@ namespace ConnectApp.redux.reducers {
                         action.messages.last().id.hexToLong() > lastMessageId.hexToLong()) {
                         channel.messageIds = new List<string>();
                         channel.newMessageIds = new List<string>();
+                        lastMessageId = null;
                     }
 
                     for (var i = 0; i < action.messages.Count; i++) {
@@ -2941,6 +2947,7 @@ namespace ConnectApp.redux.reducers {
                 case PushReadyAction action: {
                     state.channelState.updateSessionReadyData(action.readyData);
                     state.channelState.updateTotalMention();
+                    state.channelState.markCurrentChannelAsNeedingFetch();
                     break;
                 }
 
@@ -3018,7 +3025,8 @@ namespace ConnectApp.redux.reducers {
                     }
 
                     if (state.channelState.messageDict.ContainsKey(message.id)) {
-                        state.channelState.messageDict[message.id].deleted = true;
+                        state.channelState.messageDict[message.id].type = ChannelMessageType.deleted;
+                        state.channelState.messageDict[message.id].buildHeight = null;
                     }
 
                     break;
@@ -3089,8 +3097,9 @@ namespace ConnectApp.redux.reducers {
                     var channelData = action.channelData;
                     // filter project/event/support channel
                     if (channelData.projectId.isNotEmpty()
+                        || channelData.ticketId.isNotEmpty()
                         || channelData.proposalId.isNotEmpty()
-                        || channelData.ticketId.isNotEmpty()) {
+                        || !(channelData.type == "public" || channelData.type == "private" || channelData.type == "lobby")) {
                         break;
                     }
 
@@ -3129,6 +3138,19 @@ namespace ConnectApp.redux.reducers {
 
                 case PushChannelUpdateChannelAction action: {
                     var channelData = action.channelData;
+                    
+                    // filter project/event/support channel
+                    if (channelData.projectId.isNotEmpty()
+                        || channelData.ticketId.isNotEmpty()
+                        || channelData.proposalId.isNotEmpty()
+                        || !(channelData.type == "public" || channelData.type == "private" || channelData.type == "lobby")) {
+                        break;
+                    }
+
+                    if (!state.channelState.createChannelFilterIds.Contains(channelData.id)) {
+                        break;
+                    }
+                    
                     if (state.channelState.channelDict.ContainsKey(channelData.id)) {
                         ChannelView channel = state.channelState.channelDict[channelData.id];
                         channel.updateFromSocketResponseUpdateChannelData(channelData);
@@ -3163,15 +3185,8 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case SocketConnectStateAction action: {
-                    if (!state.channelState.socketConnected && action.connected) {
-                        state.channelState.joinedChannels.ForEach(channelId => {
-                            if (state.channelState.channelDict.ContainsKey(channelId)) {
-                                var channel = state.channelState.channelDict[channelId];
-                                if (channel.active) {
-                                    channel.needFetchMessages = true;
-                                }
-                            }
-                        });
+                    if (action.connected) {
+                        state.channelState.markCurrentChannelAsNeedingFetch();
                     }
 
                     state.channelState.socketConnected = action.connected;

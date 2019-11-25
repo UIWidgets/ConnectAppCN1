@@ -21,10 +21,6 @@ using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
-using Avatar = ConnectApp.Components.Avatar;
-using Color = Unity.UIWidgets.ui.Color;
-using Transform = Unity.UIWidgets.widgets.Transform;
 
 namespace ConnectApp.screens {
     public class TeamDetailScreenConnector : StatelessWidget {
@@ -140,14 +136,14 @@ namespace ConnectApp.screens {
     }
 
     class _TeamDetailScreenState : State<TeamDetailScreen>, TickerProvider, RouteAware {
-        const float headerHeight = 256;
+        const float imageBaseHeight = 212;
+        const float navBarHeight = 44;
         const float _transformSpeed = 0.005f;
         int _articlePageNumber;
         RefreshController _refreshController;
         float _factor = 1;
         bool _isHaveTitle;
         bool _hideNavBar;
-        float _topPadding;
         Animation<RelativeRect> _animation;
         AnimationController _controller;
 
@@ -163,7 +159,7 @@ namespace ConnectApp.screens {
                 vsync: this
             );
             RelativeRectTween rectTween = new RelativeRectTween(
-                RelativeRect.fromLTRB(0, 44, 0, 0),
+                RelativeRect.fromLTRB(0, top: navBarHeight, 0, 0),
                 RelativeRect.fromLTRB(0, 0, 0, 0)
             );
             this._animation = rectTween.animate(parent: this._controller);
@@ -203,8 +199,9 @@ namespace ConnectApp.screens {
 
         bool _onNotification(ScrollNotification notification) {
             var pixels = notification.metrics.pixels;
+            var navBarBottomPosition = navBarHeight + CCommonUtils.getSafeAreaTopPadding(context: this.context);
 
-            if (pixels >= 44 + this._topPadding) {
+            if (pixels >= navBarBottomPosition) {
                 if (this._hideNavBar) {
                     this.setState(() => this._hideNavBar = false);
                     StatusBarManager.statusBarStyle(false);
@@ -217,7 +214,7 @@ namespace ConnectApp.screens {
                 }
             }
 
-            if (pixels > headerHeight - 24 - (44 + this._topPadding)) {
+            if (pixels > imageBaseHeight - navBarHeight - 24) {
                 if (!this._isHaveTitle) {
                     this._controller.forward();
                     this.setState(() => this._isHaveTitle = true);
@@ -285,11 +282,6 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
-            if (this._topPadding != MediaQuery.of(context).padding.top &&
-                Application.platform != RuntimePlatform.Android) {
-                this._topPadding = MediaQuery.of(context).padding.top;
-            }
-
             Widget content = new Container();
             if (this.widget.viewModel.teamLoading && this.widget.viewModel.team == null) {
                 content = new GlobalLoading();
@@ -306,14 +298,14 @@ namespace ConnectApp.screens {
                     child: new Stack(
                         children: new List<Widget> {
                             content,
-                            this._buildNavigationBar()
+                            this._buildNavigationBar(context: context)
                         }
                     )
                 )
             );
         }
 
-        Widget _buildNavigationBar() {
+        Widget _buildNavigationBar(BuildContext context) {
             Widget titleWidget = new Container();
             if (this._isHaveTitle) {
                 var team = this.widget.viewModel.team ?? new Team();
@@ -338,9 +330,9 @@ namespace ConnectApp.screens {
                 left: 0,
                 top: 0,
                 right: 0,
-                height: 44 + this._topPadding,
+                height: navBarHeight + CCommonUtils.getSafeAreaTopPadding(context: context),
                 child: new Container(
-                    padding: EdgeInsets.only(top: this._topPadding),
+                    padding: EdgeInsets.only(top: CCommonUtils.getSafeAreaTopPadding(context: context)),
                     decoration: new BoxDecoration(
                         this._hideNavBar ? CColors.Transparent : CColors.White,
                         border: new Border(
@@ -396,6 +388,8 @@ namespace ConnectApp.screens {
                 }
             }
 
+            var headerHeight = imageBaseHeight + 44 + CCommonUtils.getSafeAreaTopPadding(context: context);
+
             return new Container(
                 color: CColors.Background,
                 child: new CustomScrollbar(
@@ -412,7 +406,7 @@ namespace ConnectApp.screens {
                                 if (index == 0) {
                                     return Transform.scale(
                                         scale: this._factor,
-                                        child: this._buildTeamInfo()
+                                        child: this._buildTeamInfo(context: context)
                                     );
                                 }
 
@@ -421,7 +415,7 @@ namespace ConnectApp.screens {
                                 }
 
                                 if (teamArticleLoading && index == 2) {
-                                    var height = MediaQuery.of(context: context).size.height - headerHeight - 44;
+                                    var height = MediaQuery.of(context: context).size.height - headerHeight;
                                     return new Container(
                                         height: height,
                                         child: new GlobalLoading()
@@ -429,7 +423,7 @@ namespace ConnectApp.screens {
                                 }
 
                                 if ((articleIds == null || articleIds.Count == 0) && index == 2) {
-                                    var height = MediaQuery.of(context: context).size.height - headerHeight - 44;
+                                    var height = MediaQuery.of(context: context).size.height - headerHeight;
                                     return new Container(
                                         height: height,
                                         child: new BlankView(
@@ -463,12 +457,11 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildTeamInfo() {
+        Widget _buildTeamInfo(BuildContext context) {
             var team = this.widget.viewModel.team;
-
             return new CoverImage(
                 coverImage: team.coverImage,
-                height: headerHeight,
+                height: imageBaseHeight + CCommonUtils.getSafeAreaTopPadding(context: context),
                 new Container(
                     padding: EdgeInsets.only(16, 0, 16, 24),
                     child: new Column(

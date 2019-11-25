@@ -183,7 +183,8 @@ public class PickImageActivity extends TakePhotoActivity {
             }
         }
         if (type.equals("video")) {
-            Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+            Intent intent = new Intent(Intent.ACTION_PICK);
+            intent.setType("video/*");
             startActivityForResult(intent, 66);
         }
     }
