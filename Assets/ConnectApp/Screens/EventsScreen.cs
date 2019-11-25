@@ -4,7 +4,6 @@ using ConnectApp.Constants;
 using ConnectApp.Utils;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
 
 namespace ConnectApp.screens {
     public class EventsScreen : StatefulWidget {
@@ -36,7 +35,7 @@ namespace ConnectApp.screens {
                                     new EventCompletedScreenConnector()
                                 },
                                 newValue => AnalyticsManager.ClickEventSegment("Event",
-                                        0 == newValue ? "ongoing" : "completed"),
+                                    0 == newValue ? "ongoing" : "completed"),
                                 1
                             )
                         )
