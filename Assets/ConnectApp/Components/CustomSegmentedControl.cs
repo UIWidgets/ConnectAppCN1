@@ -49,11 +49,18 @@ namespace ConnectApp.Components {
         );
 
         CustomTabController _controller;
+        int _currentIndex;
 
         public override void initState() {
             base.initState();
+            this._currentIndex = this.widget.currentIndex;
             this._controller = new CustomTabController(this.widget.children.Count, this);
-            this._controller.addListener(() => { this.widget.onValueChanged(value: this._controller.index); });
+            this._controller.addListener(() => {
+                if (this._controller.index != this._currentIndex) {
+                    this._currentIndex = this._controller.index;
+                    this.widget.onValueChanged(value: this._currentIndex);
+                }
+            });
             this._controller.index = this.widget.currentIndex;
         }
 
