@@ -9,16 +9,17 @@ using Unity.UIWidgets.widgets;
 namespace ConnectApp.Components {
     public class CustomSegmentedControl : StatefulWidget {
         public readonly List<Widget> children;
-
         public readonly List<string> items;
         public readonly ValueChanged<int> onValueChanged;
         public readonly Color selectedColor;
         public readonly Color unselectedColor;
+        public readonly int currentIndex;
 
         public CustomSegmentedControl(
             List<string> items,
             List<Widget> children,
             ValueChanged<int> onValueChanged = null,
+            int currentIndex = 0,
             Color unselectedColor = null,
             Color selectedColor = null,
             Key key = null
@@ -33,6 +34,7 @@ namespace ConnectApp.Components {
             this.onValueChanged = onValueChanged;
             this.unselectedColor = unselectedColor ?? CColors.TextTitle;
             this.selectedColor = selectedColor ?? CColors.PrimaryBlue;
+            this.currentIndex = currentIndex;
         }
 
         public override State createState() {
@@ -52,6 +54,7 @@ namespace ConnectApp.Components {
             base.initState();
             this._controller = new CustomTabController(this.widget.children.Count, this);
             this._controller.addListener(() => { this.widget.onValueChanged(value: this._controller.index); });
+            this._controller.index = this.widget.currentIndex;
         }
 
         public override void dispose() {
