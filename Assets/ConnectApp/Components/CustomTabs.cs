@@ -364,6 +364,7 @@ namespace ConnectApp.Components {
                 }
             }
 
+
             return Rect.fromLTWH(tabLeft, 0.0f, tabRight - tabLeft, tabBarSize.height);
         }
 
