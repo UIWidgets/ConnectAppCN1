@@ -356,7 +356,8 @@ namespace ConnectApp.Components {
                 }
             }
             else {
-                if (this.indicatorSize == CustomTabBarIndicatorSize.fixedOrTab) {
+                if (this.indicatorSize == CustomTabBarIndicatorSize.fixedOrTab ||
+                    this.indicatorSize == CustomTabBarIndicatorSize.fixedOrLabel) {
                     float delta = ((tabRight - tabLeft) - this.indicatorFixedSize.Value) / 2.0f;
                     tabLeft += delta;
                     tabRight -= delta;
