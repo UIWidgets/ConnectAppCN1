@@ -19,39 +19,6 @@ namespace ConnectApp.Utils {
 
         NetworkReachability m_InternetState;
 
-        bool _pauseState = false;
-        bool _resumePending = false;
-
-        const float resumePendingDuration = 2f;
-
-        void TryOnApplicationResumed() {
-            this._resumePending = false;
-            if (this._pauseState == false) {
-                SocketApi.OnApplicationFocus(true);
-            }
-        }
-
-        void OnApplicationPause(bool paused) {
-            if (this._pauseState == paused) {
-                return;
-            }
-            
-            this._pauseState = paused;
-            if (paused) {
-                this._executionQueue.Clear();
-                this._delayCalls.Clear();
-                this._delayCallId = 0;
-                
-                SocketApi.OnApplicationFocus(false);
-            }
-            else {
-                if (!this._resumePending) {
-                    this._resumePending = true;
-                    this.Invoke(nameof(this.TryOnApplicationResumed), resumePendingDuration);
-                }
-            }
-        }
-
         public void Update() {
             using (WindowProvider.of(context: GlobalContext.context).getScope()) {
                 lock (this._executionQueue) {
