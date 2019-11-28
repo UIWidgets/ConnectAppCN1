@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
@@ -14,6 +15,7 @@ using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
@@ -21,6 +23,8 @@ using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 using Config = ConnectApp.Constants.Config;
 using Image = Unity.UIWidgets.widgets.Image;
 
@@ -306,6 +310,17 @@ namespace ConnectApp.screens {
         float _inputFieldHeight;
         CustomTextField customTextField;
 
+        Dictionary<string, GlobalKey> _messageKeys;
+
+        GlobalKey _getMessageKey(string id) {
+            GlobalKey key;
+            if (!this._messageKeys.TryGetValue(id, out key)) {
+                key = GlobalKey.key(id);
+                this._messageKeys[id] = key;
+            }
+            return key;
+        }
+
         public bool showUnreadMessageNotification {
             get { return this._showUnreadMessageNotification; }
             set {
@@ -448,6 +463,7 @@ namespace ConnectApp.screens {
             this._messageActivityIndicatorController = new AnimationController(
                 duration: new TimeSpan(0, 0, 2),
                 vsync: this);
+            this._messageKeys = new Dictionary<string, GlobalKey>();
         }
 
         bool _onMessageLoadedCalled = false;
@@ -1021,12 +1037,86 @@ namespace ConnectApp.screens {
                 );
         }
 
+        Widget _buildPopupLikeButton(
+            string content,
+            bool selected,
+            bool leftMost,
+            bool rightMost,
+            GestureTapCallback onTap) {
+            return new GestureDetector(
+                onTap: onTap,
+                child: new Container(
+                    padding: EdgeInsets.only(left: leftMost ? 0 : 2, right: rightMost ? 0 : 2),
+                    child: new Container(
+                        width: 44,
+                        height: 44,
+                        decoration: new BoxDecoration(
+                            borderRadius: BorderRadius.all(12),
+                            color: selected ? CColors.Separator2 : CColors.Transparent),
+                        child: new Center(
+                            child: new Text(content, style: new TextStyle(fontSize: 33)))
+                    )
+                )
+            );
+        }
+
+        Widget _buildPopupLikeButtonBar() {
+            return new Container(
+                height: 52,
+                decoration: new BoxDecoration(
+                    borderRadius: BorderRadius.all(26),
+                    color: CColors.White
+                ),
+                child: new Container(
+                    decoration: new BoxDecoration(
+                        borderRadius: BorderRadius.all(26),
+                        color: CColors.White.withOpacity(0.25f)
+                    ),
+                    padding: EdgeInsets.symmetric(4, 12),
+                    child: new Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: new List<Widget> {
+                            this._buildPopupLikeButton(
+                                char.ConvertFromUtf32(0x1f642),
+                                true,
+                                true,
+                                false,
+                                () => { }),
+                            this._buildPopupLikeButton(
+                                char.ConvertFromUtf32(0x1f642),
+                                false,
+                                false,
+                                false,
+                                () => { }),
+                            this._buildPopupLikeButton(
+                                char.ConvertFromUtf32(0x1f642),
+                                false,
+                                false,
+                                false,
+                                () => { }),
+                            this._buildPopupLikeButton(
+                                char.ConvertFromUtf32(0x1f642),
+                                false,
+                                false,
+                                false,
+                                () => { }),
+                            this._buildPopupLikeButton(
+                                char.ConvertFromUtf32(0x1f642),
+                                false,
+                                false,
+                                true,
+                                () => { }),
+                        }))
+            );
+        }
+
         Widget _buildMessage(ChannelMessageView message, bool showTime, bool left, bool showUnreadLine = false) {
             if (message.type == ChannelMessageType.skip) {
                 return new Container();
             }
 
             Widget ret = new Container(
+                key: this._getMessageKey(message.id),
                 constraints: new BoxConstraints(
                     maxWidth: this.messageBubbleWidth
                 ),
@@ -1110,11 +1200,116 @@ namespace ConnectApp.screens {
                     () => this._deleteMessage(message: message)
                 ));
             }
+            
+            ret = new GestureDetector(
+                onLongPress: () => {
+                    RenderBox renderBox = (RenderBox) this._getMessageKey(message.id).currentContext.findRenderObject();
+                    Size messageBoxSize = renderBox.size;
+                    Offset messageBoxOffset = renderBox.localToGlobal(Offset.zero);
+                    messageBoxOffset = new Offset(
+                        messageBoxOffset.dx,
+                        messageBoxOffset.dy
+                            .clamp(float.NegativeInfinity,
+                                MediaQuery.of(this.context).size.height -
+                                MediaQuery.of(this.context).padding.bottom - 158 - messageBoxSize.height)
+                            .clamp(60, float.PositiveInfinity));
+                    ActionSheetUtils.showModalActionSheet(
+                        child: new ActionSheet(
+                            items: new List<ActionSheetItem> {
+                                new ActionSheetItem(
+                                    "复制",
+                                    onTap: () => {
+                                        var content = MessageUtils.AnalyzeMessage(
+                                            content: message.content,
+                                            mentions: message.mentions,
+                                            mentionEveryone: message.mentionEveryone
+                                        );
+                                        Clipboard.setData(new ClipboardData(text: content));
+                                    }
+                                ),
+                                new ActionSheetItem(
+                                    "引用",
+                                    onTap: () => {
+                                        var content = MessageUtils.AnalyzeMessage(
+                                            content: message.content,
+                                            mentions: message.mentions,
+                                            mentionEveryone: message.mentionEveryone
+                                        );
+                                        var newContent = this._textController.text + "「 " + message.author.fullName + ": " + content +
+                                                         " 」" + "\n" + "- - - - - - - - - - - - - - -" + "\n";
+                                        this._textController.value = new TextEditingValue(
+                                            text: newContent,
+                                            TextSelection.collapsed(offset: newContent.Length)
+                                        );
+                                        if (this._refreshController.scrollController.offset > 0) {
+                                            this._refreshController.scrollController.animateTo(0, TimeSpan.FromMilliseconds(100),
+                                                curve: Curves.linear);
+                                        }
 
-            ret = new TipMenu(
-                tipMenuItems: tipMenuItems,
+                                        if (!this._focusNode.hasFocus || !this.showKeyboard) {
+                                            FocusScope.of(context: this.context).requestFocus(node: this._focusNode);
+                                            TextInputPlugin.TextInputShow();
+                                            Promise.Delayed(TimeSpan.FromMilliseconds(200)).Then(
+                                                () => this.setState(() => this.showEmojiBoard = false));
+                                        }
+                                    }
+                                ),
+                                new ActionSheetItem(
+                                    "删除",
+                                    onTap: message.author.id == this.widget.viewModel.me.id
+                                           && showDeleteButton
+                                           && message.type != ChannelMessageType.deleted
+                                               ? () => this._deleteMessage(message: message)
+                                               : (VoidCallback) null
+                                ),
+                            }
+                        ),
+                        overlay: Positioned.fill(
+                            child: new Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: new List<Widget> {
+                                    new SizedBox(height: messageBoxOffset.dy - 60),
+                                    new Row(
+                                        mainAxisAlignment: left ? MainAxisAlignment.start : MainAxisAlignment.end,
+                                        children: left
+                                            ? new List<Widget> {
+                                                new SizedBox(width: messageBoxOffset.dx),
+                                                this._buildPopupLikeButtonBar()
+                                            }
+                                            : new List<Widget> {
+                                                this._buildPopupLikeButtonBar(),
+                                                new SizedBox(width: MediaQuery.of(this.context).size.width -
+                                                                    messageBoxOffset.dx -
+                                                                    messageBoxSize.width)
+                                            }
+                                    ),
+                                    new SizedBox(height: 8),
+                                    new Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: new List<Widget> {
+                                            new SizedBox(width: messageBoxOffset.dx),
+                                            new Container(
+                                                constraints: new BoxConstraints(
+                                                    maxWidth: this.messageBubbleWidth
+                                                ),
+                                                decoration: this._messageDecoration(message.type, left),
+                                                child: this._buildMessageContent(message: message)
+                                            )
+                                        }
+                                    )
+                                }
+                            )
+                        )
+                    );
+                },
                 child: ret
             );
+
+//            ret = new TipMenu(
+//                tipMenuItems: tipMenuItems,
+//                child: ret
+//            );
 
             if (left) {
                 ret = new Expanded(
