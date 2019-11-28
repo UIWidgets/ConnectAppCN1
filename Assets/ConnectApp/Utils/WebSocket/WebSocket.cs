@@ -68,18 +68,21 @@ namespace ConnectApp.Utils {
             this.m_Socket.OnMessage += (sender, e) => { this.m_Host.Enqueue(() => { OnMessage(e.RawData); }); };
 
             this.m_Socket.OnError += (sender, e) => {
+                this.m_State = WebSocketState.Error;
                 this.m_Host.Enqueue(() => {
-                    this.m_State = WebSocketState.Error;
                     OnError(e.Message);
                 });
             };
 
             this.m_Socket.OnClose += (sender, e) => {
+                this.m_State = WebSocketState.Closed;
                 this.m_Host.Enqueue(() => {
-                    this.m_State = WebSocketState.Closed;
                     OnClose?.Invoke(e.Code);
                 });
             };
+
+            //disable logs
+            this.m_Socket.Log.Output = (data, s) => { };
 
             this.m_Socket.ConnectAsync();
         }
