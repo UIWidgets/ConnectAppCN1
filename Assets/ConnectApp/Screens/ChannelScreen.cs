@@ -448,10 +448,21 @@ namespace ConnectApp.screens {
             this._messageActivityIndicatorController = new AnimationController(
                 duration: new TimeSpan(0, 0, 2),
                 vsync: this);
-            this._messageActivityIndicatorController.repeat();
         }
 
         bool _onMessageLoadedCalled = false;
+
+        void _startIndicator() {
+            if (!this._messageActivityIndicatorController.isAnimating) {
+                this._messageActivityIndicatorController.repeat();
+            }
+        }
+
+        void _stopIndicator() {
+            if (this._messageActivityIndicatorController.isAnimating) {
+                this._messageActivityIndicatorController.stop();
+            }
+        }
 
         void _onMessageLoaded() {
             if (this._onMessageLoadedCalled) {
@@ -620,6 +631,14 @@ namespace ConnectApp.screens {
                 SchedulerBinding.instance.addPostFrameCallback(_ => {
                     this._refreshController.scrollTo(0);
                 });
+            }
+
+            if (this.widget.viewModel.waitingMessage != null ||
+                this.widget.viewModel.sendingMessage != null) {
+                this._startIndicator();
+            }
+            else {
+                this._stopIndicator();
             }
 
             this.showNewMessageNotification = this.widget.viewModel.newMessages.Count > 0;
