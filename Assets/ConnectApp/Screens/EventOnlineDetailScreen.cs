@@ -15,16 +15,13 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
-using Color = Unity.UIWidgets.ui.Color;
 using Config = ConnectApp.Constants.Config;
-using EventType = ConnectApp.Models.State.EventType;
 
 namespace ConnectApp.screens {
     public class EventOnlineDetailScreenConnector : StatelessWidget {
@@ -138,9 +135,8 @@ namespace ConnectApp.screens {
         string _loginSubId;
         string _shareActionSubId;
         bool _showNavBarShadow;
-        float _bottomPadding;
         bool _showPlayer;
-        
+
         public override void initState() {
             base.initState();
             StatusBarManager.statusBarStyle(false);
@@ -210,11 +206,6 @@ namespace ConnectApp.screens {
                     mainRouterPop: this.widget.actionModel.mainRouterPop);
             }
 
-            if (this._bottomPadding != MediaQuery.of(context).padding.bottom &&
-                Application.platform != RuntimePlatform.Android) {
-                this._bottomPadding = MediaQuery.of(context).padding.bottom;
-            }
-
             var eventStatus = DateConvert.GetEventStatus(eventObj.begin);
             return new Container(
                 color: CColors.White,
@@ -229,7 +220,7 @@ namespace ConnectApp.screens {
                                 this._buildEventDetail(context, eventObj, EventType.online, eventStatus,
                                     this.widget.viewModel.isLoggedIn),
                                 this._buildEventBottom(eventObj, EventType.online, eventStatus,
-                                    this.widget.viewModel.isLoggedIn)
+                                    this.widget.viewModel.isLoggedIn, context)
                             }
                         )
                     )
@@ -386,14 +377,14 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildEventBottom(IEvent eventObj, EventType eventType, EventStatus eventStatus,
-            bool isLoggedIn) {
+            bool isLoggedIn, BuildContext context) {
             if (!WechatPlugin.instance().isInstalled() || eventType == EventType.offline) {
                 return new Container();
             }
 
             return new Container(
-                height: 56 + this._bottomPadding,
-                padding: EdgeInsets.only(16, 8, 16, 8 + this._bottomPadding),
+                height: 56 + CCommonUtils.getSafeAreaBottomPadding(context: context),
+                padding: EdgeInsets.only(16, 8, 16, 8 + CCommonUtils.getSafeAreaBottomPadding(context: context)),
                 decoration: new BoxDecoration(
                     color: CColors.White,
                     border: new Border(new BorderSide(color: CColors.Separator))

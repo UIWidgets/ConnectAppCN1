@@ -13,8 +13,8 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
@@ -104,8 +104,6 @@ namespace ConnectApp.screens {
         Animation<RelativeRect> _animation;
         AnimationController _controller;
         float _titleHeight;
-        float _topPadding;
-        float _bottomPadding;
         float _aspectRatio;
         static readonly GlobalKey eventTitleKey = GlobalKey.key("event-title");
 
@@ -161,16 +159,6 @@ namespace ConnectApp.screens {
                 eventObj = this.widget.viewModel.eventsDict[this.widget.viewModel.eventId];
             }
 
-            if (this._topPadding != MediaQuery.of(context).padding.top &&
-                Application.platform != RuntimePlatform.Android) {
-                this._topPadding = MediaQuery.of(context).padding.top;
-            }
-
-            if (this._bottomPadding != MediaQuery.of(context).padding.bottom &&
-                Application.platform != RuntimePlatform.Android) {
-                this._bottomPadding = MediaQuery.of(context).padding.bottom;
-            }
-
             if ((this.widget.viewModel.eventDetailLoading || eventObj?.user == null) &&
                 !(eventObj?.isNotFirst ?? false)) {
                 return new EventDetailLoading(eventType: EventType.offline,
@@ -189,9 +177,9 @@ namespace ConnectApp.screens {
                             onNotification: notification => this._onNotification(context, notification),
                             child: new Column(
                                 children: new List<Widget> {
-                                    this._buildEventDetail(eventObj),
+                                    this._buildEventDetail(eventObj, context),
                                     this._buildOfflineRegisterNow(eventObj, this.widget.viewModel.isLoggedIn,
-                                        eventStatus)
+                                        eventStatus, context)
                                 }
                             )
                         )
@@ -200,7 +188,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildEventDetail(IEvent eventObj) {
+        Widget _buildEventDetail(IEvent eventObj, BuildContext context) {
             return new Expanded(
                 child: new Stack(
                     children: new List<Widget> {
@@ -217,7 +205,7 @@ namespace ConnectApp.screens {
                             left: 0,
                             top: 0,
                             right: 0,
-                            child: this._buildHeadTop(eventObj: eventObj)
+                            child: this._buildHeadTop(eventObj: eventObj, context)
                         )
                     }
                 )
@@ -226,14 +214,15 @@ namespace ConnectApp.screens {
 
         bool _onNotification(BuildContext context, ScrollNotification notification) {
             var pixels = notification.metrics.pixels;
+            var topPadding = 44 + CCommonUtils.getSafeAreaTopPadding(context: context);
             if (this._titleHeight == 0.0f) {
                 var width = MediaQuery.of(context).size.width;
                 var imageHeight = width / this._aspectRatio;
-                this._titleHeight = imageHeight + eventTitleKey.currentContext.size.height - (44 + this._topPadding) +
-                                    16; // (44 + this._topPadding) 是顶部的高度 16 是文字与图片的间隙
+                this._titleHeight = imageHeight + eventTitleKey.currentContext.size.height - topPadding +
+                                    16; // topPadding 是顶部的高度 16 是文字与图片的间隙
             }
 
-            if (pixels >= 44 + this._topPadding) {
+            if (pixels >= 44 + topPadding) {
                 if (this._showNavBarShadow) {
                     this.setState(() => { this._showNavBarShadow = false; });
                     StatusBarManager.statusBarStyle(false);
@@ -262,7 +251,7 @@ namespace ConnectApp.screens {
             return true;
         }
 
-        Widget _buildHeadTop(IEvent eventObj) {
+        Widget _buildHeadTop(IEvent eventObj, BuildContext context) {
             Widget shareWidget = new CustomButton(
                 onPressed: () => ActionSheetUtils.showModalActionSheet(new ShareView(
                     projectType: ProjectType.iEvent,
@@ -304,9 +293,9 @@ namespace ConnectApp.screens {
             }
 
             return new AnimatedContainer(
-                height: 44 + this._topPadding,
+                height: 44 + CCommonUtils.getSafeAreaTopPadding(context: context),
                 duration: TimeSpan.Zero,
-                padding: EdgeInsets.only(left: 8, right: 8, top: this._topPadding),
+                padding: EdgeInsets.only(8, right: 8, top: CCommonUtils.getSafeAreaTopPadding(context: context)),
                 decoration: new BoxDecoration(
                     CColors.White,
                     border: new Border(
@@ -350,7 +339,8 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildOfflineRegisterNow(IEvent eventObj, bool isLoggedIn, EventStatus eventStatus) {
+        Widget _buildOfflineRegisterNow(IEvent eventObj, bool isLoggedIn, EventStatus eventStatus,
+            BuildContext context) {
             if (eventObj.type.isNotEmpty() && !(eventObj.type == "bagevent" || eventObj.type == "customize")) {
                 return new Container();
             }
@@ -366,8 +356,8 @@ namespace ConnectApp.screens {
             }
 
             return new Container(
-                height: 56 + this._bottomPadding,
-                padding: EdgeInsets.only(16, 8, 16, 8 + this._bottomPadding),
+                height: 56 + CCommonUtils.getSafeAreaBottomPadding(context: context),
+                padding: EdgeInsets.only(16, 8, 16, 8 + CCommonUtils.getSafeAreaBottomPadding(context: context)),
                 decoration: new BoxDecoration(
                     CColors.White,
                     border: new Border(new BorderSide(CColors.Separator))
