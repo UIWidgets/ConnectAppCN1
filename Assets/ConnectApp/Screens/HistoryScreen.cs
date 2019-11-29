@@ -148,7 +148,7 @@ namespace ConnectApp.screens {
 
         Widget _buildContentView() {
             return new CustomSegmentedControl(
-                new List<string> {"文章", "活动"},
+                new List<object> {"文章", "活动"},
                 new List<Widget> {
                     new HistoryArticleScreenConnector(),
                     new HistoryEventScreenConnector()

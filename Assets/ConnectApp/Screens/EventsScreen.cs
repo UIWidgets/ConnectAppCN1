@@ -29,7 +29,7 @@ namespace ConnectApp.screens {
                         ),
                         new Expanded(
                             child: new CustomSegmentedControl(
-                                new List<string> {"即将开始", "往期活动"},
+                                new List<object> {"即将开始", "往期活动"},
                                 new List<Widget> {
                                     new EventOngoingScreenConnector(),
                                     new EventCompletedScreenConnector()
