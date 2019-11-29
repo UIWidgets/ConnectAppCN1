@@ -78,7 +78,7 @@ namespace ConnectApp.screens {
 
         static Widget _buildContentView() {
             return new CustomSegmentedControl(
-                new List<string> {"即将开始", "往期活动"},
+                new List<object> {"即将开始", "往期活动"},
                 new List<Widget> {
                     new MyFutureEventsScreenConnector(),
                     new MyPastEventsScreenConnector()
