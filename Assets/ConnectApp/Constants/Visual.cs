@@ -513,5 +513,7 @@ namespace ConnectApp.Constants {
         public static readonly Color MuteIcon = new Color(0xFFC7CBCF);
         public static readonly Color GreyMessage = new Color(0xFFF0F0F0);
         public static readonly Color BlueMessage = new Color(0xFFC5E8FF);
+        public static readonly Color MessageReaction = new Color(0xFFF8F8F8);
+        public static readonly Color MessageReactionCount = new Color(0xFF0069C0);
     }
 }

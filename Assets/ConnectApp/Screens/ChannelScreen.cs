@@ -253,7 +253,15 @@ namespace ConnectApp.screens {
                         }),
                         resendMessage = message => dispatcher.dispatch(new ResendMessageAction {
                             message = message
-                        })
+                        }),
+                        addReactToMessage = (message, type) => {
+                            message.reactions.Add(new Reaction {
+                                user = viewModel.me
+                            });
+                        },
+                        cancelReactToMessage = (message, type) => {
+                            
+                        },
                     };
                     return new ChannelScreen(viewModel: viewModel, actionModel: actionModel);
                 }
@@ -1074,7 +1082,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildPopupLikeButtonBar() {
+        Widget _buildPopupLikeButtonBar(ChannelMessageView message) {
             return new Container(
                 height: 52,
                 decoration: new BoxDecoration(
@@ -1095,7 +1103,9 @@ namespace ConnectApp.screens {
                                 true,
                                 true,
                                 false,
-                                () => { }),
+                                () => {
+                                    this.widget.actionModel.addReactToMessage(message, "");
+                                }),
                             this._buildPopupLikeButton(
                                 char.ConvertFromUtf32(0x1f642),
                                 false,
@@ -1288,10 +1298,10 @@ namespace ConnectApp.screens {
                             children: left
                                 ? new List<Widget> {
                                     new SizedBox(width: offset.dx),
-                                    this._buildPopupLikeButtonBar()
+                                    this._buildPopupLikeButtonBar(message)
                                 }
                                 : new List<Widget> {
-                                    this._buildPopupLikeButtonBar(),
+                                    this._buildPopupLikeButtonBar(message),
                                     new SizedBox(width: MediaQuery.of(this.context).size.width -
                                                         offset.dx -
                                                         size.width)
@@ -1312,6 +1322,38 @@ namespace ConnectApp.screens {
                             }
                         )
                     }
+                )
+            );
+        }
+
+        Widget _buildReaction(Reaction reaction) {
+            return new Container(
+                height: 28,
+                padding: EdgeInsets.symmetric(4, 8),
+                decoration: new BoxDecoration(
+                    border: Border.all(
+                        color: reaction.user.id == this.widget.viewModel.me.id
+                            ? CColors.PrimaryBlue
+                            : CColors.Transparent,
+                        width: 1.5f
+                    ),
+                    borderRadius: BorderRadius.all(14),
+                    color: CColors.MessageReaction
+                ),
+                child: new Text($"{char.ConvertFromUtf32(0x1f642)} {4}",
+                    style: reaction.user.id == this.widget.viewModel.me.id
+                        ? CTextStyle.PRegularBody.copyWith(color: CColors.MessageReactionCount, height: 1.1f)
+                        : CTextStyle.PRegularBody.copyWith(height: 1.1f))
+            );
+        }
+
+        Widget _buildReactions(ChannelMessageView message, bool left) {
+            return new Container(
+                padding: EdgeInsets.only(top: 8),
+                child: new Row(
+                    mainAxisAlignment: left ? MainAxisAlignment.start : MainAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.min,
+                    children: message.reactions.Select(reaction => this._buildReaction(reaction)).ToList()
                 )
             );
         }
@@ -1363,13 +1405,14 @@ namespace ConnectApp.screens {
                 child: ret
             );
 
-            if (left) {
+            if (left || message.reactions.isNotEmpty()) {
                 ret = new Expanded(
                     child: new Column(
                         crossAxisAlignment: left ? CrossAxisAlignment.start : CrossAxisAlignment.end,
                         children: new List<Widget> {
-                            this._buildMessageTitle(message),
-                            ret
+                            left ? this._buildMessageTitle(message) : new Container(),
+                            ret,
+                            this._buildReactions(message, left)
                         }
                     )
                 );
