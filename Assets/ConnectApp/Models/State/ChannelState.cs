@@ -24,7 +24,7 @@ namespace ConnectApp.Models.State {
         public string mentionUserId;
         public string mentionUserName;
         public bool mentionAutoFocus;
-        public Dictionary<string, Dictionary<string, ChannelMember>> mentionSuggestions;
+        public Dictionary<string, List<ChannelMember>> mentionSuggestions;
         public bool mentionLoading;
         public string newNotifications;
         public bool channelError;
@@ -35,8 +35,12 @@ namespace ConnectApp.Models.State {
         public void updateMentionSuggestion(string channelId, User userInfo) {
             if (this.mentionSuggestions.ContainsKey(key: channelId)) {
                 var suggestions = this.mentionSuggestions[key: channelId];
-                if (suggestions.ContainsKey(key: userInfo.id)) {
-                    suggestions[key: userInfo.id].user = userInfo;
+                for(int i=0; i<suggestions.Count; i++)
+                {
+                    if (suggestions[i].user.id == userInfo.id) {
+                        suggestions[i].user = userInfo;
+                        break;
+                    }
                 }
             }
         }
