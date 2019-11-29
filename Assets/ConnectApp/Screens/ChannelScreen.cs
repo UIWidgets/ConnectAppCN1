@@ -309,14 +309,15 @@ namespace ConnectApp.screens {
         bool _showNewMessageNotification = false;
         float _inputFieldHeight;
         CustomTextField customTextField;
+        Dictionary<string, GlobalKey> _fullMessageKeys;
 
-        Dictionary<string, GlobalKey> _messageKeys;
+        Dictionary<string, GlobalKey> _messageBubbleKeys;
 
         GlobalKey _getMessageKey(string id) {
             GlobalKey key;
-            if (!this._messageKeys.TryGetValue(id, out key)) {
+            if (!this._messageBubbleKeys.TryGetValue(id, out key)) {
                 key = GlobalKey.key(id);
-                this._messageKeys[id] = key;
+                this._messageBubbleKeys[id] = key;
             }
             return key;
         }
@@ -463,7 +464,8 @@ namespace ConnectApp.screens {
             this._messageActivityIndicatorController = new AnimationController(
                 duration: new TimeSpan(0, 0, 2),
                 vsync: this);
-            this._messageKeys = new Dictionary<string, GlobalKey>();
+            this._messageBubbleKeys = new Dictionary<string, GlobalKey>();
+            this._fullMessageKeys = new Dictionary<string, GlobalKey>();
         }
 
         bool _onMessageLoadedCalled = false;
@@ -490,8 +492,10 @@ namespace ConnectApp.screens {
                 this._lastMessageWhenScreenIsOpened = this.widget.viewModel.messages.last().id;
             }
 
-            this.showUnreadMessageNotification = this._lastReadMessageId != null &&
-                                                 this.calculateOffsetFromMessage(this._lastReadMessageId) > 0;
+            SchedulerBinding.instance.addPostFrameCallback(_ => {
+                this.showUnreadMessageNotification = this._lastReadMessageId != null &&
+                                                     this.calculateOffsetFromMessage(this._lastReadMessageId) > 0;
+            });
         }
 
         void fetchMessagesAndMembers() {
@@ -543,7 +547,7 @@ namespace ConnectApp.screens {
             float height = 0;
             for (int i = index; i < this.widget.viewModel.messages.Count; i++) {
                 var message = this.widget.viewModel.messages[i];
-                height += calculateMessageHeight(message,
+                height += this.calculateMessageHeight(message,
                     i == 0 || message.time - this.widget.viewModel.messages[i - 1].time > this._showTimeThreshold,
                     this.messageBubbleWidth);
             }
@@ -564,6 +568,16 @@ namespace ConnectApp.screens {
             else {
                 this._refreshController.scrollTo(offset);
             }
+        }
+
+        GlobalKey getFullMessageKey(string messageId) {
+            GlobalKey key;
+            if (!this._fullMessageKeys.TryGetValue(messageId, out key)) {
+                key = GlobalKey.key("full" + messageId);
+                this._fullMessageKeys[messageId] = key;
+            }
+
+            return key;
         }
 
         public override void dispose() {
@@ -1109,42 +1123,7 @@ namespace ConnectApp.screens {
                         }))
             );
         }
-
-        Widget _buildMessage(ChannelMessageView message, bool showTime, bool left, bool showUnreadLine = false) {
-            if (message.type == ChannelMessageType.skip) {
-                return new Container();
-            }
-
-            Widget ret = new Container(
-                key: this._getMessageKey(message.id),
-                constraints: new BoxConstraints(
-                    maxWidth: this.messageBubbleWidth
-                ),
-                decoration: this._messageDecoration(message.type, left),
-                child: this._buildMessageContent(message: message)
-            );
-
-            bool showDeleteButton;
-            if (message.status != "normal" && message.status != "local") {
-                Widget symbol = message.status == "sending" || message.status == "waiting"
-                    ? (Widget) new CustomActivityIndicator(
-                        size: LoadingSize.small,
-                        controller: this._messageActivityIndicatorController)
-                    : new GestureDetector(
-                        onTap: () => { this.widget.actionModel.resendMessage(message); },
-                        child: new Icon(icon: Icons.error, color: CColors.Error, size: 24)
-                    );
-                ret = new Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: new List<Widget> {symbol, new SizedBox(width: 8), ret}
-                );
-                showDeleteButton = false;
-            }
-            else {
-                showDeleteButton = true;
-            }
-
+        List<TipMenuItem> _buildTipMenus(ChannelMessageView message, bool showDeleteButton) {
             var tipMenuItems = new List<TipMenuItem>();
             if (message.type == ChannelMessageType.text
                 || message.type == ChannelMessageType.embedExternal
@@ -1200,7 +1179,170 @@ namespace ConnectApp.screens {
                     () => this._deleteMessage(message: message)
                 ));
             }
-            
+
+            return tipMenuItems;
+        }
+        
+        Widget _buildMessageTitle(ChannelMessageView message) {
+            return new Container(
+                padding: EdgeInsets.only(left: 0, right: 16, bottom: 6),
+                child: new Row(
+                    children: new List<Widget> {
+                        new Flexible(
+                            child: new Text(
+                                data: message.author.fullName,
+                                style: CTextStyle.PSmallBody4,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis
+                            )
+                        ),
+                        CImageUtils.GenBadgeImage(
+                            badges: message.author.badges,
+                            CCommonUtils.GetUserLicense(userId: message.author.id,
+                                userLicenseMap: this.widget.viewModel.userLicenseDict),
+                            EdgeInsets.only(4),
+                            false
+                        )
+                    }
+                )
+            );
+        }
+
+        Widget _buildMessageStateIndicator(ChannelMessageView message) {
+            if (message.status == "normal" || message.status == "local") {
+                return new Container();
+            }
+            return message.status == "sending" || message.status == "waiting"
+                ? (Widget) new CustomActivityIndicator(
+                    size: LoadingSize.small,
+                    controller: this._messageActivityIndicatorController)
+                : new GestureDetector(
+                    onTap: () => { this.widget.actionModel.resendMessage(message); },
+                    child: new Icon(icon: Icons.error, color: CColors.Error, size: 24)
+                );
+        }
+
+        ActionSheet _buildMessageActionSheet(ChannelMessageView message, bool showDeleteButton) {
+            return new ActionSheet(
+                items: new List<ActionSheetItem> {
+                    new ActionSheetItem(
+                        "复制",
+                        onTap: () => {
+                            var content = MessageUtils.AnalyzeMessage(
+                                content: message.content,
+                                mentions: message.mentions,
+                                mentionEveryone: message.mentionEveryone
+                            );
+                            Clipboard.setData(new ClipboardData(text: content));
+                        }
+                    ),
+                    new ActionSheetItem(
+                        "引用",
+                        onTap: () => {
+                            var content = MessageUtils.AnalyzeMessage(
+                                content: message.content,
+                                mentions: message.mentions,
+                                mentionEveryone: message.mentionEveryone
+                            );
+                            var newContent = this._textController.text + "「 " + message.author.fullName + ": " +
+                                             content +
+                                             " 」" + "\n" + "- - - - - - - - - - - - - - -" + "\n";
+                            this._textController.value = new TextEditingValue(
+                                text: newContent,
+                                TextSelection.collapsed(offset: newContent.Length)
+                            );
+                            if (this._refreshController.scrollController.offset > 0) {
+                                this._refreshController.scrollController.animateTo(0, TimeSpan.FromMilliseconds(100),
+                                    curve: Curves.linear);
+                            }
+
+                            if (!this._focusNode.hasFocus || !this.showKeyboard) {
+                                FocusScope.of(context: this.context).requestFocus(node: this._focusNode);
+                                TextInputPlugin.TextInputShow();
+                                Promise.Delayed(TimeSpan.FromMilliseconds(200)).Then(
+                                    () => this.setState(() => this.showEmojiBoard = false));
+                            }
+                        }
+                    ),
+                    new ActionSheetItem(
+                        "删除",
+                        onTap: message.author.id == this.widget.viewModel.me.id
+                               && showDeleteButton
+                               && message.type != ChannelMessageType.deleted
+                            ? () => this._deleteMessage(message: message)
+                            : (VoidCallback) null
+                    ),
+                }
+            );
+        }
+
+        Widget _buildReactionOverlay(ChannelMessageView message, Offset offset, Size size, bool left) {
+            return Positioned.fill(
+                child: new Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: new List<Widget> {
+                        new SizedBox(height: offset.dy - 60),
+                        new Row(
+                            mainAxisAlignment: left ? MainAxisAlignment.start : MainAxisAlignment.end,
+                            children: left
+                                ? new List<Widget> {
+                                    new SizedBox(width: offset.dx),
+                                    this._buildPopupLikeButtonBar()
+                                }
+                                : new List<Widget> {
+                                    this._buildPopupLikeButtonBar(),
+                                    new SizedBox(width: MediaQuery.of(this.context).size.width -
+                                                        offset.dx -
+                                                        size.width)
+                                }
+                        ),
+                        new SizedBox(height: 8),
+                        new Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: new List<Widget> {
+                                new SizedBox(width: offset.dx),
+                                new Container(
+                                    constraints: new BoxConstraints(
+                                        maxWidth: this.messageBubbleWidth
+                                    ),
+                                    decoration: this._messageDecoration(message.type, left),
+                                    child: this._buildMessageContent(message: message)
+                                )
+                            }
+                        )
+                    }
+                )
+            );
+        }
+
+        Widget _buildMessage(ChannelMessageView message, bool showTime, bool left, bool showUnreadLine = false) {
+            if (message.type == ChannelMessageType.skip) {
+                return new Container();
+            }
+
+            Widget ret = new Container(
+                key: this._getMessageKey(message.id),
+                constraints: new BoxConstraints(
+                    maxWidth: this.messageBubbleWidth
+                ),
+                decoration: this._messageDecoration(message.type, left),
+                child: this._buildMessageContent(message: message)
+            );
+
+            bool normalOrLocalMessage = message.status == "normal" || message.status == "local";
+            if (!normalOrLocalMessage) {
+                ret = new Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: new List<Widget> {
+                        this._buildMessageStateIndicator(message),
+                        new SizedBox(width: 8),
+                        ret
+                    }
+                );
+            }
+
             ret = new GestureDetector(
                 onLongPress: () => {
                     RenderBox renderBox = (RenderBox) this._getMessageKey(message.id).currentContext.findRenderObject();
@@ -1214,130 +1356,19 @@ namespace ConnectApp.screens {
                                 MediaQuery.of(this.context).padding.bottom - 158 - messageBoxSize.height)
                             .clamp(60, float.PositiveInfinity));
                     ActionSheetUtils.showModalActionSheet(
-                        child: new ActionSheet(
-                            items: new List<ActionSheetItem> {
-                                new ActionSheetItem(
-                                    "复制",
-                                    onTap: () => {
-                                        var content = MessageUtils.AnalyzeMessage(
-                                            content: message.content,
-                                            mentions: message.mentions,
-                                            mentionEveryone: message.mentionEveryone
-                                        );
-                                        Clipboard.setData(new ClipboardData(text: content));
-                                    }
-                                ),
-                                new ActionSheetItem(
-                                    "引用",
-                                    onTap: () => {
-                                        var content = MessageUtils.AnalyzeMessage(
-                                            content: message.content,
-                                            mentions: message.mentions,
-                                            mentionEveryone: message.mentionEveryone
-                                        );
-                                        var newContent = this._textController.text + "「 " + message.author.fullName + ": " + content +
-                                                         " 」" + "\n" + "- - - - - - - - - - - - - - -" + "\n";
-                                        this._textController.value = new TextEditingValue(
-                                            text: newContent,
-                                            TextSelection.collapsed(offset: newContent.Length)
-                                        );
-                                        if (this._refreshController.scrollController.offset > 0) {
-                                            this._refreshController.scrollController.animateTo(0, TimeSpan.FromMilliseconds(100),
-                                                curve: Curves.linear);
-                                        }
-
-                                        if (!this._focusNode.hasFocus || !this.showKeyboard) {
-                                            FocusScope.of(context: this.context).requestFocus(node: this._focusNode);
-                                            TextInputPlugin.TextInputShow();
-                                            Promise.Delayed(TimeSpan.FromMilliseconds(200)).Then(
-                                                () => this.setState(() => this.showEmojiBoard = false));
-                                        }
-                                    }
-                                ),
-                                new ActionSheetItem(
-                                    "删除",
-                                    onTap: message.author.id == this.widget.viewModel.me.id
-                                           && showDeleteButton
-                                           && message.type != ChannelMessageType.deleted
-                                               ? () => this._deleteMessage(message: message)
-                                               : (VoidCallback) null
-                                ),
-                            }
-                        ),
-                        overlay: Positioned.fill(
-                            child: new Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: new List<Widget> {
-                                    new SizedBox(height: messageBoxOffset.dy - 60),
-                                    new Row(
-                                        mainAxisAlignment: left ? MainAxisAlignment.start : MainAxisAlignment.end,
-                                        children: left
-                                            ? new List<Widget> {
-                                                new SizedBox(width: messageBoxOffset.dx),
-                                                this._buildPopupLikeButtonBar()
-                                            }
-                                            : new List<Widget> {
-                                                this._buildPopupLikeButtonBar(),
-                                                new SizedBox(width: MediaQuery.of(this.context).size.width -
-                                                                    messageBoxOffset.dx -
-                                                                    messageBoxSize.width)
-                                            }
-                                    ),
-                                    new SizedBox(height: 8),
-                                    new Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: new List<Widget> {
-                                            new SizedBox(width: messageBoxOffset.dx),
-                                            new Container(
-                                                constraints: new BoxConstraints(
-                                                    maxWidth: this.messageBubbleWidth
-                                                ),
-                                                decoration: this._messageDecoration(message.type, left),
-                                                child: this._buildMessageContent(message: message)
-                                            )
-                                        }
-                                    )
-                                }
-                            )
-                        )
+                        child: this._buildMessageActionSheet(message, normalOrLocalMessage),
+                        overlay: this._buildReactionOverlay(message, messageBoxOffset, messageBoxSize, left)
                     );
                 },
                 child: ret
             );
-
-//            ret = new TipMenu(
-//                tipMenuItems: tipMenuItems,
-//                child: ret
-//            );
 
             if (left) {
                 ret = new Expanded(
                     child: new Column(
                         crossAxisAlignment: left ? CrossAxisAlignment.start : CrossAxisAlignment.end,
                         children: new List<Widget> {
-                            new Container(
-                                padding: EdgeInsets.only(left: 0, right: 16, bottom: 6),
-                                child: new Row(
-                                    children: new List<Widget> {
-                                        new Flexible(
-                                            child: new Text(
-                                                data: message.author.fullName,
-                                                style: CTextStyle.PSmallBody4,
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis
-                                            )
-                                        ),
-                                        CImageUtils.GenBadgeImage(
-                                            badges: message.author.badges,
-                                            CCommonUtils.GetUserLicense(userId: message.author.id,
-                                                userLicenseMap: this.widget.viewModel.userLicenseDict),
-                                            EdgeInsets.only(4),
-                                            false
-                                        )
-                                    }
-                                )
-                            ),
+                            this._buildMessageTitle(message),
                             ret
                         }
                     )
@@ -1364,6 +1395,8 @@ namespace ConnectApp.screens {
                     }
                 );
             }
+
+            ret = new Container(key: this.getFullMessageKey(message.id), child: ret);
 
             return ret;
         }
@@ -1744,7 +1777,7 @@ namespace ConnectApp.screens {
                         float offset = 0;
                         for (int i = 0; i < this.widget.viewModel.newMessages.Count; i++) {
                             var message = this.widget.viewModel.newMessages[i];
-                            offset += calculateMessageHeight(message,
+                            offset += this.calculateMessageHeight(message,
                                 showTime: i == 0
                                     ? message.time - this.widget.viewModel.messages.last().time >
                                       this._showTimeThreshold
@@ -1890,10 +1923,26 @@ namespace ConnectApp.screens {
             }
         }
 
-        static float calculateMessageHeight(ChannelMessageView message, bool showTime, float width) {
-            if (message.buildHeight != null) {
+        float calculateMessageHeight(ChannelMessageView message, bool showTime, float width) {
+            if (message.type == ChannelMessageType.skip) {
+                return 0;
+            }
+
+            if (message.buildHeight != null && message.buildHeight > 0) {
                 return message.buildHeight.Value;
             }
+
+            var context = this.getFullMessageKey(message.id).currentContext;
+            if (context != null) {
+                RenderBox renderBox = (RenderBox) context.findRenderObject();
+                message.buildHeight = renderBox.size.height;
+                return message.buildHeight.Value;
+            }
+
+            if (message.buildHeight != null) {
+                return -message.buildHeight.Value;
+            }
+
             float height = 20 + 6 + 16 + (showTime ? 36 : 0); // Name + Internal + Bottom padding + time
             switch (message.type) {
                 case ChannelMessageType.deleted:
@@ -1914,7 +1963,8 @@ namespace ConnectApp.screens {
                     break;
             }
 
-            message.buildHeight = height;
+            // Store a negative value to mark that it is not accurate
+            message.buildHeight = -height;
             return height;
         }
     }
