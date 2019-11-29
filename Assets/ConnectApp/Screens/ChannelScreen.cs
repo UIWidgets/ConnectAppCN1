@@ -1036,7 +1036,7 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildMessage(ChannelMessageView message, bool showTime, bool left, bool showUnreadLine = false) {
-            if (message.type == ChannelMessageType.skip) {
+            if (message.type == ChannelMessageType.skip || message.type == ChannelMessageType.deleted) {
                 return new Container();
             }
 
@@ -1734,7 +1734,7 @@ namespace ConnectApp.screens {
             float height = 20 + 6 + 16 + (showTime ? 36 : 0); // Name + Internal + Bottom padding + time
             switch (message.type) {
                 case ChannelMessageType.deleted:
-                    height += DeletedMessage.CalculateTextHeight(width: width);
+//                    height += DeletedMessage.CalculateTextHeight(width: width);
                     break;
                 case ChannelMessageType.text:
                     height += TextMessage.CalculateTextHeight(content: message.content, width: width);
