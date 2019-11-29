@@ -1035,40 +1035,7 @@ namespace ConnectApp.screens {
                 );
         }
 
-        Widget _buildMessage(ChannelMessageView message, bool showTime, bool left, bool showUnreadLine = false) {
-            if (message.type == ChannelMessageType.skip) {
-                return new Container();
-            }
-
-            Widget ret = new Container(
-                constraints: new BoxConstraints(
-                    maxWidth: this.messageBubbleWidth
-                ),
-                decoration: this._messageDecoration(message.type, left),
-                child: this._buildMessageContent(message: message)
-            );
-
-            bool showDeleteButton;
-            if (message.status != "normal" && message.status != "local") {
-                Widget symbol = message.status == "sending" || message.status == "waiting"
-                    ? (Widget) new CustomActivityIndicator(
-                        size: LoadingSize.small,
-                        controller: this._messageActivityIndicatorController)
-                    : new GestureDetector(
-                        onTap: () => { this.widget.actionModel.resendMessage(message); },
-                        child: new Icon(icon: Icons.error, color: CColors.Error, size: 24)
-                    );
-                ret = new Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: new List<Widget> {symbol, new SizedBox(width: 8), ret}
-                );
-                showDeleteButton = false;
-            }
-            else {
-                showDeleteButton = true;
-            }
-
+        List<TipMenuItem> _buildTipMenus(ChannelMessageView message, bool showDeleteButton) {
             var tipMenuItems = new List<TipMenuItem>();
             if (message.type == ChannelMessageType.text
                 || message.type == ChannelMessageType.embedExternal
@@ -1125,8 +1092,76 @@ namespace ConnectApp.screens {
                 ));
             }
 
+            return tipMenuItems;
+        }
+
+        Widget _buildMessageTitle(ChannelMessageView message) {
+            return new Container(
+                padding: EdgeInsets.only(left: 0, right: 16, bottom: 6),
+                child: new Row(
+                    children: new List<Widget> {
+                        new Flexible(
+                            child: new Text(
+                                data: message.author.fullName,
+                                style: CTextStyle.PSmallBody4,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis
+                            )
+                        ),
+                        CImageUtils.GenBadgeImage(
+                            badges: message.author.badges,
+                            CCommonUtils.GetUserLicense(userId: message.author.id,
+                                userLicenseMap: this.widget.viewModel.userLicenseDict),
+                            EdgeInsets.only(4),
+                            false
+                        )
+                    }
+                )
+            );
+        }
+
+        Widget _buildMessageStateIndicator(ChannelMessageView message) {
+            if (message.status == "normal" || message.status == "local") {
+                return new Container();
+            }
+            return message.status == "sending" || message.status == "waiting"
+                ? (Widget) new CustomActivityIndicator(
+                    size: LoadingSize.small,
+                    controller: this._messageActivityIndicatorController)
+                : new GestureDetector(
+                    onTap: () => { this.widget.actionModel.resendMessage(message); },
+                    child: new Icon(icon: Icons.error, color: CColors.Error, size: 24)
+                );
+        }
+
+        Widget _buildMessage(ChannelMessageView message, bool showTime, bool left, bool showUnreadLine = false) {
+            if (message.type == ChannelMessageType.skip) {
+                return new Container();
+            }
+
+            Widget ret = new Container(
+                constraints: new BoxConstraints(
+                    maxWidth: this.messageBubbleWidth
+                ),
+                decoration: this._messageDecoration(message.type, left),
+                child: this._buildMessageContent(message: message)
+            );
+
+            bool normalOrLocalMessage = message.status == "normal" || message.status == "local";
+            if (!normalOrLocalMessage) {
+                ret = new Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: new List<Widget> {
+                        this._buildMessageStateIndicator(message),
+                        new SizedBox(width: 8),
+                        ret
+                    }
+                );
+            }
+
             ret = new TipMenu(
-                tipMenuItems: tipMenuItems,
+                tipMenuItems: this._buildTipMenus(message, showDeleteButton: normalOrLocalMessage),
                 child: ret
             );
 
@@ -1135,28 +1170,7 @@ namespace ConnectApp.screens {
                     child: new Column(
                         crossAxisAlignment: left ? CrossAxisAlignment.start : CrossAxisAlignment.end,
                         children: new List<Widget> {
-                            new Container(
-                                padding: EdgeInsets.only(left: 0, right: 16, bottom: 6),
-                                child: new Row(
-                                    children: new List<Widget> {
-                                        new Flexible(
-                                            child: new Text(
-                                                data: message.author.fullName,
-                                                style: CTextStyle.PSmallBody4,
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis
-                                            )
-                                        ),
-                                        CImageUtils.GenBadgeImage(
-                                            badges: message.author.badges,
-                                            CCommonUtils.GetUserLicense(userId: message.author.id,
-                                                userLicenseMap: this.widget.viewModel.userLicenseDict),
-                                            EdgeInsets.only(4),
-                                            false
-                                        )
-                                    }
-                                )
-                            ),
+                            this._buildMessageTitle(message),
                             ret
                         }
                     )
