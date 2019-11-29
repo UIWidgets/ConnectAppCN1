@@ -9,21 +9,43 @@ using Unity.UIWidgets.widgets;
 namespace ConnectApp.Components {
     public class CustomSegmentedControl : StatefulWidget {
         public readonly List<Widget> children;
-        public readonly List<string> items;
+        public readonly List<object> items;
         public readonly ValueChanged<int> onValueChanged;
+        public readonly int currentIndex;
+        public readonly float headerHeight;
+        public readonly Widget trailing;
+        public readonly Decoration headerDecoration;
+        public readonly Decoration indicator;
+        public readonly EdgeInsets headerPadding;
+        public readonly EdgeInsets labelPadding;
+        public readonly float? indicatorWidth;
         public readonly Color selectedColor;
         public readonly Color unselectedColor;
-        public readonly int currentIndex;
-        public readonly float? indicatorWidth;
+        public readonly TextStyle unselectedTextStyle;
+        public readonly TextStyle selectedTextStyle;
+        public readonly CustomTabController controller;
+        public readonly ScrollPhysics physics;
+        public readonly ValueChanged<int> onTap;
 
         public CustomSegmentedControl(
-            List<string> items,
+            List<object> items,
             List<Widget> children,
             ValueChanged<int> onValueChanged = null,
             int currentIndex = 0,
+            float headerHeight = 44,
+            Widget trailing = null,
+            Decoration headerDecoration = null,
+            Decoration indicator = null,
+            EdgeInsets headerPadding = null,
+            EdgeInsets labelPadding = null,
+            float? indicatorWidth = null,
             Color unselectedColor = null,
             Color selectedColor = null,
-            float? indicatorWidth = null,
+            TextStyle unselectedTextStyle = null,
+            TextStyle selectedTextStyle = null,
+            CustomTabController controller = null,
+            ScrollPhysics physics = null,
+            ValueChanged<int> onTap = null,
             Key key = null
         ) : base(key: key) {
             D.assert(items != null);
@@ -38,7 +60,32 @@ namespace ConnectApp.Components {
             this.unselectedColor = unselectedColor ?? CColors.TextTitle;
             this.selectedColor = selectedColor ?? CColors.PrimaryBlue;
             this.currentIndex = currentIndex;
+            this.headerHeight = headerHeight;
+            this.trailing = trailing;
+            this.headerDecoration = headerDecoration ?? new BoxDecoration(
+                                        color: CColors.White,
+                                        border: new Border(bottom: new BorderSide(color: CColors.Separator2))
+                                    );
+            this.indicator = indicator ?? new CustomUnderlineTabIndicator(
+                                 insets: EdgeInsets.zero,
+                                 borderSide: new BorderSide(width: 2, color: CColors.PrimaryBlue)
+                             );
+            this.headerPadding = headerPadding ?? EdgeInsets.zero;
+            this.labelPadding = labelPadding ?? EdgeInsets.symmetric(horizontal: 16, vertical: 10);
             this.indicatorWidth = indicatorWidth;
+            this.unselectedTextStyle = unselectedTextStyle ?? new TextStyle(
+                                           fontSize: 16,
+                                           fontFamily: "Roboto-Regular",
+                                           color: this.unselectedColor
+                                       );
+            this.selectedTextStyle = selectedTextStyle ?? new TextStyle(
+                                         fontSize: 16,
+                                         fontFamily: "Roboto-Medium",
+                                         color: this.unselectedColor
+                                     );
+            this.controller = controller;
+            this.physics = physics;
+            this.onTap = onTap;
         }
 
         public override State createState() {
@@ -47,18 +94,14 @@ namespace ConnectApp.Components {
     }
 
     class _CustomSegmentedControlState : TickerProviderStateMixin<CustomSegmentedControl> {
-        static readonly TextStyle _labelStyle = new TextStyle(
-            fontSize: 16,
-            fontFamily: "Roboto-Regular"
-        );
-
         CustomTabController _controller;
         int _currentIndex;
 
         public override void initState() {
             base.initState();
             this._currentIndex = this.widget.currentIndex;
-            this._controller = new CustomTabController(this.widget.children.Count, this);
+            this._controller = this.widget.controller 
+                               ?? new CustomTabController(length: this.widget.children.Count, this);
             this._controller.addListener(() => {
                 if (this._controller.index != this._currentIndex) {
                     this._currentIndex = this._controller.index;
@@ -88,45 +131,53 @@ namespace ConnectApp.Components {
         Widget _buildSelectView() {
             var children = new List<Widget>();
             this.widget.items.ForEach(item => {
-                var itemIndex = this.widget.items.IndexOf(item: item);
-                var itemWidget = this._buildSelectItem(title: item, index: itemIndex);
-                children.Add(item: itemWidget);
+                if (item is string itemString) {
+                    children.Add(new Text(data: itemString));
+                }
+                if (item is int itemInt) {
+                    children.Add(new Text($"{itemInt}"));
+                }
+                if (item is Widget widget) {
+                    children.Add(item: widget);
+                }
             });
-            return new CustomTabBarHeader(
-                tabs: children,
-                controller: this._controller,
-                indicator: new CustomUnderlineTabIndicator(
-                    insets: EdgeInsets.zero,
-                    borderSide: new BorderSide( width: 2, color: this.widget.selectedColor)),
-                indicatorSize: CustomTabBarIndicatorSize.fixedOrLabel,
-                indicatorFixedSize: this.widget.indicatorWidth,
-                indicatorChangeStyle: CustomTabBarIndicatorChangeStyle.enlarge,
-                unselectedLabelStyle: _labelStyle,
-                unselectedLabelColor: this.widget.unselectedColor,
-                labelStyle: _labelStyle,
-                labelColor: this.widget.unselectedColor,
-                isScrollable: true
+            return new Container(
+                decoration: this.widget.headerDecoration,
+                height: this.widget.headerHeight,
+                child: new Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: new List<Widget> {
+                        new Container(
+                            padding: this.widget.headerPadding,
+                            child: new CustomTabBarHeader(
+                                tabs: children,
+                                controller: this._controller,
+                                indicator: this.widget.indicator,
+                                indicatorSize: CustomTabBarIndicatorSize.fixedOrLabel,
+                                indicatorFixedSize: this.widget.indicatorWidth,
+                                indicatorChangeStyle: CustomTabBarIndicatorChangeStyle.enlarge,
+                                unselectedLabelStyle: this.widget.unselectedTextStyle,
+                                unselectedLabelColor: this.widget.unselectedColor,
+                                labelStyle: this.widget.selectedTextStyle,
+                                labelColor: this.widget.selectedColor,
+                                isScrollable: true,
+                                labelPadding: this.widget.labelPadding,
+                                onTap: this.widget.onTap
+                            )
+                        ),
+                        this.widget.trailing ?? new Container()
+                    }
+                )
             );
         }
 
         Widget _buildContentView() {
             return new Flexible(
                 child: new CustomTabBarView(
+                    physics: this.widget.physics,
                     children: this.widget.children,
                     controller: this._controller
-                )
-            );
-        }
-
-        Widget _buildSelectItem(string title, int index) {
-            return new CustomTab(
-                child: new Container(
-                    height: 44,
-                    padding: EdgeInsets.symmetric(10),
-                    child: new Text(
-                        data: title,
-                        style: _labelStyle
-                    )
                 )
             );
         }

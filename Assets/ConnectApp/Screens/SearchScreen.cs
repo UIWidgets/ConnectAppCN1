@@ -245,7 +245,7 @@ namespace ConnectApp.screens {
 
         Widget _buildSearchResult() {
             return new CustomSegmentedControl(
-                new List<string> {"文章", "用户", "公司"},
+                new List<object> {"文章", "用户", "公司"},
                 new List<Widget> {
                     new SearchArticleScreenConnector(),
                     new SearchUserScreenConnector(),

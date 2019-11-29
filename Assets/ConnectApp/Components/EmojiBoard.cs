@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using ConnectApp.Constants;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
-using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
@@ -56,13 +55,13 @@ namespace ConnectApp.Components {
             0x1F928, 0x1F60B, 0x1F47B, 0x1F64F, 0x1F4AA, 0x1F389,
             0x1F381, 0x1F9E7
         };
-        TabController _emojiTabController;
+        CustomTabController _emojiTabController;
 
         public override void initState() {
             base.initState();
-            this._emojiTabController = new TabController(
-                length: (emojiList.Count - 1) / emojiBoardPageSize + 1,
-                vsync: this
+            this._emojiTabController = new CustomTabController(
+                (emojiList.Count - 1) / emojiBoardPageSize + 1,
+                this
             );
         }
 
@@ -126,7 +125,7 @@ namespace ConnectApp.Components {
                     children: new List<Widget> {
                         new Container(
                             height: (emojiButtonSize + 8) * (emojiBoardColumnSize - 1) + emojiButtonSize,
-                            child: new TabBarView(
+                            child: new CustomTabBarView(
                                 controller: this._emojiTabController,
                                 children: this._buildEmojiBoardPages(context: context)
                             )
