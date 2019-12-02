@@ -965,6 +965,30 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case UpdateMessageReactionsAction action: {
+                    if (state.channelState.messageDict.TryGetValue(action.messageId, out var message)) {
+                        message.updateReaction(action.type, action.count, action.my);
+                    }
+                    
+                    break;
+                }
+
+                case AddMyReactionToMessage action: {
+                    if (state.channelState.messageDict.TryGetValue(action.messageId, out var message)) {
+                        message.addMyReaction(action.type);
+                    }
+
+                    break;
+                }
+
+                case RemoveMyReactionToMessage action: {
+                    if (state.channelState.messageDict.TryGetValue(action.messageId, out var message)) {
+                        message.removeMyReaction(action.type);
+                    }
+
+                    break;
+                }
+
                 case ArticleMapAction action: {
                     if (action.articleMap.isNotNullAndEmpty()) {
                         var articleDict = state.articleState.articleDict;

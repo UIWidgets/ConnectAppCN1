@@ -15,7 +15,6 @@ using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
@@ -254,14 +253,25 @@ namespace ConnectApp.screens {
                         resendMessage = message => dispatcher.dispatch(new ResendMessageAction {
                             message = message
                         }),
-                        addReactToMessage = (message, type) => {
-                            message.reactions.Add(new Reaction {
-                                user = viewModel.me
+                        updateMessageReactions = (message, type, count, my) => {
+                            dispatcher.dispatch(new UpdateMessageReactionsAction {
+                                type = type,
+                                count = count,
+                                my = my
                             });
                         },
-                        cancelReactToMessage = (message, type) => {
-                            
+                        addMyReaction = (message, type) => {
+                            dispatcher.dispatch(new AddMyReactionToMessage {
+                                type = type,
+                                messageId = message.id
+                            });
                         },
+                        cancelMyReaction = (message, type) => {
+                            dispatcher.dispatch(new RemoveMyReactionToMessage {
+                                type = type,
+                                messageId = message.id
+                            });
+                        }
                     };
                     return new ChannelScreen(viewModel: viewModel, actionModel: actionModel);
                 }
@@ -299,6 +309,14 @@ namespace ConnectApp.screens {
             {HttpManager.COOKIE, HttpManager.getCookie()},
             {"ConnectAppVersion", Config.versionName},
             {"X-Requested-With", "XmlHttpRequest"}
+        };
+        
+        public static readonly Dictionary<string, int> reactionIcons = new Dictionary<string, int> {
+            {"like", 0x1f642},
+            {"dislike", 0x1f643},
+            {"tear", 0x1f644},
+            {"heart", 0x1f645},
+            {"question", 0x1f646},
         };
 
         bool _showEmojiBoard;
@@ -1159,58 +1177,58 @@ namespace ConnectApp.screens {
                 );
         }
 
-        ActionSheet _buildMessageActionSheet(ChannelMessageView message, bool showDeleteButton) {
-            return new ActionSheet(
-                items: new List<ActionSheetItem> {
-                    new ActionSheetItem(
-                        "复制",
-                        onTap: () => {
-                            var content = MessageUtils.AnalyzeMessage(
-                                content: message.content,
-                                mentions: message.mentions,
-                                mentionEveryone: message.mentionEveryone
-                            );
-                            Clipboard.setData(new ClipboardData(text: content));
+        List<ActionSheetItem> _buildMessageActionSheet(ChannelMessageView message, bool showDeleteButton) {
+            var list = new List<ActionSheetItem> {
+                new ActionSheetItem(
+                    "复制",
+                    onTap: () => {
+                        var content = MessageUtils.AnalyzeMessage(
+                            content: message.content,
+                            mentions: message.mentions,
+                            mentionEveryone: message.mentionEveryone
+                        );
+                        Clipboard.setData(new ClipboardData(text: content));
+                    }
+                ),
+                new ActionSheetItem(
+                    "引用",
+                    onTap: () => {
+                        var content = MessageUtils.AnalyzeMessage(
+                            content: message.content,
+                            mentions: message.mentions,
+                            mentionEveryone: message.mentionEveryone
+                        );
+                        var newContent = this._textController.text + "「 " + message.author.fullName + ": " +
+                                         content +
+                                         " 」" + "\n" + "- - - - - - - - - - - - - - -" + "\n";
+                        this._textController.value = new TextEditingValue(
+                            text: newContent,
+                            TextSelection.collapsed(offset: newContent.Length)
+                        );
+                        if (this._refreshController.scrollController.offset > 0) {
+                            this._refreshController.scrollController.animateTo(0, TimeSpan.FromMilliseconds(100),
+                                curve: Curves.linear);
                         }
-                    ),
-                    new ActionSheetItem(
-                        "引用",
-                        onTap: () => {
-                            var content = MessageUtils.AnalyzeMessage(
-                                content: message.content,
-                                mentions: message.mentions,
-                                mentionEveryone: message.mentionEveryone
-                            );
-                            var newContent = this._textController.text + "「 " + message.author.fullName + ": " +
-                                             content +
-                                             " 」" + "\n" + "- - - - - - - - - - - - - - -" + "\n";
-                            this._textController.value = new TextEditingValue(
-                                text: newContent,
-                                TextSelection.collapsed(offset: newContent.Length)
-                            );
-                            if (this._refreshController.scrollController.offset > 0) {
-                                this._refreshController.scrollController.animateTo(0, TimeSpan.FromMilliseconds(100),
-                                    curve: Curves.linear);
-                            }
 
-                            if (!this._focusNode.hasFocus || !this.showKeyboard) {
-                                FocusScope.of(context: this.context).requestFocus(node: this._focusNode);
-                                TextInputPlugin.TextInputShow();
-                                Promise.Delayed(TimeSpan.FromMilliseconds(200)).Then(
-                                    () => this.setState(() => this.showEmojiBoard = false));
-                            }
+                        if (!this._focusNode.hasFocus || !this.showKeyboard) {
+                            FocusScope.of(context: this.context).requestFocus(node: this._focusNode);
+                            TextInputPlugin.TextInputShow();
+                            Promise.Delayed(TimeSpan.FromMilliseconds(200)).Then(
+                                () => this.setState(() => this.showEmojiBoard = false));
                         }
-                    ),
+                    }
+                ),
+            };
+
+            if (showDeleteButton) {
+                list.Add(
                     new ActionSheetItem(
                         "删除",
-                        onTap: message.author.id == this.widget.viewModel.me.id
-                               && showDeleteButton
-                               && message.type != ChannelMessageType.deleted
-                            ? () => this._deleteMessage(message: message)
-                            : (VoidCallback) null
-                    ),
-                }
-            );
+                        onTap: () => this._deleteMessage(message: message)
+                    )
+                );
+            }
+            return list;
         }
 
         Widget _buildReactionOverlay(ChannelMessageView message, Offset offset, Size size, bool left) {
@@ -1227,19 +1245,23 @@ namespace ConnectApp.screens {
                     child: this._buildMessageContent(message: message)
                 ),
                 onTap: (type) => {
-                    if (type == "like") {
-                        this.widget.actionModel.addReactToMessage(message, type);
+                    if (!message.myReactions.Contains(type)) {
+                        this.widget.actionModel.addMyReaction(message, type);
                     }
+                    else {
+                        this.widget.actionModel.cancelMyReaction(message, type);
+                    }
+                    ActionSheetUtils.hiddenModalPopup();
                 });
         }
 
-        Widget _buildReaction(Reaction reaction) {
+        Widget _buildReaction(ChannelMessageView message, string type) {
             return new Container(
                 height: 28,
                 padding: EdgeInsets.symmetric(4, 8),
                 decoration: new BoxDecoration(
                     border: Border.all(
-                        color: reaction.user.id == this.widget.viewModel.me.id
+                        color: message.myReactions.Contains(type)
                             ? CColors.PrimaryBlue
                             : CColors.Transparent,
                         width: 1.5f
@@ -1247,8 +1269,8 @@ namespace ConnectApp.screens {
                     borderRadius: BorderRadius.all(14),
                     color: CColors.MessageReaction
                 ),
-                child: new Text($"{char.ConvertFromUtf32(0x1f642)} {4}",
-                    style: reaction.user.id == this.widget.viewModel.me.id
+                child: new Text($"{char.ConvertFromUtf32(reactionIcons[type])} {message.reactionCount.getOrDefault(type, 4)}",
+                    style: message.myReactions.Contains(type)
                         ? CTextStyle.PRegularBody.copyWith(color: CColors.MessageReactionCount, height: 1.1f)
                         : CTextStyle.PRegularBody.copyWith(height: 1.1f))
             );
@@ -1257,10 +1279,12 @@ namespace ConnectApp.screens {
         Widget _buildReactions(ChannelMessageView message, bool left) {
             return new Container(
                 padding: EdgeInsets.only(top: 8),
-                child: new Row(
-                    mainAxisAlignment: left ? MainAxisAlignment.start : MainAxisAlignment.end,
-                    mainAxisSize: MainAxisSize.min,
-                    children: message.reactions.Select(reaction => this._buildReaction(reaction)).ToList()
+                child: new Wrap(
+                    alignment: left ? WrapAlignment.start : WrapAlignment.end,
+                    spacing: 8,
+                    // mainAxisAlignment: left ? MainAxisAlignment.start : MainAxisAlignment.end,
+                    // mainAxisSize: MainAxisSize.min,
+                    children: message.reactionCount.Keys.Select(type => this._buildReaction(message, type)).ToList()
                 )
             );
         }
@@ -1297,15 +1321,20 @@ namespace ConnectApp.screens {
                     RenderBox renderBox = (RenderBox) this._getMessageKey(message.id).currentContext.findRenderObject();
                     Size messageBoxSize = renderBox.size;
                     Offset messageBoxOffset = renderBox.localToGlobal(Offset.zero);
+                    var items = this._buildMessageActionSheet(message,
+                        showDeleteButton: message.author.id == this.widget.viewModel.me.id
+                                          && normalOrLocalMessage
+                                          && message.type != ChannelMessageType.deleted);
                     messageBoxOffset = new Offset(
                         messageBoxOffset.dx,
                         messageBoxOffset.dy
                             .clamp(float.NegativeInfinity,
                                 MediaQuery.of(this.context).size.height -
-                                MediaQuery.of(this.context).padding.bottom - 158 - messageBoxSize.height)
+                                MediaQuery.of(this.context).padding.bottom - 8 -
+                                items.Count * 50 - messageBoxSize.height)
                             .clamp(60, float.PositiveInfinity));
                     ActionSheetUtils.showModalActionSheet(
-                        child: this._buildMessageActionSheet(message, normalOrLocalMessage),
+                        child: new ActionSheet(items: items),
                         overlay: this._buildReactionOverlay(message, messageBoxOffset, messageBoxSize, left)
                     );
                     
@@ -1313,7 +1342,7 @@ namespace ConnectApp.screens {
                 child: ret
             );
 
-            if (left || message.reactions.isNotEmpty()) {
+            if (left || message.reactionCount.isNotEmpty()) {
                 ret = new Expanded(
                     child: new Column(
                         crossAxisAlignment: left ? CrossAxisAlignment.start : CrossAxisAlignment.end,
@@ -1680,7 +1709,10 @@ namespace ConnectApp.screens {
                 content = text.Trim(),
                 plainText = plainText,
                 time = DateTime.UtcNow,
-                status = "waiting"
+                status = "waiting",
+                reactionCount = new Dictionary<string, int>(),
+                reactions = new List<Reaction>(),
+                myReactions = new HashSet<string>()
             });
             this._textController.clear();
             this._textController.selection = TextSelection.collapsed(0);
@@ -2010,33 +2042,13 @@ namespace ConnectApp.screens {
         Widget _buildPopupLikeButtonBar(ChannelMessageView message) {
             return new PopupLikeButtonBar(
                 onTap: this.widget.onTap,
-                popupLikeButtonData: new List<PopupLikeButtonItem> {
-                    new PopupLikeButtonItem {
-                        content = char.ConvertFromUtf32(0x1f642),
-                        selected = true,
-                        type = "like"
-                    },
-                    new PopupLikeButtonItem {
-                        content = char.ConvertFromUtf32(0x1f642),
-                        selected = false,
-                        type = "like"
-                    },
-                    new PopupLikeButtonItem {
-                        content = char.ConvertFromUtf32(0x1f642),
-                        selected = false,
-                        type = "like"
-                    },
-                    new PopupLikeButtonItem {
-                        content = char.ConvertFromUtf32(0x1f642),
-                        selected = false,
-                        type = "like"
-                    },
-                    new PopupLikeButtonItem {
-                        content = char.ConvertFromUtf32(0x1f642),
-                        selected = false,
-                        type = "like"
-                    },
-                }
+                popupLikeButtonData: _ChannelScreenState.reactionIcons.Keys.Select(type => {
+                    return new PopupLikeButtonItem {
+                        content = char.ConvertFromUtf32(_ChannelScreenState.reactionIcons[type]),
+                        selected = message.myReactions.Contains(type),
+                        type = type
+                    };
+                }).ToList()
             );
         }
     }

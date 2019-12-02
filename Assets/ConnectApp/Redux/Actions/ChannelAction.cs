@@ -762,6 +762,23 @@ namespace ConnectApp.redux.actions {
         public ChannelMessageView message;
     }
 
+    public class UpdateMessageReactionsAction : BaseAction {
+        public string messageId;
+        public string type;
+        public int? count;
+        public bool? my;
+    }
+
+    public class AddMyReactionToMessage : BaseAction {
+        public string messageId;
+        public string type;
+    }
+
+    public class RemoveMyReactionToMessage : BaseAction {
+        public string messageId;
+        public string type;
+    }
+
     public class FetchChannelMentionQuerySuccessAction : BaseAction {
         public string channelId;
         public List<ChannelMember> members;

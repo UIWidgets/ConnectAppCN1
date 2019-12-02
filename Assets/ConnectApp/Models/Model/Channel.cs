@@ -348,6 +348,8 @@ namespace ConnectApp.Models.Model {
         public bool deleted = false;
         public List<Reaction> reactions;
         public List<Embed> embeds;
+        public Dictionary<string, int> reactionCount;
+        public HashSet<string> myReactions;
         public string status = "normal";
         public byte[] imageData;
         public byte[] videoData;
@@ -418,6 +420,54 @@ namespace ConnectApp.Models.Model {
             return getType(content, deleted, attachments, embeds) == ChannelMessageType.image ? attachments[0].height : 0;
         }
 
+        static Dictionary<string, int> getReactionCount(List<Reaction> reactions) {
+            Dictionary<string, int> reactDict = new Dictionary<string, int>();
+            foreach (var reaction in reactions) {
+                if (reactDict.ContainsKey(reaction.type)) {
+                    reactDict[reaction.type] += 1;
+                }
+                else {
+                    reactDict[reaction.type] = 1;
+                }
+            }
+            return reactDict;
+        }
+
+        public void updateReaction(string type, int? count = null, bool? my = null) {
+            if (count != null) {
+                if (count.Value > 0) {
+                    this.reactionCount[type] = count.Value;
+                }
+                else {
+                    this.reactionCount.Remove(type);
+                }
+            }
+
+            if (my != null) {
+                if (my.Value) {
+                    this.myReactions.Add(type);
+                }
+                else {
+                    this.myReactions.Remove(type);
+                }
+            }
+        }
+
+        public void addMyReaction(string type) {
+            if (this.myReactions.Contains(type)) {
+                return;
+            }
+            this.updateReaction(type, this.reactionCount.getOrDefault(type, 0) + 1, true);
+        }
+
+        public void removeMyReaction(string type) {
+            if (!this.myReactions.Contains(type) || !this.reactionCount.ContainsKey(type)) {
+                return;
+            }
+            this.updateReaction(type, this.reactionCount[type] - 1, false);
+            
+        }
+
         public static ChannelMessageView fromPushMessage(SocketResponseMessageData message) {
             return message == null
                 ? new ChannelMessageView()
@@ -443,7 +493,9 @@ namespace ConnectApp.Models.Model {
                     pending = message.pending,
                     deleted = message.deletedTime != null,
                     embeds = message.embeds,
-                    reactions = message.reactions
+                    reactions = message.reactions,
+                    reactionCount = getReactionCount(message.reactions),
+                    myReactions = new HashSet<string>()
                 };
         }
 
@@ -464,7 +516,10 @@ namespace ConnectApp.Models.Model {
                     type = getType(message.content, message.deletedTime.isNotEmpty(), message.attachments),
                     mentionEveryone = message.mentionEveryone,
                     mentions = message.mentions?.Select(user => new User {id = user.id}).ToList(),
-                    deleted = message.deletedTime != null
+                    deleted = message.deletedTime != null,
+                    reactions = new List<Reaction>(),
+                    reactionCount = new Dictionary<string, int>(),
+                    myReactions = new HashSet<string>()
                 };
         }
 
@@ -493,7 +548,9 @@ namespace ConnectApp.Models.Model {
                     pending = message.pending,
                     deleted = message.deletedTime != null,
                     embeds = message.embeds,
-                    reactions = message.reactions
+                    reactions = message.reactions,
+                    reactionCount = getReactionCount(message.reactions),
+                    myReactions = new HashSet<string>()
                 };
         }
     }
