@@ -38,7 +38,8 @@ namespace ConnectApp.Utils {
                 }
                 else if (uri.AbsolutePath.StartsWith("/mconnect/channels/")) {
                     var channelId = uri.AbsolutePath.Remove(0, "/mconnect/channels/".Length);
-                    if (MessageUtils.currentChannelId.isNotEmpty() && channelId == MessageUtils.currentChannelId) {
+                    if (CTemporaryValue.currentPageChannelId.isNotEmpty() &&
+                        channelId == CTemporaryValue.currentPageChannelId) {
                         return;
                     }
 

@@ -13,6 +13,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using EventType = ConnectApp.Models.State.EventType;
+
 #if UNITY_IOS
 using System.Runtime.InteropServices;
 
@@ -84,7 +85,8 @@ namespace ConnectApp.Plugins {
                             }
 
                             var id = dict["id"] ?? "";
-                            if (MessageUtils.currentChannelId.isEmpty() || id != MessageUtils.currentChannelId) {
+                            if (CTemporaryValue.currentPageChannelId.isEmpty() ||
+                                id != CTemporaryValue.currentPageChannelId) {
                                 playMessageSound();
                             }
 
@@ -252,7 +254,7 @@ namespace ConnectApp.Plugins {
                     new MainNavigatorPushToWebViewAction {url = id});
             }
             else if (type == "messenger") {
-                if (MessageUtils.currentChannelId.isNotEmpty() && id == MessageUtils.currentChannelId) {
+                if (CTemporaryValue.currentPageChannelId.isNotEmpty() && id == CTemporaryValue.currentPageChannelId) {
                     return;
                 }
 

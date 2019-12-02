@@ -15,8 +15,8 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -152,12 +152,12 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch(new StartSendChannelMessageAction {
                                 message = viewModel.waitingMessage
                             });
-                            if (MessageUtils.lastWaitingMessageId.isNotEmpty() &&
-                                viewModel.waitingMessage.id == MessageUtils.lastWaitingMessageId) {
+                            if (CTemporaryValue.lastWaitingMessageId.isNotEmpty() &&
+                                viewModel.waitingMessage.id == CTemporaryValue.lastWaitingMessageId) {
                                 return;
                             }
 
-                            MessageUtils.lastWaitingMessageId = viewModel.waitingMessage.id;
+                            CTemporaryValue.lastWaitingMessageId = viewModel.waitingMessage.id;
                             if (viewModel.waitingMessage.type == ChannelMessageType.text) {
                                 dispatcher.dispatch<IPromise>(Actions.sendChannelMessage(
                                     this.channelId,
@@ -642,9 +642,7 @@ namespace ConnectApp.screens {
             }
 
             if (this.widget.viewModel.channel.needFetchMessages) {
-                SchedulerBinding.instance.addPostFrameCallback(_ => {
-                    this._refreshController.scrollTo(0);
-                });
+                SchedulerBinding.instance.addPostFrameCallback(_ => { this._refreshController.scrollTo(0); });
             }
 
             if (this.widget.viewModel.waitingMessage != null ||
@@ -895,7 +893,9 @@ namespace ConnectApp.screens {
                                 child: new Text(
                                     !this.widget.viewModel.networkConnected
                                         ? this.widget.viewModel.channel.name + " (未连接)"
-                                        : this.widget.viewModel.socketConnected && !this.widget.viewModel.channel.needFetchMessages && !this.widget.viewModel.messageLoading
+                                        : this.widget.viewModel.socketConnected &&
+                                          !this.widget.viewModel.channel.needFetchMessages &&
+                                          !this.widget.viewModel.messageLoading
                                             ? this.widget.viewModel.channel.name
                                             : "收取中...",
                                     style: CTextStyle.PXLargeMedium,
@@ -1682,9 +1682,9 @@ namespace ConnectApp.screens {
         }
 
         public void didPop() {
-            if (MessageUtils.currentChannelId.isNotEmpty() &&
-                this.widget.viewModel.channel.id == MessageUtils.currentChannelId) {
-                MessageUtils.currentChannelId = null;
+            if (CTemporaryValue.currentPageChannelId.isNotEmpty() &&
+                this.widget.viewModel.channel.id == CTemporaryValue.currentPageChannelId) {
+                CTemporaryValue.currentPageChannelId = null;
             }
 
             this.mentionMap.Clear();
@@ -1696,16 +1696,16 @@ namespace ConnectApp.screens {
         }
 
         public void didPopNext() {
-            MessageUtils.currentChannelId = this.widget.viewModel.channel.id ?? "";
+            CTemporaryValue.currentPageChannelId = this.widget.viewModel.channel.id;
             StatusBarManager.statusBarStyle(false);
         }
 
         public void didPush() {
-            MessageUtils.currentChannelId = this.widget.viewModel.channel.id ?? "";
+            CTemporaryValue.currentPageChannelId = this.widget.viewModel.channel.id;
         }
 
         public void didPushNext() {
-            MessageUtils.currentChannelId = null;
+            CTemporaryValue.currentPageChannelId = null;
             if (this.showKeyboard || this.showEmojiBoard) {
                 this.setState(fn: this._dismissKeyboard);
             }

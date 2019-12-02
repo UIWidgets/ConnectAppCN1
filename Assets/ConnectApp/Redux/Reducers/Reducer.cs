@@ -956,8 +956,8 @@ namespace ConnectApp.redux.reducers {
                         var message = state.channelState.localMessageDict[key];
                         if (message.status == "failed") {
                             message.status = "waiting";
-                            if (MessageUtils.lastWaitingMessageId == message.id) {
-                                MessageUtils.lastWaitingMessageId = "";
+                            if (CTemporaryValue.lastWaitingMessageId == message.id) {
+                                CTemporaryValue.lastWaitingMessageId = "";
                             }
                         }
                     }
@@ -3067,8 +3067,10 @@ namespace ConnectApp.redux.reducers {
                                 exists = true;
                             }
                         }
+
                         if (!exists) {
-                            suggestionList.Add(ChannelMember.fromSocketResponseChannelMemberChangeData(action.memberData));
+                            suggestionList.Add(
+                                ChannelMember.fromSocketResponseChannelMemberChangeData(action.memberData));
                         }
                     }
 
@@ -3085,13 +3087,14 @@ namespace ConnectApp.redux.reducers {
                     if (state.channelState.mentionSuggestions.ContainsKey(action.memberData.channelId)) {
                         var suggestionList = state.channelState.mentionSuggestions[action.memberData.channelId];
                         int index = -1;
-                        for (var i=0; i<suggestionList.Count; i++) {
+                        for (var i = 0; i < suggestionList.Count; i++) {
                             var member = suggestionList[i];
                             if (member.user.id == action.memberData.user.id) {
                                 index = i;
                                 break;
                             }
                         }
+
                         if (index != -1) {
                             suggestionList.RemoveAt(index);
                         }
@@ -3106,7 +3109,8 @@ namespace ConnectApp.redux.reducers {
                     if (channelData.projectId.isNotEmpty()
                         || channelData.ticketId.isNotEmpty()
                         || channelData.proposalId.isNotEmpty()
-                        || !(channelData.type == "public" || channelData.type == "private" || channelData.type == "lobby")) {
+                        || !(channelData.type == "public" || channelData.type == "private" ||
+                             channelData.type == "lobby")) {
                         break;
                     }
 
@@ -3145,19 +3149,20 @@ namespace ConnectApp.redux.reducers {
 
                 case PushChannelUpdateChannelAction action: {
                     var channelData = action.channelData;
-                    
+
                     // filter project/event/support channel
                     if (channelData.projectId.isNotEmpty()
                         || channelData.ticketId.isNotEmpty()
                         || channelData.proposalId.isNotEmpty()
-                        || !(channelData.type == "public" || channelData.type == "private" || channelData.type == "lobby")) {
+                        || !(channelData.type == "public" || channelData.type == "private" ||
+                             channelData.type == "lobby")) {
                         break;
                     }
 
                     if (!state.channelState.createChannelFilterIds.Contains(channelData.id)) {
                         break;
                     }
-                    
+
                     if (state.channelState.channelDict.ContainsKey(channelData.id)) {
                         ChannelView channel = state.channelState.channelDict[channelData.id];
                         channel.updateFromSocketResponseUpdateChannelData(channelData);
@@ -3250,10 +3255,10 @@ namespace ConnectApp.redux.reducers {
                         if (_index != -1) {
                             suggestionList.RemoveAt(_index);
                         }
-                        
+
                         suggestionList.Insert(0, action.member);
                     }
-                    
+
                     state.channelState.mentionUserId = action.mentionUserId;
                     state.channelState.mentionUserName = action.mentionUserName;
                     break;
