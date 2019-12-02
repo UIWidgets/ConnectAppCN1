@@ -1059,80 +1059,7 @@ namespace ConnectApp.screens {
                 );
         }
 
-        Widget _buildPopupLikeButton(
-            string content,
-            bool selected,
-            bool leftMost,
-            bool rightMost,
-            GestureTapCallback onTap) {
-            return new GestureDetector(
-                onTap: onTap,
-                child: new Container(
-                    padding: EdgeInsets.only(left: leftMost ? 0 : 2, right: rightMost ? 0 : 2),
-                    child: new Container(
-                        width: 44,
-                        height: 44,
-                        decoration: new BoxDecoration(
-                            borderRadius: BorderRadius.all(12),
-                            color: selected ? CColors.Separator2 : CColors.Transparent),
-                        child: new Center(
-                            child: new Text(content, style: new TextStyle(fontSize: 33)))
-                    )
-                )
-            );
-        }
 
-        Widget _buildPopupLikeButtonBar(ChannelMessageView message) {
-            return new Container(
-                height: 52,
-                decoration: new BoxDecoration(
-                    borderRadius: BorderRadius.all(26),
-                    color: CColors.White
-                ),
-                child: new Container(
-                    decoration: new BoxDecoration(
-                        borderRadius: BorderRadius.all(26),
-                        color: CColors.White.withOpacity(0.25f)
-                    ),
-                    padding: EdgeInsets.symmetric(4, 12),
-                    child: new Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: new List<Widget> {
-                            this._buildPopupLikeButton(
-                                char.ConvertFromUtf32(0x1f642),
-                                true,
-                                true,
-                                false,
-                                () => {
-                                    this.widget.actionModel.addReactToMessage(message, "");
-                                }),
-                            this._buildPopupLikeButton(
-                                char.ConvertFromUtf32(0x1f642),
-                                false,
-                                false,
-                                false,
-                                () => { }),
-                            this._buildPopupLikeButton(
-                                char.ConvertFromUtf32(0x1f642),
-                                false,
-                                false,
-                                false,
-                                () => { }),
-                            this._buildPopupLikeButton(
-                                char.ConvertFromUtf32(0x1f642),
-                                false,
-                                false,
-                                false,
-                                () => { }),
-                            this._buildPopupLikeButton(
-                                char.ConvertFromUtf32(0x1f642),
-                                false,
-                                false,
-                                true,
-                                () => { }),
-                        }))
-            );
-        }
         List<TipMenuItem> _buildTipMenus(ChannelMessageView message, bool showDeleteButton) {
             var tipMenuItems = new List<TipMenuItem>();
             if (message.type == ChannelMessageType.text
@@ -1287,43 +1214,23 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildReactionOverlay(ChannelMessageView message, Offset offset, Size size, bool left) {
-            return Positioned.fill(
-                child: new Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: new List<Widget> {
-                        new SizedBox(height: offset.dy - 60),
-                        new Row(
-                            mainAxisAlignment: left ? MainAxisAlignment.start : MainAxisAlignment.end,
-                            children: left
-                                ? new List<Widget> {
-                                    new SizedBox(width: offset.dx),
-                                    this._buildPopupLikeButtonBar(message)
-                                }
-                                : new List<Widget> {
-                                    this._buildPopupLikeButtonBar(message),
-                                    new SizedBox(width: MediaQuery.of(this.context).size.width -
-                                                        offset.dx -
-                                                        size.width)
-                                }
-                        ),
-                        new SizedBox(height: 8),
-                        new Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: new List<Widget> {
-                                new SizedBox(width: offset.dx),
-                                new Container(
-                                    constraints: new BoxConstraints(
-                                        maxWidth: this.messageBubbleWidth
-                                    ),
-                                    decoration: this._messageDecoration(message.type, left),
-                                    child: this._buildMessageContent(message: message)
-                                )
-                            }
-                        )
+            return new _ReactionOverlay(
+                message: message,
+                size: size,
+                offset: offset,
+                left: left,
+                messageBubble: new Container(
+                    constraints: new BoxConstraints(
+                        maxWidth: this.messageBubbleWidth
+                    ),
+                    decoration: this._messageDecoration(message.type, left),
+                    child: this._buildMessageContent(message: message)
+                ),
+                onTap: (type) => {
+                    if (type == "like") {
+                        this.widget.actionModel.addReactToMessage(message, type);
                     }
-                )
-            );
+                });
         }
 
         Widget _buildReaction(Reaction reaction) {
@@ -1401,6 +1308,7 @@ namespace ConnectApp.screens {
                         child: this._buildMessageActionSheet(message, normalOrLocalMessage),
                         overlay: this._buildReactionOverlay(message, messageBoxOffset, messageBoxSize, left)
                     );
+                    
                 },
                 child: ret
             );
@@ -2009,6 +1917,127 @@ namespace ConnectApp.screens {
             // Store a negative value to mark that it is not accurate
             message.buildHeight = -height;
             return height;
+        }
+    }
+
+    class _ReactionOverlay : StatefulWidget {
+
+        public _ReactionOverlay(
+            ChannelMessageView message,
+            Size size,
+            Offset offset,
+            bool left,
+            Widget messageBubble,
+            PopupLikeButtonBar.OnTapPopupLikeButtonCallback onTap,
+            Key key = null) : base(key : key) {
+            this.message = message;
+            this.size = size;
+            this.offset = offset;
+            this.left = left;
+            this.messageBubble = messageBubble;
+            this.onTap = onTap;
+        }
+
+        public readonly ChannelMessageView message;
+        public readonly Size size;
+        public readonly Offset offset;
+        public readonly bool left;
+        public readonly Widget messageBubble;
+        public readonly PopupLikeButtonBar.OnTapPopupLikeButtonCallback onTap;
+        
+        public override State createState() {
+            return new _ReactionOverlayState();
+        }
+    }
+
+    class _ReactionOverlayState : TickerProviderStateMixin<_ReactionOverlay> {
+        
+        AnimationController _highlightMessageController;
+        Animation<float> _highlightMessageAnimation;
+        
+        public override void initState() {
+            base.initState();
+            this._highlightMessageController = new AnimationController(
+                duration: TimeSpan.FromMilliseconds(500),
+                vsync: this);
+            this._highlightMessageController.addListener(() => this.setState(() => {
+            }));
+            Promise.Delayed(TimeSpan.FromMilliseconds(250)).Then(() => {
+                this._highlightMessageController.animateTo(1);
+            });
+            this._highlightMessageAnimation = new FloatTween(0.7f, 1).animate(this._highlightMessageController);
+        }
+
+        public override void dispose() {
+            this._highlightMessageController.dispose();
+            base.dispose();
+        }
+
+        public override Widget build(BuildContext context) {
+            return new Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: new List<Widget> {
+                    new SizedBox(height: this.widget.offset.dy - 60),
+                    new Row(
+                        mainAxisAlignment: this.widget.left ? MainAxisAlignment.start : MainAxisAlignment.end,
+                        children: this.widget.left
+                            ? new List<Widget> {
+                                new SizedBox(width: this.widget.offset.dx),
+                                this._buildPopupLikeButtonBar(this.widget.message)
+                            }
+                            : new List<Widget> {
+                                this._buildPopupLikeButtonBar(this.widget.message),
+                                new SizedBox(width: MediaQuery.of(this.context).size.width -
+                                                    this.widget.offset.dx -
+                                                    this.widget.size.width)
+                            }
+                    ),
+                    new SizedBox(height: 8),
+                    new Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: new List<Widget> {
+                            new SizedBox(width: this.widget.offset.dx),
+                            new Opacity(
+                                opacity: this._highlightMessageAnimation.value,
+                                child: this.widget.messageBubble
+                            )
+                        }
+                    )
+                }
+            );
+        }
+        Widget _buildPopupLikeButtonBar(ChannelMessageView message) {
+            return new PopupLikeButtonBar(
+                onTap: this.widget.onTap,
+                popupLikeButtonData: new List<PopupLikeButtonItem> {
+                    new PopupLikeButtonItem {
+                        content = char.ConvertFromUtf32(0x1f642),
+                        selected = true,
+                        type = "like"
+                    },
+                    new PopupLikeButtonItem {
+                        content = char.ConvertFromUtf32(0x1f642),
+                        selected = false,
+                        type = "like"
+                    },
+                    new PopupLikeButtonItem {
+                        content = char.ConvertFromUtf32(0x1f642),
+                        selected = false,
+                        type = "like"
+                    },
+                    new PopupLikeButtonItem {
+                        content = char.ConvertFromUtf32(0x1f642),
+                        selected = false,
+                        type = "like"
+                    },
+                    new PopupLikeButtonItem {
+                        content = char.ConvertFromUtf32(0x1f642),
+                        selected = false,
+                        type = "like"
+                    },
+                }
+            );
         }
     }
 }

@@ -210,6 +210,8 @@ namespace ConnectApp.Components {
 
         Tween<Offset> _offsetTween;
 
+        Tween<float> _opacityTween;
+
         public override Animation<float> createAnimation() {
             D.assert(this._animation == null);
             this._animation = new CurvedAnimation(
@@ -221,6 +223,7 @@ namespace ConnectApp.Components {
                 new Offset(0, 1),
                 new Offset(0, 0)
             );
+            this._opacityTween = new FloatTween(0, 1);
             return this._animation;
         }
 
@@ -242,7 +245,12 @@ namespace ConnectApp.Components {
             if (this.overlayBuilder != null) {
                 result = new Stack(
                     children: new List<Widget> {
-                        this.overlayBuilder(context),
+                        Positioned.fill(
+                            child: new Opacity(
+                                opacity: this._opacityTween.evaluate(animation: this._animation),
+                                child: this.overlayBuilder(context)
+                            )
+                        ),
                         result
                     });
             }
