@@ -179,7 +179,7 @@ namespace ConnectApp.Models.State {
                     localMessageDict = new Dictionary<string, ChannelMessageView>(),
                     channelTop = new Dictionary<string, bool>(),
                     socketConnected = true,
-                    mentionSuggestions = new Dictionary<string, Dictionary<string, ChannelMember>>(),
+                    mentionSuggestions = new Dictionary<string, List<ChannelMember>>(),
                     newNotifications = isLogin
                         ? NewNotificationManager.getNewNotification(loginInfo.userId)
                         : null,

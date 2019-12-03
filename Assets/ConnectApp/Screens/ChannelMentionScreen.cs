@@ -21,6 +21,9 @@ namespace ConnectApp.screens {
     public class AtAllMention {
     }
 
+    public class SearchMention {
+    }
+
     public class ChannelMentionScreenConnector : StatelessWidget {
         public ChannelMentionScreenConnector(
             string channelId,
@@ -62,10 +65,12 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch(new ChannelChooseMentionCancelAction());
                             dispatcher.dispatch(new MainNavigatorPopAction());
                         },
-                        chooseMentionConfirm = (mentionUserId, mentionUserName) => {
+                        chooseMentionConfirm = (mentionUserId, mentionUserName, member) => {
                             dispatcher.dispatch(new ChannelChooseMentionConfirmAction {
+                                channelId = this.channelId,
                                 mentionUserId = mentionUserId,
-                                mentionUserName = mentionUserName
+                                mentionUserName = mentionUserName,
+                                member = member
                             });
                             dispatcher.dispatch(new MainNavigatorPopAction());
                         },
@@ -137,7 +142,21 @@ namespace ConnectApp.screens {
 
 
         void updateMentionListLocal(string query, Dictionary<string, ChannelMember> memberDict,
-            Dictionary<string, ChannelMember> suggestions, HashSet<string> mentionKeys) {
+            List<ChannelMember> suggestions, HashSet<string> mentionKeys) {
+            //search in suggestionDict
+            if (suggestions != null) {
+                foreach (var member in suggestions) {
+                    if (mentionKeys.Contains(member.user.id) || member.user.id == this.widget.viewModel.me) {
+                        continue;
+                    }
+
+                    if (query == "" || member.user.fullName.Contains(query)) {
+                        this.mentionList.Add(item: member);
+                        mentionKeys.Add(member.user.id);
+                    }
+                }
+            }
+            
             //search in memberDict
             if (memberDict != null) {
                 foreach (var memberKey in memberDict.Keys) {
@@ -153,20 +172,6 @@ namespace ConnectApp.screens {
                 }
             }
 
-            //search in suggestionDict
-            if (suggestions != null) {
-                foreach (var memberKey in suggestions.Keys) {
-                    var member = suggestions[key: memberKey];
-                    if (mentionKeys.Contains(member.user.id) || member.user.id == this.widget.viewModel.me) {
-                        continue;
-                    }
-
-                    if (query == "" || member.user.fullName.Contains(query)) {
-                        this.mentionList.Add(item: member);
-                        mentionKeys.Add(member.user.id);
-                    }
-                }
-            }
         }
 
         void updateMentionListRemote(List<ChannelMember> queryList, HashSet<string> mentionKeys) {
@@ -194,6 +199,9 @@ namespace ConnectApp.screens {
                     if (this.mentionList.Count == 0) {
                         return true;
                     }
+                }
+                else if (this.widget.viewModel.mentionSearching || needSearching) {
+                    this.mentionList.Add(new SearchMention());
                 }
             }
             else if (this.curQuery == "") {
@@ -288,7 +296,7 @@ namespace ConnectApp.screens {
                 ChannelMember member = (ChannelMember) this.mentionList[index: index];
                 var user = member.user;
                 return new GestureDetector(
-                    onTap: () => this.widget.actionModel.chooseMentionConfirm(member.user.id, member.user.fullName),
+                    onTap: () => this.widget.actionModel.chooseMentionConfirm(member.user.id, member.user.fullName, member),
                     child: new Container(
                         color: CColors.White,
                         height: 60,
@@ -321,7 +329,7 @@ namespace ConnectApp.screens {
 
             if (mentionObj is AtAllMention) {
                 return new GestureDetector(
-                    onTap: () => this.widget.actionModel.chooseMentionConfirm("everyone", "所有人"),
+                    onTap: () => this.widget.actionModel.chooseMentionConfirm("everyone", "所有人", null),
                     child: new Container(
                         color: CColors.White,
                         height: 60,
@@ -346,6 +354,23 @@ namespace ConnectApp.screens {
                                 )
                             }
                         )
+                    )
+                );
+            }
+
+            if (mentionObj is SearchMention) {
+                return new Container(
+                    color: CColors.Background,
+                    height: 60,
+                    child: new Row(
+                        children: new List<Widget> {
+                            new Expanded(
+                                child: new Container(
+                                    padding: EdgeInsets.symmetric(0, 16),
+                                    child: new CustomActivityIndicator(size: LoadingSize.small)
+                                )
+                            )
+                        }
                     )
                 );
             }

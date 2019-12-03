@@ -722,8 +722,10 @@ namespace ConnectApp.redux.actions {
     }
 
     public class ChannelChooseMentionConfirmAction : BaseAction {
+        public string channelId;
         public string mentionUserId;
         public string mentionUserName;
+        public ChannelMember member;
     }
 
     public class ChannelChooseMentionCancelAction : BaseAction {

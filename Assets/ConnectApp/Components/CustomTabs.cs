@@ -550,7 +550,6 @@ namespace ConnectApp.Components {
             DragStartBehavior dragStartBehavior = DragStartBehavior.start,
             ValueChanged<int> onTap = null
         ) : base(key: key) {
-            indicatorPadding = indicatorPadding ?? EdgeInsets.zero;
             D.assert(tabs != null);
             D.assert(indicator != null || indicatorWeight > 0.0f);
             D.assert(indicator != null || indicatorPadding != null);
@@ -559,7 +558,7 @@ namespace ConnectApp.Components {
             this.isScrollable = isScrollable;
             this.indicatorColor = indicatorColor;
             this.indicatorWeight = indicatorWeight;
-            this.indicatorPadding = indicatorPadding;
+            this.indicatorPadding = indicatorPadding ?? EdgeInsets.zero;
             this.indicator = indicator;
             this.indicatorSize = indicatorSize;
             this.indicatorFixedSize = indicatorFixedSize;
@@ -1360,13 +1359,7 @@ namespace ConnectApp.Components {
             Rect indicator = this._indicatorRectFor(rect: rect).deflate(this.borderSide.width / 2.0f);
             Paint paint = this.borderSide.toPaint();
             paint.strokeCap = StrokeCap.round;
-
-            RRect rRect = RRect.fromRectAndRadius(indicator, Radius.circular(2));
-//            var borderRadius = BorderRadius.all(1);
-//            RRect outer = borderRadius.toRRect(rect: rect);
-            canvas.drawRRect(rRect, paint);
-
-            // canvas.drawLine(from: indicator.bottomLeft, to: indicator.bottomRight, paint: paint);
+            canvas.drawLine(from: indicator.bottomLeft, to: indicator.bottomRight, paint: paint);
         }
     }
 }

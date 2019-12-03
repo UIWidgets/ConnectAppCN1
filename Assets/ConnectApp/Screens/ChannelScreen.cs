@@ -946,7 +946,9 @@ namespace ConnectApp.screens {
                                 child: new Text(
                                     !this.widget.viewModel.networkConnected
                                         ? this.widget.viewModel.channel.name + " (未连接)"
-                                        : this.widget.viewModel.socketConnected && !this.widget.viewModel.messageLoading
+                                        : this.widget.viewModel.socketConnected &&
+                                          !this.widget.viewModel.channel.needFetchMessages &&
+                                          !this.widget.viewModel.messageLoading
                                             ? this.widget.viewModel.channel.name
                                             : "收取中...",
                                     style: CTextStyle.PXLargeMedium,
@@ -1981,7 +1983,7 @@ namespace ConnectApp.screens {
             float height = 20 + 6 + 16 + (showTime ? 36 : 0); // Name + Internal + Bottom padding + time
             switch (message.type) {
                 case ChannelMessageType.deleted:
-                    height += DeletedMessage.CalculateTextHeight(width: width);
+//                    height += DeletedMessage.CalculateTextHeight(width: width);
                     break;
                 case ChannelMessageType.text:
                     height += TextMessage.CalculateTextHeight(content: message.content, width: width);

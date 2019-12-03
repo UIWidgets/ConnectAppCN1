@@ -6,7 +6,7 @@ namespace ConnectApp.Models.ViewModel {
         public Dictionary<string, ChannelMember> channelMembers;
         public string me;
         public ChannelMember currentMember;
-        public Dictionary<string, ChannelMember> mentionSuggestions;
+        public List<ChannelMember> mentionSuggestions;
         public Dictionary<string, User> userDict;
         public bool mentionLoading;
         public string lastMentionQuery;

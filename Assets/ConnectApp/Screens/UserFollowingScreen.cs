@@ -176,7 +176,7 @@ namespace ConnectApp.screens {
 
         Widget _buildContentView() {
             return new CustomSegmentedControl(
-                new List<string> {"用户", "公司"},
+                new List<object> {"用户", "公司"},
                 new List<Widget> {
                     new UserFollowingUserScreenConnector(userId: this.widget.viewModel.userId),
                     new UserFollowingTeamScreenConnector(userId: this.widget.viewModel.userId)
