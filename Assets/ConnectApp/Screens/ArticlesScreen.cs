@@ -189,12 +189,11 @@ namespace ConnectApp.screens {
                                 ? CColors.Separator2
                                 : CColors.Transparent))
                         ),
-                        new BoxDecoration(
-                            border: new Border(bottom: new BorderSide(
+                        new CustomUnderlineTabIndicator(
+                            borderSide: new BorderSide(
                                 width: this._navBarHeight <= _minNavBarHeight ? 2 : 4,
                                 color: CColors.PrimaryBlue
-                            )),
-                            borderRadius: BorderRadius.circular(2)
+                            )
                         ),
                         EdgeInsets.only(8),
                         labelPadding: EdgeInsets.zero,
