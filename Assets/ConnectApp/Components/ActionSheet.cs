@@ -155,7 +155,8 @@ namespace ConnectApp.Components {
     public static class ActionSheetUtils {
         public static void showModalActionSheet(
             Widget child,
-            Widget overlay = null
+            Widget overlay = null,
+            VoidCallback onPop = null
         ) {
             var route = new _ModalPopupRoute(
                 builder: cxt => child,
@@ -164,8 +165,12 @@ namespace ConnectApp.Components {
                     : ctx => overlay,
                 barrierLabel: "Dismiss"
             );
-            Router.navigator.push(route: route);
-        }
+            Router.navigator.push(route: route).Then(_ => {
+                if (onPop != null) {
+                    onPop();
+                }
+            });
+    }
 
         public static void hiddenModalPopup() {
             if (Router.navigator.canPop()) {

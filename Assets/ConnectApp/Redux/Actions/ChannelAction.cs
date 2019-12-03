@@ -779,6 +779,10 @@ namespace ConnectApp.redux.actions {
         public string type;
     }
 
+    public class ClearMessageReactions : BaseAction {
+        public string messageId;
+    }
+
     public class FetchChannelMentionQuerySuccessAction : BaseAction {
         public string channelId;
         public List<ChannelMember> members;

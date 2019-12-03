@@ -989,6 +989,15 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case ClearMessageReactions action: {
+                    if (state.channelState.messageDict.TryGetValue(action.messageId, out var message)) {
+                        message.reactionCount.Clear();
+                        message.myReactions.Clear();
+                    }
+
+                    break;
+                }
+
                 case ArticleMapAction action: {
                     if (action.articleMap.isNotNullAndEmpty()) {
                         var articleDict = state.articleState.articleDict;

@@ -260,6 +260,11 @@ namespace ConnectApp.screens {
                                 my = my
                             });
                         },
+                        clearMessageReactions = (message) => {
+                            dispatcher.dispatch(new ClearMessageReactions {
+                                messageId = message.id
+                            });
+                        },
                         addMyReaction = (message, type) => {
                             dispatcher.dispatch(new AddMyReactionToMessage {
                                 type = type,
@@ -330,14 +335,15 @@ namespace ConnectApp.screens {
         AnimationController _viewInsetsBottomController;
         Animation<float> _viewInsetsBottomAnimation;
         AnimationController _messageActivityIndicatorController;
+        AnimationController _reactionSize;
 
         bool _showUnreadMessageNotification = false;
         bool _showNewMessageNotification = false;
         float _inputFieldHeight;
         CustomTextField customTextField;
         Dictionary<string, GlobalKey> _fullMessageKeys;
-
         Dictionary<string, GlobalKey> _messageBubbleKeys;
+        string _animatingMessageReaction;
 
         GlobalKey _getMessageKey(string id) {
             GlobalKey key;
@@ -490,6 +496,8 @@ namespace ConnectApp.screens {
             this._messageActivityIndicatorController = new AnimationController(
                 duration: new TimeSpan(0, 0, 2),
                 vsync: this);
+            this._reactionSize = new AnimationController(duration: TimeSpan.FromMilliseconds(250), vsync: this);
+            this._reactionSize.addListener(() => {this.setState(() => {});});
             this._messageBubbleKeys = new Dictionary<string, GlobalKey>();
             this._fullMessageKeys = new Dictionary<string, GlobalKey>();
         }
@@ -616,6 +624,7 @@ namespace ConnectApp.screens {
             this._emojiBoardController.dispose();
             this._viewInsetsBottomController.dispose();
             this._messageActivityIndicatorController.dispose();
+            this._reactionSize.dispose();
             base.dispose();
         }
 
@@ -1246,10 +1255,24 @@ namespace ConnectApp.screens {
                 ),
                 onTap: (type) => {
                     if (!message.myReactions.Contains(type)) {
+                        if (message.reactionCount.isEmpty()) {
+                            this._animatingMessageReaction = message.id;
+                            this._reactionSize.reset();
+                            this._reactionSize.setValue(0);
+                        }
                         this.widget.actionModel.addMyReaction(message, type);
                     }
                     else {
-                        this.widget.actionModel.cancelMyReaction(message, type);
+                        if (message.reactionCount.Count == 1 &&
+                            message.reactionCount.getOrDefault(type, 0) == 1) {
+                            this._animatingMessageReaction = message.id;
+                            this._reactionSize.reset();
+                            this._reactionSize.setValue(1);
+                        }
+                        else {
+                            this.widget.actionModel.cancelMyReaction(message, type);
+                        }
+
                     }
                     ActionSheetUtils.hiddenModalPopup();
                 });
@@ -1277,16 +1300,28 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildReactions(ChannelMessageView message, bool left) {
-            return new Container(
+            if (message.reactionCount.isEmpty()) {
+                return new Container();
+            }
+            
+            Widget result = new Container(
                 padding: EdgeInsets.only(top: 8),
                 child: new Wrap(
                     alignment: left ? WrapAlignment.start : WrapAlignment.end,
                     spacing: 8,
-                    // mainAxisAlignment: left ? MainAxisAlignment.start : MainAxisAlignment.end,
-                    // mainAxisSize: MainAxisSize.min,
-                    children: message.reactionCount.Keys.Select(type => this._buildReaction(message, type)).ToList()
+                    children: message.reactionCount.Keys
+                        .Select(type => this._buildReaction(message, type))
+                        .ToList()
                 )
             );
+
+            if (this._animatingMessageReaction == message.id) {
+                result = new SizedBox(
+                    height: new FloatTween(0, 1).animate(this._reactionSize).value * 36,
+                    child: result);
+            }
+
+            return result;
         }
 
         Widget _buildMessage(ChannelMessageView message, bool showTime, bool left, bool showUnreadLine = false) {
@@ -1335,7 +1370,24 @@ namespace ConnectApp.screens {
                             .clamp(60, float.PositiveInfinity));
                     ActionSheetUtils.showModalActionSheet(
                         child: new ActionSheet(items: items),
-                        overlay: this._buildReactionOverlay(message, messageBoxOffset, messageBoxSize, left)
+                        overlay: this._buildReactionOverlay(message, messageBoxOffset, messageBoxSize, left),
+                        onPop: () => {
+                            if (this._animatingMessageReaction != null) {
+                                (this._reactionSize.value < 0.5f
+                                    ? this._reactionSize.animateTo(1)
+                                    : this._reactionSize.animateTo(0))
+                                    .whenCompleteOrCancel(() => {
+                                    this.setState(
+                                        () => {
+                                            this._animatingMessageReaction = null;
+                                            if (this._reactionSize.value < 0.5f) {
+                                                this.widget.actionModel.clearMessageReactions(message);
+                                            }
+                                        }
+                                    );
+                                });
+                            }
+                        }
                     );
                     
                 },
