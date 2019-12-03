@@ -194,7 +194,6 @@ namespace ConnectApp.screens {
                                 width: this._navBarHeight <= _minNavBarHeight ? 2 : 4,
                                 color: CColors.PrimaryBlue
                             )
-                            // borderRadius: BorderRadius.circular(2)
                         ),
                         EdgeInsets.only(8),
                         labelPadding: EdgeInsets.zero,
