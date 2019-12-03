@@ -1299,7 +1299,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildReactions(ChannelMessageView message, bool left) {
+        Widget _buildReactionBar(ChannelMessageView message, bool left) {
             if (message.reactionCount.isEmpty()) {
                 return new Container();
             }
@@ -1317,8 +1317,8 @@ namespace ConnectApp.screens {
 
             if (this._animatingMessageReaction == message.id) {
                 result = new SizedBox(
-                    height: new FloatTween(0, 1).animate(this._reactionSize).value * 36,
-                    child: result);
+                    height: this._reactionSize.value * 36,
+                    child: new Opacity(opacity: this._reactionSize.value, child: result));
             }
 
             return result;
@@ -1374,8 +1374,8 @@ namespace ConnectApp.screens {
                         onPop: () => {
                             if (this._animatingMessageReaction != null) {
                                 (this._reactionSize.value < 0.5f
-                                    ? this._reactionSize.animateTo(1)
-                                    : this._reactionSize.animateTo(0))
+                                    ? this._reactionSize.animateTo(1, curve: Curves.easeOutQuart)
+                                    : this._reactionSize.animateTo(0, curve: Curves.easeInQuart))
                                     .whenCompleteOrCancel(() => {
                                     this.setState(
                                         () => {
@@ -1401,7 +1401,7 @@ namespace ConnectApp.screens {
                         children: new List<Widget> {
                             left ? this._buildMessageTitle(message) : new Container(),
                             ret,
-                            this._buildReactions(message, left)
+                            this._buildReactionBar(message, left)
                         }
                     )
                 );
