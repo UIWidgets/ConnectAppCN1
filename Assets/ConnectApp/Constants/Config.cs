@@ -52,7 +52,7 @@ namespace ConnectApp.Constants {
         public const string buglyId = "f56bb28093";
 #else
         public const string platform = "";
-        public const string store = "";
+//        public const string store = "";
         public const string buglyId = "";
 #endif
     }
