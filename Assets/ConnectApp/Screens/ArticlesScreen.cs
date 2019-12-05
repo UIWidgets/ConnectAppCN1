@@ -66,7 +66,7 @@ namespace ConnectApp.screens {
     public class _ArticlesScreenState : AutomaticKeepAliveClientMixin<ArticlesScreen>, RouteAware, TickerProvider {
         const float _maxNavBarHeight = 96;
         const float _minNavBarHeight = 44;
-        const float _maxTitleFontSize = 32;
+        const float _maxTitleFontSize = 31.9f;
         const float _minTitleFontSize = 20;
         CustomTabController _tabController;
         int _selectedIndex;
