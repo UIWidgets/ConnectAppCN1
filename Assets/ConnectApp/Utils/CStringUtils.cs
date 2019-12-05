@@ -40,18 +40,20 @@ namespace ConnectApp.Utils {
                                 avatarName += str[1];
                                 break;
                             }
+
                             // There is a single high surrogate char, which will cause crash.
                             // This should never happen.
                             avatarName = $"{(char) EmojiUtils.emptyEmojiCode}";
                             break;
                         }
-                        if (!IsLetterOrNumber(str.first().ToString())) {
+
+                        if (!str.first().ToString().IsLetterOrNumber()) {
                             break;
                         }
                     }
 
                     if (i == 1) {
-                        if (IsLetterOrNumber(str.first().ToString())) {
+                        if (str.first().ToString().IsLetterOrNumber()) {
                             avatarName += str.first();
                         }
                     }
@@ -60,12 +62,6 @@ namespace ConnectApp.Utils {
 
             avatarName = avatarName.ToUpper();
             return avatarName;
-        }
-
-        static readonly Regex LetterOrNumberRegex = new Regex(@"^[A-Za-z0-9]+$");
-
-        public static bool IsLetterOrNumber(string str) {
-            return LetterOrNumberRegex.IsMatch(input: str);
         }
 
         public static string CreateMiniPath(string id, string title) {
@@ -134,6 +130,18 @@ namespace ConnectApp.Utils {
             }
 
             return url.StartsWith("http://") || url.StartsWith("https://");
+        }
+
+        static readonly Regex LetterOrNumberRegex = new Regex(@"^[A-Za-z0-9]+$");
+
+        public static bool IsLetterOrNumber(this string str) {
+            return LetterOrNumberRegex.IsMatch(input: str);
+        }
+
+        static readonly Regex LowercaseLetterOrNumberRegex = new Regex(@"^[a-z0-9]+$");
+
+        static bool IsLowercaseLetterOrNumber(this string str) {
+            return LowercaseLetterOrNumberRegex.IsMatch(input: str);
         }
     }
 

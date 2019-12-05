@@ -171,7 +171,7 @@ namespace ConnectApp.Components {
         public override Widget build(BuildContext context) {
             var fontSize = (int) Math.Ceiling(this.size * 0.5f);
             var name = CStringUtils.genAvatarName(name: this.title);
-            if (CStringUtils.IsLetterOrNumber(name)) {
+            if (name.IsLetterOrNumber()) {
                 fontSize = (int) Math.Ceiling(this.size * 0.4f);
             }
             return new Container(
