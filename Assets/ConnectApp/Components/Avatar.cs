@@ -126,7 +126,9 @@ namespace ConnectApp.Components {
                 child: new ClipRRect(
                     borderRadius: BorderRadius.circular(this.avatarShape == AvatarShape.circle
                         ? avatarSize
-                        : this.hasWhiteBorder ? DefaultRectCorner / 2 : DefaultRectCorner),
+                        : this.hasWhiteBorder
+                            ? DefaultRectCorner / 2
+                            : DefaultRectCorner),
                     child: this.avatarUrl.isEmpty()
                         ? new Container(
                             child: new _Placeholder(
@@ -140,32 +142,11 @@ namespace ConnectApp.Components {
                             height: avatarSize,
                             color: CColors.AvatarLoading,
                             child: this.useCachedNetworkImage
-                                ? (Widget)new CachedNetworkImage(src: httpsUrl)
+                                ? (Widget) new CachedNetworkImage(src: httpsUrl)
                                 : Image.network(src: httpsUrl)
                         )
                 )
             );
-        }
-
-        static string _extractName(string name) {
-            if (name == null || name.Length <= 0) {
-                return "";
-            }
-
-            name = name.Trim();
-            var regex = new Regex(@"^\W+");
-            if (regex.IsMatch(name)) {
-                return name[0].ToString();
-            }
-
-            var sep = name.IndexOf(" ") > 0 ? ' ' : ',';
-            var tokens = name.Split(sep);
-            var length = tokens.Length;
-            if (length > 1) {
-                return $"{tokens[0][0]}{tokens[length - 1][0]}";
-            }
-
-            return tokens[0][0].ToString();
         }
     }
 

@@ -124,30 +124,28 @@ namespace ConnectApp.screens {
             }
 
             var pixels = notification.metrics.pixels;
-            SchedulerBinding.instance.addPostFrameCallback(_ => {
-                if (pixels > 0 && pixels <= _maxNavBarHeight - _minNavBarHeight) {
-                    this._titleFontSize = _maxTitleFontSize
-                                          - (_maxTitleFontSize - _minTitleFontSize) /
-                                          (_maxNavBarHeight - _minNavBarHeight)
-                                          * pixels;
-                    this._navBarHeight = _maxNavBarHeight - pixels;
+            if (pixels > 0 && pixels <= _maxNavBarHeight - _minNavBarHeight) {
+                this._titleFontSize = _maxTitleFontSize
+                                      - (_maxTitleFontSize - _minTitleFontSize) /
+                                      (_maxNavBarHeight - _minNavBarHeight)
+                                      * pixels;
+                this._navBarHeight = _maxNavBarHeight - pixels;
+                this.setState(() => { });
+            }
+            else if (pixels <= 0) {
+                if (this._navBarHeight <= _maxNavBarHeight) {
+                    this._titleFontSize = _maxTitleFontSize;
+                    this._navBarHeight = _maxNavBarHeight;
                     this.setState(() => { });
                 }
-                else if (pixels <= 0) {
-                    if (this._navBarHeight <= _maxNavBarHeight) {
-                        this._titleFontSize = _maxTitleFontSize;
-                        this._navBarHeight = _maxNavBarHeight;
-                        this.setState(() => { });
-                    }
+            }
+            else if (pixels > 52) {
+                if (!(this._navBarHeight <= _minNavBarHeight)) {
+                    this._titleFontSize = _minTitleFontSize;
+                    this._navBarHeight = _minNavBarHeight;
+                    this.setState(() => { });
                 }
-                else if (pixels > 52) {
-                    if (!(this._navBarHeight <= _minNavBarHeight)) {
-                        this._titleFontSize = _minTitleFontSize;
-                        this._navBarHeight = _minNavBarHeight;
-                        this.setState(() => { });
-                    }
-                }
-            });
+            }
             return true;
         }
 
