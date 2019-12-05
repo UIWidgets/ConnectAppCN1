@@ -352,6 +352,7 @@ namespace ConnectApp.Models.Model {
         public byte[] imageData;
         public byte[] videoData;
         public float? buildHeight;
+        public bool isGif;
 
         static ChannelMessageType getType(string content, bool deleted, List<Attachment> attachments = null,
             List<Embed> embeds = null) {
@@ -418,6 +419,10 @@ namespace ConnectApp.Models.Model {
             return getType(content, deleted, attachments, embeds) == ChannelMessageType.image ? attachments[0].height : 0;
         }
 
+        static bool getImageIsGif(List<Attachment> attachments = null) {
+            return attachments != null && attachments.Count == 1 && attachments.FirstOrDefault()?.contentType == "image/gif";
+        } 
+
         public static ChannelMessageView fromPushMessage(SocketResponseMessageData message) {
             return message == null
                 ? new ChannelMessageView()
@@ -443,7 +448,8 @@ namespace ConnectApp.Models.Model {
                     pending = message.pending,
                     deleted = message.deletedTime != null,
                     embeds = message.embeds,
-                    reactions = message.reactions
+                    reactions = message.reactions,
+                    isGif = getImageIsGif(message.attachments)
                 };
         }
 
@@ -464,7 +470,8 @@ namespace ConnectApp.Models.Model {
                     type = getType(message.content, message.deletedTime.isNotEmpty(), message.attachments),
                     mentionEveryone = message.mentionEveryone,
                     mentions = message.mentions?.Select(user => new User {id = user.id}).ToList(),
-                    deleted = message.deletedTime != null
+                    deleted = message.deletedTime != null,
+                    isGif = getImageIsGif(message.attachments)
                 };
         }
 
@@ -493,7 +500,8 @@ namespace ConnectApp.Models.Model {
                     pending = message.pending,
                     deleted = message.deletedTime != null,
                     embeds = message.embeds,
-                    reactions = message.reactions
+                    reactions = message.reactions,
+                    isGif = getImageIsGif(message.attachments)
                 };
         }
     }
