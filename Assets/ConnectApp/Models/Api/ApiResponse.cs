@@ -318,4 +318,9 @@ namespace ConnectApp.Models.Api {
         public string url;
         public string changeLog;
     }
+
+    [Serializable]
+    public class UpdateChannelMessagesReactionResponse {
+        
+    }
 }

@@ -454,6 +454,30 @@ namespace ConnectApp.redux.actions {
                 "video/mp4");
         }
 
+        public static object addReaction(string messageId, string likeImage) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return ChannelApi.UpdateReaction(messageId: messageId, likeImage: likeImage)
+                    .Then(ackMessageResponse => { dispatcher.dispatch(
+                        new AddChannelMessageReactionSuccessAction()); })
+                    .Catch(error => {
+                        dispatcher.dispatch(new AddChannelMessageReactionFailureAction());
+                        Debuger.LogError(message: error);
+                    });
+            });
+        }
+
+        public static object cancelReaction(string messageId) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return ChannelApi.UpdateReaction(messageId: messageId)
+                    .Then(ackMessageResponse => { dispatcher.dispatch(
+                        new CancelChannelMessageReactionSuccessAction()); })
+                    .Catch(error => {
+                        dispatcher.dispatch(new CancelChannelMessageReactionFailureAction());
+                        Debuger.LogError(message: error);
+                    });
+            });
+        }
+
         public static object saveMessagesToDB(List<ChannelMessage> messages) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 MessengerDBApi.SyncSaveMessages(messages);
@@ -657,6 +681,20 @@ namespace ConnectApp.redux.actions {
         public string channelId;
     }
 
+    public class AddChannelMessageReactionSuccessAction : BaseAction {
+    }
+
+    public class AddChannelMessageReactionFailureAction : BaseAction {
+        public string messageId;
+    }
+
+    public class CancelChannelMessageReactionSuccessAction : BaseAction {
+    }
+
+    public class CancelChannelMessageReactionFailureAction : BaseAction {
+        public string messageId;
+    }
+
     public class PushReadyAction : BaseAction {
         public SocketResponseSessionData readyData;
     }
@@ -774,6 +812,25 @@ namespace ConnectApp.redux.actions {
 
     public class ResendMessageAction : BaseAction {
         public ChannelMessageView message;
+    }
+
+    public class UpdateMessageLikeImageCountAction : BaseAction {
+        public string messageId;
+        public string type;
+        public int? count;
+    }
+
+    public class AddMyLikeImageToMessage : BaseAction {
+        public string messageId;
+        public string type;
+    }
+
+    public class RemoveMyLikeImageFromMessage : BaseAction {
+        public string messageId;
+    }
+
+    public class ClearMessageLikeImages : BaseAction {
+        public string messageId;
     }
 
     public class FetchChannelMentionQuerySuccessAction : BaseAction {

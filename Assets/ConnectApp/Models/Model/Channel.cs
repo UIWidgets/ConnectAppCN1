@@ -38,6 +38,7 @@ namespace ConnectApp.Models.Model {
         public List<User> replyUsers;
         public List<User> lowerUsers;
         public List<Reaction> reactions;
+        public Dictionary<string, int> likeImageStats;
         public List<Embed> embeds;
         public bool pending;
         public string deletedTime;
@@ -351,6 +352,8 @@ namespace ConnectApp.Models.Model {
         public bool deleted = false;
         public List<Reaction> reactions;
         public List<Embed> embeds;
+        public Dictionary<string, int> likeImageCount;
+        public Dictionary<string, string> userLikeImages;
         public string status = "normal";
         public byte[] imageData;
         public byte[] videoData;
@@ -435,6 +438,64 @@ namespace ConnectApp.Models.Model {
                    attachments.FirstOrDefault()?.contentType == "image/gif";
         }
 
+        static Dictionary<string, int> getLikeImageCount(Dictionary<string, int> likeImageStats) {
+            var stats = new Dictionary<string, int>();
+            if (likeImageStats == null) {
+                return stats;
+            }
+            foreach (var entry in likeImageStats) {
+                if (entry.Value > 0) {
+                    stats[entry.Key] = entry.Value;
+                }
+            }
+
+            return stats;
+        }
+
+        static Dictionary<string, string> getUserLikeImageDict(List<Reaction> reactions) {
+            var likeImageDict = new Dictionary<string, string>(); 
+            foreach(var reaction in reactions) {
+                if (reaction.type == "like") {
+                    if(reaction.likeImage.isNotEmpty())
+                        likeImageDict[reaction.user.id] = reaction.likeImage;
+                }
+            }
+
+            return likeImageDict;
+        }
+
+        public void updateLikeImage(string type, int? count = null) {
+            if (count != null) {
+                if (count.Value > 0) {
+                    this.likeImageCount[type] = count.Value;
+                }
+                else {
+                    this.likeImageCount.Remove(type);
+                }
+            }
+        }
+
+        public string getLikeImage(string userId) {
+            return this.userLikeImages.getOrDefault(userId, null);
+        }
+
+        public void updateUserLikeImage(string type, string userId) {
+            if (this.getLikeImage(userId) != type) {
+                if (this.getLikeImage(userId) != null) {
+                    this.updateLikeImage(this.getLikeImage(userId),
+                        this.likeImageCount.getOrDefault(this.getLikeImage(userId), 0) - 1);
+                }
+                if (type != null) {
+                    this.updateLikeImage(type,
+                        this.likeImageCount.getOrDefault(type, 0) + 1);
+                    this.userLikeImages[userId] = type;
+                }
+                else {
+                    this.userLikeImages.Remove(userId);
+                }
+            }
+        }
+
         public static ChannelMessageView fromPushMessage(SocketResponseMessageData message) {
             return message == null
                 ? new ChannelMessageView()
@@ -466,6 +527,8 @@ namespace ConnectApp.Models.Model {
                     deleted = message.deletedTime != null,
                     embeds = message.embeds,
                     reactions = message.reactions,
+                    likeImageCount = getLikeImageCount(message.likeImageStats),
+                    userLikeImages = getUserLikeImageDict(message.reactions),
                     isGif = getImageIsGif(message.attachments)
                 };
         }
@@ -488,6 +551,8 @@ namespace ConnectApp.Models.Model {
                     mentionEveryone = message.mentionEveryone,
                     mentions = message.mentions?.Select(user => new User {id = user.id}).ToList(),
                     deleted = message.deletedTime != null,
+                    reactions = new List<Reaction>(),
+                    likeImageCount = new Dictionary<string, int>(),
                     isGif = getImageIsGif(message.attachments)
                 };
         }
@@ -523,6 +588,8 @@ namespace ConnectApp.Models.Model {
                     deleted = message.deletedTime != null,
                     embeds = message.embeds,
                     reactions = message.reactions,
+                    likeImageCount = getLikeImageCount(message.likeImageStats),
+                    userLikeImages = getUserLikeImageDict(message.reactions),
                     isGif = getImageIsGif(message.attachments)
                 };
         }

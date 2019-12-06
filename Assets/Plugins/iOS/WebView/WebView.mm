@@ -151,12 +151,8 @@ static WKProcessPool *_sharedProcessPool;
         [controller addScriptMessageHandler:self name:@"unityControl"];
         configuration.userContentController = controller;
         configuration.allowsInlineMediaPlayback = true;
-		if (@available(iOS 10.0, *)) {
-			configuration.mediaTypesRequiringUserActionForPlayback = WKAudiovisualMediaTypeNone;
-		} else {
-			configuration.requiresUserActionForMediaPlayback = NO;
-		}
-		configuration.websiteDataStore = [WKWebsiteDataStore defaultDataStore];
+        configuration.mediaTypesRequiringUserActionForPlayback = WKAudiovisualMediaTypeNone;
+        configuration.websiteDataStore = [WKWebsiteDataStore defaultDataStore];
         configuration.processPool = _sharedProcessPool;
         webView = [[WKWebView alloc] initWithFrame:view.frame configuration:configuration];
         webView.UIDelegate = self;
