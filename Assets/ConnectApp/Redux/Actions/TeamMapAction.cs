@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using ConnectApp.Api;
+using ConnectApp.Models.Api;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
+using Newtonsoft.Json;
 using RSG;
 using Unity.UIWidgets.Redux;
 
@@ -32,6 +34,8 @@ namespace ConnectApp.redux.actions {
     }
 
     public class FetchTeamArticleFailureAction : BaseAction {
+        public string teamId;
+        public string errorCode;
     }
 
     public class StartFetchTeamFollowerAction : RequestAction {
@@ -123,7 +127,12 @@ namespace ConnectApp.redux.actions {
                         });
                     })
                     .Catch(error => {
-                            dispatcher.dispatch(new FetchTeamArticleFailureAction());
+                            var errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(value: error.Message);
+                            var errorCode = errorResponse.errorCode;
+                            dispatcher.dispatch(new FetchTeamArticleFailureAction {
+                                teamId = teamId,
+                                errorCode = errorCode
+                            });
                             Debuger.LogError(message: error);
                         }
                     );

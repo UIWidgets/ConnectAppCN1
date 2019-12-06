@@ -84,7 +84,8 @@ namespace ConnectApp.Plugins {
                             }
 
                             var id = dict["id"] ?? "";
-                            if (MessageUtils.currentChannelId.isEmpty() || id != MessageUtils.currentChannelId) {
+                            if (CTemporaryValue.currentPageModelId.isEmpty() ||
+                                id != CTemporaryValue.currentPageModelId) {
                                 playMessageSound();
                             }
 
@@ -213,7 +214,7 @@ namespace ConnectApp.Plugins {
             }
         }
 
-        public static void pushPage(string type, string subType, string id, bool isPush = false) {
+        static void pushPage(string type, string subType, string id, bool isPush = false) {
             if (id.isEmpty()) {
                 return;
             }
@@ -221,6 +222,10 @@ namespace ConnectApp.Plugins {
             if (type == "project") {
                 if (subType == "article") {
                     AnalyticsManager.ClickEnterArticleDetail("Push_Article", id, $"PushArticle_{id}");
+                    if (CTemporaryValue.currentPageModelId.isNotEmpty() && id == CTemporaryValue.currentPageModelId) {
+                        return;
+                    }
+
                     StoreProvider.store.dispatcher.dispatch(
                         new MainNavigatorPushToArticleDetailAction {articleId = id, isPush = isPush});
                 }
@@ -233,16 +238,28 @@ namespace ConnectApp.Plugins {
 
                 AnalyticsManager.ClickEnterEventDetail("Push_Event", id, $"PushEvent_{id}", eventType.ToString());
 
+                if (CTemporaryValue.currentPageModelId.isNotEmpty() && id == CTemporaryValue.currentPageModelId) {
+                    return;
+                }
+
                 StoreProvider.store.dispatcher.dispatch(
                     new MainNavigatorPushToEventDetailAction {eventId = id, eventType = eventType});
             }
             else if (type == "team") {
+                if (CTemporaryValue.currentPageModelId.isNotEmpty() && id == CTemporaryValue.currentPageModelId) {
+                    return;
+                }
+
                 if (subType == "follower") {
                     StoreProvider.store.dispatcher.dispatch(
                         new MainNavigatorPushToTeamDetailAction {teamId = id});
                 }
             }
             else if (type == "user") {
+                if (CTemporaryValue.currentPageModelId.isNotEmpty() && id == CTemporaryValue.currentPageModelId) {
+                    return;
+                }
+
                 if (subType == "follower") {
                     StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToUserDetailAction {userId = id});
                 }
@@ -252,18 +269,11 @@ namespace ConnectApp.Plugins {
                     new MainNavigatorPushToWebViewAction {url = id});
             }
             else if (type == "messenger") {
-                if (MessageUtils.currentChannelId.isNotEmpty() && id == MessageUtils.currentChannelId) {
+                if (CTemporaryValue.currentPageModelId.isNotEmpty() && id == CTemporaryValue.currentPageModelId) {
                     return;
                 }
 
-                if (subType == "channelAt") {
-                    StoreProvider.store.dispatcher.dispatch(
-                        new MainNavigatorPushToChannelAction {channelId = id});
-                }
-                else if (subType == "channelShare") {
-                    StoreProvider.store.dispatcher.dispatch(
-                        new MainNavigatorPushToChannelShareAction {channelId = id});
-                }
+                StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToChannelShareAction {channelId = id});
             }
         }
 

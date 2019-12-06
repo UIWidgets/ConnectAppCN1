@@ -16,8 +16,8 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -111,9 +111,9 @@ namespace ConnectApp.screens {
 
                     return new ChannelScreenViewModel {
                         hasChannel = state.channelState.channelDict.ContainsKey(this.channelId),
-                        channelError = state.channelState.channelError,
                         channelInfoLoading = state.channelState.channelInfoLoading,
                         channel = channel,
+                        channelId = this.channelId,
                         messages = messages,
                         newMessages = newMessages,
                         me = new User {
@@ -155,12 +155,12 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch(new StartSendChannelMessageAction {
                                 message = viewModel.waitingMessage
                             });
-                            if (MessageUtils.lastWaitingMessageId.isNotEmpty() &&
-                                viewModel.waitingMessage.id == MessageUtils.lastWaitingMessageId) {
+                            if (CTemporaryValue.lastWaitingMessageId.isNotEmpty() &&
+                                viewModel.waitingMessage.id == CTemporaryValue.lastWaitingMessageId) {
                                 return;
                             }
 
-                            MessageUtils.lastWaitingMessageId = viewModel.waitingMessage.id;
+                            CTemporaryValue.lastWaitingMessageId = viewModel.waitingMessage.id;
                             if (viewModel.waitingMessage.type == ChannelMessageType.text) {
                                 dispatcher.dispatch<IPromise>(Actions.sendChannelMessage(
                                     this.channelId,
@@ -699,9 +699,7 @@ namespace ConnectApp.screens {
             }
 
             if (this.widget.viewModel.channel.needFetchMessages) {
-                SchedulerBinding.instance.addPostFrameCallback(_ => {
-                    this._refreshController.scrollTo(0);
-                });
+                SchedulerBinding.instance.addPostFrameCallback(_ => { this._refreshController.scrollTo(0); });
             }
 
             if (this.widget.viewModel.waitingMessage != null ||
@@ -994,7 +992,7 @@ namespace ConnectApp.screens {
         Widget _buildContent() {
             ListView listView = this._buildMessageListView();
             var enablePull = true;
-            if ((this.widget.viewModel.channelError || !this.widget.viewModel.channel.joined) &&
+            if (!this.widget.viewModel.channel.joined &&
                 this.widget.viewModel.networkConnected) {
                 listView = this._buildNotJoinPage();
                 enablePull = false;
@@ -1068,10 +1066,15 @@ namespace ConnectApp.screens {
             return new ListView(
                 children: new List<Widget> {
                     new Container(
-                        padding: EdgeInsets.only(top: 44 + MediaQuery.of(this.context).padding.top,
-                            bottom: 49 + MediaQuery.of(this.context).padding.bottom),
+                        padding: EdgeInsets.only(
+                            top: 44 + MediaQuery.of(this.context).padding.top,
+                            bottom: 49 + MediaQuery.of(this.context).padding.bottom
+                        ),
                         height: MediaQuery.of(this.context).size.height,
-                        child: new Center(child: new GlobalLoading()))
+                        child: new Center(
+                            child: new GlobalLoading()
+                        )
+                    )
                 });
         }
 
@@ -1079,8 +1082,10 @@ namespace ConnectApp.screens {
             return new ListView(
                 children: new List<Widget> {
                     new Container(
-                        padding: EdgeInsets.only(top: 44 + MediaQuery.of(this.context).padding.top,
-                            bottom: 49 + MediaQuery.of(this.context).padding.bottom),
+                        padding: EdgeInsets.only(
+                            top: 44 + MediaQuery.of(this.context).padding.top,
+                            bottom: 49 + MediaQuery.of(this.context).padding.bottom
+                        ),
                         height: MediaQuery.of(this.context).size.height,
                         child: new Center(child: new Text("你已不在该群组", style: CTextStyle.PLargeBody.copyWith(height: 1))))
                 });
@@ -1977,36 +1982,6 @@ namespace ConnectApp.screens {
             });
         }
 
-        public void didPop() {
-            if (MessageUtils.currentChannelId.isNotEmpty() &&
-                this.widget.viewModel.channel.id == MessageUtils.currentChannelId) {
-                MessageUtils.currentChannelId = null;
-            }
-
-            this.mentionMap.Clear();
-            if (this._focusNode.hasFocus) {
-                this._focusNode.unfocus();
-            }
-
-            this.widget.actionModel.popFromScreen();
-        }
-
-        public void didPopNext() {
-            MessageUtils.currentChannelId = this.widget.viewModel.channel.id ?? "";
-            StatusBarManager.statusBarStyle(false);
-        }
-
-        public void didPush() {
-            MessageUtils.currentChannelId = this.widget.viewModel.channel.id ?? "";
-        }
-
-        public void didPushNext() {
-            MessageUtils.currentChannelId = null;
-            if (this.showKeyboard || this.showEmojiBoard) {
-                this.setState(fn: this._dismissKeyboard);
-            }
-        }
-
         float calculateMessageHeight(ChannelMessageView message, bool showTime, float width) {
             if (message.type == ChannelMessageType.skip) {
                 return 0;
@@ -2050,6 +2025,41 @@ namespace ConnectApp.screens {
             // Store a negative value to mark that it is not accurate
             message.buildHeight = -height;
             return height;
+        }
+
+        public void didPopNext() {
+            if (this.widget.viewModel.channelId.isNotEmpty()) {
+                CTemporaryValue.currentPageModelId = this.widget.viewModel.channelId;
+            }
+
+            StatusBarManager.statusBarStyle(false);
+        }
+
+        public void didPush() {
+            if (this.widget.viewModel.channelId.isNotEmpty()) {
+                CTemporaryValue.currentPageModelId = this.widget.viewModel.channelId;
+            }
+        }
+
+        public void didPop() {
+            if (CTemporaryValue.currentPageModelId.isNotEmpty() &&
+                this.widget.viewModel.channelId == CTemporaryValue.currentPageModelId) {
+                CTemporaryValue.currentPageModelId = null;
+            }
+
+            this.mentionMap.Clear();
+            if (this._focusNode.hasFocus) {
+                this._focusNode.unfocus();
+            }
+
+            this.widget.actionModel.popFromScreen();
+        }
+
+        public void didPushNext() {
+            CTemporaryValue.currentPageModelId = null;
+            if (this.showKeyboard || this.showEmojiBoard) {
+                this.setState(fn: this._dismissKeyboard);
+            }
         }
     }
 

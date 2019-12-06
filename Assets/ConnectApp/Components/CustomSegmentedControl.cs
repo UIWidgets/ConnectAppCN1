@@ -105,9 +105,7 @@ namespace ConnectApp.Components {
             this._controller.addListener(() => {
                 if (this._controller.index != this._currentIndex) {
                     this._currentIndex = this._controller.index;
-                    if (this.widget.onValueChanged != null) {
-                        this.widget.onValueChanged(value: this._currentIndex);
-                    }
+                    this.widget.onValueChanged?.Invoke(value: this._currentIndex);
                 }
             });
             this._controller.index = this.widget.currentIndex;

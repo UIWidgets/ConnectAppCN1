@@ -13,6 +13,7 @@ namespace ConnectApp.Models.State {
         public int discoverPage;
         public bool discoverHasMore;
         public bool channelInfoLoading;
+        public bool channelShareInfoLoading;
         public bool messageLoading;
         public int totalUnread;
         public int totalMention;
@@ -27,7 +28,6 @@ namespace ConnectApp.Models.State {
         public Dictionary<string, List<ChannelMember>> mentionSuggestions;
         public bool mentionLoading;
         public string newNotifications;
-        public bool channelError;
         public string lastMentionQuery;
         public bool mentionSearching;
         public List<ChannelMember> queryMentions;
@@ -35,8 +35,7 @@ namespace ConnectApp.Models.State {
         public void updateMentionSuggestion(string channelId, User userInfo) {
             if (this.mentionSuggestions.ContainsKey(key: channelId)) {
                 var suggestions = this.mentionSuggestions[key: channelId];
-                for(int i=0; i<suggestions.Count; i++)
-                {
+                for (int i = 0; i < suggestions.Count; i++) {
                     if (suggestions[i].user.id == userInfo.id) {
                         suggestions[i].user = userInfo;
                         break;

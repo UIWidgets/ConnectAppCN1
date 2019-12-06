@@ -956,8 +956,8 @@ namespace ConnectApp.redux.reducers {
                         var message = state.channelState.localMessageDict[key];
                         if (message.status == "failed") {
                             message.status = "waiting";
-                            if (MessageUtils.lastWaitingMessageId == message.id) {
-                                MessageUtils.lastWaitingMessageId = "";
+                            if (CTemporaryValue.lastWaitingMessageId == message.id) {
+                                CTemporaryValue.lastWaitingMessageId = "";
                             }
                         }
                     }
@@ -1457,7 +1457,7 @@ namespace ConnectApp.redux.reducers {
                 case MainNavigatorPushToUserDetailAction action: {
                     if (action.userId.isNotEmpty()) {
                         Router.navigator.push(new CustomPageRoute(
-                            context => new UserDetailScreenConnector(userId: action.userId, isSlug: action.isSlug)
+                            context => new UserDetailScreenConnector(userId: action.userId, action.userId.isSlug())
                         ));
                     }
 
@@ -1498,7 +1498,7 @@ namespace ConnectApp.redux.reducers {
                 case MainNavigatorPushToTeamDetailAction action: {
                     if (action.teamId.isNotEmpty()) {
                         Router.navigator.push(new CustomPageRoute(
-                            context => new TeamDetailScreenConnector(teamId: action.teamId, isSlug: action.isSlug)
+                            context => new TeamDetailScreenConnector(teamId: action.teamId, action.teamId.isSlug())
                         ));
                     }
 
@@ -2164,8 +2164,20 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
-                case FetchTeamArticleFailureAction _: {
+                case FetchTeamArticleFailureAction action: {
                     state.teamState.teamArticleLoading = false;
+                    if (!state.teamState.teamDict.ContainsKey(key: action.teamId)) {
+                        var team = new Team {
+                            errorCode = action.errorCode
+                        };
+                        state.teamState.teamDict.Add(key: action.teamId, value: team);
+                    }
+                    else {
+                        var team = state.teamState.teamDict[key: action.teamId];
+                        team.errorCode = action.errorCode;
+                        state.teamState.teamDict[key: action.teamId] = team;
+                    }
+
                     break;
                 }
 
@@ -2649,13 +2661,24 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case StartFetchChannelInfoAction action: {
-                    state.channelState.channelInfoLoading = true;
+                    if (action.isInfoPage) {
+                        state.channelState.channelShareInfoLoading = true;
+                    }
+                    else {
+                        state.channelState.channelInfoLoading = true;
+                    }
+
                     break;
                 }
 
                 case FetchChannelInfoSuccessAction action: {
-                    state.channelState.channelError = false;
-                    state.channelState.channelInfoLoading = false;
+                    if (action.isInfoPage) {
+                        state.channelState.channelShareInfoLoading = false;
+                    }
+                    else {
+                        state.channelState.channelInfoLoading = false;
+                    }
+
                     state.channelState.updateChannel(action.channel);
                     if (state.channelState.channelDict.ContainsKey(action.channel.id)) {
                         state.channelState.channelDict[key: action.channel.id].unread = 0;
@@ -2669,8 +2692,25 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case FetchChannelInfoErrorAction action: {
-                    state.channelState.channelInfoLoading = false;
-                    state.channelState.channelError = true;
+                    if (action.isInfoPage) {
+                        state.channelState.channelShareInfoLoading = false;
+                    }
+                    else {
+                        state.channelState.channelInfoLoading = false;
+                    }
+
+                    if (!state.channelState.channelDict.ContainsKey(key: action.channelId)) {
+                        var channel = new ChannelView {
+                            errorCode = action.errorCode
+                        };
+                        state.channelState.channelDict.Add(key: action.channelId, value: channel);
+                    }
+                    else {
+                        var channel = state.channelState.channelDict[key: action.channelId];
+                        channel.errorCode = action.errorCode;
+                        state.channelState.channelDict[key: action.channelId] = channel;
+                    }
+
                     break;
                 }
 
@@ -3116,8 +3156,10 @@ namespace ConnectApp.redux.reducers {
                                 exists = true;
                             }
                         }
+
                         if (!exists) {
-                            suggestionList.Add(ChannelMember.fromSocketResponseChannelMemberChangeData(action.memberData));
+                            suggestionList.Add(
+                                ChannelMember.fromSocketResponseChannelMemberChangeData(action.memberData));
                         }
                     }
 
@@ -3134,13 +3176,14 @@ namespace ConnectApp.redux.reducers {
                     if (state.channelState.mentionSuggestions.ContainsKey(action.memberData.channelId)) {
                         var suggestionList = state.channelState.mentionSuggestions[action.memberData.channelId];
                         int index = -1;
-                        for (var i=0; i<suggestionList.Count; i++) {
+                        for (var i = 0; i < suggestionList.Count; i++) {
                             var member = suggestionList[i];
                             if (member.user.id == action.memberData.user.id) {
                                 index = i;
                                 break;
                             }
                         }
+
                         if (index != -1) {
                             suggestionList.RemoveAt(index);
                         }
@@ -3155,7 +3198,8 @@ namespace ConnectApp.redux.reducers {
                     if (channelData.projectId.isNotEmpty()
                         || channelData.ticketId.isNotEmpty()
                         || channelData.proposalId.isNotEmpty()
-                        || !(channelData.type == "public" || channelData.type == "private" || channelData.type == "lobby")) {
+                        || !(channelData.type == "public" || channelData.type == "private" ||
+                             channelData.type == "lobby")) {
                         break;
                     }
 
@@ -3194,19 +3238,20 @@ namespace ConnectApp.redux.reducers {
 
                 case PushChannelUpdateChannelAction action: {
                     var channelData = action.channelData;
-                    
+
                     // filter project/event/support channel
                     if (channelData.projectId.isNotEmpty()
                         || channelData.ticketId.isNotEmpty()
                         || channelData.proposalId.isNotEmpty()
-                        || !(channelData.type == "public" || channelData.type == "private" || channelData.type == "lobby")) {
+                        || !(channelData.type == "public" || channelData.type == "private" ||
+                             channelData.type == "lobby")) {
                         break;
                     }
 
                     if (!state.channelState.createChannelFilterIds.Contains(channelData.id)) {
                         break;
                     }
-                    
+
                     if (state.channelState.channelDict.ContainsKey(channelData.id)) {
                         ChannelView channel = state.channelState.channelDict[channelData.id];
                         channel.updateFromSocketResponseUpdateChannelData(channelData);
@@ -3299,10 +3344,10 @@ namespace ConnectApp.redux.reducers {
                         if (_index != -1) {
                             suggestionList.RemoveAt(_index);
                         }
-                        
+
                         suggestionList.Insert(0, action.member);
                     }
-                    
+
                     state.channelState.mentionUserId = action.mentionUserId;
                     state.channelState.mentionUserName = action.mentionUserName;
                     break;
