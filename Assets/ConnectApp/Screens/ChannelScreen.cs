@@ -349,6 +349,8 @@ namespace ConnectApp.screens {
         Dictionary<string, GlobalKey> _messageBubbleKeys;
         string _animatingMessageReaction;
 
+        float _bottomPaddingWhenShowingPopupBar = 0;
+
         GlobalKey _getMessageKey(string id) {
             GlobalKey key;
             if (!this._messageBubbleKeys.TryGetValue(id, out key)) {
@@ -736,7 +738,10 @@ namespace ConnectApp.screens {
 
             Widget ret = new Stack(
                 children: new List<Widget> {
-                    this._buildContent(),
+                    new Container(
+                        child: this._buildContent(),
+                        padding: EdgeInsets.only(bottom: this._bottomPaddingWhenShowingPopupBar)
+                    ),
                     this._buildInputBar(),
                     this.widget.viewModel.messageLoading
                         ? new Container()
@@ -1371,25 +1376,45 @@ namespace ConnectApp.screens {
 
             ret = new GestureDetector(
                 onLongPress: () => {
-                    RenderBox renderBox = (RenderBox) this._getMessageKey(message.id).currentContext.findRenderObject();
-                    Size messageBoxSize = renderBox.size;
-                    Offset messageBoxOffset = renderBox.localToGlobal(Offset.zero);
+                    var renderBox = (RenderBox) this._getMessageKey(message.id).currentContext.findRenderObject();
+                    var messageBoxSize = renderBox.size;
+                    var originalMessageBoxOffset = renderBox.localToGlobal(Offset.zero);
                     var items = this._buildMessageActionSheet(message,
                         showDeleteButton: message.author.id == this.widget.viewModel.me.id
                                           && normalOrLocalMessage
                                           && message.type != ChannelMessageType.deleted);
-                    messageBoxOffset = new Offset(
-                        messageBoxOffset.dx,
-                        messageBoxOffset.dy
+                    var messageBoxOffset = new Offset(
+                        originalMessageBoxOffset.dx,
+                        originalMessageBoxOffset.dy
                             .clamp(float.NegativeInfinity,
                                 MediaQuery.of(this.context).size.height -
                                 MediaQuery.of(this.context).padding.bottom - 8 -
                                 items.Count * 50 - messageBoxSize.height)
                             .clamp(60, float.PositiveInfinity));
+                    var offsetDiff = messageBoxOffset - originalMessageBoxOffset;
+                    var originalScrollOffset = this._refreshController.offset;
+                    if (offsetDiff.dy > 0) {
+                        this._refreshController.animateTo(
+                            this._refreshController.offset + offsetDiff.dy,
+                            TimeSpan.FromMilliseconds(100),
+                            Curves.linear);
+                    }
+                    else if (offsetDiff.dy < 0) {
+                        this.setState(() => { this._bottomPaddingWhenShowingPopupBar = -offsetDiff.dy; });
+                    }
                     ActionSheetUtils.showModalActionSheet(
                         child: new ActionSheet(items: items),
                         overlay: this._buildReactionOverlay(message, messageBoxOffset, messageBoxSize, left),
                         onPop: () => {
+                            if (offsetDiff.dy > 0) {
+                                this._refreshController.animateTo(
+                                    originalScrollOffset,
+                                    TimeSpan.FromMilliseconds(100),
+                                    Curves.linear);
+                            }
+                            else if (offsetDiff.dy < 0) {
+                                this.setState(() => { this._bottomPaddingWhenShowingPopupBar = 0; });
+                            }
                             if (this._animatingMessageReaction != null) {
                                 (this._reactionSize.value < 0.5f
                                     ? this._reactionSize.animateTo(1, curve: Curves.easeOutQuart)
@@ -1781,7 +1806,8 @@ namespace ConnectApp.screens {
                 time = DateTime.UtcNow,
                 status = "waiting",
                 likeImageCount = new Dictionary<string, int>(),
-                reactions = new List<Reaction>()
+                reactions = new List<Reaction>(),
+                userLikeImages = new Dictionary<string, string>()
             });
             this._textController.clear();
             this._textController.selection = TextSelection.collapsed(0);
