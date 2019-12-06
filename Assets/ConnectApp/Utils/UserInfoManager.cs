@@ -56,7 +56,8 @@ namespace ConnectApp.Utils {
             if (PlayerPrefs.HasKey(_userInfo)) {
                 PlayerPrefs.DeleteKey(_userInfo);
             }
-            JPushPlugin.deleteJPushAlias();
+
+            JPushPlugin.registerHmsToken();
         }
     }
 }

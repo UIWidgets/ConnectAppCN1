@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Web;
+using ConnectApp.Api;
 using ConnectApp.Components;
 using ConnectApp.Constants;
 using ConnectApp.Main;
@@ -13,6 +14,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using EventType = ConnectApp.Models.State.EventType;
+
 #if UNITY_IOS
 using System.Runtime.InteropServices;
 
@@ -22,6 +24,8 @@ namespace ConnectApp.Plugins {
     public static class JPushPlugin {
         public static bool isListen;
         public static bool isShowPushAlert;
+        public static string hmsToken;
+
         static int callbackId = 0;
 
         public static void addListener() {
@@ -135,6 +139,20 @@ namespace ConnectApp.Plugins {
                                 }
                             }
 
+                            break;
+                        }
+                        case "RegisterToken": {
+                            if (args.isEmpty()) {
+                                return;
+                            }
+
+                            var node = args.first();
+                            var dict = JSON.Parse(node);
+                            var token = (string) dict["token"];
+                            hmsToken = token;
+                            registerHmsToken(StoreProvider.store.getState().loginState.isLoggedIn
+                                ? StoreProvider.store.getState().loginState.loginInfo.userId
+                                : "");
                             break;
                         }
                         case "SaveImageSuccess": {
@@ -275,6 +293,14 @@ namespace ConnectApp.Plugins {
             listenCompleted();
         }
 
+
+        public static void registerHmsToken(string userId = "") {
+            if (hmsToken.isNotEmpty()) {
+                UserApi.RegisterToken(hmsToken, userId);
+            }
+        }
+
+
         static void setJPushChannel(string channel) {
             if (Application.isEditor) {
                 return;
@@ -297,14 +323,15 @@ namespace ConnectApp.Plugins {
             }
 
             setAlias(sequence: callbackId++, alias: alias);
+            registerHmsToken(alias);
         }
 
-        public static void deleteJPushAlias() {
+        public static void deleteJPushAlias(string alias = "") {
             if (Application.isEditor) {
                 return;
             }
 
-            deleteAlias(sequence: callbackId++);
+            deleteAlias(sequence: callbackId++, alias);
         }
 
         static void setJPushTags(List<string> tags) {
@@ -369,7 +396,7 @@ namespace ConnectApp.Plugins {
         static extern void setAlias(int sequence, string alias);
 
         [DllImport("__Internal")]
-        static extern void deleteAlias(int sequence);
+        static extern void deleteAlias(int sequence, string alias);
 
         [DllImport("__Internal")]
         static extern void setTags(int sequence, string tagsJsonStr);
@@ -413,8 +440,8 @@ namespace ConnectApp.Plugins {
             Plugin().Call("setAlias", sequence, alias);
         }
 
-        static void deleteAlias(int sequence) {
-            Plugin().Call("deleteAlias", sequence);
+        static void deleteAlias(int sequence, string alias) {
+            Plugin().Call("deleteAlias", sequence, alias);
         }
 
         static void setTags(int sequence, string tagsJsonStr) {

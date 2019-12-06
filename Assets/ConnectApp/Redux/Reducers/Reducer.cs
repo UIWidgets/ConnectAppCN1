@@ -6,8 +6,8 @@ using ConnectApp.Main;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Plugins;
-using ConnectApp.Reality;
 using ConnectApp.redux.actions;
+using ConnectApp.Reality;
 using ConnectApp.screens;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
@@ -93,6 +93,7 @@ namespace ConnectApp.redux.reducers {
 
                 case LogoutAction _: {
                     JPushPlugin.clearNotifications();
+                    JPushPlugin.deleteJPushAlias(state.loginState.loginInfo.userId);
                     EventBus.publish(sName: EventBusConstant.logout_success, new List<object>());
                     HistoryManager.deleteHomeAfterTime(state.loginState.loginInfo.userId);
                     HttpManager.clearCookie();
@@ -3099,7 +3100,8 @@ namespace ConnectApp.redux.reducers {
                     if (channelData.projectId.isNotEmpty()
                         || channelData.ticketId.isNotEmpty()
                         || channelData.proposalId.isNotEmpty()
-                        || !(channelData.type == "public" || channelData.type == "private" || channelData.type == "lobby")) {
+                        || !(channelData.type == "public" || channelData.type == "private" ||
+                             channelData.type == "lobby")) {
                         break;
                     }
 
@@ -3138,19 +3140,20 @@ namespace ConnectApp.redux.reducers {
 
                 case PushChannelUpdateChannelAction action: {
                     var channelData = action.channelData;
-                    
+
                     // filter project/event/support channel
                     if (channelData.projectId.isNotEmpty()
                         || channelData.ticketId.isNotEmpty()
                         || channelData.proposalId.isNotEmpty()
-                        || !(channelData.type == "public" || channelData.type == "private" || channelData.type == "lobby")) {
+                        || !(channelData.type == "public" || channelData.type == "private" ||
+                             channelData.type == "lobby")) {
                         break;
                     }
 
                     if (!state.channelState.createChannelFilterIds.Contains(channelData.id)) {
                         break;
                     }
-                    
+
                     if (state.channelState.channelDict.ContainsKey(channelData.id)) {
                         ChannelView channel = state.channelState.channelDict[channelData.id];
                         channel.updateFromSocketResponseUpdateChannelData(channelData);
