@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
@@ -21,6 +22,8 @@ using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 using Config = ConnectApp.Constants.Config;
 using Image = Unity.UIWidgets.widgets.Image;
 
@@ -249,7 +252,35 @@ namespace ConnectApp.screens {
                         }),
                         resendMessage = message => dispatcher.dispatch(new ResendMessageAction {
                             message = message
-                        })
+                        }),
+                        updateMessageLikeImageCount = (message, type, count) => {
+                            dispatcher.dispatch(new UpdateMessageLikeImageCountAction {
+                                type = type,
+                                count = count
+                            });
+                        },
+                        clearMessageLikeImages = (message) => {
+                            dispatcher.dispatch(new ClearMessageLikeImages {
+                                messageId = message.id
+                            });
+                        },
+                        updateMyLikeImage = (message, type) => {
+                            if (message.getLikeImage(viewModel.me.id) != type) {
+                                dispatcher.dispatch(new AddMyLikeImageToMessage {
+                                    type = type,
+                                    messageId = message.id
+                                });
+                                dispatcher.dispatch(Actions.addReaction(message.id, type));
+                            }
+                        },
+                        cancelMyLikeImage = (message) => {
+                            if (message.getLikeImage(viewModel.me.id) != null) {
+                                dispatcher.dispatch(new RemoveMyLikeImageFromMessage {
+                                    messageId = message.id
+                                });
+                                dispatcher.dispatch(Actions.cancelReaction(message.id));
+                            }
+                        }
                     };
                     return new ChannelScreen(viewModel: viewModel, actionModel: actionModel);
                 }
@@ -288,6 +319,14 @@ namespace ConnectApp.screens {
             {"ConnectAppVersion", Config.versionName},
             {"X-Requested-With", "XmlHttpRequest"}
         };
+        
+        public static readonly Dictionary<string, string> reactionIcons = new Dictionary<string, string> {
+            {"thumb-up", "image/like.gif"},
+            {"thumb-down", "image/oppose.gif"},
+            {"facepalming", "image/tear.gif"},
+            {"heart-eyes", "image/heartbeat.gif"},
+            {"question", "image/doubt.gif"},
+        };
 
         bool _showEmojiBoard;
         string _lastMessageEditingContent = "";
@@ -300,12 +339,26 @@ namespace ConnectApp.screens {
         AnimationController _viewInsetsBottomController;
         Animation<float> _viewInsetsBottomAnimation;
         AnimationController _messageActivityIndicatorController;
+        AnimationController _reactionSize;
 
         bool _showUnreadMessageNotification = false;
         bool _showNewMessageNotification = false;
         float _inputFieldHeight;
         CustomTextField customTextField;
         Dictionary<string, GlobalKey> _fullMessageKeys;
+        Dictionary<string, GlobalKey> _messageBubbleKeys;
+        string _animatingMessageReaction;
+
+        float _bottomPaddingWhenShowingPopupBar = 0;
+
+        GlobalKey _getMessageKey(string id) {
+            GlobalKey key;
+            if (!this._messageBubbleKeys.TryGetValue(id, out key)) {
+                key = GlobalKey.key(id);
+                this._messageBubbleKeys[id] = key;
+            }
+            return key;
+        }
 
         public bool showUnreadMessageNotification {
             get { return this._showUnreadMessageNotification; }
@@ -449,6 +502,9 @@ namespace ConnectApp.screens {
             this._messageActivityIndicatorController = new AnimationController(
                 duration: new TimeSpan(0, 0, 2),
                 vsync: this);
+            this._reactionSize = new AnimationController(duration: TimeSpan.FromMilliseconds(250), vsync: this);
+            this._reactionSize.addListener(() => {this.setState(() => {});});
+            this._messageBubbleKeys = new Dictionary<string, GlobalKey>();
             this._fullMessageKeys = new Dictionary<string, GlobalKey>();
         }
 
@@ -574,6 +630,7 @@ namespace ConnectApp.screens {
             this._emojiBoardController.dispose();
             this._viewInsetsBottomController.dispose();
             this._messageActivityIndicatorController.dispose();
+            this._reactionSize.dispose();
             base.dispose();
         }
 
@@ -681,7 +738,10 @@ namespace ConnectApp.screens {
 
             Widget ret = new Stack(
                 children: new List<Widget> {
-                    this._buildContent(),
+                    new Container(
+                        child: this._buildContent(),
+                        padding: EdgeInsets.only(bottom: this._bottomPaddingWhenShowingPopupBar)
+                    ),
                     this._buildInputBar(),
                     this.widget.viewModel.messageLoading
                         ? new Container()
@@ -895,7 +955,9 @@ namespace ConnectApp.screens {
                                 child: new Text(
                                     !this.widget.viewModel.networkConnected
                                         ? this.widget.viewModel.channel.name + " (未连接)"
-                                        : this.widget.viewModel.socketConnected && !this.widget.viewModel.channel.needFetchMessages && !this.widget.viewModel.messageLoading
+                                        : this.widget.viewModel.socketConnected &&
+                                          !this.widget.viewModel.channel.needFetchMessages &&
+                                          !this.widget.viewModel.messageLoading
                                             ? this.widget.viewModel.channel.name
                                             : "收取中...",
                                     style: CTextStyle.PXLargeMedium,
@@ -1035,40 +1097,8 @@ namespace ConnectApp.screens {
                 );
         }
 
-        Widget _buildMessage(ChannelMessageView message, bool showTime, bool left, bool showUnreadLine = false) {
-            if (message.type == ChannelMessageType.skip || message.type == ChannelMessageType.deleted) {
-                return new Container();
-            }
 
-            Widget ret = new Container(
-                constraints: new BoxConstraints(
-                    maxWidth: this.messageBubbleWidth
-                ),
-                decoration: this._messageDecoration(message.type, left),
-                child: this._buildMessageContent(message: message)
-            );
-
-            bool showDeleteButton;
-            if (message.status != "normal" && message.status != "local") {
-                Widget symbol = message.status == "sending" || message.status == "waiting"
-                    ? (Widget) new CustomActivityIndicator(
-                        size: LoadingSize.small,
-                        controller: this._messageActivityIndicatorController)
-                    : new GestureDetector(
-                        onTap: () => { this.widget.actionModel.resendMessage(message); },
-                        child: new Icon(icon: Icons.error, color: CColors.Error, size: 24)
-                    );
-                ret = new Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: new List<Widget> {symbol, new SizedBox(width: 8), ret}
-                );
-                showDeleteButton = false;
-            }
-            else {
-                showDeleteButton = true;
-            }
-
+        List<TipMenuItem> _buildTipMenus(ChannelMessageView message, bool showDeleteButton) {
             var tipMenuItems = new List<TipMenuItem>();
             if (message.type == ChannelMessageType.text
                 || message.type == ChannelMessageType.embedExternal
@@ -1125,39 +1155,302 @@ namespace ConnectApp.screens {
                 ));
             }
 
-            ret = new TipMenu(
-                tipMenuItems: tipMenuItems,
+            return tipMenuItems;
+        }
+        
+        Widget _buildMessageTitle(ChannelMessageView message) {
+            return new Container(
+                padding: EdgeInsets.only(left: 0, right: 16, bottom: 6),
+                child: new Row(
+                    children: new List<Widget> {
+                        new Flexible(
+                            child: new Text(
+                                data: message.author.fullName,
+                                style: CTextStyle.PSmallBody4,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis
+                            )
+                        ),
+                        CImageUtils.GenBadgeImage(
+                            badges: message.author.badges,
+                            CCommonUtils.GetUserLicense(userId: message.author.id,
+                                userLicenseMap: this.widget.viewModel.userLicenseDict),
+                            EdgeInsets.only(4),
+                            false
+                        )
+                    }
+                )
+            );
+        }
+
+        Widget _buildMessageStateIndicator(ChannelMessageView message) {
+            if (message.status == "normal" || message.status == "local") {
+                return new Container();
+            }
+            return message.status == "sending" || message.status == "waiting"
+                ? (Widget) new CustomActivityIndicator(
+                    size: LoadingSize.small,
+                    controller: this._messageActivityIndicatorController)
+                : new GestureDetector(
+                    onTap: () => { this.widget.actionModel.resendMessage(message); },
+                    child: new Icon(icon: Icons.error, color: CColors.Error, size: 24)
+                );
+        }
+
+        List<ActionSheetItem> _buildMessageActionSheet(ChannelMessageView message, bool showDeleteButton) {
+            var list = new List<ActionSheetItem> {
+                new ActionSheetItem(
+                    "复制",
+                    onTap: () => {
+                        var content = MessageUtils.AnalyzeMessage(
+                            content: message.content,
+                            mentions: message.mentions,
+                            mentionEveryone: message.mentionEveryone
+                        );
+                        Clipboard.setData(new ClipboardData(text: content));
+                    }
+                ),
+                new ActionSheetItem(
+                    "引用",
+                    onTap: () => {
+                        var content = MessageUtils.AnalyzeMessage(
+                            content: message.content,
+                            mentions: message.mentions,
+                            mentionEveryone: message.mentionEveryone
+                        );
+                        var newContent = this._textController.text + "「 " + message.author.fullName + ": " +
+                                         content +
+                                         " 」" + "\n" + "- - - - - - - - - - - - - - -" + "\n";
+                        this._textController.value = new TextEditingValue(
+                            text: newContent,
+                            TextSelection.collapsed(offset: newContent.Length)
+                        );
+                        if (this._refreshController.scrollController.offset > 0) {
+                            this._refreshController.scrollController.animateTo(0, TimeSpan.FromMilliseconds(100),
+                                curve: Curves.linear);
+                        }
+
+                        if (!this._focusNode.hasFocus || !this.showKeyboard) {
+                            FocusScope.of(context: this.context).requestFocus(node: this._focusNode);
+                            TextInputPlugin.TextInputShow();
+                            Promise.Delayed(TimeSpan.FromMilliseconds(200)).Then(
+                                () => this.setState(() => this.showEmojiBoard = false));
+                        }
+                    }
+                ),
+            };
+
+            if (showDeleteButton) {
+                list.Add(
+                    new ActionSheetItem(
+                        "删除",
+                        onTap: () => this._deleteMessage(message: message)
+                    )
+                );
+            }
+            return list;
+        }
+
+        Widget _buildReactionOverlay(ChannelMessageView message, Offset offset, Size size, bool left) {
+            return new _ReactionOverlay(
+                message: message,
+                size: size,
+                offset: offset,
+                left: left,
+                userId: this.widget.viewModel.me.id,
+                messageBubble: new Container(
+                    constraints: new BoxConstraints(
+                        maxWidth: this.messageBubbleWidth
+                    ),
+                    decoration: this._messageDecoration(message.type, left),
+                    child: this._buildMessageContent(message: message)
+                ),
+                onTap: (type) => {
+                    if (message.getLikeImage(this.widget.viewModel.me.id) != type) {
+                        if (message.likeImageCount.isEmpty()) {
+                            this._animatingMessageReaction = message.id;
+                            this._reactionSize.reset();
+                            this._reactionSize.setValue(0);
+                        }
+                        this.widget.actionModel.updateMyLikeImage(message, type);
+                    }
+                    else {
+                        if (message.likeImageCount.Count == 1 &&
+                            message.likeImageCount.getOrDefault(type, 0) == 1) {
+                            this._animatingMessageReaction = message.id;
+                            this._reactionSize.reset();
+                            this._reactionSize.setValue(1);
+                        }
+                        else {
+                            this.widget.actionModel.cancelMyLikeImage(message);
+                        }
+
+                    }
+                    ActionSheetUtils.hiddenModalPopup();
+                });
+        }
+
+        Widget _buildReaction(ChannelMessageView message, string type) {
+            return new Container(
+                height: 28,
+                padding: EdgeInsets.symmetric(4, 8),
+                decoration: new BoxDecoration(
+                    border: Border.all(
+                        color: message.getLikeImage(this.widget.viewModel.me.id) == type
+                            ? CColors.PrimaryBlue
+                            : CColors.Transparent,
+                        width: 1.5f
+                    ),
+                    borderRadius: BorderRadius.all(14),
+                    color: CColors.MessageReaction
+                ),
+                child: new Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: new List<Widget> {
+                        Image.asset(reactionIcons[type], width: 20, height: 20),
+                        new SizedBox(width: 4),
+                        new Text(
+                            $"{message.likeImageCount.getOrDefault(type, 0)}",
+                            style: message.getLikeImage(this.widget.viewModel.me.id) == type
+                                ? CTextStyle.PRegularBody.copyWith(color: CColors.MessageReactionCount, height: 1.1f)
+                                : CTextStyle.PRegularBody.copyWith(height: 1.1f))
+                    }
+                )
+            );
+        }
+
+        Widget _buildReactionBar(ChannelMessageView message, bool left) {
+            if (message.likeImageCount.isEmpty()) {
+                return new Container();
+            }
+
+            List<string> likeImageKeys = message.likeImageCount.Keys.ToList();
+            likeImageKeys.Sort();
+            
+            Widget result = new Container(
+                padding: EdgeInsets.only(top: 8),
+                child: new Wrap(
+                    alignment: left ? WrapAlignment.start : WrapAlignment.end,
+                    spacing: 8,
+                    children: likeImageKeys
+                        .Select(type => this._buildReaction(message, type))
+                        .ToList()
+                )
+            );
+
+            if (this._animatingMessageReaction == message.id) {
+                result = new SizedBox(
+                    height: this._reactionSize.value * 36,
+                    child: new Opacity(opacity: this._reactionSize.value, child: result));
+            }
+
+            return result;
+        }
+
+        Widget _buildMessage(ChannelMessageView message, bool showTime, bool left, bool showUnreadLine = false) {
+            if (message.type == ChannelMessageType.skip) {
+                return new Container();
+            }
+
+            Widget ret = new Container(
+                key: this._getMessageKey(message.id),
+                constraints: new BoxConstraints(
+                    maxWidth: this.messageBubbleWidth
+                ),
+                decoration: this._messageDecoration(message.type, left),
+                child: this._buildMessageContent(message: message)
+            );
+
+            bool normalOrLocalMessage = message.status == "normal" || message.status == "local";
+            if (!normalOrLocalMessage) {
+                ret = new Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: new List<Widget> {
+                        this._buildMessageStateIndicator(message),
+                        new SizedBox(width: 8),
+                        ret
+                    }
+                );
+            }
+
+            ret = new GestureDetector(
+                onLongPress: () => {
+                    var renderBox = (RenderBox) this._getMessageKey(message.id).currentContext.findRenderObject();
+                    var messageBoxSize = renderBox.size;
+                    var originalMessageBoxOffset = renderBox.localToGlobal(Offset.zero);
+                    var items = this._buildMessageActionSheet(message,
+                        showDeleteButton: message.author.id == this.widget.viewModel.me.id
+                                          && normalOrLocalMessage
+                                          && message.type != ChannelMessageType.deleted);
+                    var messageBoxOffset = new Offset(
+                        originalMessageBoxOffset.dx,
+                        originalMessageBoxOffset.dy
+                            .clamp(float.NegativeInfinity,
+                                MediaQuery.of(this.context).size.height -
+                                MediaQuery.of(this.context).padding.bottom - 8 -
+                                items.Count * 50 - messageBoxSize.height)
+                            .clamp(60, float.PositiveInfinity));
+                    var offsetDiff = messageBoxOffset - originalMessageBoxOffset;
+                    var originalScrollOffset = this._refreshController.offset;
+                    if (offsetDiff.dy > 0) {
+                        this._refreshController.animateTo(
+                            this._refreshController.offset + offsetDiff.dy,
+                            TimeSpan.FromMilliseconds(100),
+                            Curves.linear);
+                    }
+                    else if (offsetDiff.dy < 0) {
+                        this.setState(() => { this._bottomPaddingWhenShowingPopupBar = -offsetDiff.dy; });
+                    }
+
+                    this.widget.actionModel.reportLeaveBottom();
+                    ActionSheetUtils.showModalActionSheet(
+                        child: new ActionSheet(items: items),
+                        overlay: this._buildReactionOverlay(message, messageBoxOffset, messageBoxSize, left),
+                        onPop: () => {
+                            if (offsetDiff.dy > 0) {
+                                this._refreshController.animateTo(
+                                    originalScrollOffset,
+                                    TimeSpan.FromMilliseconds(100),
+                                    Curves.linear);
+                            }
+                            else if (offsetDiff.dy < 0) {
+                                this.setState(() => { this._bottomPaddingWhenShowingPopupBar = 0; });
+                            }
+                            if (this._animatingMessageReaction != null) {
+                                (this._reactionSize.value < 0.5f
+                                    ? this._reactionSize.animateTo(1, curve: Curves.easeOutQuart)
+                                    : this._reactionSize.animateTo(0, curve: Curves.easeInQuart))
+                                    .whenCompleteOrCancel(() => {
+                                    this.setState(
+                                        () => {
+                                            this._animatingMessageReaction = null;
+                                            if (this._reactionSize.value < 0.5f) {
+                                                this.widget.actionModel.clearMessageLikeImages(message);
+                                            }
+                                        }
+                                    );
+                                });
+                            }
+
+                            if (this._refreshController.offset < bottomThreshold) {
+                                this.widget.actionModel.reportHitBottom();
+                            }
+                        }
+                    );
+                    
+                },
                 child: ret
             );
 
-            if (left) {
+            if (left || message.likeImageCount.isNotEmpty()) {
                 ret = new Expanded(
                     child: new Column(
                         crossAxisAlignment: left ? CrossAxisAlignment.start : CrossAxisAlignment.end,
                         children: new List<Widget> {
-                            new Container(
-                                padding: EdgeInsets.only(left: 0, right: 16, bottom: 6),
-                                child: new Row(
-                                    children: new List<Widget> {
-                                        new Flexible(
-                                            child: new Text(
-                                                data: message.author.fullName,
-                                                style: CTextStyle.PSmallBody4,
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis
-                                            )
-                                        ),
-                                        CImageUtils.GenBadgeImage(
-                                            badges: message.author.badges,
-                                            CCommonUtils.GetUserLicense(userId: message.author.id,
-                                                userLicenseMap: this.widget.viewModel.userLicenseDict),
-                                            EdgeInsets.only(4),
-                                            false
-                                        )
-                                    }
-                                )
-                            ),
-                            ret
+                            left ? this._buildMessageTitle(message) : new Container(),
+                            ret,
+                            this._buildReactionBar(message, left)
                         }
                     )
                 );
@@ -1517,7 +1810,10 @@ namespace ConnectApp.screens {
                 content = text.Trim(),
                 plainText = plainText,
                 time = DateTime.UtcNow,
-                status = "waiting"
+                status = "waiting",
+                likeImageCount = new Dictionary<string, int>(),
+                reactions = new List<Reaction>(),
+                userLikeImages = new Dictionary<string, string>()
             });
             this._textController.clear();
             this._textController.selection = TextSelection.collapsed(0);
@@ -1754,6 +2050,110 @@ namespace ConnectApp.screens {
             // Store a negative value to mark that it is not accurate
             message.buildHeight = -height;
             return height;
+        }
+    }
+
+    class _ReactionOverlay : StatefulWidget {
+
+        public _ReactionOverlay(
+            ChannelMessageView message,
+            Size size,
+            Offset offset,
+            bool left,
+            Widget messageBubble,
+            PopupLikeButtonBar.OnTapPopupLikeButtonCallback onTap,
+            string userId,
+            Key key = null) : base(key : key) {
+            this.message = message;
+            this.size = size;
+            this.offset = offset;
+            this.left = left;
+            this.messageBubble = messageBubble;
+            this.onTap = onTap;
+            this.userId = userId;
+        }
+
+        public readonly ChannelMessageView message;
+        public readonly Size size;
+        public readonly Offset offset;
+        public readonly bool left;
+        public readonly Widget messageBubble;
+        public readonly PopupLikeButtonBar.OnTapPopupLikeButtonCallback onTap;
+        public string userId;
+        
+        public override State createState() {
+            return new _ReactionOverlayState();
+        }
+    }
+
+    class _ReactionOverlayState : TickerProviderStateMixin<_ReactionOverlay> {
+        
+        AnimationController _highlightMessageController;
+        Animation<float> _highlightMessageAnimation;
+        
+        public override void initState() {
+            base.initState();
+            this._highlightMessageController = new AnimationController(
+                duration: TimeSpan.FromMilliseconds(500),
+                vsync: this);
+            this._highlightMessageController.addListener(() => this.setState(() => {
+            }));
+            Promise.Delayed(TimeSpan.FromMilliseconds(250)).Then(() => {
+                this._highlightMessageController.animateTo(1);
+            });
+            this._highlightMessageAnimation = new FloatTween(0.7f, 1).animate(this._highlightMessageController);
+        }
+
+        public override void dispose() {
+            this._highlightMessageController.dispose();
+            base.dispose();
+        }
+
+        public override Widget build(BuildContext context) {
+            return new Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: new List<Widget> {
+                    new SizedBox(height: this.widget.offset.dy - 60),
+                    new Row(
+                        mainAxisAlignment: this.widget.left ? MainAxisAlignment.start : MainAxisAlignment.end,
+                        children: this.widget.left
+                            ? new List<Widget> {
+                                new SizedBox(width: this.widget.offset.dx),
+                                this._buildPopupLikeButtonBar(this.widget.message)
+                            }
+                            : new List<Widget> {
+                                this._buildPopupLikeButtonBar(this.widget.message),
+                                new SizedBox(width: MediaQuery.of(this.context).size.width -
+                                                    this.widget.offset.dx -
+                                                    this.widget.size.width)
+                            }
+                    ),
+                    new SizedBox(height: 8),
+                    new Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: new List<Widget> {
+                            new SizedBox(width: this.widget.offset.dx),
+                            new Opacity(
+                                opacity: this._highlightMessageAnimation.value,
+                                child: this.widget.messageBubble
+                            )
+                        }
+                    )
+                }
+            );
+        }
+        Widget _buildPopupLikeButtonBar(ChannelMessageView message) {
+            return new PopupLikeButtonBar(
+                onTap: this.widget.onTap,
+                popupLikeButtonData: _ChannelScreenState.reactionIcons.Keys.Select(type => {
+                    return new PopupLikeButtonItem {
+                        content = _ChannelScreenState.reactionIcons[type],
+                        selected = message.getLikeImage(this.widget.userId) == type,
+                        type = type
+                    };
+                }).ToList()
+            );
         }
     }
 }

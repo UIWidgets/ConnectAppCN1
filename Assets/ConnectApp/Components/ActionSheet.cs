@@ -154,14 +154,23 @@ namespace ConnectApp.Components {
 
     public static class ActionSheetUtils {
         public static void showModalActionSheet(
-            Widget child
+            Widget child,
+            Widget overlay = null,
+            VoidCallback onPop = null
         ) {
             var route = new _ModalPopupRoute(
-                cxt => child,
-                "Dismiss"
+                builder: cxt => child,
+                overlayBuilder: overlay == null
+                    ? (WidgetBuilder) null
+                    : ctx => overlay,
+                barrierLabel: "Dismiss"
             );
-            Router.navigator.push(route: route);
-        }
+            Router.navigator.push(route: route).Then(_ => {
+                if (onPop != null) {
+                    onPop();
+                }
+            });
+    }
 
         public static void hiddenModalPopup() {
             if (Router.navigator.canPop()) {
@@ -173,14 +182,18 @@ namespace ConnectApp.Components {
     class _ModalPopupRoute : PopupRoute {
         public _ModalPopupRoute(
             WidgetBuilder builder = null,
+            WidgetBuilder overlayBuilder = null,
             string barrierLabel = "",
             RouteSettings settings = null
         ) : base(settings: settings) {
             this.builder = builder;
             this.barrierLabel = barrierLabel;
+            this.overlayBuilder = overlayBuilder;
         }
 
         readonly WidgetBuilder builder;
+
+        readonly WidgetBuilder overlayBuilder;
 
         public string barrierLabel { get; }
 
@@ -202,6 +215,8 @@ namespace ConnectApp.Components {
 
         Tween<Offset> _offsetTween;
 
+        Tween<float> _opacityTween;
+
         public override Animation<float> createAnimation() {
             D.assert(this._animation == null);
             this._animation = new CurvedAnimation(
@@ -213,6 +228,7 @@ namespace ConnectApp.Components {
                 new Offset(0, 1),
                 new Offset(0, 0)
             );
+            this._opacityTween = new FloatTween(0, 1);
             return this._animation;
         }
 
@@ -223,13 +239,28 @@ namespace ConnectApp.Components {
 
         public override Widget buildTransitions(BuildContext context, Animation<float> animation,
             Animation<float> secondaryAnimation, Widget child) {
-            return new Align(
+            Widget result = new Align(
                 alignment: Alignment.bottomCenter,
                 child: new FractionalTranslation(
                     translation: this._offsetTween.evaluate(animation: this._animation),
                     child: child
                 )
             );
+
+            if (this.overlayBuilder != null) {
+                result = new Stack(
+                    children: new List<Widget> {
+                        Positioned.fill(
+                            child: new Opacity(
+                                opacity: this._opacityTween.evaluate(animation: this._animation),
+                                child: this.overlayBuilder(context)
+                            )
+                        ),
+                        result
+                    });
+            }
+
+            return result;
         }
     }
 }

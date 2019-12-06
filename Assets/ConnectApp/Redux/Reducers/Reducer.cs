@@ -965,6 +965,39 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case UpdateMessageLikeImageCountAction action: {
+                    if (state.channelState.messageDict.TryGetValue(action.messageId, out var message)) {
+                        message.updateLikeImage(action.type, action.count);
+                    }
+                    
+                    break;
+                }
+
+                case AddMyLikeImageToMessage action: {
+                    if (state.channelState.messageDict.TryGetValue(action.messageId, out var message)) {
+                        message.updateUserLikeImage(action.type, state.loginState.loginInfo.userId);
+                    }
+
+                    break;
+                }
+
+                case RemoveMyLikeImageFromMessage action: {
+                    if (state.channelState.messageDict.TryGetValue(action.messageId, out var message)) {
+                        message.updateUserLikeImage(null, state.loginState.loginInfo.userId);
+                    }
+
+                    break;
+                }
+
+                case ClearMessageLikeImages action: {
+                    if (state.channelState.messageDict.TryGetValue(action.messageId, out var message)) {
+                        message.likeImageCount.Clear();
+                        message.userLikeImages.Clear();
+                    }
+
+                    break;
+                }
+
                 case ArticleMapAction action: {
                     if (action.articleMap.isNotNullAndEmpty()) {
                         var articleDict = state.articleState.articleDict;
@@ -2857,6 +2890,22 @@ namespace ConnectApp.redux.reducers {
 
                     channel.memberCount -= 1;
                     state.channelState.joinedChannels.Remove(item: action.channelId);
+                    break;
+                }
+
+                case AddChannelMessageReactionSuccessAction action: {
+                    break;
+                }
+
+                case AddChannelMessageReactionFailureAction action: {
+                    break;
+                }
+
+                case CancelChannelMessageReactionSuccessAction action: {
+                    break;
+                }
+
+                case CancelChannelMessageReactionFailureAction action: {
                     break;
                 }
 
