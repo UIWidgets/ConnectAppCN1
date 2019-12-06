@@ -37,6 +37,7 @@ namespace ConnectApp.Models.Model {
         public List<User> replyUsers;
         public List<User> lowerUsers;
         public List<Reaction> reactions;
+        public Dictionary<string, int> likeImageStats;
         public List<Embed> embeds;
         public bool pending;
         public string deletedTime;
@@ -348,8 +349,8 @@ namespace ConnectApp.Models.Model {
         public bool deleted = false;
         public List<Reaction> reactions;
         public List<Embed> embeds;
-        public Dictionary<string, int> reactionCount;
-        public HashSet<string> myReactions;
+        public Dictionary<string, int> likeImageCount;
+        public Dictionary<string, string> userLikeImages;
         public string status = "normal";
         public byte[] imageData;
         public byte[] videoData;
@@ -420,52 +421,62 @@ namespace ConnectApp.Models.Model {
             return getType(content, deleted, attachments, embeds) == ChannelMessageType.image ? attachments[0].height : 0;
         }
 
-        static Dictionary<string, int> getReactionCount(List<Reaction> reactions) {
-            Dictionary<string, int> reactDict = new Dictionary<string, int>();
-            foreach (var reaction in reactions) {
-                if (reactDict.ContainsKey(reaction.type)) {
-                    reactDict[reaction.type] += 1;
-                }
-                else {
-                    reactDict[reaction.type] = 1;
+        static Dictionary<string, int> getLikeImageCount(Dictionary<string, int> likeImageStats) {
+            var stats = new Dictionary<string, int>();
+            if (likeImageStats == null) {
+                return stats;
+            }
+            foreach (var entry in likeImageStats) {
+                if (entry.Value > 0) {
+                    stats[entry.Key] = entry.Value;
                 }
             }
-            return reactDict;
+
+            return stats;
         }
 
-        public void updateReaction(string type, int? count = null, bool? my = null) {
+        static Dictionary<string, string> getUserLikeImageDict(List<Reaction> reactions) {
+            var likeImageDict = new Dictionary<string, string>(); 
+            foreach(var reaction in reactions) {
+                if (reaction.type == "like") {
+                    if(reaction.likeImage.isNotEmpty())
+                        likeImageDict[reaction.user.id] = reaction.likeImage;
+                }
+            }
+
+            return likeImageDict;
+        }
+
+        public void updateLikeImage(string type, int? count = null) {
             if (count != null) {
                 if (count.Value > 0) {
-                    this.reactionCount[type] = count.Value;
+                    this.likeImageCount[type] = count.Value;
                 }
                 else {
-                    this.reactionCount.Remove(type);
-                }
-            }
-
-            if (my != null) {
-                if (my.Value) {
-                    this.myReactions.Add(type);
-                }
-                else {
-                    this.myReactions.Remove(type);
+                    this.likeImageCount.Remove(type);
                 }
             }
         }
 
-        public void addMyReaction(string type) {
-            if (this.myReactions.Contains(type)) {
-                return;
-            }
-            this.updateReaction(type, this.reactionCount.getOrDefault(type, 0) + 1, true);
+        public string getLikeImage(string userId) {
+            return this.userLikeImages.getOrDefault(userId, null);
         }
 
-        public void removeMyReaction(string type) {
-            if (!this.myReactions.Contains(type) || !this.reactionCount.ContainsKey(type)) {
-                return;
+        public void updateUserLikeImage(string type, string userId) {
+            if (this.getLikeImage(userId) != type) {
+                if (this.getLikeImage(userId) != null) {
+                    this.updateLikeImage(this.getLikeImage(userId),
+                        this.likeImageCount.getOrDefault(this.getLikeImage(userId), 0) - 1);
+                }
+                if (type != null) {
+                    this.updateLikeImage(type,
+                        this.likeImageCount.getOrDefault(type, 0) + 1);
+                    this.userLikeImages[userId] = type;
+                }
+                else {
+                    this.userLikeImages.Remove(userId);
+                }
             }
-            this.updateReaction(type, this.reactionCount[type] - 1, false);
-            
         }
 
         public static ChannelMessageView fromPushMessage(SocketResponseMessageData message) {
@@ -494,8 +505,8 @@ namespace ConnectApp.Models.Model {
                     deleted = message.deletedTime != null,
                     embeds = message.embeds,
                     reactions = message.reactions,
-                    reactionCount = getReactionCount(message.reactions),
-                    myReactions = new HashSet<string>()
+                    likeImageCount = getLikeImageCount(message.likeImageStats),
+                    userLikeImages = getUserLikeImageDict(message.reactions)
                 };
         }
 
@@ -518,8 +529,7 @@ namespace ConnectApp.Models.Model {
                     mentions = message.mentions?.Select(user => new User {id = user.id}).ToList(),
                     deleted = message.deletedTime != null,
                     reactions = new List<Reaction>(),
-                    reactionCount = new Dictionary<string, int>(),
-                    myReactions = new HashSet<string>()
+                    likeImageCount = new Dictionary<string, int>(),
                 };
         }
 
@@ -549,8 +559,8 @@ namespace ConnectApp.Models.Model {
                     deleted = message.deletedTime != null,
                     embeds = message.embeds,
                     reactions = message.reactions,
-                    reactionCount = getReactionCount(message.reactions),
-                    myReactions = new HashSet<string>()
+                    likeImageCount = getLikeImageCount(message.likeImageStats),
+                    userLikeImages = getUserLikeImageDict(message.reactions)
                 };
         }
     }

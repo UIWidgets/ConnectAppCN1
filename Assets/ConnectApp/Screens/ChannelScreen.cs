@@ -253,29 +253,33 @@ namespace ConnectApp.screens {
                         resendMessage = message => dispatcher.dispatch(new ResendMessageAction {
                             message = message
                         }),
-                        updateMessageReactions = (message, type, count, my) => {
-                            dispatcher.dispatch(new UpdateMessageReactionsAction {
+                        updateMessageLikeImageCount = (message, type, count) => {
+                            dispatcher.dispatch(new UpdateMessageLikeImageCountAction {
                                 type = type,
-                                count = count,
-                                my = my
+                                count = count
                             });
                         },
-                        clearMessageReactions = (message) => {
-                            dispatcher.dispatch(new ClearMessageReactions {
+                        clearMessageLikeImages = (message) => {
+                            dispatcher.dispatch(new ClearMessageLikeImages {
                                 messageId = message.id
                             });
                         },
-                        addMyReaction = (message, type) => {
-                            dispatcher.dispatch(new AddMyReactionToMessage {
-                                type = type,
-                                messageId = message.id
-                            });
+                        updateMyLikeImage = (message, type) => {
+                            if (message.getLikeImage(viewModel.me.id) != type) {
+                                dispatcher.dispatch(new AddMyLikeImageToMessage {
+                                    type = type,
+                                    messageId = message.id
+                                });
+                                dispatcher.dispatch(Actions.addReaction(message.id, type));
+                            }
                         },
-                        cancelMyReaction = (message, type) => {
-                            dispatcher.dispatch(new RemoveMyReactionToMessage {
-                                type = type,
-                                messageId = message.id
-                            });
+                        cancelMyLikeImage = (message) => {
+                            if (message.getLikeImage(viewModel.me.id) != null) {
+                                dispatcher.dispatch(new RemoveMyLikeImageFromMessage {
+                                    messageId = message.id
+                                });
+                                dispatcher.dispatch(Actions.cancelReaction(message.id));
+                            }
                         }
                     };
                     return new ChannelScreen(viewModel: viewModel, actionModel: actionModel);
@@ -317,10 +321,10 @@ namespace ConnectApp.screens {
         };
         
         public static readonly Dictionary<string, int> reactionIcons = new Dictionary<string, int> {
-            {"like", 0x1f642},
-            {"dislike", 0x1f643},
-            {"tear", 0x1f644},
-            {"heart", 0x1f645},
+            {"thumb-up", 0x1f642},
+            {"thumb-down", 0x1f643},
+            {"facepalming", 0x1f644},
+            {"heart-eyes", 0x1f645},
             {"question", 0x1f646},
         };
 
@@ -1248,6 +1252,7 @@ namespace ConnectApp.screens {
                 size: size,
                 offset: offset,
                 left: left,
+                userId: this.widget.viewModel.me.id,
                 messageBubble: new Container(
                     constraints: new BoxConstraints(
                         maxWidth: this.messageBubbleWidth
@@ -1256,23 +1261,23 @@ namespace ConnectApp.screens {
                     child: this._buildMessageContent(message: message)
                 ),
                 onTap: (type) => {
-                    if (!message.myReactions.Contains(type)) {
-                        if (message.reactionCount.isEmpty()) {
+                    if (message.getLikeImage(this.widget.viewModel.me.id) != type) {
+                        if (message.likeImageCount.isEmpty()) {
                             this._animatingMessageReaction = message.id;
                             this._reactionSize.reset();
                             this._reactionSize.setValue(0);
                         }
-                        this.widget.actionModel.addMyReaction(message, type);
+                        this.widget.actionModel.updateMyLikeImage(message, type);
                     }
                     else {
-                        if (message.reactionCount.Count == 1 &&
-                            message.reactionCount.getOrDefault(type, 0) == 1) {
+                        if (message.likeImageCount.Count == 1 &&
+                            message.likeImageCount.getOrDefault(type, 0) == 1) {
                             this._animatingMessageReaction = message.id;
                             this._reactionSize.reset();
                             this._reactionSize.setValue(1);
                         }
                         else {
-                            this.widget.actionModel.cancelMyReaction(message, type);
+                            this.widget.actionModel.cancelMyLikeImage(message);
                         }
 
                     }
@@ -1286,7 +1291,7 @@ namespace ConnectApp.screens {
                 padding: EdgeInsets.symmetric(4, 8),
                 decoration: new BoxDecoration(
                     border: Border.all(
-                        color: message.myReactions.Contains(type)
+                        color: message.getLikeImage(this.widget.viewModel.me.id) == type
                             ? CColors.PrimaryBlue
                             : CColors.Transparent,
                         width: 1.5f
@@ -1294,24 +1299,27 @@ namespace ConnectApp.screens {
                     borderRadius: BorderRadius.all(14),
                     color: CColors.MessageReaction
                 ),
-                child: new Text($"{char.ConvertFromUtf32(reactionIcons[type])} {message.reactionCount.getOrDefault(type, 4)}",
-                    style: message.myReactions.Contains(type)
+                child: new Text($"{char.ConvertFromUtf32(reactionIcons[type])} {message.likeImageCount.getOrDefault(type, 0)}",
+                    style: message.getLikeImage(this.widget.viewModel.me.id) == type
                         ? CTextStyle.PRegularBody.copyWith(color: CColors.MessageReactionCount, height: 1.1f)
                         : CTextStyle.PRegularBody.copyWith(height: 1.1f))
             );
         }
 
         Widget _buildReactionBar(ChannelMessageView message, bool left) {
-            if (message.reactionCount.isEmpty()) {
+            if (message.likeImageCount.isEmpty()) {
                 return new Container();
             }
+
+            List<string> likeImageKeys = message.likeImageCount.Keys.ToList();
+            likeImageKeys.Sort();
             
             Widget result = new Container(
                 padding: EdgeInsets.only(top: 8),
                 child: new Wrap(
                     alignment: left ? WrapAlignment.start : WrapAlignment.end,
                     spacing: 8,
-                    children: message.reactionCount.Keys
+                    children: likeImageKeys
                         .Select(type => this._buildReaction(message, type))
                         .ToList()
                 )
@@ -1383,7 +1391,7 @@ namespace ConnectApp.screens {
                                         () => {
                                             this._animatingMessageReaction = null;
                                             if (this._reactionSize.value < 0.5f) {
-                                                this.widget.actionModel.clearMessageReactions(message);
+                                                this.widget.actionModel.clearMessageLikeImages(message);
                                             }
                                         }
                                     );
@@ -1396,7 +1404,7 @@ namespace ConnectApp.screens {
                 child: ret
             );
 
-            if (left || message.reactionCount.isNotEmpty()) {
+            if (left || message.likeImageCount.isNotEmpty()) {
                 ret = new Expanded(
                     child: new Column(
                         crossAxisAlignment: left ? CrossAxisAlignment.start : CrossAxisAlignment.end,
@@ -1764,9 +1772,8 @@ namespace ConnectApp.screens {
                 plainText = plainText,
                 time = DateTime.UtcNow,
                 status = "waiting",
-                reactionCount = new Dictionary<string, int>(),
-                reactions = new List<Reaction>(),
-                myReactions = new HashSet<string>()
+                likeImageCount = new Dictionary<string, int>(),
+                reactions = new List<Reaction>()
             });
             this._textController.clear();
             this._textController.selection = TextSelection.collapsed(0);
@@ -2015,6 +2022,7 @@ namespace ConnectApp.screens {
             bool left,
             Widget messageBubble,
             PopupLikeButtonBar.OnTapPopupLikeButtonCallback onTap,
+            string userId,
             Key key = null) : base(key : key) {
             this.message = message;
             this.size = size;
@@ -2022,6 +2030,7 @@ namespace ConnectApp.screens {
             this.left = left;
             this.messageBubble = messageBubble;
             this.onTap = onTap;
+            this.userId = userId;
         }
 
         public readonly ChannelMessageView message;
@@ -2030,6 +2039,7 @@ namespace ConnectApp.screens {
         public readonly bool left;
         public readonly Widget messageBubble;
         public readonly PopupLikeButtonBar.OnTapPopupLikeButtonCallback onTap;
+        public string userId;
         
         public override State createState() {
             return new _ReactionOverlayState();
@@ -2099,7 +2109,7 @@ namespace ConnectApp.screens {
                 popupLikeButtonData: _ChannelScreenState.reactionIcons.Keys.Select(type => {
                     return new PopupLikeButtonItem {
                         content = char.ConvertFromUtf32(_ChannelScreenState.reactionIcons[type]),
-                        selected = message.myReactions.Contains(type),
+                        selected = message.getLikeImage(this.widget.userId) == type,
                         type = type
                     };
                 }).ToList()

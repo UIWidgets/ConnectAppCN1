@@ -965,34 +965,34 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
-                case UpdateMessageReactionsAction action: {
+                case UpdateMessageLikeImageCountAction action: {
                     if (state.channelState.messageDict.TryGetValue(action.messageId, out var message)) {
-                        message.updateReaction(action.type, action.count, action.my);
+                        message.updateLikeImage(action.type, action.count);
                     }
                     
                     break;
                 }
 
-                case AddMyReactionToMessage action: {
+                case AddMyLikeImageToMessage action: {
                     if (state.channelState.messageDict.TryGetValue(action.messageId, out var message)) {
-                        message.addMyReaction(action.type);
+                        message.updateUserLikeImage(action.type, state.loginState.loginInfo.userId);
                     }
 
                     break;
                 }
 
-                case RemoveMyReactionToMessage action: {
+                case RemoveMyLikeImageFromMessage action: {
                     if (state.channelState.messageDict.TryGetValue(action.messageId, out var message)) {
-                        message.removeMyReaction(action.type);
+                        message.updateUserLikeImage(null, state.loginState.loginInfo.userId);
                     }
 
                     break;
                 }
 
-                case ClearMessageReactions action: {
+                case ClearMessageLikeImages action: {
                     if (state.channelState.messageDict.TryGetValue(action.messageId, out var message)) {
-                        message.reactionCount.Clear();
-                        message.myReactions.Clear();
+                        message.likeImageCount.Clear();
+                        message.userLikeImages.Clear();
                     }
 
                     break;
@@ -2890,6 +2890,22 @@ namespace ConnectApp.redux.reducers {
 
                     channel.memberCount -= 1;
                     state.channelState.joinedChannels.Remove(item: action.channelId);
+                    break;
+                }
+
+                case AddChannelMessageReactionSuccessAction action: {
+                    break;
+                }
+
+                case AddChannelMessageReactionFailureAction action: {
+                    break;
+                }
+
+                case CancelChannelMessageReactionSuccessAction action: {
+                    break;
+                }
+
+                case CancelChannelMessageReactionFailureAction action: {
                     break;
                 }
 

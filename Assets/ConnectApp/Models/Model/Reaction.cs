@@ -10,5 +10,6 @@ namespace ConnectApp.Models.Model {
         public User user;
         public DateTime updatedTime;
         public int count;
+        public string likeImage;
     }
 }
