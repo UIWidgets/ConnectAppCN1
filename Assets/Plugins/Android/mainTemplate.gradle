@@ -64,7 +64,7 @@ android {
         ndk {
             abiFilters 'armeabi-v7a', 'x86'
         }
-        versionCode 93
+        versionCode 94
         versionName '1.2.5'
     }
 

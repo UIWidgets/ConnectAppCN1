@@ -305,6 +305,7 @@ namespace ConnectApp.screens {
         bool _showNewMessageNotification = false;
         float _inputFieldHeight;
         CustomTextField customTextField;
+        Dictionary<string, GlobalKey> _fullMessageKeys;
 
         public bool showUnreadMessageNotification {
             get { return this._showUnreadMessageNotification; }
@@ -448,10 +449,22 @@ namespace ConnectApp.screens {
             this._messageActivityIndicatorController = new AnimationController(
                 duration: new TimeSpan(0, 0, 2),
                 vsync: this);
-            this._messageActivityIndicatorController.repeat();
+            this._fullMessageKeys = new Dictionary<string, GlobalKey>();
         }
 
         bool _onMessageLoadedCalled = false;
+
+        void _startIndicator() {
+            if (!this._messageActivityIndicatorController.isAnimating) {
+                this._messageActivityIndicatorController.repeat();
+            }
+        }
+
+        void _stopIndicator() {
+            if (this._messageActivityIndicatorController.isAnimating) {
+                this._messageActivityIndicatorController.stop();
+            }
+        }
 
         void _onMessageLoaded() {
             if (this._onMessageLoadedCalled) {
@@ -463,8 +476,10 @@ namespace ConnectApp.screens {
                 this._lastMessageWhenScreenIsOpened = this.widget.viewModel.messages.last().id;
             }
 
-            this.showUnreadMessageNotification = this._lastReadMessageId != null &&
-                                                 this.calculateOffsetFromMessage(this._lastReadMessageId) > 0;
+            SchedulerBinding.instance.addPostFrameCallback(_ => {
+                this.showUnreadMessageNotification = this._lastReadMessageId != null &&
+                                                     this.calculateOffsetFromMessage(this._lastReadMessageId) > 0;
+            });
         }
 
         void fetchMessagesAndMembers() {
@@ -516,7 +531,7 @@ namespace ConnectApp.screens {
             float height = 0;
             for (int i = index; i < this.widget.viewModel.messages.Count; i++) {
                 var message = this.widget.viewModel.messages[i];
-                height += calculateMessageHeight(message,
+                height += this.calculateMessageHeight(message,
                     i == 0 || message.time - this.widget.viewModel.messages[i - 1].time > this._showTimeThreshold,
                     this.messageBubbleWidth);
             }
@@ -537,6 +552,16 @@ namespace ConnectApp.screens {
             else {
                 this._refreshController.scrollTo(offset);
             }
+        }
+
+        GlobalKey getFullMessageKey(string messageId) {
+            GlobalKey key;
+            if (!this._fullMessageKeys.TryGetValue(messageId, out key)) {
+                key = GlobalKey.key("full" + messageId);
+                this._fullMessageKeys[messageId] = key;
+            }
+
+            return key;
         }
 
         public override void dispose() {
@@ -620,6 +645,14 @@ namespace ConnectApp.screens {
                 SchedulerBinding.instance.addPostFrameCallback(_ => {
                     this._refreshController.scrollTo(0);
                 });
+            }
+
+            if (this.widget.viewModel.waitingMessage != null ||
+                this.widget.viewModel.sendingMessage != null) {
+                this._startIndicator();
+            }
+            else {
+                this._stopIndicator();
             }
 
             this.showNewMessageNotification = this.widget.viewModel.newMessages.Count > 0;
@@ -862,7 +895,7 @@ namespace ConnectApp.screens {
                                 child: new Text(
                                     !this.widget.viewModel.networkConnected
                                         ? this.widget.viewModel.channel.name + " (未连接)"
-                                        : this.widget.viewModel.socketConnected && !this.widget.viewModel.messageLoading
+                                        : this.widget.viewModel.socketConnected && !this.widget.viewModel.channel.needFetchMessages && !this.widget.viewModel.messageLoading
                                             ? this.widget.viewModel.channel.name
                                             : "收取中...",
                                     style: CTextStyle.PXLargeMedium,
@@ -1003,7 +1036,7 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildMessage(ChannelMessageView message, bool showTime, bool left, bool showUnreadLine = false) {
-            if (message.type == ChannelMessageType.skip) {
+            if (message.type == ChannelMessageType.skip || message.type == ChannelMessageType.deleted) {
                 return new Container();
             }
 
@@ -1150,6 +1183,8 @@ namespace ConnectApp.screens {
                     }
                 );
             }
+
+            ret = new Container(key: this.getFullMessageKey(message.id), child: ret);
 
             return ret;
         }
@@ -1530,7 +1565,7 @@ namespace ConnectApp.screens {
                         float offset = 0;
                         for (int i = 0; i < this.widget.viewModel.newMessages.Count; i++) {
                             var message = this.widget.viewModel.newMessages[i];
-                            offset += calculateMessageHeight(message,
+                            offset += this.calculateMessageHeight(message,
                                 showTime: i == 0
                                     ? message.time - this.widget.viewModel.messages.last().time >
                                       this._showTimeThreshold
@@ -1676,14 +1711,30 @@ namespace ConnectApp.screens {
             }
         }
 
-        static float calculateMessageHeight(ChannelMessageView message, bool showTime, float width) {
-            if (message.buildHeight != null) {
+        float calculateMessageHeight(ChannelMessageView message, bool showTime, float width) {
+            if (message.type == ChannelMessageType.skip) {
+                return 0;
+            }
+
+            if (message.buildHeight != null && message.buildHeight > 0) {
                 return message.buildHeight.Value;
             }
+
+            var context = this.getFullMessageKey(message.id).currentContext;
+            if (context != null) {
+                RenderBox renderBox = (RenderBox) context.findRenderObject();
+                message.buildHeight = renderBox.size.height;
+                return message.buildHeight.Value;
+            }
+
+            if (message.buildHeight != null) {
+                return -message.buildHeight.Value;
+            }
+
             float height = 20 + 6 + 16 + (showTime ? 36 : 0); // Name + Internal + Bottom padding + time
             switch (message.type) {
                 case ChannelMessageType.deleted:
-                    height += DeletedMessage.CalculateTextHeight(width: width);
+//                    height += DeletedMessage.CalculateTextHeight(width: width);
                     break;
                 case ChannelMessageType.text:
                     height += TextMessage.CalculateTextHeight(content: message.content, width: width);
@@ -1700,7 +1751,8 @@ namespace ConnectApp.screens {
                     break;
             }
 
-            message.buildHeight = height;
+            // Store a negative value to mark that it is not accurate
+            message.buildHeight = -height;
             return height;
         }
     }

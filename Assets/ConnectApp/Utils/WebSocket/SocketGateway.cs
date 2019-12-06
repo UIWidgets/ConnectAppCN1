@@ -112,6 +112,8 @@ namespace ConnectApp.Utils {
             this._CancelHeartBeat();
             this._Reset(isInit: true);
             this.m_BackOff.Cancel();
+            
+            NetworkStatusManager.isConnected = false;
         }
 
 

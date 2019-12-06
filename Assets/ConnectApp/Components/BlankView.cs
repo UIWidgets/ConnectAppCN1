@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using ConnectApp.Constants;
+using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -29,9 +30,8 @@ namespace ConnectApp.Components {
         readonly GestureTapCallback tapCallback;
 
         public override Widget build(BuildContext context) {
-            var isNetWorkError = Application.internetReachability == NetworkReachability.NotReachable;
-            var imageName = isNetWorkError ? "image/default-network" : this.imageName;
-            var message = isNetWorkError ? "数据不见了，快检查下网络吧" : $"{this.title}";
+            var imageName = HttpManager.isNetWorkError() ? "image/default-network" : this.imageName;
+            var message = HttpManager.isNetWorkError() ? "数据不见了，快检查下网络吧" : $"{this.title}";
             return new Container(
                 color: CColors.White,
                 width: MediaQuery.of(context).size.width,

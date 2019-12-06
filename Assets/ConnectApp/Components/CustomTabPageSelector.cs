@@ -1,36 +1,17 @@
 using System.Collections.Generic;
+using ConnectApp.Constants;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.material;
+using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.Components {
-    static class TabsUtils {
-        public const float _kTabHeight = 46.0f;
-        public const float _kTextAndIconTabHeight = 72.0f;
-
-        public static float _indexChangeProgress(TabController controller) {
-            float controllerValue = controller.animation.value;
-            float previousIndex = controller.previousIndex;
-            float currentIndex = controller.index;
-
-            if (!controller.indexIsChanging) {
-                return (currentIndex - controllerValue).abs().clamp(0.0f, 1.0f);
-            }
-
-            return (controllerValue - currentIndex).abs() / (currentIndex - previousIndex).abs();
-        }
-
-        public static readonly PageScrollPhysics _kTabBarViewPhysics =
-            (PageScrollPhysics) new PageScrollPhysics().applyTo(new ClampingScrollPhysics());
-    }
-
     public class CustomTabPageSelector : StatelessWidget {
         public CustomTabPageSelector(
             Key key = null,
-            TabController controller = null,
+            CustomTabController controller = null,
             float indicatorSize = 12.0f,
             Color color = null,
             Color selectedColor = null
@@ -42,27 +23,24 @@ namespace ConnectApp.Components {
             this.selectedColor = selectedColor;
         }
 
-        public readonly TabController controller;
-
-        public readonly float indicatorSize;
-
-        public readonly Color color;
-
-        public readonly Color selectedColor;
+        readonly CustomTabController controller;
+        readonly float indicatorSize;
+        readonly Color color;
+        readonly Color selectedColor;
 
         Widget _buildTabIndicator(
             int tabIndex,
-            TabController tabController,
+            CustomTabController tabController,
             ColorTween selectedColorTween,
             ColorTween previousColorTween) {
-            Color background = null;
+            Color background;
             if (tabController.indexIsChanging) {
-                float t = 1.0f - TabsUtils._indexChangeProgress(tabController);
+                float t = 1.0f - CustomTabsUtils._indexChangeProgress(controller: tabController);
                 if (tabController.index == tabIndex) {
-                    background = selectedColorTween.lerp(t);
+                    background = selectedColorTween.lerp(t: t);
                 }
                 else if (tabController.previousIndex == tabIndex) {
-                    background = previousColorTween.lerp(t);
+                    background = previousColorTween.lerp(t: t);
                 }
                 else {
                     background = selectedColorTween.begin;
@@ -74,17 +52,17 @@ namespace ConnectApp.Components {
                     background = selectedColorTween.lerp(1.0f - offset.abs());
                 }
                 else if (tabController.index == tabIndex - 1 && offset > 0.0) {
-                    background = selectedColorTween.lerp(offset);
+                    background = selectedColorTween.lerp(t: offset);
                 }
                 else if (tabController.index == tabIndex + 1 && offset < 0.0) {
-                    background = selectedColorTween.lerp(-offset);
+                    background = selectedColorTween.lerp(t: -offset);
                 }
                 else {
                     background = selectedColorTween.begin;
                 }
             }
 
-            return new TabPageSelectorIndicator(
+            return new CustomTabPageSelectorIndicator(
                 backgroundColor: background,
                 borderColor: background,
                 size: this.indicatorSize
@@ -92,11 +70,11 @@ namespace ConnectApp.Components {
         }
 
         public override Widget build(BuildContext context) {
-            Color fixColor = this.color ?? Colors.transparent;
-            Color fixSelectedColor = this.selectedColor ?? Theme.of(context).accentColor;
+            Color fixColor = this.color ?? CColors.Transparent;
+            Color fixSelectedColor = this.selectedColor ?? CColors.PrimaryBlue;
             ColorTween selectedColorTween = new ColorTween(begin: fixColor, end: fixSelectedColor);
             ColorTween previousColorTween = new ColorTween(begin: fixSelectedColor, end: fixColor);
-            TabController tabController = this.controller ?? DefaultTabController.of(context);
+            CustomTabController tabController = this.controller;
             D.assert(() => {
                 if (tabController == null) {
                     throw new UIWidgetsError(
@@ -118,15 +96,15 @@ namespace ConnectApp.Components {
 
             return new AnimatedBuilder(
                 animation: animation,
-                builder: (BuildContext subContext, Widget child) => {
+                builder: (subContext, child) => {
                     List<Widget> children = new List<Widget>();
 
                     for (int tabIndex = 0; tabIndex < tabController.length; tabIndex++) {
                         children.Add(this._buildTabIndicator(
-                            tabIndex,
-                            tabController,
-                            selectedColorTween,
-                            previousColorTween)
+                            tabIndex: tabIndex,
+                            tabController: tabController,
+                            selectedColorTween: selectedColorTween,
+                            previousColorTween: previousColorTween)
                         );
                     }
 
@@ -135,6 +113,38 @@ namespace ConnectApp.Components {
                         children: children
                     );
                 }
+            );
+        }
+    }
+
+    public class CustomTabPageSelectorIndicator : StatelessWidget {
+        public CustomTabPageSelectorIndicator(
+            Color backgroundColor,
+            Color borderColor,
+            float size,
+            Key key = null
+        ) : base(key: key) {
+            D.assert(backgroundColor != null);
+            D.assert(borderColor != null);
+            this.backgroundColor = backgroundColor;
+            this.borderColor = borderColor;
+            this.size = size;
+        }
+
+        readonly Color backgroundColor;
+        readonly Color borderColor;
+        readonly float size;
+
+        public override Widget build(BuildContext context) {
+            return new Container(
+                width: this.size,
+                height: this.size,
+                margin: EdgeInsets.all(4.0f),
+                decoration: new BoxDecoration(
+                    color: this.backgroundColor,
+                    border: Border.all(color: this.borderColor),
+                    shape: BoxShape.circle
+                )
             );
         }
     }

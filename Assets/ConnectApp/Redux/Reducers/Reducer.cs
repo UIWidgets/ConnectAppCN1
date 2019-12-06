@@ -2587,8 +2587,6 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case FetchChannelsFailureAction _: {
-                    NetworkStatusManager.isConnected = false;
-                    NetworkStatusManager.isAvailable = false;
                     state.channelState.channelLoading = false;
                     break;
                 }
@@ -2716,7 +2714,6 @@ namespace ConnectApp.redux.reducers {
 
                 case FetchChannelMessagesFailureAction _: {
                     state.channelState.messageLoading = false;
-                    NetworkStatusManager.isConnected = false;
                     break;
                 }
 
@@ -3063,14 +3060,16 @@ namespace ConnectApp.redux.reducers {
                     }
 
                     if (state.channelState.mentionSuggestions.ContainsKey(action.memberData.channelId)) {
-                        var suggestionDict = state.channelState.mentionSuggestions[action.memberData.channelId];
-                        if (suggestionDict.ContainsKey(action.memberData.user.id)) {
-                            suggestionDict[action.memberData.user.id]
-                                .updateFromSocketResponseChannelMemberChangeData(action.memberData);
+                        var suggestionList = state.channelState.mentionSuggestions[action.memberData.channelId];
+                        bool exists = false;
+                        foreach (var member in suggestionList) {
+                            if (member.user.id == action.memberData.user.id) {
+                                member.updateFromSocketResponseChannelMemberChangeData(action.memberData);
+                                exists = true;
+                            }
                         }
-                        else {
-                            suggestionDict[action.memberData.user.id] =
-                                ChannelMember.fromSocketResponseChannelMemberChangeData(action.memberData);
+                        if (!exists) {
+                            suggestionList.Add(ChannelMember.fromSocketResponseChannelMemberChangeData(action.memberData));
                         }
                     }
 
@@ -3085,9 +3084,17 @@ namespace ConnectApp.redux.reducers {
                     }
 
                     if (state.channelState.mentionSuggestions.ContainsKey(action.memberData.channelId)) {
-                        var suggestionDict = state.channelState.mentionSuggestions[action.memberData.channelId];
-                        if (suggestionDict.ContainsKey(action.memberData.user.id)) {
-                            suggestionDict.Remove(action.memberData.user.id);
+                        var suggestionList = state.channelState.mentionSuggestions[action.memberData.channelId];
+                        int index = -1;
+                        for (var i=0; i<suggestionList.Count; i++) {
+                            var member = suggestionList[i];
+                            if (member.user.id == action.memberData.user.id) {
+                                index = i;
+                                break;
+                            }
+                        }
+                        if (index != -1) {
+                            suggestionList.RemoveAt(index);
                         }
                     }
 
@@ -3232,6 +3239,24 @@ namespace ConnectApp.redux.reducers {
 
                 case ChannelChooseMentionConfirmAction action: {
                     state.channelState.mentionAutoFocus = true;
+                    if (state.channelState.mentionSuggestions.ContainsKey(action.channelId) &&
+                        action.member != null) {
+                        var suggestionList = state.channelState.mentionSuggestions[action.channelId];
+                        var _index = -1;
+                        for (int i = 0; i < suggestionList.Count; i++) {
+                            if (suggestionList[i].user.id == action.member.user.id) {
+                                _index = i;
+                                break;
+                            }
+                        }
+
+                        if (_index != -1) {
+                            suggestionList.RemoveAt(_index);
+                        }
+                        
+                        suggestionList.Insert(0, action.member);
+                    }
+                    
                     state.channelState.mentionUserId = action.mentionUserId;
                     state.channelState.mentionUserName = action.mentionUserName;
                     break;
@@ -3251,7 +3276,14 @@ namespace ConnectApp.redux.reducers {
 
                 case FetchChannelMentionSuggestionsSuccessAction action: {
                     state.channelState.mentionLoading = false;
-                    state.channelState.mentionSuggestions[key: action.channelId] = action.channelMemberMap;
+                    var suggestions = new List<ChannelMember>();
+                    if (action.channelMemberMap != null) {
+                        foreach (var key in action.channelMemberMap.Keys) {
+                            suggestions.Add(action.channelMemberMap[key]);
+                        }
+                    }
+
+                    state.channelState.mentionSuggestions[key: action.channelId] = suggestions;
                     break;
                 }
 
