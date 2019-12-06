@@ -672,23 +672,35 @@ namespace ConnectApp.screens {
             );
         }
 
-
-        public void didPush() {
-        }
-
-        public void didPop() {
-            AVPlayerPlugin.removePlayer();
-        }
-
-        public void didPushNext() {
-            AVPlayerPlugin.hiddenPlayer();
-        }
-
         public void didPopNext() {
+            if (this.widget.viewModel.eventId.isNotEmpty()) {
+                CTemporaryValue.currentPageModelId = this.widget.viewModel.eventId;
+            }
+
             StatusBarManager.statusBarStyle(false);
             if (this._showPlayer) {
                 AVPlayerPlugin.showPlayer();
             }
+        }
+
+        public void didPush() {
+            if (this.widget.viewModel.eventId.isNotEmpty()) {
+                CTemporaryValue.currentPageModelId = this.widget.viewModel.eventId;
+            }
+        }
+
+        public void didPop() {
+            if (CTemporaryValue.currentPageModelId.isNotEmpty() &&
+                this.widget.viewModel.eventId == CTemporaryValue.currentPageModelId) {
+                CTemporaryValue.currentPageModelId = null;
+            }
+
+            AVPlayerPlugin.removePlayer();
+        }
+
+        public void didPushNext() {
+            CTemporaryValue.currentPageModelId = null;
+            AVPlayerPlugin.hiddenPlayer();
         }
     }
 }

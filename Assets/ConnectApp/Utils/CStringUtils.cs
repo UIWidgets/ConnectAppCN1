@@ -143,6 +143,14 @@ namespace ConnectApp.Utils {
         static bool IsLowercaseLetterOrNumber(this string str) {
             return LowercaseLetterOrNumberRegex.IsMatch(input: str);
         }
+
+        public static bool isSlug(this string str) {
+            if (str.isEmpty()) {
+                return false;
+            }
+
+            return str.Length != 24 || !str.IsLowercaseLetterOrNumber();
+        }
     }
 
     public static class CCollectionUtils {

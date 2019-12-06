@@ -1424,7 +1424,7 @@ namespace ConnectApp.redux.reducers {
                 case MainNavigatorPushToUserDetailAction action: {
                     if (action.userId.isNotEmpty()) {
                         Router.navigator.push(new CustomPageRoute(
-                            context => new UserDetailScreenConnector(userId: action.userId, isSlug: action.isSlug)
+                            context => new UserDetailScreenConnector(userId: action.userId, action.userId.isSlug())
                         ));
                     }
 
@@ -1465,7 +1465,7 @@ namespace ConnectApp.redux.reducers {
                 case MainNavigatorPushToTeamDetailAction action: {
                     if (action.teamId.isNotEmpty()) {
                         Router.navigator.push(new CustomPageRoute(
-                            context => new TeamDetailScreenConnector(teamId: action.teamId, isSlug: action.isSlug)
+                            context => new TeamDetailScreenConnector(teamId: action.teamId, action.teamId.isSlug())
                         ));
                     }
 
@@ -2131,8 +2131,20 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
-                case FetchTeamArticleFailureAction _: {
+                case FetchTeamArticleFailureAction action: {
                     state.teamState.teamArticleLoading = false;
+                    if (!state.teamState.teamDict.ContainsKey(key: action.teamId)) {
+                        var team = new Team {
+                            errorCode = action.errorCode
+                        };
+                        state.teamState.teamDict.Add(key: action.teamId, value: team);
+                    }
+                    else {
+                        var team = state.teamState.teamDict[key: action.teamId];
+                        team.errorCode = action.errorCode;
+                        state.teamState.teamDict[key: action.teamId] = team;
+                    }
+
                     break;
                 }
 
@@ -2616,13 +2628,24 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case StartFetchChannelInfoAction action: {
-                    state.channelState.channelInfoLoading = true;
+                    if (action.isInfoPage) {
+                        state.channelState.channelShareInfoLoading = true;
+                    }
+                    else {
+                        state.channelState.channelInfoLoading = true;
+                    }
+
                     break;
                 }
 
                 case FetchChannelInfoSuccessAction action: {
-                    state.channelState.channelError = false;
-                    state.channelState.channelInfoLoading = false;
+                    if (action.isInfoPage) {
+                        state.channelState.channelShareInfoLoading = false;
+                    }
+                    else {
+                        state.channelState.channelInfoLoading = false;
+                    }
+
                     state.channelState.updateChannel(action.channel);
                     if (state.channelState.channelDict.ContainsKey(action.channel.id)) {
                         state.channelState.channelDict[key: action.channel.id].unread = 0;
@@ -2636,8 +2659,25 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case FetchChannelInfoErrorAction action: {
-                    state.channelState.channelInfoLoading = false;
-                    state.channelState.channelError = true;
+                    if (action.isInfoPage) {
+                        state.channelState.channelShareInfoLoading = false;
+                    }
+                    else {
+                        state.channelState.channelInfoLoading = false;
+                    }
+
+                    if (!state.channelState.channelDict.ContainsKey(key: action.channelId)) {
+                        var channel = new ChannelView {
+                            errorCode = action.errorCode
+                        };
+                        state.channelState.channelDict.Add(key: action.channelId, value: channel);
+                    }
+                    else {
+                        var channel = state.channelState.channelDict[key: action.channelId];
+                        channel.errorCode = action.errorCode;
+                        state.channelState.channelDict[key: action.channelId] = channel;
+                    }
+
                     break;
                 }
 

@@ -16,6 +16,11 @@ namespace ConnectApp.Utils {
             if (uri.Host.Equals(value: host)) {
                 if (uri.AbsolutePath.StartsWith("/p/")) {
                     var articleId = uri.AbsolutePath.Remove(0, "/p/".Length);
+                    if (CTemporaryValue.currentPageModelId.isNotEmpty() &&
+                        CTemporaryValue.currentPageModelId.Equals(value: articleId)) {
+                        return;
+                    }
+
                     dispatcher.dispatch(
                         new MainNavigatorPushToArticleDetailAction {
                             articleId = articleId
@@ -24,22 +29,30 @@ namespace ConnectApp.Utils {
                 }
                 else if (uri.AbsolutePath.StartsWith("/u/")) {
                     var userId = uri.AbsolutePath.Remove(0, "/u/".Length);
+                    if (CTemporaryValue.currentPageModelId.isNotEmpty() &&
+                        CTemporaryValue.currentPageModelId.Equals(value: userId)) {
+                        return;
+                    }
+
                     dispatcher.dispatch(new MainNavigatorPushToUserDetailAction {
-                        userId = userId,
-                        isSlug = true
+                        userId = userId
                     });
                 }
                 else if (uri.AbsolutePath.StartsWith("/t/")) {
                     var teamId = uri.AbsolutePath.Remove(0, "/t/".Length);
+                    if (CTemporaryValue.currentPageModelId.isNotEmpty() &&
+                        CTemporaryValue.currentPageModelId.Equals(value: teamId)) {
+                        return;
+                    }
+
                     dispatcher.dispatch(new MainNavigatorPushToTeamDetailAction {
                         teamId = teamId,
-                        isSlug = true
                     });
                 }
                 else if (uri.AbsolutePath.StartsWith("/mconnect/channels/")) {
                     var channelId = uri.AbsolutePath.Remove(0, "/mconnect/channels/".Length);
-                    if (CTemporaryValue.currentPageChannelId.isNotEmpty() &&
-                        channelId == CTemporaryValue.currentPageChannelId) {
+                    if (CTemporaryValue.currentPageModelId.isNotEmpty() &&
+                        CTemporaryValue.currentPageModelId.Equals(value: channelId)) {
                         return;
                     }
 

@@ -1,6 +1,6 @@
 namespace ConnectApp.Utils {
-    public class CTemporaryValue {
+    public static class CTemporaryValue {
+        public static string currentPageModelId;
         public static string lastWaitingMessageId;
-        public static string currentPageChannelId;
     }
 }

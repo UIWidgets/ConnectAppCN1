@@ -7,6 +7,7 @@ using ConnectApp.Models.Api;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Utils;
+using Newtonsoft.Json;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.Redux;
@@ -154,20 +155,26 @@ namespace ConnectApp.redux.actions {
             });
         }
 
-        public static object fetchChannelInfo(string channelId, bool ignoreError = false) {
+        public static object fetchChannelInfo(string channelId, bool isInfoPage = false) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                dispatcher.dispatch(new StartFetchChannelInfoAction {channelId = channelId});
+                dispatcher.dispatch(new StartFetchChannelInfoAction {channelId = channelId, isInfoPage = isInfoPage});
                 return ChannelApi.FetchChannelInfo(channelId: channelId)
                     .Then(channelInfoResponse => {
-                        if (channelInfoResponse.channelMember == null && !ignoreError) {
-                            dispatcher.dispatch(new FetchChannelInfoErrorAction());
-                        }
-
                         dispatcher.dispatch(new FetchChannelInfoSuccessAction {
-                            channel = channelInfoResponse.channel
+                            channel = channelInfoResponse.channel,
+                            isInfoPage = isInfoPage
                         });
                     })
-                    .Catch(onRejected: Debuger.LogError);
+                    .Catch(error => {
+                        var errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(value: error.Message);
+                        var errorCode = errorResponse.errorCode;
+                        dispatcher.dispatch(new FetchChannelInfoErrorAction {
+                            isInfoPage = isInfoPage,
+                            channelId = channelId,
+                            errorCode = errorCode
+                        });
+                        Debuger.LogError(message: error);
+                    });
             });
         }
 
@@ -528,13 +535,18 @@ namespace ConnectApp.redux.actions {
 
     public class StartFetchChannelInfoAction : BaseAction {
         public string channelId;
+        public bool isInfoPage = false;
     }
 
     public class FetchChannelInfoSuccessAction : BaseAction {
         public Channel channel;
+        public bool isInfoPage = false;
     }
 
     public class FetchChannelInfoErrorAction : BaseAction {
+        public bool isInfoPage = false;
+        public string channelId;
+        public string errorCode;
     }
 
     public class StartFetchChannelMessageAction : BaseAction {

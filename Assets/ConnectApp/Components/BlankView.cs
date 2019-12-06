@@ -5,15 +5,15 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
-using Color = Unity.UIWidgets.ui.Color;
+using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.Components {
     public class BlankView : StatelessWidget {
         public BlankView(
             string title,
-            string imageName,
+            string imageName = null,
             bool canRefresh = false,
             GestureTapCallback tapCallback = null,
             Key key = null
@@ -39,14 +39,16 @@ namespace ConnectApp.Components {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: new List<Widget> {
-                        new Container(
-                            margin: EdgeInsets.only(bottom: 24),
-                            child: Image.asset(
-                                name: imageName,
-                                width: 128,
-                                height: 128
+                        imageName != null
+                            ? new Container(
+                                margin: EdgeInsets.only(bottom: 24),
+                                child: Image.asset(
+                                    name: imageName,
+                                    width: 128,
+                                    height: 128
+                                )
                             )
-                        ),
+                            : new Container(),
                         new Container(
                             margin: EdgeInsets.only(bottom: 24),
                             child: new Text(
