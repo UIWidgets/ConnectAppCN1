@@ -1357,9 +1357,16 @@ namespace ConnectApp.Components {
             D.assert(configuration.size != null);
             Rect rect = offset & configuration.size;
             Rect indicator = this._indicatorRectFor(rect: rect).deflate(this.borderSide.width / 2.0f);
-            Paint paint = this.borderSide.toPaint();
-            paint.strokeCap = StrokeCap.round;
-            canvas.drawLine(from: indicator.bottomLeft, to: indicator.bottomRight, paint: paint);
+            Paint paint = new Paint {
+                color = this.borderSide.color,
+                strokeWidth = 1,
+                style = PaintingStyle.fill
+            };
+            canvas.drawRRect(RRect.fromLTRBR(indicator.bottomLeft.dx,
+                indicator.bottomLeft.dy - this.borderSide.width / 2.0f,
+                indicator.bottomRight.dx,
+                indicator.bottomRight.dy + this.borderSide.width / 2.0f,
+                this.borderSide.width / 2.0f), paint);
         }
     }
 }
