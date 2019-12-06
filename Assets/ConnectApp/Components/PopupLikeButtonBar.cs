@@ -8,6 +8,7 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.Components {
 
@@ -128,7 +129,10 @@ namespace ConnectApp.Components {
                             borderRadius: BorderRadius.all(12),
                             color: selected ? CColors.Separator2 : CColors.Transparent),
                         child: new Center(
-                            child: new Text(content, style: new TextStyle(fontSize: 33 * this._buttonSize.value))
+                            child: Image.asset(
+                                content,
+                                width: 36 * this._buttonSize.value,
+                                height: 36 * this._buttonSize.value)
                         )
                     )
                 )

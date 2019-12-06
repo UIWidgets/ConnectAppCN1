@@ -320,12 +320,12 @@ namespace ConnectApp.screens {
             {"X-Requested-With", "XmlHttpRequest"}
         };
         
-        public static readonly Dictionary<string, int> reactionIcons = new Dictionary<string, int> {
-            {"thumb-up", 0x1f642},
-            {"thumb-down", 0x1f643},
-            {"facepalming", 0x1f644},
-            {"heart-eyes", 0x1f645},
-            {"question", 0x1f646},
+        public static readonly Dictionary<string, string> reactionIcons = new Dictionary<string, string> {
+            {"thumb-up", "image/like.gif"},
+            {"thumb-down", "image/oppose.gif"},
+            {"facepalming", "image/tear.gif"},
+            {"heart-eyes", "image/heartbeat.gif"},
+            {"question", "image/doubt.gif"},
         };
 
         bool _showEmojiBoard;
@@ -1299,10 +1299,18 @@ namespace ConnectApp.screens {
                     borderRadius: BorderRadius.all(14),
                     color: CColors.MessageReaction
                 ),
-                child: new Text($"{char.ConvertFromUtf32(reactionIcons[type])} {message.likeImageCount.getOrDefault(type, 0)}",
-                    style: message.getLikeImage(this.widget.viewModel.me.id) == type
-                        ? CTextStyle.PRegularBody.copyWith(color: CColors.MessageReactionCount, height: 1.1f)
-                        : CTextStyle.PRegularBody.copyWith(height: 1.1f))
+                child: new Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: new List<Widget> {
+                        Image.asset(reactionIcons[type], width: 20, height: 20),
+                        new SizedBox(width: 4),
+                        new Text(
+                            $"{message.likeImageCount.getOrDefault(type, 0)}",
+                            style: message.getLikeImage(this.widget.viewModel.me.id) == type
+                                ? CTextStyle.PRegularBody.copyWith(color: CColors.MessageReactionCount, height: 1.1f)
+                                : CTextStyle.PRegularBody.copyWith(height: 1.1f))
+                    }
+                )
             );
         }
 
@@ -2108,7 +2116,7 @@ namespace ConnectApp.screens {
                 onTap: this.widget.onTap,
                 popupLikeButtonData: _ChannelScreenState.reactionIcons.Keys.Select(type => {
                     return new PopupLikeButtonItem {
-                        content = char.ConvertFromUtf32(_ChannelScreenState.reactionIcons[type]),
+                        content = _ChannelScreenState.reactionIcons[type],
                         selected = message.getLikeImage(this.widget.userId) == type,
                         type = type
                     };
