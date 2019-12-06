@@ -1402,6 +1402,8 @@ namespace ConnectApp.screens {
                     else if (offsetDiff.dy < 0) {
                         this.setState(() => { this._bottomPaddingWhenShowingPopupBar = -offsetDiff.dy; });
                     }
+
+                    this.widget.actionModel.reportLeaveBottom();
                     ActionSheetUtils.showModalActionSheet(
                         child: new ActionSheet(items: items),
                         overlay: this._buildReactionOverlay(message, messageBoxOffset, messageBoxSize, left),
@@ -1429,6 +1431,10 @@ namespace ConnectApp.screens {
                                         }
                                     );
                                 });
+                            }
+
+                            if (this._refreshController.offset < bottomThreshold) {
+                                this.widget.actionModel.reportHitBottom();
                             }
                         }
                     );
