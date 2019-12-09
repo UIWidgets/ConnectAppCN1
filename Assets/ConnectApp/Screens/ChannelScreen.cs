@@ -1365,6 +1365,9 @@ namespace ConnectApp.screens {
         }
 
         void _onMessageLongPress(ChannelMessageView message, bool left) {
+            if (message.status != "normal") {
+                return;
+            }
             if (this.showKeyboard || this.showEmojiBoard) {
                 this._dismissKeyboard();
                 Promise.Delayed(TimeSpan.FromMilliseconds(500)).Then(() => {
@@ -1377,7 +1380,6 @@ namespace ConnectApp.screens {
             var originalMessageBoxOffset = renderBox.localToGlobal(Offset.zero);
             var items = this._buildMessageActionSheet(message,
                 showDeleteButton: message.author.id == this.widget.viewModel.me.id
-                                  && message.status == "normal" || message.status == "local"
                                   && message.type != ChannelMessageType.deleted);
             var messageBoxOffset = new Offset(
                 originalMessageBoxOffset.dx,
