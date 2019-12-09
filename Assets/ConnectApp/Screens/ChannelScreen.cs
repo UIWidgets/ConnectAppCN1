@@ -1988,7 +1988,9 @@ namespace ConnectApp.screens {
                 type = ChannelMessageType.image,
                 imageData = pickImage,
                 time = DateTime.UtcNow,
-                status = "waiting"
+                status = "waiting",
+                likeImageCount = new Dictionary<string, int>(),
+                userLikeImages = new Dictionary<string, string>()
             });
         }
 
