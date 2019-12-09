@@ -1353,6 +1353,13 @@ namespace ConnectApp.screens {
         }
 
         void _onMessageLongPress(ChannelMessageView message, bool left) {
+            if (this.showKeyboard || this.showEmojiBoard) {
+                this._dismissKeyboard();
+                Promise.Delayed(TimeSpan.FromMilliseconds(500)).Then(() => {
+                    this._onMessageLongPress(message, left);
+                });
+                return;
+            }
             var renderBox = (RenderBox) this._getMessageKey(message.id).currentContext.findRenderObject();
             var messageBoxSize = renderBox.size;
             var originalMessageBoxOffset = renderBox.localToGlobal(Offset.zero);
