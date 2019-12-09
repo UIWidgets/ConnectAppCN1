@@ -1374,7 +1374,8 @@ namespace ConnectApp.screens {
                         MediaQuery.of(this.context).size.height -
                         MediaQuery.of(this.context).padding.bottom - 8 -
                         items.Count * 50 - messageBoxSize.height)
-                    .clamp(60, float.PositiveInfinity));
+                    .clamp(60 + CCommonUtils.getSafeAreaTopPadding(this.context),
+                        float.PositiveInfinity));
             var offsetDiff = messageBoxOffset - originalMessageBoxOffset;
             var originalScrollOffset = this._refreshController.offset;
             if (offsetDiff.dy > 0) {
