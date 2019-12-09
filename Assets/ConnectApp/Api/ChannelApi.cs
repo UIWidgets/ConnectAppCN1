@@ -221,7 +221,7 @@ namespace ConnectApp.Api {
         public static Promise<UpdateChannelMessagesReactionResponse> UpdateReaction(
             string messageId, string likeImage = null) {
             var promise = new Promise<UpdateChannelMessagesReactionResponse>();
-            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/messages/{messageId}/addReaction",
+            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/messages/{messageId}/{(likeImage == null ? "removeReaction" : "addReaction")}",
                 likeImage != null ? new Dictionary<string, object> {
                     {"reactionType" , "like"},
                     {"likeImage", likeImage}

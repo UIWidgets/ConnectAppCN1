@@ -1296,30 +1296,40 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildReaction(ChannelMessageView message, string type) {
-            return new Container(
-                height: 28,
-                padding: EdgeInsets.symmetric(4, 8),
-                decoration: new BoxDecoration(
-                    border: Border.all(
-                        color: message.getLikeImage(this.widget.viewModel.me.id) == type
-                            ? CColors.PrimaryBlue
-                            : CColors.Transparent,
-                        width: 1.5f
-                    ),
-                    borderRadius: BorderRadius.all(14),
-                    color: CColors.MessageReaction
-                ),
-                child: new Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: new List<Widget> {
-                        Image.asset(reactionIcons[type], width: 20, height: 20),
-                        new SizedBox(width: 4),
-                        new Text(
-                            $"{message.likeImageCount.getOrDefault(type, 0)}",
-                            style: message.getLikeImage(this.widget.viewModel.me.id) == type
-                                ? CTextStyle.PRegularBody.copyWith(color: CColors.MessageReactionCount, height: 1.1f)
-                                : CTextStyle.PRegularBody.copyWith(height: 1.1f))
+            return new GestureDetector(
+                onTap: () => {
+                    if (message.isLikedBy(this.widget.viewModel.me.id, type)) {
+                        this.widget.actionModel.cancelMyLikeImage(message);
                     }
+                    else {
+                        this.widget.actionModel.updateMyLikeImage(message, type);
+                    }
+                },
+                child: new Container(
+                    height: 28,
+                    padding: EdgeInsets.symmetric(4, 8),
+                    decoration: new BoxDecoration(
+                        border: Border.all(
+                            color: message.isLikedBy(this.widget.viewModel.me.id, type)
+                                ? CColors.PrimaryBlue
+                                : CColors.Transparent,
+                            width: 1.5f
+                        ),
+                        borderRadius: BorderRadius.all(14),
+                        color: CColors.MessageReaction
+                    ),
+                    child: new Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: new List<Widget> {
+                            Image.asset(reactionIcons[type], width: 20, height: 20),
+                            new SizedBox(width: 4),
+                            new Text(
+                                $"{message.likeImageCount.getOrDefault(type, 0)}",
+                                style: message.isLikedBy(this.widget.viewModel.me.id, type)
+                                    ? CTextStyle.PRegularBody.copyWith(color: CColors.MessageReactionCount, height: 1.1f)
+                                    : CTextStyle.PRegularBody.copyWith(height: 1.1f))
+                        }
+                    )
                 )
             );
         }

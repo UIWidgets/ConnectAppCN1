@@ -479,6 +479,10 @@ namespace ConnectApp.Models.Model {
             return this.userLikeImages.getOrDefault(userId, null);
         }
 
+        public bool isLikedBy(string userId, string type) {
+            return this.getLikeImage(userId) == type;
+        }
+
         public void updateUserLikeImage(string type, string userId) {
             if (this.getLikeImage(userId) != type) {
                 if (this.getLikeImage(userId) != null) {
