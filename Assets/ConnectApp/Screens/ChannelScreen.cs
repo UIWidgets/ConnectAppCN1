@@ -327,6 +327,14 @@ namespace ConnectApp.screens {
             {"heart-eyes", "image/heartbeat.gif"},
             {"question", "image/doubt.gif"},
         };
+        
+        public static readonly Dictionary<string, string> reactionStaticIcons = new Dictionary<string, string> {
+            {"thumb-up", "image/emoji-thumb"},
+            {"thumb-down", "image/emoji-oppose"},
+            {"facepalming", "image/emoji-coverface"},
+            {"heart-eyes", "image/emoji-heartbeat"},
+            {"question", "image/emoji-doubt"},
+        };
 
         bool _showEmojiBoard;
         string _lastMessageEditingContent = "";
@@ -1323,7 +1331,7 @@ namespace ConnectApp.screens {
                     child: new Row(
                         mainAxisSize: MainAxisSize.min,
                         children: new List<Widget> {
-                            Image.asset(reactionIcons[type], width: 20, height: 20),
+                            Image.asset(reactionStaticIcons[type], width: 20, height: 20),
                             new SizedBox(width: 4),
                             new Text(
                                 $"{message.likeImageCount.getOrDefault(type, 0)}",
