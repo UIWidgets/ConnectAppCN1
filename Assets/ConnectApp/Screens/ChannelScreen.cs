@@ -1352,6 +1352,72 @@ namespace ConnectApp.screens {
             return result;
         }
 
+        void _onMessageLongPress(ChannelMessageView message, bool left) {
+            var renderBox = (RenderBox) this._getMessageKey(message.id).currentContext.findRenderObject();
+            var messageBoxSize = renderBox.size;
+            var originalMessageBoxOffset = renderBox.localToGlobal(Offset.zero);
+            var items = this._buildMessageActionSheet(message,
+                showDeleteButton: message.author.id == this.widget.viewModel.me.id
+                                  && message.status == "normal" || message.status == "local"
+                                  && message.type != ChannelMessageType.deleted);
+            var messageBoxOffset = new Offset(
+                originalMessageBoxOffset.dx,
+                originalMessageBoxOffset.dy
+                    .clamp(float.NegativeInfinity,
+                        MediaQuery.of(this.context).size.height -
+                        MediaQuery.of(this.context).padding.bottom - 8 -
+                        items.Count * 50 - messageBoxSize.height)
+                    .clamp(60, float.PositiveInfinity));
+            var offsetDiff = messageBoxOffset - originalMessageBoxOffset;
+            var originalScrollOffset = this._refreshController.offset;
+            if (offsetDiff.dy > 0) {
+                this._refreshController.animateTo(
+                    this._refreshController.offset + offsetDiff.dy,
+                    TimeSpan.FromMilliseconds(100),
+                    Curves.linear);
+            }
+            else if (offsetDiff.dy < 0) {
+                this.setState(() => { this._bottomPaddingWhenShowingPopupBar = -offsetDiff.dy; });
+            }
+
+            this.widget.actionModel.reportLeaveBottom();
+            ActionSheetUtils.showModalActionSheet(
+                child: new ActionSheet(items: items),
+                overlay: this._buildReactionOverlay(message, messageBoxOffset, messageBoxSize, left),
+                onPop: () => {
+                    if (offsetDiff.dy > 0) {
+                        this._refreshController.animateTo(
+                            originalScrollOffset,
+                            TimeSpan.FromMilliseconds(100),
+                            Curves.linear);
+                    }
+                    else if (offsetDiff.dy < 0) {
+                        this.setState(() => { this._bottomPaddingWhenShowingPopupBar = 0; });
+                    }
+
+                    if (this._animatingMessageReaction != null) {
+                        (this._reactionSize.value < 0.5f
+                                ? this._reactionSize.animateTo(1, curve: Curves.easeOutQuart)
+                                : this._reactionSize.animateTo(0, curve: Curves.easeInQuart))
+                            .whenCompleteOrCancel(() => {
+                                this.setState(
+                                    () => {
+                                        this._animatingMessageReaction = null;
+                                        if (this._reactionSize.value < 0.5f) {
+                                            this.widget.actionModel.clearMessageLikeImages(message);
+                                        }
+                                    }
+                                );
+                            });
+                    }
+
+                    if (this._refreshController.offset < bottomThreshold) {
+                        this.widget.actionModel.reportHitBottom();
+                    }
+                }
+            );
+        }
+
         Widget _buildMessage(ChannelMessageView message, bool showTime, bool left, bool showUnreadLine = false) {
             if (message.type == ChannelMessageType.skip) {
                 return new Container();
@@ -1380,71 +1446,7 @@ namespace ConnectApp.screens {
             }
 
             ret = new GestureDetector(
-                onLongPress: () => {
-                    var renderBox = (RenderBox) this._getMessageKey(message.id).currentContext.findRenderObject();
-                    var messageBoxSize = renderBox.size;
-                    var originalMessageBoxOffset = renderBox.localToGlobal(Offset.zero);
-                    var items = this._buildMessageActionSheet(message,
-                        showDeleteButton: message.author.id == this.widget.viewModel.me.id
-                                          && normalOrLocalMessage
-                                          && message.type != ChannelMessageType.deleted);
-                    var messageBoxOffset = new Offset(
-                        originalMessageBoxOffset.dx,
-                        originalMessageBoxOffset.dy
-                            .clamp(float.NegativeInfinity,
-                                MediaQuery.of(this.context).size.height -
-                                MediaQuery.of(this.context).padding.bottom - 8 -
-                                items.Count * 50 - messageBoxSize.height)
-                            .clamp(60, float.PositiveInfinity));
-                    var offsetDiff = messageBoxOffset - originalMessageBoxOffset;
-                    var originalScrollOffset = this._refreshController.offset;
-                    if (offsetDiff.dy > 0) {
-                        this._refreshController.animateTo(
-                            this._refreshController.offset + offsetDiff.dy,
-                            TimeSpan.FromMilliseconds(100),
-                            Curves.linear);
-                    }
-                    else if (offsetDiff.dy < 0) {
-                        this.setState(() => { this._bottomPaddingWhenShowingPopupBar = -offsetDiff.dy; });
-                    }
-
-                    this.widget.actionModel.reportLeaveBottom();
-                    ActionSheetUtils.showModalActionSheet(
-                        child: new ActionSheet(items: items),
-                        overlay: this._buildReactionOverlay(message, messageBoxOffset, messageBoxSize, left),
-                        onPop: () => {
-                            if (offsetDiff.dy > 0) {
-                                this._refreshController.animateTo(
-                                    originalScrollOffset,
-                                    TimeSpan.FromMilliseconds(100),
-                                    Curves.linear);
-                            }
-                            else if (offsetDiff.dy < 0) {
-                                this.setState(() => { this._bottomPaddingWhenShowingPopupBar = 0; });
-                            }
-                            if (this._animatingMessageReaction != null) {
-                                (this._reactionSize.value < 0.5f
-                                    ? this._reactionSize.animateTo(1, curve: Curves.easeOutQuart)
-                                    : this._reactionSize.animateTo(0, curve: Curves.easeInQuart))
-                                    .whenCompleteOrCancel(() => {
-                                    this.setState(
-                                        () => {
-                                            this._animatingMessageReaction = null;
-                                            if (this._reactionSize.value < 0.5f) {
-                                                this.widget.actionModel.clearMessageLikeImages(message);
-                                            }
-                                        }
-                                    );
-                                });
-                            }
-
-                            if (this._refreshController.offset < bottomThreshold) {
-                                this.widget.actionModel.reportHitBottom();
-                            }
-                        }
-                    );
-                    
-                },
+                onLongPress: () => this._onMessageLongPress(message, left),
                 child: ret
             );
 
