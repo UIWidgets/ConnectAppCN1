@@ -1203,8 +1203,10 @@ namespace ConnectApp.screens {
         }
 
         List<ActionSheetItem> _buildMessageActionSheet(ChannelMessageView message, bool showDeleteButton) {
-            var list = new List<ActionSheetItem> {
-                new ActionSheetItem(
+            var list = new List<ActionSheetItem>();
+
+            if (message.canCopy()) {
+                list.Add(new ActionSheetItem(
                     "复制",
                     onTap: () => {
                         var content = MessageUtils.AnalyzeMessage(
@@ -1214,8 +1216,8 @@ namespace ConnectApp.screens {
                         );
                         Clipboard.setData(new ClipboardData(text: content));
                     }
-                ),
-                new ActionSheetItem(
+                ));
+                list.Add(new ActionSheetItem(
                     "引用",
                     onTap: () => {
                         var content = MessageUtils.AnalyzeMessage(
@@ -1242,8 +1244,8 @@ namespace ConnectApp.screens {
                                 () => this.setState(() => this.showEmojiBoard = false));
                         }
                     }
-                ),
-            };
+                ));
+            }
 
             if (showDeleteButton) {
                 list.Add(
