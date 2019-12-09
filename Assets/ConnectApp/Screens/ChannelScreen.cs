@@ -1449,7 +1449,7 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildMessage(ChannelMessageView message, bool showTime, bool left, bool showUnreadLine = false) {
-            if (message.type == ChannelMessageType.skip) {
+            if (message.type == ChannelMessageType.skip || message.type == ChannelMessageType.deleted) {
                 return new Container();
             }
 
@@ -2015,7 +2015,7 @@ namespace ConnectApp.screens {
         }
 
         float calculateMessageHeight(ChannelMessageView message, bool showTime, float width) {
-            if (message.type == ChannelMessageType.skip) {
+            if (message.type == ChannelMessageType.skip || message.type == ChannelMessageType.deleted) {
                 return 0;
             }
 
