@@ -26,6 +26,7 @@ using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
 using Config = ConnectApp.Constants.Config;
 using Image = Unity.UIWidgets.widgets.Image;
+using Transform = Unity.UIWidgets.widgets.Transform;
 
 namespace ConnectApp.screens {
     public class ChannelScreenConnector : StatelessWidget {
@@ -327,6 +328,14 @@ namespace ConnectApp.screens {
             {"heart-eyes", "image/heartbeat.gif"},
             {"question", "image/doubt.gif"},
         };
+        
+        public static readonly Dictionary<string, string> reactionStaticIcons = new Dictionary<string, string> {
+            {"thumb-up", "image/emoji-thumb"},
+            {"thumb-down", "image/emoji-oppose"},
+            {"facepalming", "image/emoji-coverface"},
+            {"heart-eyes", "image/emoji-heartbeat"},
+            {"question", "image/emoji-doubt"},
+        };
 
         bool _showEmojiBoard;
         string _lastMessageEditingContent = "";
@@ -339,7 +348,7 @@ namespace ConnectApp.screens {
         AnimationController _viewInsetsBottomController;
         Animation<float> _viewInsetsBottomAnimation;
         AnimationController _messageActivityIndicatorController;
-        AnimationController _reactionSize;
+        AnimationController _reactionAppearAnimationController;
 
         bool _showUnreadMessageNotification = false;
         bool _showNewMessageNotification = false;
@@ -502,8 +511,8 @@ namespace ConnectApp.screens {
             this._messageActivityIndicatorController = new AnimationController(
                 duration: new TimeSpan(0, 0, 2),
                 vsync: this);
-            this._reactionSize = new AnimationController(duration: TimeSpan.FromMilliseconds(250), vsync: this);
-            this._reactionSize.addListener(() => {this.setState(() => {});});
+            this._reactionAppearAnimationController = new AnimationController(duration: TimeSpan.FromMilliseconds(1000), vsync: this);
+            this._reactionAppearAnimationController.addListener(() => {this.setState(() => {});});
             this._messageBubbleKeys = new Dictionary<string, GlobalKey>();
             this._fullMessageKeys = new Dictionary<string, GlobalKey>();
         }
@@ -630,7 +639,7 @@ namespace ConnectApp.screens {
             this._emojiBoardController.dispose();
             this._viewInsetsBottomController.dispose();
             this._messageActivityIndicatorController.dispose();
-            this._reactionSize.dispose();
+            this._reactionAppearAnimationController.dispose();
             base.dispose();
         }
 
@@ -1203,8 +1212,10 @@ namespace ConnectApp.screens {
         }
 
         List<ActionSheetItem> _buildMessageActionSheet(ChannelMessageView message, bool showDeleteButton) {
-            var list = new List<ActionSheetItem> {
-                new ActionSheetItem(
+            var list = new List<ActionSheetItem>();
+
+            if (message.canCopy()) {
+                list.Add(new ActionSheetItem(
                     "复制",
                     onTap: () => {
                         var content = MessageUtils.AnalyzeMessage(
@@ -1214,8 +1225,8 @@ namespace ConnectApp.screens {
                         );
                         Clipboard.setData(new ClipboardData(text: content));
                     }
-                ),
-                new ActionSheetItem(
+                ));
+                list.Add(new ActionSheetItem(
                     "引用",
                     onTap: () => {
                         var content = MessageUtils.AnalyzeMessage(
@@ -1242,8 +1253,8 @@ namespace ConnectApp.screens {
                                 () => this.setState(() => this.showEmojiBoard = false));
                         }
                     }
-                ),
-            };
+                ));
+            }
 
             if (showDeleteButton) {
                 list.Add(
@@ -1274,8 +1285,8 @@ namespace ConnectApp.screens {
                     if (message.getLikeImage(this.widget.viewModel.me.id) != type) {
                         if (message.likeImageCount.isEmpty()) {
                             this._animatingMessageReaction = message.id;
-                            this._reactionSize.reset();
-                            this._reactionSize.setValue(0);
+                            this._reactionAppearAnimationController.reset();
+                            this._reactionAppearAnimationController.setValue(0);
                         }
                         this.widget.actionModel.updateMyLikeImage(message, type);
                     }
@@ -1283,8 +1294,8 @@ namespace ConnectApp.screens {
                         if (message.likeImageCount.Count == 1 &&
                             message.likeImageCount.getOrDefault(type, 0) == 1) {
                             this._animatingMessageReaction = message.id;
-                            this._reactionSize.reset();
-                            this._reactionSize.setValue(1);
+                            this._reactionAppearAnimationController.reset();
+                            this._reactionAppearAnimationController.setValue(1);
                         }
                         else {
                             this.widget.actionModel.cancelMyLikeImage(message);
@@ -1296,30 +1307,40 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildReaction(ChannelMessageView message, string type) {
-            return new Container(
-                height: 28,
-                padding: EdgeInsets.symmetric(4, 8),
-                decoration: new BoxDecoration(
-                    border: Border.all(
-                        color: message.getLikeImage(this.widget.viewModel.me.id) == type
-                            ? CColors.PrimaryBlue
-                            : CColors.Transparent,
-                        width: 1.5f
-                    ),
-                    borderRadius: BorderRadius.all(14),
-                    color: CColors.MessageReaction
-                ),
-                child: new Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: new List<Widget> {
-                        Image.asset(reactionIcons[type], width: 20, height: 20),
-                        new SizedBox(width: 4),
-                        new Text(
-                            $"{message.likeImageCount.getOrDefault(type, 0)}",
-                            style: message.getLikeImage(this.widget.viewModel.me.id) == type
-                                ? CTextStyle.PRegularBody.copyWith(color: CColors.MessageReactionCount, height: 1.1f)
-                                : CTextStyle.PRegularBody.copyWith(height: 1.1f))
+            return new GestureDetector(
+                onTap: () => {
+                    if (message.isLikedBy(this.widget.viewModel.me.id, type)) {
+                        this.widget.actionModel.cancelMyLikeImage(message);
                     }
+                    else {
+                        this.widget.actionModel.updateMyLikeImage(message, type);
+                    }
+                },
+                child: new Container(
+                    height: 28,
+                    padding: EdgeInsets.symmetric(4, 8),
+                    decoration: new BoxDecoration(
+                        border: Border.all(
+                            color: message.isLikedBy(this.widget.viewModel.me.id, type)
+                                ? CColors.PrimaryBlue
+                                : CColors.Transparent,
+                            width: 1.5f
+                        ),
+                        borderRadius: BorderRadius.all(14),
+                        color: CColors.MessageReaction
+                    ),
+                    child: new Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: new List<Widget> {
+                            Image.asset(reactionStaticIcons[type], width: 20, height: 20),
+                            new SizedBox(width: 4),
+                            new Text(
+                                $"{message.likeImageCount.getOrDefault(type, 0)}",
+                                style: message.isLikedBy(this.widget.viewModel.me.id, type)
+                                    ? CTextStyle.PRegularBody.copyWith(color: CColors.MessageReactionCount, height: 1.1f)
+                                    : CTextStyle.PRegularBody.copyWith(height: 1.1f))
+                        }
+                    )
                 )
             );
         }
@@ -1344,12 +1365,159 @@ namespace ConnectApp.screens {
             );
 
             if (this._animatingMessageReaction == message.id) {
-                result = new SizedBox(
-                    height: this._reactionSize.value * 36,
-                    child: new Opacity(opacity: this._reactionSize.value, child: result));
+                if (this._reactionAppearAnimationController.status == AnimationStatus.forward) {
+                    if (this._reactionAppearAnimationController.value < 0.25f) {
+                        result = new SizedBox(height: this._reactionAppearAnimationController.value * 36);
+                    }
+                    else {
+                        var imageTranslation = Matrix3.makeTrans(
+                            (this._reactionAppearAnimationController.value - 0.75f).clamp(0, 0.25f) / 0.25f * 8,
+                            this._reactionAppearAnimationController.value < 0.5f
+                                ? (this._reactionAppearAnimationController.value - 0.25f) / 0.25f * (-50) - 52
+                                : this._reactionAppearAnimationController.value < 0.75f
+                                    ? ((this._reactionAppearAnimationController.value - 0.5f) / 0.15f).clamp(0, 1) * 50 - 102
+                                    : (this._reactionAppearAnimationController.value - 0.75f) / 0.25f * 52 - 52
+                        );
+                        var imageScale = Matrix3.makeScale(
+                            sx: this._reactionAppearAnimationController.value < 0.75f
+                                ? 2.2f
+                                : (this._reactionAppearAnimationController.value - 0.75f) / 0.25f * (-1.2f) + 2.2f,
+                            sy: this._reactionAppearAnimationController.value < 0.65f
+                                ? 2.2f
+                                : this._reactionAppearAnimationController.value < 0.7f
+                                    ? ((this._reactionAppearAnimationController.value - 0.65f) / 0.05f * (-0.1f) + 1.0f) * 2.2f
+                                    : this._reactionAppearAnimationController.value < 0.75f
+                                        ? ((this._reactionAppearAnimationController.value - 0.7f) / 0.05f * 0.1f + 0.9f) * 2.2f
+                                        : (this._reactionAppearAnimationController.value - 0.75f) / 0.25f * (-1.2f) + 2.2f
+                        );
+                        var imageTransform = imageScale;
+                        imageTransform.postConcat(imageTranslation);
+                        result = new Stack(children: new List<Widget> {
+                            new Opacity(
+                                opacity: (this._reactionAppearAnimationController.value / 0.25f - 3).clamp(0, 1),
+                                child: result
+                            ),
+                            new Transform(
+                                transform: Matrix3.makeTrans(
+                                    60 * (2 - this._reactionAppearAnimationController.value / 0.25f).clamp(0, 1),
+                                    0),
+                                child: new Opacity(
+                                    opacity: ((1.0f - this._reactionAppearAnimationController.value) / 0.25f).clamp(0, 1),
+                                    child: new Container(
+                                        height: 28,
+                                        width: 51,
+                                        padding: EdgeInsets.symmetric(4, 8),
+                                        decoration: new BoxDecoration(
+                                            borderRadius: BorderRadius.all(14),
+                                            color: CColors.PrimaryBlue
+                                        ),
+                                        child: new Center(
+                                            child: new Text("+1", style: CTextStyle.PSmallWhite)
+                                        )
+                                    )
+                                )
+                            ),
+                            new Transform(
+                                transform: imageTransform,
+                                child: new Opacity(
+                                    opacity: ((this._reactionAppearAnimationController.value - 0.25f) / 0.25f).clamp(0, 1),
+                                    child: Image.asset(
+                                        _ChannelScreenState.reactionStaticIcons[likeImageKeys.Single()],
+                                        width: 20,
+                                        height: 20
+                                    )
+                                )
+                            )
+                        });
+                    }
+                }
+                else {
+                    result = new SizedBox(
+                        height: this._reactionAppearAnimationController.value * 36,
+                        child: new Opacity(opacity: this._reactionAppearAnimationController.value, child: result));
+                }
             }
 
             return result;
+        }
+
+        void _onMessageLongPress(ChannelMessageView message, bool left) {
+            if (message.status != "normal") {
+                return;
+            }
+            if (this.showKeyboard || this.showEmojiBoard) {
+                this._dismissKeyboard();
+                Promise.Delayed(TimeSpan.FromMilliseconds(500)).Then(() => {
+                    this._onMessageLongPress(message, left);
+                });
+                return;
+            }
+            var renderBox = (RenderBox) this._getMessageKey(message.id).currentContext.findRenderObject();
+            var messageBoxSize = renderBox.size;
+            var originalMessageBoxOffset = renderBox.localToGlobal(Offset.zero);
+            var items = this._buildMessageActionSheet(message,
+                showDeleteButton: message.author.id == this.widget.viewModel.me.id
+                                  && message.type != ChannelMessageType.deleted);
+            var messageBoxOffset = new Offset(
+                originalMessageBoxOffset.dx,
+                originalMessageBoxOffset.dy
+                    .clamp(float.NegativeInfinity,
+                        MediaQuery.of(this.context).size.height -
+                        MediaQuery.of(this.context).padding.bottom - 8 -
+                        items.Count * 50 - messageBoxSize.height)
+                    .clamp(60 + CCommonUtils.getSafeAreaTopPadding(this.context),
+                        float.PositiveInfinity));
+            var offsetDiff = messageBoxOffset - originalMessageBoxOffset;
+            var originalScrollOffset = this._refreshController.offset;
+            if (offsetDiff.dy > 0) {
+                this._refreshController.animateTo(
+                    this._refreshController.offset + offsetDiff.dy,
+                    TimeSpan.FromMilliseconds(100),
+                    Curves.linear);
+            }
+            else if (offsetDiff.dy < 0) {
+                this.setState(() => { this._bottomPaddingWhenShowingPopupBar = -offsetDiff.dy; });
+            }
+
+            this.widget.actionModel.reportLeaveBottom();
+            ActionSheetUtils.showModalActionSheet(
+                child: new ActionSheet(items: items),
+                overlay: this._buildReactionOverlay(message, messageBoxOffset, messageBoxSize, left),
+                onPop: () => {
+                    if (offsetDiff.dy > 0) {
+                        this._refreshController.animateTo(
+                            originalScrollOffset,
+                            TimeSpan.FromMilliseconds(100),
+                            Curves.linear);
+                    }
+                    else if (offsetDiff.dy < 0) {
+                        this.setState(() => { this._bottomPaddingWhenShowingPopupBar = 0; });
+                    }
+
+                    if (this._animatingMessageReaction != null) {
+                        (this._reactionAppearAnimationController.value < 0.5f
+                                ? this._reactionAppearAnimationController.animateTo(1)
+                                : this._reactionAppearAnimationController.animateBack(
+                                    0,
+                                    duration: TimeSpan.FromMilliseconds(250),
+                                    curve: Curves.easeInQuart))
+                            .whenCompleteOrCancel(() => {
+                                this.setState(
+                                    () => {
+                                        this._animatingMessageReaction = null;
+                                        if (this._reactionAppearAnimationController.value < 0.5f) {
+                                            this.widget.actionModel.clearMessageLikeImages(message);
+                                        }
+                                    }
+                                );
+                            });
+                    }
+
+                    if (this._refreshController.offset < bottomThreshold) {
+                        this.widget.actionModel.reportHitBottom();
+                    }
+                }
+            );
         }
 
         Widget _buildMessage(ChannelMessageView message, bool showTime, bool left, bool showUnreadLine = false) {
@@ -1380,71 +1548,7 @@ namespace ConnectApp.screens {
             }
 
             ret = new GestureDetector(
-                onLongPress: () => {
-                    var renderBox = (RenderBox) this._getMessageKey(message.id).currentContext.findRenderObject();
-                    var messageBoxSize = renderBox.size;
-                    var originalMessageBoxOffset = renderBox.localToGlobal(Offset.zero);
-                    var items = this._buildMessageActionSheet(message,
-                        showDeleteButton: message.author.id == this.widget.viewModel.me.id
-                                          && normalOrLocalMessage
-                                          && message.type != ChannelMessageType.deleted);
-                    var messageBoxOffset = new Offset(
-                        originalMessageBoxOffset.dx,
-                        originalMessageBoxOffset.dy
-                            .clamp(float.NegativeInfinity,
-                                MediaQuery.of(this.context).size.height -
-                                MediaQuery.of(this.context).padding.bottom - 8 -
-                                items.Count * 50 - messageBoxSize.height)
-                            .clamp(60, float.PositiveInfinity));
-                    var offsetDiff = messageBoxOffset - originalMessageBoxOffset;
-                    var originalScrollOffset = this._refreshController.offset;
-                    if (offsetDiff.dy > 0) {
-                        this._refreshController.animateTo(
-                            this._refreshController.offset + offsetDiff.dy,
-                            TimeSpan.FromMilliseconds(100),
-                            Curves.linear);
-                    }
-                    else if (offsetDiff.dy < 0) {
-                        this.setState(() => { this._bottomPaddingWhenShowingPopupBar = -offsetDiff.dy; });
-                    }
-
-                    this.widget.actionModel.reportLeaveBottom();
-                    ActionSheetUtils.showModalActionSheet(
-                        child: new ActionSheet(items: items),
-                        overlay: this._buildReactionOverlay(message, messageBoxOffset, messageBoxSize, left),
-                        onPop: () => {
-                            if (offsetDiff.dy > 0) {
-                                this._refreshController.animateTo(
-                                    originalScrollOffset,
-                                    TimeSpan.FromMilliseconds(100),
-                                    Curves.linear);
-                            }
-                            else if (offsetDiff.dy < 0) {
-                                this.setState(() => { this._bottomPaddingWhenShowingPopupBar = 0; });
-                            }
-                            if (this._animatingMessageReaction != null) {
-                                (this._reactionSize.value < 0.5f
-                                    ? this._reactionSize.animateTo(1, curve: Curves.easeOutQuart)
-                                    : this._reactionSize.animateTo(0, curve: Curves.easeInQuart))
-                                    .whenCompleteOrCancel(() => {
-                                    this.setState(
-                                        () => {
-                                            this._animatingMessageReaction = null;
-                                            if (this._reactionSize.value < 0.5f) {
-                                                this.widget.actionModel.clearMessageLikeImages(message);
-                                            }
-                                        }
-                                    );
-                                });
-                            }
-
-                            if (this._refreshController.offset < bottomThreshold) {
-                                this.widget.actionModel.reportHitBottom();
-                            }
-                        }
-                    );
-                    
-                },
+                onLongPress: () => this._onMessageLongPress(message, left),
                 child: ret
             );
 
@@ -1956,7 +2060,9 @@ namespace ConnectApp.screens {
                 type = ChannelMessageType.image,
                 imageData = pickImage,
                 time = DateTime.UtcNow,
-                status = "waiting"
+                status = "waiting",
+                likeImageCount = new Dictionary<string, int>(),
+                userLikeImages = new Dictionary<string, string>()
             });
         }
 
