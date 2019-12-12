@@ -256,7 +256,7 @@ namespace ConnectApp.screens {
                 );
             }
 
-            if (this._article == null || this._article.channelId == null) {
+            if (this._article?.channelId == null) {
                 return new Container(
                     color: CColors.White,
                     child: new CustomSafeArea(
@@ -270,7 +270,6 @@ namespace ConnectApp.screens {
                         )
                     )
                 );
-                ;
             }
 
             if (this._article.ownerType == "user") {
@@ -1061,16 +1060,28 @@ namespace ConnectApp.screens {
         }
 
         public void didPopNext() {
+            if (this.widget.viewModel.articleId.isNotEmpty()) {
+                CTemporaryValue.currentPageModelId = this.widget.viewModel.articleId;
+            }
+
             StatusBarManager.statusBarStyle(false);
         }
 
         public void didPush() {
+            if (this.widget.viewModel.articleId.isNotEmpty()) {
+                CTemporaryValue.currentPageModelId = this.widget.viewModel.articleId;
+            }
         }
 
         public void didPop() {
+            if (CTemporaryValue.currentPageModelId.isNotEmpty() &&
+                this.widget.viewModel.articleId == CTemporaryValue.currentPageModelId) {
+                CTemporaryValue.currentPageModelId = null;
+            }
         }
 
         public void didPushNext() {
+            CTemporaryValue.currentPageModelId = null;
         }
     }
 }

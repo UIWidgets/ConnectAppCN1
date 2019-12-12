@@ -156,7 +156,7 @@ static WKProcessPool *_sharedProcessPool;
 		} else {
 			configuration.requiresUserActionForMediaPlayback = NO;
 		}
-		configuration.websiteDataStore = [WKWebsiteDataStore defaultDataStore];
+        configuration.websiteDataStore = [WKWebsiteDataStore defaultDataStore];
         configuration.processPool = _sharedProcessPool;
         webView = [[WKWebView alloc] initWithFrame:view.frame configuration:configuration];
         webView.UIDelegate = self;

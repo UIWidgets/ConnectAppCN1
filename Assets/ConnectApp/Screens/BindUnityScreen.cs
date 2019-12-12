@@ -92,7 +92,7 @@ namespace ConnectApp.screens {
         readonly FocusNode _emailFocusNode = new FocusNode();
         readonly FocusNode _passwordFocusNode = new FocusNode();
         FocusScopeNode _focusScopeNode;
-        
+
         bool _isEmailFocus;
         bool _isPasswordFocus;
 
@@ -110,13 +110,15 @@ namespace ConnectApp.screens {
         }
 
         void _focusNodeListener() {
-            if (this._isEmailFocus == this._emailFocusNode.hasFocus && this._isPasswordFocus == this._passwordFocusNode.hasFocus ) {
+            if (this._isEmailFocus == this._emailFocusNode.hasFocus &&
+                this._isPasswordFocus == this._passwordFocusNode.hasFocus) {
                 return;
             }
+
             if (!(this._emailFocusNode.hasFocus && this._passwordFocusNode.hasFocus)) {
                 this._isEmailFocus = this._emailFocusNode.hasFocus;
                 this._isPasswordFocus = this._passwordFocusNode.hasFocus;
-                this.setState(() => {});
+                this.setState(() => { });
             }
         }
 
@@ -124,6 +126,7 @@ namespace ConnectApp.screens {
             if (!this.widget.viewModel.loginBtnEnable || this.widget.viewModel.loginLoading) {
                 return;
             }
+
             this._emailFocusNode.unfocus();
             this._passwordFocusNode.unfocus();
             this.widget.actionModel.startLoginByEmail();
@@ -145,6 +148,7 @@ namespace ConnectApp.screens {
                     if (this._emailFocusNode.hasFocus) {
                         this._emailFocusNode.unfocus();
                     }
+
                     if (this._passwordFocusNode.hasFocus) {
                         this._passwordFocusNode.unfocus();
                     }
@@ -218,7 +222,7 @@ namespace ConnectApp.screens {
                                     onPressed: () => this.widget.actionModel.openCreateUnityIdUrl(),
                                     child: new Text(
                                         "创建 Unity ID",
-                                        style: CTextStyle.PLargeMediumBlue
+                                        style: CTextStyle.PLargeMediumBlue.merge(new TextStyle(height: 1))
                                     )
                                 )
                             }
@@ -275,6 +279,7 @@ namespace ConnectApp.screens {
                                     if (null == this._focusScopeNode) {
                                         this._focusScopeNode = FocusScope.of(context);
                                     }
+
                                     this._focusScopeNode.requestFocus(this._passwordFocusNode);
                                 }
                             )
@@ -370,7 +375,7 @@ namespace ConnectApp.screens {
                             onPressed: () => this.widget.actionModel.openUrl($"{Config.idBaseUrl}/password/new"),
                             child: new Text(
                                 "忘记密码",
-                                style: CTextStyle.PRegularBody3
+                                style: CTextStyle.PRegularBody3.merge(new TextStyle(height: 1))
                             )
                         )
                     }

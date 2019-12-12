@@ -4,6 +4,7 @@ using ConnectApp.Models.Model;
 namespace ConnectApp.Models.ViewModel {
     public class ChannelScreenViewModel {
         public ChannelView channel;
+        public string channelId;
         public List<ChannelMessageView> messages;
         public List<ChannelMessageView> newMessages;
         public User me;
@@ -17,7 +18,6 @@ namespace ConnectApp.Models.ViewModel {
         public string mentionUserName;
         public List<ChannelMember> mentionSuggestion;
         public bool hasChannel;
-        public bool channelError;
         public ChannelMessageView waitingMessage;
         public ChannelMessageView sendingMessage;
         public Dictionary<string, UserLicense> userLicenseDict;

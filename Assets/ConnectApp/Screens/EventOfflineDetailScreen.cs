@@ -402,16 +402,28 @@ namespace ConnectApp.screens {
         }
 
         public void didPopNext() {
+            if (this.widget.viewModel.eventId.isNotEmpty()) {
+                CTemporaryValue.currentPageModelId = this.widget.viewModel.eventId;
+            }
+
             StatusBarManager.statusBarStyle(isLight: this._showNavBarShadow);
         }
 
         public void didPush() {
+            if (this.widget.viewModel.eventId.isNotEmpty()) {
+                CTemporaryValue.currentPageModelId = this.widget.viewModel.eventId;
+            }
         }
 
         public void didPop() {
+            if (CTemporaryValue.currentPageModelId.isNotEmpty() &&
+                this.widget.viewModel.eventId == CTemporaryValue.currentPageModelId) {
+                CTemporaryValue.currentPageModelId = null;
+            }
         }
 
         public void didPushNext() {
+            CTemporaryValue.currentPageModelId = null;
         }
     }
 }

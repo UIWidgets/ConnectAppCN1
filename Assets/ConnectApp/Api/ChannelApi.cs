@@ -5,6 +5,7 @@ using ConnectApp.Utils;
 using Newtonsoft.Json;
 using RSG;
 using Unity.UIWidgets.foundation;
+using UnityEngine;
 using UnityEngine.Networking;
 
 namespace ConnectApp.Api {
@@ -213,6 +214,22 @@ namespace ConnectApp.Api {
             HttpManager.resume(request: request).Then(responseText => {
                 var members = JsonConvert.DeserializeObject<FetchChannelMemberQueryResponse>(value: responseText);
                 promise.Resolve(value: members);
+            }).Catch(exception => promise.Reject(ex: exception));
+            return promise;
+        }
+
+        public static Promise<UpdateChannelMessagesReactionResponse> UpdateReaction(
+            string messageId, string likeImage = null) {
+            var promise = new Promise<UpdateChannelMessagesReactionResponse>();
+            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/messages/{messageId}/{(likeImage == null ? "removeReaction" : "addReaction")}",
+                likeImage != null ? new Dictionary<string, object> {
+                    {"reactionType" , "like"},
+                    {"likeImage", likeImage}
+                } : new Dictionary<string, object> {
+                    {"reactionType" , "like"}
+                });
+            HttpManager.resume(request: request).Then(responseText => {
+                promise.Resolve(JsonConvert.DeserializeObject<UpdateChannelMessagesReactionResponse>(value: responseText));
             }).Catch(exception => promise.Reject(ex: exception));
             return promise;
         }

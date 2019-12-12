@@ -51,6 +51,7 @@ namespace ConnectApp.screens {
                         favoriteTagIdDict = state.favoriteState.favoriteTagIdDict,
                         userFavoriteHasMore = state.favoriteState.favoriteDetailHasMore,
                         user = user,
+                        userId = this.userId,
                         userLicenseDict = state.userState.userLicenseDict,
                         articleDict = state.articleState.articleDict,
                         favoriteTagDict = state.favoriteState.favoriteTagDict,
@@ -320,10 +321,7 @@ namespace ConnectApp.screens {
                 content = new GlobalLoading();
             }
             else if (this.widget.viewModel.user == null || this.widget.viewModel.user.errorCode == "ResourceNotFound") {
-                content = new BlankView(
-                    "用户不存在",
-                    "image/default-following"
-                );
+                content = new BlankView("用户不存在");
             }
             else {
                 content = this._buildUserContent(context: context);
@@ -404,7 +402,7 @@ namespace ConnectApp.screens {
                                         icon: Icons.arrow_back,
                                         size: 24,
                                         color: hasUser
-                                            ? (this._hideNavBar ? CColors.White : CColors.Icon)
+                                            ? this._hideNavBar ? CColors.White : CColors.Icon
                                             : CColors.Icon
                                     )
                                 )
@@ -1023,16 +1021,28 @@ namespace ConnectApp.screens {
         }
 
         public void didPopNext() {
+            if (this.widget.viewModel.userId.isNotEmpty()) {
+                CTemporaryValue.currentPageModelId = this.widget.viewModel.userId;
+            }
+
             StatusBarManager.statusBarStyle(isLight: this._hideNavBar);
         }
 
         public void didPush() {
+            if (this.widget.viewModel.userId.isNotEmpty()) {
+                CTemporaryValue.currentPageModelId = this.widget.viewModel.userId;
+            }
         }
 
         public void didPop() {
+            if (CTemporaryValue.currentPageModelId.isNotEmpty() &&
+                this.widget.viewModel.userId == CTemporaryValue.currentPageModelId) {
+                CTemporaryValue.currentPageModelId = null;
+            }
         }
 
         public void didPushNext() {
+            CTemporaryValue.currentPageModelId = null;
         }
     }
 }
