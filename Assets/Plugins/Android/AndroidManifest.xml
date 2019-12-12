@@ -55,9 +55,6 @@
       <meta-data
               android:name="android.notch_support"
               android:value="true" />
-      <meta-data
-              android:name="android.notch_support"
-              android:value="true" />
     </activity>
     <activity
             android:name=".wxapi.WXEntryActivity"
@@ -76,7 +73,6 @@
             android:name="com.custom.webview.WebViewActivity"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar"></activity>
-
     <activity
             android:name=".PickImageActivity"
             android:screenOrientation="portrait"></activity>
@@ -264,7 +260,7 @@
     <!-- unity 配置信息-->
     <meta-data
             android:name="unity.build-id"
-            android:value="836d579d-6f1a-4278-8434-85aad9d8cfa2" />
+            android:value="208ce93d-a48f-4180-83fa-67f027f2d149" />
     <meta-data
             android:name="unity.splash-mode"
             android:value="0" />
