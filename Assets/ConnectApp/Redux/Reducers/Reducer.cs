@@ -132,7 +132,9 @@ namespace ConnectApp.redux.reducers {
                     }
 
                     foreach (var article in action.articleList) {
-                        state.articleState.recommendArticleIds.Add(item: article.id);
+                        if (!state.articleState.recommendArticleIds.Contains(article.id)) {
+                            state.articleState.recommendArticleIds.Add(item: article.id);
+                        }
                         if (!state.articleState.articleDict.ContainsKey(key: article.id)) {
                             state.articleState.articleDict.Add(key: article.id, value: article);
                         }
