@@ -1447,7 +1447,7 @@ namespace ConnectApp.screens {
             }
             if (this.showKeyboard || this.showEmojiBoard) {
                 this._dismissKeyboard();
-                Promise.Delayed(TimeSpan.FromMilliseconds(500)).Then(() => {
+                Promise.Delayed(TimeSpan.FromMilliseconds(200)).Then(() => {
                     this._onMessageLongPress(message, left);
                 });
                 return;
