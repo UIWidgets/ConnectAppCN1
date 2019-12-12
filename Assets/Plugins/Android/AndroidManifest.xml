@@ -239,10 +239,7 @@
     <!--华为Hms 推送-->
     <service
             android:name=".HuaWeiMessageService"
-            android:enabled="true"
-            android:exported="true"
-            android:permission="${applicationId}.permission.PROCESS_PUSH_MSG"
-            android:process=":HmsMessageService">
+            android:exported="false">
       <intent-filter>
         <action android:name="com.huawei.push.action.MESSAGING_EVENT" />
       </intent-filter>
