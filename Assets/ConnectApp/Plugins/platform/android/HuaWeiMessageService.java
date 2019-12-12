@@ -5,8 +5,14 @@ import com.huawei.hms.push.HmsMessageService;
 import com.huawei.hms.push.RemoteMessage;
 import com.unity.uiwidgets.plugin.UIWidgetsMessageManager;
 
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 
 public class HuaWeiMessageService extends HmsMessageService {
@@ -22,6 +28,27 @@ public class HuaWeiMessageService extends HmsMessageService {
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
+        if (remoteMessage.getData().length() > 0) {
+            try {
+                JSONObject itemsJsonObj = new JSONObject(remoteMessage.getData());
+                JSONObject msgContent = itemsJsonObj.getJSONObject("msgContent");
+                Iterator<String> keyIter = msgContent.keys();
+                String key;
+                Object value;
+                Map<String, Object> valueMap = new HashMap();
+                while (keyIter.hasNext()) {
+                    key = keyIter.next();
+                    value = msgContent.get(key);
+                    valueMap.put(key, value);
+                }
+                String json = (String) valueMap.get("data");
+                UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("jpush", "OnReceiveNotification", Arrays.asList(json));
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
 
     }
 
@@ -36,4 +63,5 @@ public class HuaWeiMessageService extends HmsMessageService {
         super.onSendError(s, e);
 
     }
+
 }

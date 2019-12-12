@@ -244,9 +244,21 @@
     <service
             android:name=".HuaWeiMessageService"
             android:enabled="true"
-            android:exported="false">
+            android:exported="true"
+            android:permission="${applicationId}.permission.PROCESS_PUSH_MSG"
+            android:process=":HmsMessageService">
       <intent-filter>
         <action android:name="com.huawei.push.action.MESSAGING_EVENT" />
+      </intent-filter>
+    </service>
+    <service
+            android:name="com.huawei.hms.support.api.push.service.HmsMsgService"
+            android:enabled="true"
+            android:exported="true"
+            android:process=":pushservice">
+      <intent-filter>
+        <action android:name="com.huawei.push.msg.NOTIFY_MSG" />
+        <action android:name="com.huawei.push.msg.PASSBY_MSG" />
       </intent-filter>
     </service>
     <!-- unity 配置信息-->
