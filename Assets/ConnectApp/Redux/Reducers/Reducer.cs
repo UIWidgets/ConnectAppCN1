@@ -2682,10 +2682,10 @@ namespace ConnectApp.redux.reducers {
                     }
                     else {
                         if (state.channelState.channelInfoLoadingDict.ContainsKey(action.channel.id)) {
-                            state.channelState.channelInfoLoadingDict[action.channel.id] = true;
+                            state.channelState.channelInfoLoadingDict[action.channel.id] = false;
                         }
                         else {
-                            state.channelState.channelInfoLoadingDict.Add(action.channel.id, true);
+                            state.channelState.channelInfoLoadingDict.Add(action.channel.id, false);
                         }
                     }
 
