@@ -118,7 +118,7 @@ extern "C" {
         [JPUSHService setAlias:nsAlias completion:aliasOperationCompletion seq:(NSInteger)sequence];
     }
     
-    void deleteAlias(int sequence) {
+    void deleteAlias(int sequence, const char * alias) {
         [JPUSHService deleteAlias:aliasOperationCompletion seq:(NSInteger)sequence];
     }
     

@@ -93,6 +93,7 @@ namespace ConnectApp.redux.reducers {
 
                 case LogoutAction _: {
                     JPushPlugin.clearNotifications();
+                    JPushPlugin.deleteJPushAlias(state.loginState.loginInfo.userId);
                     EventBus.publish(sName: EventBusConstant.logout_success, new List<object>());
                     HistoryManager.deleteHomeAfterTime(state.loginState.loginInfo.userId);
                     HttpManager.clearCookie();
