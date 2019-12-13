@@ -12,11 +12,11 @@ namespace ConnectApp.Models.State {
         public List<string> createChannelFilterIds;
         public int discoverPage;
         public bool discoverHasMore;
-        public bool channelInfoLoading;
         public bool channelShareInfoLoading;
-        public bool messageLoading;
         public int totalUnread;
         public int totalMention;
+        public Dictionary<string, bool> channelMessageLoadingDict;
+        public Dictionary<string, bool> channelInfoLoadingDict;
         public Dictionary<string, ChannelView> channelDict;
         public Dictionary<string, ChannelMessageView> messageDict;
         public Dictionary<string, ChannelMessageView> localMessageDict;

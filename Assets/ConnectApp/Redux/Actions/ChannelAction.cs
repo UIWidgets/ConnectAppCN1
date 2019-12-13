@@ -214,7 +214,7 @@ namespace ConnectApp.redux.actions {
                         }
                     })
                     .Catch(error => {
-                        dispatcher.dispatch(new FetchChannelMessagesFailureAction());
+                        dispatcher.dispatch(new FetchChannelMessagesFailureAction {channelId = channelId});
                         Debuger.LogError(message: error);
                         dispatcher.dispatch(loadMessagesFromDB(channelId, before.hexToLong()));
                     });
@@ -457,8 +457,10 @@ namespace ConnectApp.redux.actions {
         public static object addReaction(string messageId, string likeImage) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ChannelApi.UpdateReaction(messageId: messageId, likeImage: likeImage)
-                    .Then(ackMessageResponse => { dispatcher.dispatch(
-                        new AddChannelMessageReactionSuccessAction()); })
+                    .Then(ackMessageResponse => {
+                        dispatcher.dispatch(
+                            new AddChannelMessageReactionSuccessAction());
+                    })
                     .Catch(error => {
                         dispatcher.dispatch(new AddChannelMessageReactionFailureAction());
                         Debuger.LogError(message: error);
@@ -469,8 +471,10 @@ namespace ConnectApp.redux.actions {
         public static object cancelReaction(string messageId) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ChannelApi.UpdateReaction(messageId: messageId)
-                    .Then(ackMessageResponse => { dispatcher.dispatch(
-                        new CancelChannelMessageReactionSuccessAction()); })
+                    .Then(ackMessageResponse => {
+                        dispatcher.dispatch(
+                            new CancelChannelMessageReactionSuccessAction());
+                    })
                     .Catch(error => {
                         dispatcher.dispatch(new CancelChannelMessageReactionFailureAction());
                         Debuger.LogError(message: error);
@@ -587,6 +591,7 @@ namespace ConnectApp.redux.actions {
     }
 
     public class FetchChannelMessagesFailureAction : BaseAction {
+        public string channelId;
     }
 
     public class FetchChannelMembersSuccessAction : BaseAction {
