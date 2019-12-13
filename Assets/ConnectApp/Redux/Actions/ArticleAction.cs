@@ -135,6 +135,10 @@ namespace ConnectApp.redux.actions {
     public static partial class Actions {
         public static object fetchArticles(string userId, int offset) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
+                var articleOffset = getState().articleState.recommendArticleIds.Count;
+                if (offset != 0 && offset != articleOffset) {
+                    offset = articleOffset;
+                }
                 return ArticleApi.FetchArticles(userId: userId, offset: offset)
                     .Then(articlesResponse => {
                         var articleList = new List<Article>();

@@ -354,6 +354,7 @@ namespace ConnectApp.Models.Model {
         public List<Embed> embeds;
         public Dictionary<string, int> likeImageCount;
         public Dictionary<string, string> userLikeImages;
+        public Dictionary<string, List<string>> reactionsUsernameDict;
         public string status = "normal";
         public byte[] imageData;
         public byte[] videoData;
@@ -474,6 +475,44 @@ namespace ConnectApp.Models.Model {
 
             return likeImageDict;
         }
+        static Dictionary<string, List<string>> getReactionsUsernameDict(List<Reaction> reactions) {
+            var reactionsUsernameDict = new Dictionary<string, List<string>>();
+            var likeNames = new List<string>();
+            var opposeNames = new List<string>();
+            var coverfaceNames = new List<string>();
+            var heartbeatNames = new List<string>();
+            var doubtNames = new List<string>();
+            
+            foreach(var reaction in reactions) {
+                if (reaction.type == "like" && reaction.likeImage.isNotEmpty()) {
+                    switch (reaction.likeImage) {
+                        case "thumb-up":
+                            likeNames.Add(item: reaction.user.fullName);
+                            break;
+                        case "thumb-down":
+                            opposeNames.Add(item: reaction.user.fullName);
+                            break;
+                        case "facepalming":
+                            coverfaceNames.Add(item: reaction.user.fullName);
+                            break;
+                        case "heart-eyes":
+                            heartbeatNames.Add(item: reaction.user.fullName);
+                            break;
+                        case "question":
+                            doubtNames.Add(item: reaction.user.fullName);
+                            break;
+                    }
+                }
+            }
+
+            reactionsUsernameDict.Add("thumb-up", value: likeNames);
+            reactionsUsernameDict.Add("thumb-down", value: opposeNames);
+            reactionsUsernameDict.Add("facepalming", value: coverfaceNames);
+            reactionsUsernameDict.Add("heart-eyes", value: heartbeatNames);
+            reactionsUsernameDict.Add("question", value: doubtNames);
+            
+            return reactionsUsernameDict;
+        }
 
         public void updateLikeImage(string type, int? count = null) {
             if (count != null) {
@@ -544,6 +583,7 @@ namespace ConnectApp.Models.Model {
                     reactions = message.reactions,
                     likeImageCount = getLikeImageCount(message.likeImageStats),
                     userLikeImages = getUserLikeImageDict(message.reactions),
+                    reactionsUsernameDict = getReactionsUsernameDict(message.reactions),
                     isGif = getImageIsGif(message.attachments)
                 };
         }
@@ -605,6 +645,7 @@ namespace ConnectApp.Models.Model {
                     reactions = message.reactions,
                     likeImageCount = getLikeImageCount(message.likeImageStats),
                     userLikeImages = getUserLikeImageDict(message.reactions),
+                    reactionsUsernameDict = getReactionsUsernameDict(message.reactions),
                     isGif = getImageIsGif(message.attachments)
                 };
         }

@@ -30,7 +30,7 @@ namespace ConnectApp.Api {
             var data = JsonConvert.SerializeObject(value: dict);
             var promise = new Promise();
             var para = new FeedbackParameter {
-                type = type.Value,
+                type = type.value,
                 contact = contact,
                 name = name,
                 content = content,
