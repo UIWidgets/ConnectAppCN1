@@ -6,8 +6,8 @@ using ConnectApp.Main;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Plugins;
-using ConnectApp.Reality;
 using ConnectApp.redux.actions;
+using ConnectApp.Reality;
 using ConnectApp.screens;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
@@ -947,7 +947,7 @@ namespace ConnectApp.redux.reducers {
                     if (state.channelState.messageDict.TryGetValue(action.messageId, out var message)) {
                         message.updateLikeImage(action.type, action.count);
                     }
-                    
+
                     break;
                 }
 
@@ -2643,7 +2643,12 @@ namespace ConnectApp.redux.reducers {
                         state.channelState.channelShareInfoLoading = true;
                     }
                     else {
-                        state.channelState.channelInfoLoading = true;
+                        if (state.channelState.channelInfoLoadingDict.ContainsKey(action.channelId)) {
+                            state.channelState.channelInfoLoadingDict[action.channelId] = true;
+                        }
+                        else {
+                            state.channelState.channelInfoLoadingDict.Add(action.channelId, true);
+                        }
                     }
 
                     break;
@@ -2654,7 +2659,12 @@ namespace ConnectApp.redux.reducers {
                         state.channelState.channelShareInfoLoading = false;
                     }
                     else {
-                        state.channelState.channelInfoLoading = false;
+                        if (state.channelState.channelInfoLoadingDict.ContainsKey(action.channel.id)) {
+                            state.channelState.channelInfoLoadingDict[action.channel.id] = false;
+                        }
+                        else {
+                            state.channelState.channelInfoLoadingDict.Add(action.channel.id, false);
+                        }
                     }
 
                     state.channelState.updateChannel(action.channel);
@@ -2674,7 +2684,12 @@ namespace ConnectApp.redux.reducers {
                         state.channelState.channelShareInfoLoading = false;
                     }
                     else {
-                        state.channelState.channelInfoLoading = false;
+                        if (state.channelState.channelInfoLoadingDict.ContainsKey(action.channelId)) {
+                            state.channelState.channelInfoLoadingDict[action.channelId] = false;
+                        }
+                        else {
+                            state.channelState.channelInfoLoadingDict.Add(action.channelId, false);
+                        }
                     }
 
                     if (!state.channelState.channelDict.ContainsKey(key: action.channelId)) {
@@ -2693,7 +2708,13 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case StartFetchChannelMessageAction action: {
-                    state.channelState.messageLoading = true;
+                    if (state.channelState.channelMessageLoadingDict.ContainsKey(action.channelId)) {
+                        state.channelState.channelMessageLoadingDict[action.channelId] = true;
+                    }
+                    else {
+                        state.channelState.channelMessageLoadingDict.Add(action.channelId, true);
+                    }
+
                     var channel = state.channelState.channelDict[key: action.channelId];
                     channel.needFetchMessages = false;
                     break;
@@ -2757,13 +2778,24 @@ namespace ConnectApp.redux.reducers {
                         channel.clearUnread();
                     }
 
-                    state.channelState.messageLoading = false;
+                    if (state.channelState.channelMessageLoadingDict.ContainsKey(action.channelId)) {
+                        state.channelState.channelMessageLoadingDict[action.channelId] = false;
+                    }
+                    else {
+                        state.channelState.channelMessageLoadingDict.Add(action.channelId, false);
+                    }
 
                     break;
                 }
 
-                case FetchChannelMessagesFailureAction _: {
-                    state.channelState.messageLoading = false;
+                case FetchChannelMessagesFailureAction action: {
+                    if (state.channelState.channelMessageLoadingDict.ContainsKey(action.channelId)) {
+                        state.channelState.channelMessageLoadingDict[action.channelId] = false;
+                    }
+                    else {
+                        state.channelState.channelMessageLoadingDict.Add(action.channelId, false);
+                    }
+
                     break;
                 }
 
@@ -2960,8 +2992,12 @@ namespace ConnectApp.redux.reducers {
                         messageIds.AddRange(channel.messageIds);
                         channel.messageIds = messageIds;
                     }
-
-                    state.channelState.messageLoading = false;
+                    if (state.channelState.channelMessageLoadingDict.ContainsKey(action.channelId)) {
+                        state.channelState.channelMessageLoadingDict[action.channelId] = false;
+                    }
+                    else {
+                        state.channelState.channelMessageLoadingDict.Add(action.channelId, false);
+                    }
 
                     break;
                 }

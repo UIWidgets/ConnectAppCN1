@@ -13,6 +13,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using EventType = ConnectApp.Models.State.EventType;
+
 #if UNITY_IOS
 using System.Runtime.InteropServices;
 
@@ -447,14 +448,32 @@ namespace ConnectApp.Plugins {
             Plugin().Call("clearBadge");
         }
 #else
-        static void listenCompleted() {}
-        static void setChannel(string channel) {}
-        static void setAlias(int sequence, string channel) {}
-        static void deleteAlias(int sequence) {}
-        static void setTags(int sequence, string tagsJsonStr) {}
-        static void updateShowAlert(bool isShow) {}
-        static void clearAllAlert() {}
-        static void clearBadge() {}
+        static void listenCompleted() {
+        }
+
+        static void setChannel(string channel) {
+        }
+
+        static void setAlias(int sequence, string alias) {
+        }
+
+        static void deleteAlias(int sequence) {
+        }
+
+        static void setTags(int sequence, string tagsJsonStr) {
+        }
+
+        static void playSystemSound() {
+        }
+
+        static void updateShowAlert(bool isShow) {
+        }
+
+        static void clearAllAlert() {
+        }
+
+        static void clearBadge() {
+        }
 #endif
     }
 }

@@ -414,6 +414,17 @@ namespace ConnectApp.Models.Model {
             }
         }
 
+        public bool canCopy() {
+            switch (this.type) {
+                case ChannelMessageType.text:
+                case ChannelMessageType.embedExternal:
+                case ChannelMessageType.embedImage:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
         static int getFileSize(string content, bool deleted, List<Attachment> attachments = null,
             List<Embed> embeds = null) {
             return getType(content, deleted, attachments, embeds) == ChannelMessageType.file ? attachments[0].size : 0;
@@ -477,6 +488,10 @@ namespace ConnectApp.Models.Model {
 
         public string getLikeImage(string userId) {
             return this.userLikeImages.getOrDefault(userId, null);
+        }
+
+        public bool isLikedBy(string userId, string type) {
+            return this.getLikeImage(userId) == type;
         }
 
         public void updateUserLikeImage(string type, string userId) {

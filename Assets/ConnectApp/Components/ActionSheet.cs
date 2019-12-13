@@ -146,6 +146,9 @@ namespace ConnectApp.Components {
             widgets.AddRange(collection: normalWidgets);
             widgets.AddRange(collection: destructiveWidgets);
             widgets.AddRange(collection: cancelWidgets);
+            if (widgets.isNotEmpty() && widgets.last() is CustomDivider) {
+                widgets.removeLast();
+            }
             return new Column(
                 children: widgets
             );

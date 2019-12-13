@@ -111,6 +111,14 @@ namespace ConnectApp.Components {
             );
             return result;
         }
+
+        float _buttonSizeValue {
+            get {
+                return 36 * (this._buttonSize.value < 0.8f
+                    ? this._buttonSize.value / 0.8f * 1.1f
+                    : 1.1f - (this._buttonSize.value - 0.8f) * 0.5f);
+            }
+        }
         
         Widget _buildPopupLikeButton(
             string content,
@@ -131,8 +139,8 @@ namespace ConnectApp.Components {
                         child: new Center(
                             child: Image.asset(
                                 content,
-                                width: 36 * this._buttonSize.value,
-                                height: 36 * this._buttonSize.value)
+                                width: this._buttonSizeValue,
+                                height: this._buttonSizeValue)
                         )
                     )
                 )
