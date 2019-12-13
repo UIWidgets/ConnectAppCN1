@@ -16,17 +16,14 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
-using Color = Unity.UIWidgets.ui.Color;
 using Config = ConnectApp.Constants.Config;
 using Image = Unity.UIWidgets.widgets.Image;
-using Transform = Unity.UIWidgets.widgets.Transform;
 
 namespace ConnectApp.screens {
     public class ChannelScreenConnector : StatelessWidget {
@@ -110,9 +107,20 @@ namespace ConnectApp.screens {
                         }
                     }
 
+                    var channelInfoLoading = false;
+                    var channelMessageLoading = false;
+                    if (state.channelState.channelInfoLoadingDict.TryGetValue(this.channelId, out var infoLoading)) {
+                        channelInfoLoading = infoLoading;
+                    }
+
+                    if (state.channelState.channelMessageLoadingDict.TryGetValue(this.channelId, out var messageLoading)
+                    ) {
+                        channelMessageLoading = messageLoading;
+                    }
+
                     return new ChannelScreenViewModel {
                         hasChannel = state.channelState.channelDict.ContainsKey(this.channelId),
-                        channelInfoLoading = state.channelState.channelInfoLoading,
+                        channelInfoLoading = channelInfoLoading,
                         channel = channel,
                         channelId = this.channelId,
                         messages = messages,
@@ -122,7 +130,7 @@ namespace ConnectApp.screens {
                             avatar = state.loginState.loginInfo.userAvatar,
                             fullName = state.loginState.loginInfo.userFullName
                         },
-                        messageLoading = state.channelState.messageLoading,
+                        messageLoading = channelMessageLoading,
                         socketConnected = state.channelState.socketConnected,
                         networkConnected = state.networkState.networkConnected,
                         dismissNoNetworkBanner = state.networkState.dismissNoNetworkBanner,
@@ -320,7 +328,7 @@ namespace ConnectApp.screens {
             {"ConnectAppVersion", Config.versionName},
             {"X-Requested-With", "XmlHttpRequest"}
         };
-        
+
         public static readonly Dictionary<string, string> reactionIcons = new Dictionary<string, string> {
             {"thumb-up", "image/like.gif"},
             {"thumb-down", "image/oppose.gif"},
@@ -328,7 +336,7 @@ namespace ConnectApp.screens {
             {"heart-eyes", "image/heartbeat.gif"},
             {"question", "image/doubt.gif"},
         };
-        
+
         public static readonly Dictionary<string, string> reactionStaticIcons = new Dictionary<string, string> {
             {"thumb-up", "image/emoji-thumb"},
             {"thumb-down", "image/emoji-oppose"},
@@ -366,6 +374,7 @@ namespace ConnectApp.screens {
                 key = GlobalKey.key(id);
                 this._messageBubbleKeys[id] = key;
             }
+
             return key;
         }
 
@@ -511,8 +520,9 @@ namespace ConnectApp.screens {
             this._messageActivityIndicatorController = new AnimationController(
                 duration: new TimeSpan(0, 0, 2),
                 vsync: this);
-            this._reactionAppearAnimationController = new AnimationController(duration: TimeSpan.FromMilliseconds(1000), vsync: this);
-            this._reactionAppearAnimationController.addListener(() => {this.setState(() => {});});
+            this._reactionAppearAnimationController =
+                new AnimationController(duration: TimeSpan.FromMilliseconds(1000), vsync: this);
+            this._reactionAppearAnimationController.addListener(() => { this.setState(() => { }); });
             this._messageBubbleKeys = new Dictionary<string, GlobalKey>();
             this._fullMessageKeys = new Dictionary<string, GlobalKey>();
         }
@@ -1171,7 +1181,7 @@ namespace ConnectApp.screens {
 
             return tipMenuItems;
         }
-        
+
         Widget _buildMessageTitle(ChannelMessageView message) {
             return new Container(
                 padding: EdgeInsets.only(left: 0, right: 16, bottom: 6),
@@ -1201,6 +1211,7 @@ namespace ConnectApp.screens {
             if (message.status == "normal" || message.status == "local") {
                 return new Container();
             }
+
             return message.status == "sending" || message.status == "waiting"
                 ? (Widget) new CustomActivityIndicator(
                     size: LoadingSize.small,
@@ -1264,6 +1275,7 @@ namespace ConnectApp.screens {
                     )
                 );
             }
+
             return list;
         }
 
@@ -1288,6 +1300,7 @@ namespace ConnectApp.screens {
                             this._reactionAppearAnimationController.reset();
                             this._reactionAppearAnimationController.setValue(0);
                         }
+
                         this.widget.actionModel.updateMyLikeImage(message, type);
                     }
                     else {
@@ -1300,8 +1313,8 @@ namespace ConnectApp.screens {
                         else {
                             this.widget.actionModel.cancelMyLikeImage(message);
                         }
-
                     }
+
                     ActionSheetUtils.hiddenModalPopup();
                 });
         }
@@ -1337,7 +1350,8 @@ namespace ConnectApp.screens {
                             new Text(
                                 $"{message.likeImageCount.getOrDefault(type, 0)}",
                                 style: message.isLikedBy(this.widget.viewModel.me.id, type)
-                                    ? CTextStyle.PRegularBody.copyWith(color: CColors.MessageReactionCount, height: 1.1f)
+                                    ? CTextStyle.PRegularBody.copyWith(color: CColors.MessageReactionCount,
+                                        height: 1.1f)
                                     : CTextStyle.PRegularBody.copyWith(height: 1.1f))
                         }
                     )
@@ -1352,7 +1366,7 @@ namespace ConnectApp.screens {
 
             List<string> likeImageKeys = message.likeImageCount.Keys.ToList();
             likeImageKeys.Sort();
-            
+
             Widget result = new Container(
                 padding: EdgeInsets.only(top: 8),
                 child: new Wrap(
@@ -1375,7 +1389,8 @@ namespace ConnectApp.screens {
                             this._reactionAppearAnimationController.value < 0.5f
                                 ? (this._reactionAppearAnimationController.value - 0.25f) / 0.25f * (-50) - 52
                                 : this._reactionAppearAnimationController.value < 0.75f
-                                    ? ((this._reactionAppearAnimationController.value - 0.5f) / 0.15f).clamp(0, 1) * 50 - 102
+                                    ? ((this._reactionAppearAnimationController.value - 0.5f) / 0.15f).clamp(0, 1) *
+                                      50 - 102
                                     : (this._reactionAppearAnimationController.value - 0.75f) / 0.25f * 52 - 52
                         );
                         var imageScale = Matrix3.makeScale(
@@ -1385,10 +1400,13 @@ namespace ConnectApp.screens {
                             sy: this._reactionAppearAnimationController.value < 0.65f
                                 ? 2.2f
                                 : this._reactionAppearAnimationController.value < 0.7f
-                                    ? ((this._reactionAppearAnimationController.value - 0.65f) / 0.05f * (-0.1f) + 1.0f) * 2.2f
+                                    ? ((this._reactionAppearAnimationController.value - 0.65f) / 0.05f * (-0.1f) +
+                                       1.0f) * 2.2f
                                     : this._reactionAppearAnimationController.value < 0.75f
-                                        ? ((this._reactionAppearAnimationController.value - 0.7f) / 0.05f * 0.1f + 0.9f) * 2.2f
-                                        : (this._reactionAppearAnimationController.value - 0.75f) / 0.25f * (-1.2f) + 2.2f
+                                        ? ((this._reactionAppearAnimationController.value - 0.7f) / 0.05f * 0.1f +
+                                           0.9f) * 2.2f
+                                        : (this._reactionAppearAnimationController.value - 0.75f) / 0.25f * (-1.2f) +
+                                          2.2f
                         );
                         var imageTransform = imageScale;
                         imageTransform.postConcat(imageTranslation);
@@ -1402,7 +1420,8 @@ namespace ConnectApp.screens {
                                     60 * (2 - this._reactionAppearAnimationController.value / 0.25f).clamp(0, 1),
                                     0),
                                 child: new Opacity(
-                                    opacity: ((1.0f - this._reactionAppearAnimationController.value) / 0.25f).clamp(0, 1),
+                                    opacity: ((1.0f - this._reactionAppearAnimationController.value) / 0.25f).clamp(0,
+                                        1),
                                     child: new Container(
                                         height: 28,
                                         width: 51,
@@ -1420,9 +1439,10 @@ namespace ConnectApp.screens {
                             new Transform(
                                 transform: imageTransform,
                                 child: new Opacity(
-                                    opacity: ((this._reactionAppearAnimationController.value - 0.25f) / 0.25f).clamp(0, 1),
+                                    opacity: ((this._reactionAppearAnimationController.value - 0.25f) / 0.25f).clamp(0,
+                                        1),
                                     child: Image.asset(
-                                        _ChannelScreenState.reactionStaticIcons[likeImageKeys.Single()],
+                                        reactionStaticIcons[likeImageKeys.Single()],
                                         width: 20,
                                         height: 20
                                     )
@@ -1445,6 +1465,7 @@ namespace ConnectApp.screens {
             if (message.status != "normal") {
                 return;
             }
+
             if (this.showKeyboard || this.showEmojiBoard) {
                 this._dismissKeyboard();
                 Promise.Delayed(TimeSpan.FromMilliseconds(200)).Then(() => {
@@ -1452,6 +1473,7 @@ namespace ConnectApp.screens {
                 });
                 return;
             }
+
             var renderBox = (RenderBox) this._getMessageKey(message.id).currentContext.findRenderObject();
             var messageBoxSize = renderBox.size;
             var originalMessageBoxOffset = renderBox.localToGlobal(Offset.zero);
@@ -2170,7 +2192,6 @@ namespace ConnectApp.screens {
     }
 
     class _ReactionOverlay : StatefulWidget {
-
         public _ReactionOverlay(
             ChannelMessageView message,
             Size size,
@@ -2179,7 +2200,7 @@ namespace ConnectApp.screens {
             Widget messageBubble,
             PopupLikeButtonBar.OnTapPopupLikeButtonCallback onTap,
             string userId,
-            Key key = null) : base(key : key) {
+            Key key = null) : base(key: key) {
             this.message = message;
             this.size = size;
             this.offset = offset;
@@ -2196,24 +2217,22 @@ namespace ConnectApp.screens {
         public readonly Widget messageBubble;
         public readonly PopupLikeButtonBar.OnTapPopupLikeButtonCallback onTap;
         public string userId;
-        
+
         public override State createState() {
             return new _ReactionOverlayState();
         }
     }
 
     class _ReactionOverlayState : TickerProviderStateMixin<_ReactionOverlay> {
-        
         AnimationController _highlightMessageController;
         Animation<float> _highlightMessageAnimation;
-        
+
         public override void initState() {
             base.initState();
             this._highlightMessageController = new AnimationController(
                 duration: TimeSpan.FromMilliseconds(500),
                 vsync: this);
-            this._highlightMessageController.addListener(() => this.setState(() => {
-            }));
+            this._highlightMessageController.addListener(() => this.setState(() => { }));
             Promise.Delayed(TimeSpan.FromMilliseconds(250)).Then(() => {
                 this._highlightMessageController.animateTo(1);
             });
@@ -2259,6 +2278,7 @@ namespace ConnectApp.screens {
                 }
             );
         }
+
         Widget _buildPopupLikeButtonBar(ChannelMessageView message) {
             return new PopupLikeButtonBar(
                 onTap: this.widget.onTap,
