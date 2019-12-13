@@ -2707,10 +2707,10 @@ namespace ConnectApp.redux.reducers {
                     }
                     else {
                         if (state.channelState.channelInfoLoadingDict.ContainsKey(action.channelId)) {
-                            state.channelState.channelInfoLoadingDict[action.channelId] = true;
+                            state.channelState.channelInfoLoadingDict[action.channelId] = false;
                         }
                         else {
-                            state.channelState.channelInfoLoadingDict.Add(action.channelId, true);
+                            state.channelState.channelInfoLoadingDict.Add(action.channelId, false);
                         }
                     }
 
@@ -2801,10 +2801,10 @@ namespace ConnectApp.redux.reducers {
                     }
 
                     if (state.channelState.channelMessageLoadingDict.ContainsKey(action.channelId)) {
-                        state.channelState.channelMessageLoadingDict[action.channelId] = true;
+                        state.channelState.channelMessageLoadingDict[action.channelId] = false;
                     }
                     else {
-                        state.channelState.channelMessageLoadingDict.Add(action.channelId, true);
+                        state.channelState.channelMessageLoadingDict.Add(action.channelId, false);
                     }
 
                     break;
@@ -2812,10 +2812,10 @@ namespace ConnectApp.redux.reducers {
 
                 case FetchChannelMessagesFailureAction action: {
                     if (state.channelState.channelMessageLoadingDict.ContainsKey(action.channelId)) {
-                        state.channelState.channelMessageLoadingDict[action.channelId] = true;
+                        state.channelState.channelMessageLoadingDict[action.channelId] = false;
                     }
                     else {
-                        state.channelState.channelMessageLoadingDict.Add(action.channelId, true);
+                        state.channelState.channelMessageLoadingDict.Add(action.channelId, false);
                     }
 
                     break;
