@@ -3014,6 +3014,12 @@ namespace ConnectApp.redux.reducers {
                         messageIds.AddRange(channel.messageIds);
                         channel.messageIds = messageIds;
                     }
+                    if (state.channelState.channelMessageLoadingDict.ContainsKey(action.channelId)) {
+                        state.channelState.channelMessageLoadingDict[action.channelId] = false;
+                    }
+                    else {
+                        state.channelState.channelMessageLoadingDict.Add(action.channelId, false);
+                    }
 
                     break;
                 }
