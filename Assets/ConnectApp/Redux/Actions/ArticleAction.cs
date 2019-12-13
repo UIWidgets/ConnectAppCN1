@@ -65,9 +65,6 @@ namespace ConnectApp.redux.actions {
     public class DeleteAllArticleHistoryAction : BaseAction {
     }
 
-    public class StartFetchArticleCommentsAction : RequestAction {
-    }
-
     public class FetchArticleCommentsSuccessAction : BaseAction {
         public string channelId;
         public List<string> itemIds;
@@ -77,12 +74,9 @@ namespace ConnectApp.redux.actions {
         public bool isRefreshList;
     }
 
-    public class LikeArticleAction : RequestAction {
-        public string articleId;
-    }
-
     public class LikeArticleSuccessAction : BaseAction {
         public string articleId;
+        public int likeCount;
     }
 
     public class FavoriteArticleSuccessAction : BaseAction {
@@ -99,29 +93,12 @@ namespace ConnectApp.redux.actions {
         public string articleId;
     }
 
-    public class StartLikeCommentAction : RequestAction {
-    }
-
     public class LikeCommentSuccessAction : BaseAction {
         public Message message;
     }
 
-    public class LikeCommentFailureAction : BaseAction {
-    }
-
-    public class StartRemoveLikeCommentAction : RequestAction {
-        public string messageId;
-    }
-
     public class RemoveLikeCommentSuccessAction : BaseAction {
         public Message message;
-    }
-
-    public class StartSendCommentAction : RequestAction {
-        public string channelId;
-        public string content;
-        public string nonce;
-        public string parentMessageId = "";
     }
 
     public class SendCommentSuccessAction : BaseAction {
@@ -326,16 +303,18 @@ namespace ConnectApp.redux.actions {
             });
         }
 
-        public static object likeArticle(string articleId) {
+        public static object likeArticle(string articleId, int addCount = 1) {
             if (HttpManager.isNetWorkError()) {
                 CustomDialogUtils.showToast("请检查网络", iconData: Icons.sentiment_dissatisfied);
                 return null;
             }
 
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                CustomDialogUtils.showToast("点赞成功", iconData: Icons.sentiment_satisfied);
-                dispatcher.dispatch(new LikeArticleSuccessAction {articleId = articleId});
-                return ArticleApi.LikeArticle(articleId: articleId)
+                dispatcher.dispatch(new LikeArticleSuccessAction {
+                    articleId = articleId,
+                    likeCount = addCount
+                });
+                return ArticleApi.LikeArticle(articleId: articleId, addCount: addCount)
                     .Then(() => { })
                     .Catch(_ => { });
             });

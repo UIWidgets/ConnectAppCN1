@@ -108,9 +108,9 @@ namespace ConnectApp.screens {
                                 Actions.fetchArticleComments(channelId: channelId,
                                     currOldestMessageId: currOldestMessageId)
                             ),
-                        likeArticle = id => {
+                        likeArticle = (id, count) => {
                             AnalyticsManager.ClickLike("Article", articleId: this.articleId);
-                            return dispatcher.dispatch<IPromise>(Actions.likeArticle(articleId: id));
+                            return dispatcher.dispatch<IPromise>(Actions.likeArticle(articleId: id, addCount: count));
                         },
                         likeComment = message => {
                             AnalyticsManager.ClickLike("Article_Comment", articleId: this.articleId,
@@ -193,6 +193,8 @@ namespace ConnectApp.screens {
         string _loginSubId;
         _ArticleJumpToCommentState _jumpState;
         bool _needRebuildWithCachedCommentPosition;
+        bool _isPullUp;
+        float _lastDownY;
 
         float? _cachedCommentPosition;
 
@@ -222,6 +224,7 @@ namespace ConnectApp.screens {
             this._jumpState = _ArticleJumpToCommentState.Inactive;
             this._cachedCommentPosition = null;
             this._needRebuildWithCachedCommentPosition = false;
+            this._isPullUp = false;
         }
 
         public override void didChangeDependencies() {
@@ -345,8 +348,21 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         this._buildNavigationBar(),
                         new Expanded(
-                            child: new CustomScrollbar(
-                                child: contentWidget
+                            child: new CrazyLikeButton(
+                                new CustomScrollbar(
+                                    child: contentWidget
+                                ),
+                                this._article.like && this.widget.viewModel.isLoggedIn,
+                                likeCount: this._article.appCurrentUserLikeCount,
+                                this._article.likeCount + this._article.appLikeCount,
+                                isPullUp: this._isPullUp,
+                                () => {
+                                    if (!this.widget.viewModel.isLoggedIn) {
+                                        this.widget.actionModel.pushToLogin();
+                                    }
+                                    return this.widget.viewModel.isLoggedIn;
+                                },
+                                likeCount => this.widget.actionModel.likeArticle(arg1: this._article.id, arg2: likeCount)
                             )
                         ),
                         this._buildArticleTabBar()
@@ -492,7 +508,7 @@ namespace ConnectApp.screens {
                     }
                     else {
                         if (!this._article.like) {
-                            this.widget.actionModel.likeArticle(arg: this._article.id);
+                            this.widget.actionModel.likeArticle(arg1: this._article.id, 1);
                         }
                     }
                 },
@@ -573,6 +589,17 @@ namespace ConnectApp.screens {
                 }
             }
 
+            if (pixels - this._lastDownY > 0.0f) {
+                if (!this._isPullUp) {
+                    this.setState(() => this._isPullUp = true);
+                }
+            }
+            if (pixels - this._lastDownY < 0.0f) {
+                if (this._isPullUp) {
+                    this.setState(() => this._isPullUp = false);
+                }
+            }
+            this._lastDownY = pixels;
             return true;
         }
 
@@ -770,7 +797,7 @@ namespace ConnectApp.screens {
                             }
                             else {
                                 if (!like) {
-                                    this.widget.actionModel.likeArticle(arg: this._article.id);
+                                    this.widget.actionModel.likeArticle(arg1: this._article.id, 1);
                                 }
                             }
                         }),

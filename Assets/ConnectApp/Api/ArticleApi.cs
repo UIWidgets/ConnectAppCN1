@@ -44,6 +44,7 @@ namespace ConnectApp.Api {
                     };
                 }
             }
+
             var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/feeds", parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var followArticlesResponse =
@@ -89,13 +90,15 @@ namespace ConnectApp.Api {
             return promise;
         }
 
-        public static Promise LikeArticle(string articleId) {
+        public static Promise LikeArticle(string articleId, int addCount) {
             var promise = new Promise();
             var para = new HandleArticleParameter {
                 type = "project",
                 itemId = articleId
             };
-            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/like", parameter: para);
+            var request =
+                HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/like?isAppRepeatLike=true&addCount={addCount}",
+                    parameter: para);
             HttpManager.resume(request: request).Then(responseText => promise.Resolve())
                 .Catch(exception => promise.Reject(ex: exception));
             return promise;

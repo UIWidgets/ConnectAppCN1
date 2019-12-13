@@ -254,6 +254,7 @@ namespace ConnectApp.redux.reducers {
                     });
                     var article = action.articleDetail.projectData;
                     article.like = action.articleDetail.like;
+                    article.appCurrentUserLikeCount = action.articleDetail.appCurrentUserLikeCount;
                     article.projectIds = projectIds;
                     article.channelId = action.articleDetail.channelId;
                     article.contentMap = action.articleDetail.contentMap;
@@ -327,15 +328,12 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
-                case LikeArticleAction _: {
-                    break;
-                }
-
                 case LikeArticleSuccessAction action: {
                     if (state.articleState.articleDict.ContainsKey(key: action.articleId)) {
                         var article = state.articleState.articleDict[key: action.articleId];
                         article.like = true;
-                        article.likeCount += 1;
+                        article.appLikeCount += action.likeCount;
+                        article.appCurrentUserLikeCount += action.likeCount;
                         state.articleState.articleDict[key: action.articleId] = article;
                     }
 
@@ -419,10 +417,6 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
-                case StartFetchArticleCommentsAction _: {
-                    break;
-                }
-
                 case FetchArticleCommentsSuccessAction action: {
                     var channelMessageList = new Dictionary<string, List<string>>();
                     var channelMessageDict = new Dictionary<string, Dictionary<string, Message>>();
@@ -479,24 +473,12 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
-                case StartLikeCommentAction _: {
-                    break;
-                }
-
                 case LikeCommentSuccessAction action: {
                     var user = new User {id = state.loginState.loginInfo.userId};
                     var reaction = new Reaction {user = user};
                     action.message.reactions.Add(item: reaction);
                     state.messageState.channelMessageDict[key: action.message.channelId][key: action.message.id] =
                         action.message;
-                    break;
-                }
-
-                case LikeCommentFailureAction _: {
-                    break;
-                }
-
-                case StartRemoveLikeCommentAction _: {
                     break;
                 }
 
@@ -511,10 +493,6 @@ namespace ConnectApp.redux.reducers {
 
                     state.messageState.channelMessageDict[key: action.message.channelId][key: action.message.id] =
                         action.message;
-                    break;
-                }
-
-                case StartSendCommentAction _: {
                     break;
                 }
 
