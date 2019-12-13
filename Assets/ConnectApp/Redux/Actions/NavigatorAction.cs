@@ -87,6 +87,10 @@ namespace ConnectApp.redux.actions {
         public string reportId;
         public ReportType reportType;
     }
+    
+    public class MainNavigatorPushToReactionsDetailAction : BaseAction {
+        public string messageId;
+    }
 
     public class LoginNavigatorPushToAction : BaseAction {
         public string routeName;

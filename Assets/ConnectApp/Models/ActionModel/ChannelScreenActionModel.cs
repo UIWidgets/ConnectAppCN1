@@ -6,6 +6,7 @@ using RSG;
 namespace ConnectApp.Models.ActionModel {
     public class ChannelScreenActionModel : BaseActionModel {
         public Action<string> pushToUserDetail;
+        public Action<string> pushToReactionsDetail;
         public Action pushToChannelDetail;
         public Action clearUnread;
         public Action reportLeaveBottom;

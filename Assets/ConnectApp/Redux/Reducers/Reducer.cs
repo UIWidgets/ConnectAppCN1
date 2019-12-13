@@ -1552,6 +1552,15 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case MainNavigatorPushToReactionsDetailAction action: {
+                    Router.navigator.push(new CustomPageRoute(
+                        context => new ReactionsDetailScreenConnector(action.messageId),
+                        fullscreenDialog: true
+                    ));
+
+                    break;
+                }
+
                 case MainNavigatorPushToAction action: {
                     Router.navigator.pushNamed(routeName: action.routeName);
                     break;

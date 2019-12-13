@@ -306,7 +306,7 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildTypeItem() {
-            var typeName = this.widget.viewModel.feedbackType.Description;
+            var typeName = this.widget.viewModel.feedbackType.description;
             return new GestureDetector(
                 onTap: () => this.widget.actionModel.pushToFeedbackType(),
                 child: new Container(
