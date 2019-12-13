@@ -296,10 +296,9 @@ namespace ConnectApp.Components {
         }
 
         Widget _buildBottom() {
-            int articleLikeCount = 0;
-            if (this.article.likeCount > 0) {
-                articleLikeCount = this.article.likeCount;
-            }
+            int articleLikeCount = this.article.likeCount + this.article.appLikeCount > 0
+                ? this.article.likeCount + this.article.appLikeCount
+                : 0;
 
             return new Container(
                 height: 56,

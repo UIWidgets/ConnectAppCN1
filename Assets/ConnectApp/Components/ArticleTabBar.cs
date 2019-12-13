@@ -74,22 +74,22 @@ namespace ConnectApp.Components {
                             child: new Icon(icon: Icons.comment, size: 24, color: CColors.Icon)
                         ),
                         //点赞
-                        new LikeButton.LikeButton(
-                            isLiked => new Icon(
-                                isLiked ? Icons.favorite : Icons.favorite_border,
-                                color: isLiked ? CColors.SecondaryPink : CColors.Icon,
-                                size: 24
-                            ),
-                            size: 24,
-                            circleColor: new CircleColor(
-                                start: CColors.SecondaryPink,
-                                end: CColors.SecondaryPink
-                            ),
-                            likeButtonPadding: EdgeInsets.symmetric(12, 10),
-                            isLiked: this.like,
-                            isShowBubbles: false,
-                            onTap: () => this.likeCallback()
-                        ),
+//                        new LikeButton.LikeButton(
+//                            isLiked => new Icon(
+//                                isLiked ? Icons.favorite : Icons.favorite_border,
+//                                color: isLiked ? CColors.SecondaryPink : CColors.Icon,
+//                                size: 24
+//                            ),
+//                            size: 24,
+//                            circleColor: new CircleColor(
+//                                start: CColors.SecondaryPink,
+//                                end: CColors.SecondaryPink
+//                            ),
+//                            likeButtonPadding: EdgeInsets.symmetric(12, 10),
+//                            isLiked: this.like,
+//                            isShowBubbles: false,
+//                            onTap: () => this.likeCallback()
+//                        ),
                         //收藏
                         new CustomButton(
                             padding: EdgeInsets.symmetric(12, 10),
