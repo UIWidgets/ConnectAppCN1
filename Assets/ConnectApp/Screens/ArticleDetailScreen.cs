@@ -392,7 +392,7 @@ namespace ConnectApp.screens {
                     playVideo: this.widget.actionModel.playVideo,
                     this.widget.actionModel.pushToLogin,
                     UserInfoManager.isLogin()
-                        ? CCommonUtils.GetUserLicense(UserInfoManager.initUserInfo().userId,
+                        ? CCommonUtils.GetUserLicense(UserInfoManager.getUserInfo().userId,
                             this.widget.viewModel.userLicenseDict)
                         : "",
                     this.widget.actionModel.browserImage

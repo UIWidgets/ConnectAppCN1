@@ -1369,7 +1369,7 @@ namespace ConnectApp.screens {
                     spacing: 8,
                     children: likeImageKeys
                         .Select(type => this._buildReaction(message, type))
-                        .ToList()
+                        .Reverse().ToList()
                 )
             );
 

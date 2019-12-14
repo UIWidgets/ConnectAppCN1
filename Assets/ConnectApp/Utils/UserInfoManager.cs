@@ -20,7 +20,7 @@ namespace ConnectApp.Utils {
             PlayerPrefs.Save();
         }
 
-        public static LoginInfo initUserInfo() {
+        public static LoginInfo getUserInfo() {
             var info = PlayerPrefs.GetString(key: UserInfoKey);
             if (info.isNotEmpty()) {
                 var list = JsonConvert.DeserializeObject<List<LoginInfo>>(info);
@@ -36,8 +36,8 @@ namespace ConnectApp.Utils {
             return info.isNotEmpty();
         }
 
-        public static Dictionary<string, User> initUserDict() {
-            var info = initUserInfo();
+        public static Dictionary<string, User> getUserInfoDict() {
+            var info = getUserInfo();
             if (info.userId.isEmpty()) {
                 return new Dictionary<string, User>();
             }
