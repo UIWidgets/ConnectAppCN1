@@ -29,6 +29,8 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.huawei.agconnect'
 
 
+String HMSSDKVersion = '3.0.0.300'
+
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation(name: 'zxing-lib', ext: 'aar')
@@ -44,8 +46,9 @@ dependencies {
     implementation 'com.github.dueeeke.dkplayer:ijk-arm64:3.0.4'
     implementation 'com.github.dueeeke.dkplayer:ijk-x86:3.0.4'
     implementation 'com.github.dueeeke.dkplayer:ijk-x86_64:3.0.4'
-    implementation 'com.huawei.hms:push:3.0.0.300'    // 华为hms
-    implementation 'com.huawei.hms:opendevice:3.0.0.300'
+    implementation 'com.huawei.hms:push:'+HMSSDKVersion
+    implementation 'com.huawei.hms:opendevice:'+HMSSDKVersion
+    implementation 'com.huawei.hms:base:'+HMSSDKVersion
 }
 
 android {
@@ -64,7 +67,7 @@ android {
         ndk {
             abiFilters 'armeabi-v7a', 'x86'
         }
-        versionCode 96
+        versionCode 97
         versionName '1.2.6'
     }
 
