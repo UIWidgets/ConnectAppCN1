@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 namespace ConnectApp.Plugins {
     public static class UrlLauncherPlugin {
         public static void Launch(string urlString, bool forceSafariVC = true, bool forceWebView = true) {
-            if (Application.isEditor) {
+            if (Application.isEditor || CCommonUtils.isAndroid) {
                 Application.OpenURL(url: urlString);
                 return;
             }

@@ -5,7 +5,6 @@ using ConnectApp.Constants;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
-using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -60,7 +59,36 @@ namespace ConnectApp.screens {
                 child: new CustomSafeArea(
                     child: new GestureDetector(
                         onTap: () => this.actionModel.mainRouterPop(),
-                        child: this._buildContent()
+                        child: new Column(
+                            children: new List<Widget> {
+                                new Container(
+                                    height: CustomAppBarUtil.appBarHeight,
+                                    child: new Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: new List<Widget> {
+                                            new Container(width: 56),
+                                            new Text(
+                                                "反应详情",
+                                                style: CTextStyle.PXLargeMedium.merge(new TextStyle(height: 1))
+                                            ),
+                                            new CustomButton(
+                                                padding: EdgeInsets.symmetric(10, 16),
+                                                onPressed: () => this.actionModel.mainRouterPop(),
+                                                child: new Icon(
+                                                    icon: Icons.close,
+                                                    size: 24,
+                                                    color: CColors.Icon
+                                                )
+                                            )
+                                        }
+                                    )
+                                ),
+                                new CustomDivider(color: CColors.Separator2, height: 1),
+                                new Expanded(
+                                    child:this._buildContent()
+                                )
+                            }
+                        )
                     )
                 )
             );
@@ -108,45 +136,44 @@ namespace ConnectApp.screens {
             }
             
             return new Container(
-                padding: EdgeInsets.symmetric(16, 8),
-                decoration: new BoxDecoration(
-                    border: new Border(
-                        bottom: new BorderSide(
-                            color: CColors.Separator2
-                        )
-                    )
-                ),
-                child: new Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                padding: EdgeInsets.only(8, 16, 8),
+                child: new Column(
                     children: new List<Widget> {
-                        new Container(
-                            height: 36,
-                            width: 36,
-                            margin: EdgeInsets.only(right: 8),
-                            child: Image.asset(
-                                name: type.gifImagePath
-                            )
-                        ),
-                        new Expanded(
-                            child: new Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: new List<Widget> {
-                                    new Container(
-                                        child: new Text(
-                                            data: title,
-                                            style: CTextStyle.PSmall.merge(new TextStyle(height: 1))
-                                        )
-                                    ),
-                                    new Padding(
-                                        padding: EdgeInsets.only(top: 4),
-                                        child: new Text(
-                                            data: content,
-                                            style: CTextStyle.PLargeMedium
-                                        )
+                        new Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: new List<Widget> {
+                                new Container(
+                                    height: 36,
+                                    width: 36,
+                                    margin: EdgeInsets.only(right: 8),
+                                    child: Image.asset(
+                                        name: type.gifImagePath
                                     )
-                                }
-                            )
-                        )
+                                ),
+                                new Expanded(
+                                    child: new Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: new List<Widget> {
+                                            new Container(
+                                                child: new Text(
+                                                    data: title,
+                                                    style: CTextStyle.PSmall.merge(new TextStyle(height: 1))
+                                                )
+                                            ),
+                                            new Padding(
+                                                padding: EdgeInsets.only(top: 4),
+                                                child: new Text(
+                                                    data: content,
+                                                    style: CTextStyle.PLargeMedium
+                                                )
+                                            )
+                                        }
+                                    )
+                                )
+                            }
+                        ),
+                        new Container(height: 15),
+                        new CustomDivider(color: CColors.Separator2, height: 1)
                     }
                 )
             );
