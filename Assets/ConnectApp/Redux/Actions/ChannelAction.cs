@@ -454,9 +454,9 @@ namespace ConnectApp.redux.actions {
                 "video/mp4");
         }
 
-        public static object addReaction(string messageId, string likeImage) {
+        public static object addReaction(string messageId, string likeEmoji) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return ChannelApi.UpdateReaction(messageId: messageId, likeImage: likeImage)
+                return ChannelApi.UpdateReaction(messageId: messageId, likeEmoji: likeEmoji)
                     .Then(ackMessageResponse => {
                         dispatcher.dispatch(
                             new AddChannelMessageReactionSuccessAction());
@@ -468,9 +468,9 @@ namespace ConnectApp.redux.actions {
             });
         }
 
-        public static object cancelReaction(string messageId) {
+        public static object cancelReaction(string messageId, string type) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return ChannelApi.UpdateReaction(messageId: messageId)
+                return ChannelApi.UpdateReaction(messageId: messageId, likeEmoji: type, true)
                     .Then(ackMessageResponse => {
                         dispatcher.dispatch(
                             new CancelChannelMessageReactionSuccessAction());
@@ -832,6 +832,7 @@ namespace ConnectApp.redux.actions {
 
     public class RemoveMyLikeImageFromMessage : BaseAction {
         public string messageId;
+        public string type;
     }
 
     public class ClearMessageLikeImages : BaseAction {

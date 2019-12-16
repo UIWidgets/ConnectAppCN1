@@ -119,7 +119,7 @@ namespace ConnectApp.screens {
                content = string.Join(", ", nameList.ToArray());
             }
 
-            if (type.value == ReactionType.Like.value) {
+            if (type.value == ReactionType.Thumb.value) {
                 title = $"{nameList?.Count ?? 0} 人表示喜欢";
             }
             else if (type.value == ReactionType.Oppose.value) {

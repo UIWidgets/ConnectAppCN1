@@ -964,7 +964,7 @@ namespace ConnectApp.redux.reducers {
 
                 case RemoveMyLikeImageFromMessage action: {
                     if (state.channelState.messageDict.TryGetValue(action.messageId, out var message)) {
-                        message.updateUserLikeImage(null, state.loginState.loginInfo.userId);
+                        message.updateUserLikeImage(action.type, state.loginState.loginInfo.userId);
                     }
 
                     break;

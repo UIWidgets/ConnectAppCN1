@@ -219,18 +219,20 @@ namespace ConnectApp.Api {
         }
 
         public static Promise<UpdateChannelMessagesReactionResponse> UpdateReaction(
-            string messageId, string likeImage = null) {
+            string messageId, string likeEmoji = null, bool isRemove = false) {
             var promise = new Promise<UpdateChannelMessagesReactionResponse>();
-            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/messages/{messageId}/{(likeImage == null ? "removeReaction" : "addReaction")}",
-                likeImage != null ? new Dictionary<string, object> {
+            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/messages/{messageId}/{(isRemove ? "removeReaction" : "addReaction")}",
+                likeEmoji != null ? new Dictionary<string, object> {
                     {"reactionType" , "like"},
-                    {"likeImage", likeImage}
+                    {"likeEmoji", likeEmoji}
                 } : new Dictionary<string, object> {
                     {"reactionType" , "like"}
                 });
             HttpManager.resume(request: request).Then(responseText => {
                 promise.Resolve(JsonConvert.DeserializeObject<UpdateChannelMessagesReactionResponse>(value: responseText));
-            }).Catch(exception => promise.Reject(ex: exception));
+            }).Catch(exception => {
+                promise.Reject(ex: exception);
+            });
             return promise;
         }
     }

@@ -31,6 +31,6 @@ namespace ConnectApp.Models.ActionModel {
         public Action<ChannelMessageView, string, int> updateMessageLikeImageCount;
         public Action<ChannelMessageView> clearMessageLikeImages;
         public Action<ChannelMessageView, string> updateMyLikeImage;
-        public Action<ChannelMessageView> cancelMyLikeImage;
+        public Action<ChannelMessageView, string> cancelMyLikeImage;
     }
 }

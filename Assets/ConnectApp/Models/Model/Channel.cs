@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ConnectApp.Constants;
 using ConnectApp.Models.Api;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
@@ -38,7 +39,7 @@ namespace ConnectApp.Models.Model {
         public List<User> replyUsers;
         public List<User> lowerUsers;
         public List<Reaction> reactions;
-        public Dictionary<string, int> likeImageStats;
+        public Dictionary<string, int> likeEmojiStats;
         public List<Embed> embeds;
         public bool pending;
         public string deletedTime;
@@ -352,8 +353,8 @@ namespace ConnectApp.Models.Model {
         public bool deleted = false;
         public List<Reaction> reactions;
         public List<Embed> embeds;
-        public Dictionary<string, int> likeImageCount;
-        public Dictionary<string, string> userLikeImages;
+        public SortedDictionary<string, int> likeImageCount;
+        public Dictionary<string, Dictionary<string, int>> userLikeImages;
         public Dictionary<string, List<string>> reactionsUsernameDict;
         public string status = "normal";
         public byte[] imageData;
@@ -450,26 +451,34 @@ namespace ConnectApp.Models.Model {
                    attachments.FirstOrDefault()?.contentType == "image/gif";
         }
 
-        static Dictionary<string, int> getLikeImageCount(Dictionary<string, int> likeImageStats) {
-            var stats = new Dictionary<string, int>();
-            if (likeImageStats == null) {
+        static readonly Dictionary<string, int> reactionSortDict = new Dictionary<string, int> {
+            {"thumb", 1},
+            {"oppose", 2},
+            {"coverface", 3},
+            {"heartbeat", 4},
+            {"doubt", 5}
+        };
+        static readonly List<string> reactionSortList = new List<string>{"thumb", "oppose", "coverface", "heartbeat", "doubt"};
+        
+        static SortedDictionary<string, int> getLikeImageCount(Dictionary<string, int> likeEmojiStats) {
+            var stats = new SortedDictionary<string, int>(Comparer<string>.Create((s, s1) => reactionSortDict[key: s] - reactionSortDict[key: s1]));
+            if (likeEmojiStats == null) {
                 return stats;
             }
-            foreach (var entry in likeImageStats) {
-                if (entry.Value > 0) {
-                    stats[entry.Key] = entry.Value;
+            foreach (var item in reactionSortList) {
+                if (likeEmojiStats.ContainsKey(key: item) && likeEmojiStats[key: item] > 0) {
+                    stats.Add(key: item, likeEmojiStats[key: item]);
                 }
             }
-
             return stats;
         }
 
-        static Dictionary<string, string> getUserLikeImageDict(List<Reaction> reactions) {
-            var likeImageDict = new Dictionary<string, string>(); 
+        static Dictionary<string, Dictionary<string, int>> getUserLikeImageDict(List<Reaction> reactions) {
+            var likeImageDict = new Dictionary<string, Dictionary<string, int>>(); 
             foreach(var reaction in reactions) {
                 if (reaction.type == "like") {
-                    if(reaction.likeImage.isNotEmpty())
-                        likeImageDict[reaction.user.id] = reaction.likeImage;
+                    if(reaction.likeEmoji.isNotNullAndEmpty())
+                        likeImageDict[reaction.user.id] = reaction.likeEmoji;
                 }
             }
 
@@ -484,32 +493,36 @@ namespace ConnectApp.Models.Model {
             var doubtNames = new List<string>();
             
             foreach(var reaction in reactions) {
-                if (reaction.type == "like" && reaction.likeImage.isNotEmpty()) {
-                    switch (reaction.likeImage) {
-                        case "thumb-up":
-                            likeNames.Add(item: reaction.user.fullName);
-                            break;
-                        case "thumb-down":
-                            opposeNames.Add(item: reaction.user.fullName);
-                            break;
-                        case "facepalming":
-                            coverfaceNames.Add(item: reaction.user.fullName);
-                            break;
-                        case "heart-eyes":
-                            heartbeatNames.Add(item: reaction.user.fullName);
-                            break;
-                        case "question":
-                            doubtNames.Add(item: reaction.user.fullName);
-                            break;
+                if (reaction.type == "like" && reaction.likeEmoji.isNotNullAndEmpty()) {
+                    foreach (var emojiName in reaction.likeEmoji.Keys) {
+                        if (reaction.likeEmoji[emojiName] == 1) {
+                            switch (emojiName) {
+                                case "thumb":
+                                    likeNames.Add(item: reaction.user.fullName);    
+                                    break;
+                                case "oppose":
+                                    opposeNames.Add(item: reaction.user.fullName);
+                                    break;
+                                case "coverface":
+                                    coverfaceNames.Add(item: reaction.user.fullName);
+                                    break;
+                                case "heartbeat":
+                                    heartbeatNames.Add(item: reaction.user.fullName);
+                                    break;
+                                case "doubt":
+                                    doubtNames.Add(item: reaction.user.fullName);
+                                    break;
+                            }
+                        }
                     }
                 }
             }
 
-            reactionsUsernameDict.Add("thumb-up", value: likeNames);
-            reactionsUsernameDict.Add("thumb-down", value: opposeNames);
-            reactionsUsernameDict.Add("facepalming", value: coverfaceNames);
-            reactionsUsernameDict.Add("heart-eyes", value: heartbeatNames);
-            reactionsUsernameDict.Add("question", value: doubtNames);
+            reactionsUsernameDict.Add("thumb", value: likeNames);
+            reactionsUsernameDict.Add("oppose", value: opposeNames);
+            reactionsUsernameDict.Add("coverface", value: coverfaceNames);
+            reactionsUsernameDict.Add("heartbeat", value: heartbeatNames);
+            reactionsUsernameDict.Add("doubt", value: doubtNames);
             
             return reactionsUsernameDict;
         }
@@ -525,27 +538,31 @@ namespace ConnectApp.Models.Model {
             }
         }
 
-        public string getLikeImage(string userId) {
+        public Dictionary<string, int> getLikeImageSet(string userId) {
             return this.userLikeImages.getOrDefault(userId, null);
         }
 
         public bool isLikedBy(string userId, string type) {
-            return this.getLikeImage(userId) == type;
+            return this.getLikeImageSet(userId) != null && this.getLikeImageSet(userId).ContainsKey(type) && this.getLikeImageSet(userId)[type] == 1;
         }
 
         public void updateUserLikeImage(string type, string userId) {
-            if (this.getLikeImage(userId) != type) {
-                if (this.getLikeImage(userId) != null) {
-                    this.updateLikeImage(this.getLikeImage(userId),
-                        this.likeImageCount.getOrDefault(this.getLikeImage(userId), 0) - 1);
-                }
-                if (type != null) {
-                    this.updateLikeImage(type,
-                        this.likeImageCount.getOrDefault(type, 0) + 1);
-                    this.userLikeImages[userId] = type;
+            if (type == null || this.getLikeImageSet(userId) == null) {
+                return;
+            }
+            if (this.getLikeImageSet(userId).ContainsKey(type) && this.getLikeImageSet(userId)[type] == 1) { // cancel
+                this.updateLikeImage(type,
+                    this.likeImageCount.getOrDefault(type, 0) - 1); 
+                this.userLikeImages[userId][type] = 0;
+            }
+            else { // add
+                this.updateLikeImage(type,
+                    this.likeImageCount.getOrDefault(type, 0) + 1);
+                if (this.getLikeImageSet(userId).ContainsKey(type)) {
+                    this.userLikeImages[userId][type] = 1;   
                 }
                 else {
-                    this.userLikeImages.Remove(userId);
+                    this.userLikeImages[userId].Add(type, 1);
                 }
             }
         }
@@ -581,7 +598,7 @@ namespace ConnectApp.Models.Model {
                     deleted = message.deletedTime != null,
                     embeds = message.embeds,
                     reactions = message.reactions,
-                    likeImageCount = getLikeImageCount(message.likeImageStats),
+                    likeImageCount = getLikeImageCount(message.likeEmojiStats),
                     userLikeImages = getUserLikeImageDict(message.reactions),
                     reactionsUsernameDict = getReactionsUsernameDict(message.reactions),
                     isGif = getImageIsGif(message.attachments)
@@ -607,7 +624,7 @@ namespace ConnectApp.Models.Model {
                     mentions = message.mentions?.Select(user => new User {id = user.id}).ToList(),
                     deleted = message.deletedTime != null,
                     reactions = new List<Reaction>(),
-                    likeImageCount = new Dictionary<string, int>(),
+                    likeImageCount = new SortedDictionary<string, int>(),
                     isGif = getImageIsGif(message.attachments)
                 };
         }
@@ -643,7 +660,7 @@ namespace ConnectApp.Models.Model {
                     deleted = message.deletedTime != null,
                     embeds = message.embeds,
                     reactions = message.reactions,
-                    likeImageCount = getLikeImageCount(message.likeImageStats),
+                    likeImageCount = getLikeImageCount(message.likeEmojiStats),
                     userLikeImages = getUserLikeImageDict(message.reactions),
                     reactionsUsernameDict = getReactionsUsernameDict(message.reactions),
                     isGif = getImageIsGif(message.attachments)

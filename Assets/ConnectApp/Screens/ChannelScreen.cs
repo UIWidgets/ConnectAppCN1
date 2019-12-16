@@ -277,7 +277,7 @@ namespace ConnectApp.screens {
                             });
                         },
                         updateMyLikeImage = (message, type) => {
-                            if (message.getLikeImage(viewModel.me.id) != type) {
+                            if (message.getLikeImageSet(viewModel.me.id) == null || !message.getLikeImageSet(viewModel.me.id).ContainsKey(type) || message.getLikeImageSet(viewModel.me.id)[type] == 0) {
                                 dispatcher.dispatch(new AddMyLikeImageToMessage {
                                     type = type,
                                     messageId = message.id
@@ -285,12 +285,13 @@ namespace ConnectApp.screens {
                                 dispatcher.dispatch(Actions.addReaction(message.id, type));
                             }
                         },
-                        cancelMyLikeImage = (message) => {
-                            if (message.getLikeImage(viewModel.me.id) != null) {
+                        cancelMyLikeImage = (message, type) => {
+                            if (message.getLikeImageSet(viewModel.me.id) != null) {
                                 dispatcher.dispatch(new RemoveMyLikeImageFromMessage {
+                                    type = type,
                                     messageId = message.id
                                 });
-                                dispatcher.dispatch(Actions.cancelReaction(message.id));
+                                dispatcher.dispatch(Actions.cancelReaction(message.id, type));
                             }
                         }
                     };
@@ -333,11 +334,11 @@ namespace ConnectApp.screens {
         };
 
         public static readonly Dictionary<string, string> reactionStaticIcons = new Dictionary<string, string> {
-            {"thumb-up", "image/reaction-like"},
-            {"thumb-down", "image/reaction-oppose"},
-            {"facepalming", "image/reaction-coverface"},
-            {"heart-eyes", "image/reaction-heartbeat"},
-            {"question", "image/reaction-doubt"},
+            {"thumb", "image/reaction-thumb"},
+            {"oppose", "image/reaction-oppose"},
+            {"coverface", "image/reaction-coverface"},
+            {"heartbeat", "image/reaction-heartbeat"},
+            {"doubt", "image/reaction-doubt"},
         };
 
         bool _showEmojiBoard;
@@ -1288,8 +1289,8 @@ namespace ConnectApp.screens {
                     decoration: this._messageDecoration(message.type, left),
                     child: this._buildMessageContent(message: message)
                 ),
-                onTap: (type) => {
-                    if (message.getLikeImage(this.widget.viewModel.me.id) != type) {
+                onTap: type => {
+                    if (message.getLikeImageSet(this.widget.viewModel.me.id) == null || !message.getLikeImageSet(this.widget.viewModel.me.id).ContainsKey(type) || message.getLikeImageSet(this.widget.viewModel.me.id)[type] == 0) {
                         if (message.likeImageCount.isEmpty()) {
                             this._animatingMessageReaction = message.id;
                             this._reactionAppearAnimationController.reset();
@@ -1306,7 +1307,7 @@ namespace ConnectApp.screens {
                             this._reactionAppearAnimationController.setValue(1);
                         }
                         else {
-                            this.widget.actionModel.cancelMyLikeImage(message);
+                            this.widget.actionModel.cancelMyLikeImage(message, type);
                         }
                     }
 
@@ -1318,7 +1319,7 @@ namespace ConnectApp.screens {
             return new GestureDetector(
                 onTap: () => {
                     if (message.isLikedBy(this.widget.viewModel.me.id, type)) {
-                        this.widget.actionModel.cancelMyLikeImage(message);
+                        this.widget.actionModel.cancelMyLikeImage(message, type);
                     }
                     else {
                         this.widget.actionModel.updateMyLikeImage(message, type);
@@ -1360,8 +1361,6 @@ namespace ConnectApp.screens {
             }
 
             List<string> likeImageKeys = message.likeImageCount.Keys.ToList();
-            likeImageKeys.Sort();
-
             Widget result = new Container(
                 padding: EdgeInsets.only(top: 8),
                 child: new Wrap(
@@ -1369,7 +1368,7 @@ namespace ConnectApp.screens {
                     spacing: 8,
                     children: likeImageKeys
                         .Select(type => this._buildReaction(message, type))
-                        .Reverse().ToList()
+                        .ToList()
                 )
             );
 
@@ -1943,9 +1942,9 @@ namespace ConnectApp.screens {
                 plainText = plainText,
                 time = DateTime.UtcNow,
                 status = "waiting",
-                likeImageCount = new Dictionary<string, int>(),
+                likeImageCount = new SortedDictionary<string, int>(),
                 reactions = new List<Reaction>(),
-                userLikeImages = new Dictionary<string, string>()
+                userLikeImages = new Dictionary<string, Dictionary<string, int>>()
             });
             this._textController.clear();
             this._textController.selection = TextSelection.collapsed(0);
@@ -2084,8 +2083,8 @@ namespace ConnectApp.screens {
                 imageData = pickImage,
                 time = DateTime.UtcNow,
                 status = "waiting",
-                likeImageCount = new Dictionary<string, int>(),
-                userLikeImages = new Dictionary<string, string>()
+                likeImageCount = new SortedDictionary<string, int>(),
+                userLikeImages = new Dictionary<string, Dictionary<string, int>>()
             });
         }
 
@@ -2108,8 +2107,8 @@ namespace ConnectApp.screens {
                 },
                 time = DateTime.UtcNow,
                 status = "waiting",
-                likeImageCount = new Dictionary<string, int>(),
-                userLikeImages = new Dictionary<string, string>()
+                likeImageCount = new SortedDictionary<string, int>(),
+                userLikeImages = new Dictionary<string, Dictionary<string, int>>()
             });
         }
 
@@ -2288,7 +2287,7 @@ namespace ConnectApp.screens {
                 ReactionType.typesList.Select(type => 
                     new PopupLikeButtonItem {
                         content = type.gifImagePath,
-                        selected = message.getLikeImage(userId: this.widget.userId) == type.value,
+                        selected = message.getLikeImageSet(userId: this.widget.userId) != null && message.getLikeImageSet(userId: this.widget.userId).ContainsKey(type.value) && message.getLikeImageSet(userId: this.widget.userId)[type.value] == 1,
                         type = type.value
                     }
                 ).ToList()
