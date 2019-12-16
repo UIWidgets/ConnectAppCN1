@@ -6,7 +6,6 @@ using ConnectApp.Main;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
-using ConnectApp.Plugins;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
@@ -176,7 +175,6 @@ namespace ConnectApp.screens {
                                 () => {
                                     AnalyticsManager.ClickLogout();
                                     this.widget.actionModel.logout();
-                                    JPushPlugin.deleteJPushAlias();
                                 }),
                             new ActionSheetItem("取消", type: ActionType.cancel)
                         }

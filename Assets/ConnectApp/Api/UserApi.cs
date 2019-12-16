@@ -118,7 +118,8 @@ namespace ConnectApp.Api {
             return promise;
         }
 
-        public static Promise<FetchEditPersonalInfoResponse> EditPersonalInfo(string userId, string fullName, string title,
+        public static Promise<FetchEditPersonalInfoResponse> EditPersonalInfo(string userId, string fullName,
+            string title,
             string jobRoleId, string placeId) {
             var promise = new Promise<FetchEditPersonalInfoResponse>();
             var para = new EditPersonalParameter {
@@ -149,6 +150,19 @@ namespace ConnectApp.Api {
                     JsonConvert.DeserializeObject<UpdateAvatarResponse>(value: responseText);
                 promise.Resolve(value: updateAvatarResponse);
             }).Catch(exception => promise.Reject(ex: exception));
+            return promise;
+        }
+
+        public static Promise RegisterToken(string token, string userId = "") {
+            var promise = new Promise();
+            var para = new RegisterTokenParameter {
+                token = token,
+                userId = userId
+            };
+            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/registerToken",
+                parameter: para);
+            HttpManager.resume(request: request).Then(responseText => { promise.Resolve(); })
+                .Catch(exception => promise.Reject(ex: exception));
             return promise;
         }
     }

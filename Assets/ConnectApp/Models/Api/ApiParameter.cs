@@ -84,4 +84,10 @@ namespace ConnectApp.Models.Api {
     public class UpdateAvatarParameter {
         public string avatar;
     }
+
+    [Serializable]
+    public class RegisterTokenParameter {
+        public string token;
+        public string userId;
+    }
 }

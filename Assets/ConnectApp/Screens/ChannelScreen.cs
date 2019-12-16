@@ -228,6 +228,9 @@ namespace ConnectApp.screens {
                         pushToUserDetail = userId => dispatcher.dispatch(new MainNavigatorPushToUserDetailAction {
                             userId = userId
                         }),
+                        pushToReactionsDetail = messageId => dispatcher.dispatch(new MainNavigatorPushToReactionsDetailAction {
+                            messageId = messageId
+                        }),
                         sendMessage = (channelId, content, nonce, parentMessageId) => dispatcher.dispatch<IPromise>(
                             Actions.sendChannelMessage(channelId, content, nonce, parentMessageId)),
                         ackMessage = () =>
@@ -329,20 +332,12 @@ namespace ConnectApp.screens {
             {"X-Requested-With", "XmlHttpRequest"}
         };
 
-        public static readonly Dictionary<string, string> reactionIcons = new Dictionary<string, string> {
-            {"thumb-up", "image/like.gif"},
-            {"thumb-down", "image/oppose.gif"},
-            {"facepalming", "image/tear.gif"},
-            {"heart-eyes", "image/heartbeat.gif"},
-            {"question", "image/doubt.gif"},
-        };
-
         public static readonly Dictionary<string, string> reactionStaticIcons = new Dictionary<string, string> {
-            {"thumb-up", "image/emoji-thumb"},
-            {"thumb-down", "image/emoji-oppose"},
-            {"facepalming", "image/emoji-coverface"},
-            {"heart-eyes", "image/emoji-heartbeat"},
-            {"question", "image/emoji-doubt"},
+            {"thumb-up", "image/reaction-like"},
+            {"thumb-down", "image/reaction-oppose"},
+            {"facepalming", "image/reaction-coverface"},
+            {"heart-eyes", "image/reaction-heartbeat"},
+            {"question", "image/reaction-doubt"},
         };
 
         bool _showEmojiBoard;
@@ -1468,7 +1463,7 @@ namespace ConnectApp.screens {
 
             if (this.showKeyboard || this.showEmojiBoard) {
                 this._dismissKeyboard();
-                Promise.Delayed(TimeSpan.FromMilliseconds(500)).Then(() => {
+                Promise.Delayed(TimeSpan.FromMilliseconds(200)).Then(() => {
                     this._onMessageLongPress(message, left);
                 });
                 return;
@@ -1581,7 +1576,13 @@ namespace ConnectApp.screens {
                         children: new List<Widget> {
                             left ? this._buildMessageTitle(message) : new Container(),
                             ret,
-                            this._buildReactionBar(message, left)
+                            new GestureDetector(
+                                onLongPress: () => this.widget.actionModel.pushToReactionsDetail(message.id),
+                                child: new Container(
+                                    color: CColors.Transparent,
+                                    child: this._buildReactionBar(message, left)
+                                )
+                            )
                         }
                     )
                 );
@@ -2106,7 +2107,9 @@ namespace ConnectApp.screens {
                     }
                 },
                 time = DateTime.UtcNow,
-                status = "waiting"
+                status = "waiting",
+                likeImageCount = new Dictionary<string, int>(),
+                userLikeImages = new Dictionary<string, string>()
             });
         }
 
@@ -2282,13 +2285,13 @@ namespace ConnectApp.screens {
         Widget _buildPopupLikeButtonBar(ChannelMessageView message) {
             return new PopupLikeButtonBar(
                 onTap: this.widget.onTap,
-                popupLikeButtonData: _ChannelScreenState.reactionIcons.Keys.Select(type => {
-                    return new PopupLikeButtonItem {
-                        content = _ChannelScreenState.reactionIcons[type],
-                        selected = message.getLikeImage(this.widget.userId) == type,
-                        type = type
-                    };
-                }).ToList()
+                ReactionType.typesList.Select(type => 
+                    new PopupLikeButtonItem {
+                        content = type.gifImagePath,
+                        selected = message.getLikeImage(userId: this.widget.userId) == type.value,
+                        type = type.value
+                    }
+                ).ToList()
             );
         }
     }

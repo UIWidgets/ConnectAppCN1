@@ -93,6 +93,7 @@ namespace ConnectApp.redux.reducers {
 
                 case LogoutAction _: {
                     JPushPlugin.clearNotifications();
+                    JPushPlugin.deleteJPushAlias(state.loginState.loginInfo.userId);
                     EventBus.publish(sName: EventBusConstant.logout_success, new List<object>());
                     HistoryManager.deleteHomeAfterTime(state.loginState.loginInfo.userId);
                     HttpManager.clearCookie();
@@ -132,7 +133,9 @@ namespace ConnectApp.redux.reducers {
                     }
 
                     foreach (var article in action.articleList) {
-                        state.articleState.recommendArticleIds.Add(item: article.id);
+                        if (!state.articleState.recommendArticleIds.Contains(article.id)) {
+                            state.articleState.recommendArticleIds.Add(item: article.id);
+                        }
                         if (!state.articleState.articleDict.ContainsKey(key: article.id)) {
                             state.articleState.articleDict.Add(key: article.id, value: article);
                         }
@@ -1523,6 +1526,15 @@ namespace ConnectApp.redux.reducers {
                 case MainNavigatorPushToReportAction action: {
                     Router.navigator.push(new CustomPageRoute(
                         context => new ReportScreenConnector(reportId: action.reportId, reportType: action.reportType)
+                    ));
+
+                    break;
+                }
+
+                case MainNavigatorPushToReactionsDetailAction action: {
+                    Router.navigator.push(new CustomPageRoute(
+                        context => new ReactionsDetailScreenConnector(action.messageId),
+                        fullscreenDialog: true
                     ));
 
                     break;

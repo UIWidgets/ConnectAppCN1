@@ -22,7 +22,7 @@ namespace ConnectApp.Constants {
 
         public const string versionName = "1.2.6";
 
-        public const int versionCode = 96;
+        public const int versionCode = 97;
 
         public const string messengerTag = "messenger";
 

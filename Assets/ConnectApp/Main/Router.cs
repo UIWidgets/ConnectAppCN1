@@ -44,6 +44,7 @@ namespace ConnectApp.Main {
         public const string ChannelDetail = "/channel-detail";
         public const string ChannelMembers = "/channel-members";
         public const string ChannelIntroduction = "/channel-introduction";
+        public const string ReactionsDetail = "/reactions-detail";
     }
 
     class Router : StatelessWidget {
@@ -92,6 +93,7 @@ namespace ConnectApp.Main {
                     {MainNavigatorRoutes.ChannelDetail, context => new ChannelDetailScreenConnector("")},
                     {MainNavigatorRoutes.ChannelMembers, context => new ChannelMembersScreenConnector("")},
                     {MainNavigatorRoutes.ChannelIntroduction, context => new ChannelIntroductionScreenConnector("")},
+                    {MainNavigatorRoutes.ReactionsDetail, context => new ReactionsDetailScreenConnector("")}
                 };
                 if (Application.isEditor) {
                     var isExistSplash = SplashManager.isExistSplash();
@@ -182,33 +184,6 @@ namespace ConnectApp.Main {
                         builder: context1 => mainRoutes[key: settings.name](context: context1)
                     )
                 )
-            );
-        }
-    }
-
-    class ModalPageTransition : StatelessWidget {
-        internal ModalPageTransition(
-            Key key = null,
-            Animation<float> routeAnimation = null, // The route's linear 0.0 - 1.0 animation.
-            Widget child = null
-        ) : base(key: key) {
-            this._positionAnimation = this._bottomUpTween.chain(this._fastOutSlowInTween).animate(routeAnimation);
-            this.child = child;
-        }
-
-        readonly Tween<Offset> _bottomUpTween = new OffsetTween(
-            new Offset(0.0f, 1.0f),
-            Offset.zero
-        );
-
-        readonly Animatable<float> _fastOutSlowInTween = new CurveTween(Curves.fastOutSlowIn);
-        readonly Animation<Offset> _positionAnimation;
-        readonly Widget child;
-
-        public override Widget build(BuildContext context) {
-            return new SlideTransition(
-                position: this._positionAnimation,
-                child: this.child
             );
         }
     }
