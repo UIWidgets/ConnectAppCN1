@@ -4,7 +4,7 @@ namespace ConnectApp.Constants {
 
         public const string apiAddress = "https://connect.unity.com";
 
-        public const string apiPath = "/api/connectapp/v1";
+        public const string apiPath = "/api/connectapp/v2";
 
         public const string domain = ".connect.unity.com";
 
@@ -22,7 +22,7 @@ namespace ConnectApp.Constants {
 
         public const string versionName = "1.2.6";
 
-        public const int versionCode = 97;
+        public const int versionCode = 98;
 
         public const string messengerTag = "messenger";
 
