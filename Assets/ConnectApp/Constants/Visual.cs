@@ -76,6 +76,8 @@ namespace ConnectApp.Constants {
         public static readonly IconData camera_alt = new IconData(0xe3b0, "Material Icons");
         public static readonly IconData add = new IconData(0xe145, "Material Icons");
         public static readonly IconData edit = new IconData(0xe3c9, "Material Icons");
+        public static readonly IconData thumb_bold = new IconData(0xe627, "iconfont");
+        public static readonly IconData thumb_line = new IconData(0xe628, "iconfont");
     }
 
     public static class CTextStyle {
@@ -464,6 +466,7 @@ namespace ConnectApp.Constants {
         public static readonly Color PrimaryBlue = new Color(0xFF2196F3);
         public static readonly Color SecondaryPink = new Color(0xFFF32194);
         public static readonly Color Error = new Color(0xFFF44336);
+        public static readonly Color Thumb = new Color(0xFFF44336);
         public static readonly Color Cancel = new Color(0xFF797979);
         public static readonly Color TextTitle = new Color(0xFF000000);
         public static readonly Color TextBody = new Color(0xFF212121);
