@@ -291,7 +291,12 @@ namespace ConnectApp.Plugins {
                     return;
                 }
 
-                StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToChannelShareAction {channelId = id});
+                if (UserInfoManager.isLogin()) {
+                    StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToChannelAction {channelId = id});
+                }
+                else {
+                    Router.navigator.pushNamed(routeName: MainNavigatorRoutes.Login);
+                }
             }
         }
 
