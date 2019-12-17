@@ -97,6 +97,7 @@ namespace ConnectApp.redux.reducers {
                     EventBus.publish(sName: EventBusConstant.logout_success, new List<object>());
                     HistoryManager.deleteHomeAfterTime(state.loginState.loginInfo.userId);
                     HttpManager.clearCookie();
+                    MyReactionsManager.clearData();
                     state.loginState.loginInfo = new LoginInfo();
                     state.loginState.isLoggedIn = false;
                     UserInfoManager.clearUserInfo();
@@ -946,36 +947,7 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
-                case UpdateMessageLikeImageCountAction action: {
-                    if (state.channelState.messageDict.TryGetValue(action.messageId, out var message)) {
-                        message.updateLikeImage(action.type, action.count);
-                    }
-
-                    break;
-                }
-
-                case AddMyLikeImageToMessage action: {
-                    if (state.channelState.messageDict.TryGetValue(action.messageId, out var message)) {
-                        message.updateUserLikeImage(action.type, state.loginState.loginInfo.userId);
-                    }
-
-                    break;
-                }
-
-                case RemoveMyLikeImageFromMessage action: {
-                    if (state.channelState.messageDict.TryGetValue(action.messageId, out var message)) {
-                        message.updateUserLikeImage(action.type, state.loginState.loginInfo.userId);
-                    }
-
-                    break;
-                }
-
-                case ClearMessageLikeImages action: {
-                    if (state.channelState.messageDict.TryGetValue(action.messageId, out var message)) {
-                        message.likeImageCount.Clear();
-                        message.userLikeImages.Clear();
-                    }
-
+                case UpdateMyReactionToMessage _: {
                     break;
                 }
 
@@ -2759,6 +2731,7 @@ namespace ConnectApp.redux.reducers {
 
                     for (var i = 0; i < action.messages.Count; i++) {
                         var channelMessage = ChannelMessageView.fromChannelMessage(action.messages[i]);
+                        MyReactionsManager.initialMyReactions(channelMessage.id, channelMessage.allUserReactionsDict);
                         state.channelState.messageDict[channelMessage.id] = channelMessage;
 
                         if (!channel.newMessageIds.Contains(channelMessage.id) &&
@@ -3071,10 +3044,11 @@ namespace ConnectApp.redux.reducers {
                     }
 
                     var channel = state.channelState.channelDict[message.channelId];
-                    //ignore duplicated message
+                    // ignore duplicated message
                     if (!channel.messageIds.Contains(message.id) && !channel.newMessageIds.Contains(message.id) &&
                         !channel.oldMessageIds.Contains(message.id)) {
                         var channelMessage = ChannelMessageView.fromPushMessage(message);
+                        MyReactionsManager.initialMyReactions(channelMessage.id, channelMessage.allUserReactionsDict);
                         state.channelState.messageDict[channelMessage.id] = channelMessage;
                         if (channel.atBottom || !channel.active) {
                             channel.messageIds.Add(channelMessage.id);
@@ -3114,6 +3088,7 @@ namespace ConnectApp.redux.reducers {
                     var channel = state.channelState.channelDict[message.channelId];
 
                     var channelMessage = ChannelMessageView.fromPushMessage(message);
+                    MyReactionsManager.initialMyReactions(channelMessage.id, channelMessage.allUserReactionsDict);
                     state.channelState.messageDict[channelMessage.id] = channelMessage;
 
                     //insert new if not exists yet

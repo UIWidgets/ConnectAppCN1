@@ -819,24 +819,7 @@ namespace ConnectApp.redux.actions {
         public ChannelMessageView message;
     }
 
-    public class UpdateMessageLikeImageCountAction : BaseAction {
-        public string messageId;
-        public string type;
-        public int? count;
-    }
-
-    public class AddMyLikeImageToMessage : BaseAction {
-        public string messageId;
-        public string type;
-    }
-
-    public class RemoveMyLikeImageFromMessage : BaseAction {
-        public string messageId;
-        public string type;
-    }
-
-    public class ClearMessageLikeImages : BaseAction {
-        public string messageId;
+    public class UpdateMyReactionToMessage : BaseAction {
     }
 
     public class FetchChannelMentionQuerySuccessAction : BaseAction {

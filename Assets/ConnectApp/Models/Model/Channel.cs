@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ConnectApp.Constants;
 using ConnectApp.Models.Api;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
@@ -353,9 +352,9 @@ namespace ConnectApp.Models.Model {
         public bool deleted = false;
         public List<Reaction> reactions;
         public List<Embed> embeds;
-        public SortedDictionary<string, int> likeImageCount;
-        public Dictionary<string, Dictionary<string, int>> userLikeImages;
-        public Dictionary<string, List<string>> reactionsUsernameDict;
+        public SortedDictionary<string, int> reactionsCountDict; // message total count dictionary
+        public Dictionary<string, Dictionary<string, int>> allUserReactionsDict; // everyone reactions status
+        public Dictionary<string, List<string>> reactionsUsernameListDict; // every reaction username list dictionary
         public string status = "normal";
         public byte[] imageData;
         public byte[] videoData;
@@ -460,29 +459,31 @@ namespace ConnectApp.Models.Model {
         };
         static readonly List<string> reactionSortList = new List<string>{"thumb", "oppose", "coverface", "heartbeat", "doubt"};
         
-        static SortedDictionary<string, int> getLikeImageCount(Dictionary<string, int> likeEmojiStats) {
+        static SortedDictionary<string, int> getReactionsTotalCount(Dictionary<string, int> likeEmojiStats, Dictionary<string, Dictionary<string, int>> allUserReactions) {
             var stats = new SortedDictionary<string, int>(Comparer<string>.Create((s, s1) => reactionSortDict[key: s] - reactionSortDict[key: s1]));
             if (likeEmojiStats == null) {
                 return stats;
             }
+            var myReactions = allUserReactions.getOrDefault(key: UserInfoManager.getUserInfo().userId, null);
             foreach (var item in reactionSortList) {
                 if (likeEmojiStats.ContainsKey(key: item) && likeEmojiStats[key: item] > 0) {
-                    stats.Add(key: item, likeEmojiStats[key: item]);
+                    stats.Add(key: item, likeEmojiStats[key: item] - (myReactions?.getOrDefault(item, 0) ?? 0)); // remove my reaction count from total count.
                 }
             }
             return stats;
         }
 
-        static Dictionary<string, Dictionary<string, int>> getUserLikeImageDict(List<Reaction> reactions) {
-            var likeImageDict = new Dictionary<string, Dictionary<string, int>>(); 
+        static Dictionary<string, Dictionary<string, int>> getAllUserReactions(List<Reaction> reactions) {
+            var allUserReactions = new Dictionary<string, Dictionary<string, int>>(); 
             foreach(var reaction in reactions) {
                 if (reaction.type == "like") {
-                    if(reaction.likeEmoji.isNotNullAndEmpty())
-                        likeImageDict[reaction.user.id] = reaction.likeEmoji;
+                    if (reaction.likeEmoji.isNotNullAndEmpty()) {
+                        allUserReactions[reaction.user.id] = reaction.likeEmoji;
+                    }
                 }
             }
 
-            return likeImageDict;
+            return allUserReactions;
         }
         static Dictionary<string, List<string>> getReactionsUsernameDict(List<Reaction> reactions) {
             var reactionsUsernameDict = new Dictionary<string, List<string>>();
@@ -530,79 +531,91 @@ namespace ConnectApp.Models.Model {
         public void updateLikeImage(string type, int? count = null) {
             if (count != null) {
                 if (count.Value > 0) {
-                    this.likeImageCount[type] = count.Value;
+                    this.reactionsCountDict[type] = count.Value;
                 }
                 else {
-                    this.likeImageCount.Remove(type);
+                    this.reactionsCountDict.Remove(type);
                 }
             }
         }
 
-        public Dictionary<string, int> getLikeImageSet(string userId) {
-            return this.userLikeImages.getOrDefault(userId, null);
+        public Dictionary<string, int> getUserReactionsDict(string userId) {
+            return this.allUserReactionsDict.getOrDefault(userId, null);
         }
 
-        public bool isLikedBy(string userId, string type) {
-            return this.getLikeImageSet(userId) != null && this.getLikeImageSet(userId).ContainsKey(type) && this.getLikeImageSet(userId)[type] == 1;
+        public int adjustReactionCount (string type, int count) {
+            return count + (this.isReactionSelectedByLocalAndServer(type) ? 1 : 0);
+        }
+        
+        public bool isReactionSelectedByLocalAndServer(string type) {
+            var localData = MyReactionsManager.getMessageReactions(this.id);
+            var myUserId = UserInfoManager.getUserInfo().userId;
+            if (localData == null) {
+                return this.getUserReactionsDict(myUserId) != null && 
+                       this.getUserReactionsDict(myUserId).ContainsKey(type) && 
+                       this.getUserReactionsDict(myUserId)[type] == 1;
+            }
+            return localData.ContainsKey(type) && localData[type] == 1;
+        }
+        
+        public bool isReactionsEmpty() {
+            if (this.reactionsCountDict.isNotNullAndEmpty()) {
+                if (this.reactionsCountDict.Sum(entry => entry.Value) > 0) {
+                    return false;
+                }
+            }
+            var localData = MyReactionsManager.getMessageReactions(this.id);
+            return localData.isNullOrEmpty() || localData.Sum(entry => entry.Value) == 0;
         }
 
-        public void updateUserLikeImage(string type, string userId) {
-            if (type == null || this.getLikeImageSet(userId) == null) {
-                return;
-            }
-            if (this.getLikeImageSet(userId).ContainsKey(type) && this.getLikeImageSet(userId)[type] == 1) { // cancel
-                this.updateLikeImage(type,
-                    this.likeImageCount.getOrDefault(type, 0) - 1); 
-                this.userLikeImages[userId][type] = 0;
-            }
-            else { // add
-                this.updateLikeImage(type,
-                    this.likeImageCount.getOrDefault(type, 0) + 1);
-                if (this.getLikeImageSet(userId).ContainsKey(type)) {
-                    this.userLikeImages[userId][type] = 1;   
-                }
-                else {
-                    this.userLikeImages[userId].Add(type, 1);
+        public bool isOnlyMeSelected() {
+            if (this.reactionsCountDict.isNotNullAndEmpty()) {
+                if (this.reactionsCountDict.Sum(entry => entry.Value) > 0) {
+                    return false;
                 }
             }
+            var localData = MyReactionsManager.getMessageReactions(this.id);
+            return localData.isNotNullAndEmpty() && localData.Sum(entry => entry.Value) == 1;
         }
 
         public static ChannelMessageView fromPushMessage(SocketResponseMessageData message) {
-            return message == null
-                ? new ChannelMessageView()
-                : new ChannelMessageView {
-                    id = message.id,
-                    nonce = getNonce(message.nonce),
-                    channelId = message.channelId,
-                    author = message.author,
-                    content = getContent(message.content, message.deletedTime.isNotEmpty(), message.attachments,
-                        message.embeds),
-                    fileSize = getFileSize(message.content, message.deletedTime.isNotEmpty(), message.attachments,
-                        message.embeds),
-                    width = getImageWidth(message.content, message.deletedTime.isNotEmpty(), message.attachments,
-                        message.embeds),
-                    height = getImageHeight(message.content, message.deletedTime.isNotEmpty(), message.attachments,
-                        message.embeds),
-                    time = DateConvert.DateTimeFromNonce(message.id),
-                    attachments = message.attachments,
-                    type = getType(message.content, message.deletedTime.isNotEmpty(), message.attachments,
-                        message.embeds),
-                    mentionEveryone = message.mentionEveryone,
-                    mentions = message.mentions,
-                    starred = message.starred,
-                    replyMessageIds = message.replyMessageIds,
-                    lowerMessageIds = message.lowerMessageIds,
-                    replyUsers = message.replyUsers,
-                    lowerUsers = message.lowerUsers,
-                    pending = message.pending,
-                    deleted = message.deletedTime != null,
-                    embeds = message.embeds,
-                    reactions = message.reactions,
-                    likeImageCount = getLikeImageCount(message.likeEmojiStats),
-                    userLikeImages = getUserLikeImageDict(message.reactions),
-                    reactionsUsernameDict = getReactionsUsernameDict(message.reactions),
-                    isGif = getImageIsGif(message.attachments)
-                };
+            if (message == null) {
+                return new ChannelMessageView();
+            }
+            var allUserReactions = getAllUserReactions(message.reactions);
+            return new ChannelMessageView {
+                id = message.id,
+                nonce = getNonce(message.nonce),
+                channelId = message.channelId,
+                author = message.author,
+                content = getContent(message.content, message.deletedTime.isNotEmpty(), message.attachments,
+                    message.embeds),
+                fileSize = getFileSize(message.content, message.deletedTime.isNotEmpty(), message.attachments,
+                    message.embeds),
+                width = getImageWidth(message.content, message.deletedTime.isNotEmpty(), message.attachments,
+                    message.embeds),
+                height = getImageHeight(message.content, message.deletedTime.isNotEmpty(), message.attachments,
+                    message.embeds),
+                time = DateConvert.DateTimeFromNonce(message.id),
+                attachments = message.attachments,
+                type = getType(message.content, message.deletedTime.isNotEmpty(), message.attachments,
+                    message.embeds),
+                mentionEveryone = message.mentionEveryone,
+                mentions = message.mentions,
+                starred = message.starred,
+                replyMessageIds = message.replyMessageIds,
+                lowerMessageIds = message.lowerMessageIds,
+                replyUsers = message.replyUsers,
+                lowerUsers = message.lowerUsers,
+                pending = message.pending,
+                deleted = message.deletedTime != null,
+                embeds = message.embeds,
+                reactions = message.reactions,
+                reactionsCountDict = getReactionsTotalCount(message.likeEmojiStats, allUserReactions),
+                allUserReactionsDict = allUserReactions,
+                reactionsUsernameListDict = getReactionsUsernameDict(message.reactions),
+                isGif = getImageIsGif(message.attachments)
+            };
         }
 
         public static ChannelMessageView fromChannelMessageLite(ChannelMessageLite message) {
@@ -624,47 +637,50 @@ namespace ConnectApp.Models.Model {
                     mentions = message.mentions?.Select(user => new User {id = user.id}).ToList(),
                     deleted = message.deletedTime != null,
                     reactions = new List<Reaction>(),
-                    likeImageCount = new SortedDictionary<string, int>(),
+                    reactionsCountDict = new SortedDictionary<string, int>(),
+                    allUserReactionsDict = new Dictionary<string, Dictionary<string, int>>(),
                     isGif = getImageIsGif(message.attachments)
                 };
         }
 
         public static ChannelMessageView fromChannelMessage(ChannelMessage message) {
-            return message == null
-                ? new ChannelMessageView()
-                : new ChannelMessageView {
-                    id = message.id,
-                    nonce = getNonce(message.nonce),
-                    channelId = message.channelId,
-                    author = message.author,
-                    content = getContent(message.content, message.deletedTime.isNotEmpty(), message.attachments,
-                        message.embeds),
-                    fileSize = getFileSize(message.content, message.deletedTime.isNotEmpty(), message.attachments,
-                        message.embeds),
-                    width = getImageWidth(message.content, message.deletedTime.isNotEmpty(), message.attachments,
-                        message.embeds),
-                    height = getImageHeight(message.content, message.deletedTime.isNotEmpty(), message.attachments,
-                        message.embeds),
-                    time = DateConvert.DateTimeFromNonce(message.id),
-                    attachments = message.attachments,
-                    type = getType(message.content, message.deletedTime.isNotEmpty(), message.attachments,
-                        message.embeds),
-                    mentionEveryone = message.mentionEveryone,
-                    mentions = message.mentions,
-                    starred = message.starred,
-                    replyMessageIds = message.replyMessageIds,
-                    lowerMessageIds = message.lowerMessageIds,
-                    replyUsers = message.replyUsers,
-                    lowerUsers = message.lowerUsers,
-                    pending = message.pending,
-                    deleted = message.deletedTime != null,
-                    embeds = message.embeds,
-                    reactions = message.reactions,
-                    likeImageCount = getLikeImageCount(message.likeEmojiStats),
-                    userLikeImages = getUserLikeImageDict(message.reactions),
-                    reactionsUsernameDict = getReactionsUsernameDict(message.reactions),
-                    isGif = getImageIsGif(message.attachments)
-                };
+            if (message == null) {
+                return new ChannelMessageView();
+            }
+            var allUserReactions = getAllUserReactions(message.reactions);
+            return new ChannelMessageView {
+                id = message.id,
+                nonce = getNonce(message.nonce),
+                channelId = message.channelId,
+                author = message.author,
+                content = getContent(message.content, message.deletedTime.isNotEmpty(), message.attachments,
+                    message.embeds),
+                fileSize = getFileSize(message.content, message.deletedTime.isNotEmpty(), message.attachments,
+                    message.embeds),
+                width = getImageWidth(message.content, message.deletedTime.isNotEmpty(), message.attachments,
+                    message.embeds),
+                height = getImageHeight(message.content, message.deletedTime.isNotEmpty(), message.attachments,
+                    message.embeds),
+                time = DateConvert.DateTimeFromNonce(message.id),
+                attachments = message.attachments,
+                type = getType(message.content, message.deletedTime.isNotEmpty(), message.attachments,
+                    message.embeds),
+                mentionEveryone = message.mentionEveryone,
+                mentions = message.mentions,
+                starred = message.starred,
+                replyMessageIds = message.replyMessageIds,
+                lowerMessageIds = message.lowerMessageIds,
+                replyUsers = message.replyUsers,
+                lowerUsers = message.lowerUsers,
+                pending = message.pending,
+                deleted = message.deletedTime != null,
+                embeds = message.embeds,
+                reactions = message.reactions,
+                allUserReactionsDict = allUserReactions,
+                reactionsCountDict = getReactionsTotalCount(message.likeEmojiStats, allUserReactions),
+                reactionsUsernameListDict = getReactionsUsernameDict(message.reactions),
+                isGif = getImageIsGif(message.attachments)
+            };
         }
     }
 }

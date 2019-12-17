@@ -219,7 +219,7 @@ namespace ConnectApp.Api {
         }
 
         public static Promise<UpdateChannelMessagesReactionResponse> UpdateReaction(
-            string messageId, string likeEmoji = null, bool isRemove = false) {
+            string messageId, string likeEmoji, bool isRemove = false) {
             var promise = new Promise<UpdateChannelMessagesReactionResponse>();
             var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/messages/{messageId}/{(isRemove ? "removeReaction" : "addReaction")}",
                 likeEmoji != null ? new Dictionary<string, object> {
