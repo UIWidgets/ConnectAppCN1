@@ -23,8 +23,8 @@ namespace ConnectApp.Models.Model {
         public DateTime lastPublishedTime;
         public string type;
         public string body;
-        public bool like;
-        public int appCurrentUserLikeCount;
+        public bool? like;
+        public int? appCurrentUserLikeCount;
         public List<Favorite> favorites;
         public List<string> projectIds;
         public string channelId;

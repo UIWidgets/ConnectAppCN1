@@ -57,8 +57,7 @@ namespace ConnectApp.Components {
         DateTime? _lastDateTime;
         Timer _timer;
         AnimationController _controller;
-        Animation<float> _scaleBigAnimation;
-        Animation<float> _scaleNormalAnimation;
+        Animation<float> _scaleAnimation;
         const float likeTime = 500;
 
         public override void initState() {
@@ -68,36 +67,28 @@ namespace ConnectApp.Components {
             this._likeCount = 0;
             this._lastDateTime = null;
             this._controller = new AnimationController(
-                duration: TimeSpan.FromMilliseconds(100),
+                duration: TimeSpan.FromMilliseconds(50),
                 vsync: this
             );
-            this._scaleBigAnimation = new FloatTween(1.0f, 1.1f).animate(new CurvedAnimation(
-                parent: this._controller,
-                new Interval(
-                    0.0f,
-                    0.5f,
-                    curve: Curves.linear
-                )
-            ));
-            this._scaleNormalAnimation = new FloatTween(1.1f, 1.0f).animate(new CurvedAnimation(
-                parent: this._controller,
-                new Interval(
-                    0.5f,
-                    1.0f,
-                    curve: Curves.linear
-                )
-            ));
-            this._controller.addListener(() => this.setState(() => { }));
+            this._scaleAnimation = new FloatTween(1.0f, 1.1f).animate(parent: this._controller);
+            this._controller.addStatusListener(listener: this._animationStatusListener);
         }
 
         public override void dispose() {
             this._timer?.Dispose();
+            this._controller.removeStatusListener(listener: this._animationStatusListener);
             this._controller.dispose();
             base.dispose();
         }
 
         public Ticker createTicker(TickerCallback onTick) {
             return new Ticker(onTick: onTick, () => $"created by {this}");
+        }
+
+        void _animationStatusListener(AnimationStatus status) {
+            if (status == AnimationStatus.completed) {
+                this._controller.reverse();
+            }
         }
 
         void _startTimer() {
@@ -131,9 +122,6 @@ namespace ConnectApp.Components {
                 likeCountWidget = new Container();
             }
 
-            var scaleBigValue = this._scaleBigAnimation.value;
-            var scaleNormalValue = this._scaleNormalAnimation.value;
-            float currentValue = scaleBigValue == 1.1f ? scaleNormalValue : scaleBigValue;
             return new Stack(
                 fit: StackFit.expand,
                 children: new List<Widget> {
@@ -176,9 +164,8 @@ namespace ConnectApp.Components {
                             },
                             child: new Opacity(
                                 this.widget.isPullUp ? 0.5f : 1,
-                                child: new Transform(
-                                    transform: Matrix3.makeScale(sx: currentValue, sy: currentValue),
-                                    alignment: Alignment.center,
+                                child: new ScaleTransition(
+                                    scale: this._scaleAnimation,
                                     child: new Container(
                                         width: 48,
                                         height: 48,
@@ -212,8 +199,8 @@ namespace ConnectApp.Components {
                     new AnimatedPositioned(
                         child: new Opacity(
                             this._isLike ? 1 : 0,
-                            child: new Transform(
-                                transform: Matrix3.makeScale(sx: currentValue, sy: currentValue),
+                            child: new ScaleTransition(
+                                scale: this._scaleAnimation,
                                 alignment: Alignment.center,
                                 child: new Container(
                                     width: 32,
