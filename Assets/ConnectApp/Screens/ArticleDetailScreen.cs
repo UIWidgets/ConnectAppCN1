@@ -357,7 +357,7 @@ namespace ConnectApp.screens {
                                 ),
                                 (this._article.like ?? false) && this.widget.viewModel.isLoggedIn,
                                 this._article.appCurrentUserLikeCount ?? 0,
-                                this._article.likeCount + this._article.appLikeCount,
+                                totalLikeCount: this._article.appLikeCount,
                                 isPullUp: this._isPullUp,
                                 () => {
                                     if (!this.widget.viewModel.isLoggedIn) {
