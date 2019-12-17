@@ -41,15 +41,16 @@ public class CustomApplication extends Application {
         CommonPlugin.mContext = this;
 
 
-        if (RomUtils.isXiaomi()){
-            if (shouldInit()) MiPushClient.registerPush(this,"2882303761517998811","5581799889811");
-        }else if (RomUtils.isHuawei()){
+        if (RomUtils.isXiaomi()) {
+            if (shouldInit()) {
+                MiPushClient.registerPush(this, "2882303761517998811", "5581799889811");
+            }
+        } else if (RomUtils.isHuawei()) {
 
-        }else {
-            JPushInterface.init(this);     		// 初始化 JPush
+        } else {
+            JPushInterface.init(this);            // 初始化 JPush
+            JAnalyticsInterface.init(this);
         }
-
-        JAnalyticsInterface.init(this);
 
         UUIDUtils.buidleID(this).check();
 

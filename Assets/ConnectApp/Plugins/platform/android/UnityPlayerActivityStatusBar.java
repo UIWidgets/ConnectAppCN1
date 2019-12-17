@@ -98,14 +98,13 @@ public class UnityPlayerActivityStatusBar extends UnityPlayerActivity {
     protected void onResume() {
         super.onResume();
         videoView.resume();
-        
         if (RomUtils.isHuawei() && getIntent().getData() != null) {
             String dataStr = this.getIntent().getData().toString();
+            this.getIntent().setData(null);
             if (dataStr.contains("url=") && dataStr.startsWith("unityconnect://com.unity3d.unityconnect/push")) {
                 String[] urls = dataStr.split("url=");
                 String url = urls[urls.length - 1];
                 if (JPushPlugin.getInstance().isListenCompleted) {
-                    this.getIntent().setData(null);
                     UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("jpush", "OnOpenUrl", Arrays.asList(url));
                 } else {
                     JPushPlugin.getInstance().schemeUrl = url;
@@ -126,28 +125,30 @@ public class UnityPlayerActivityStatusBar extends UnityPlayerActivity {
     @Override
     protected void onRestart() {
         super.onRestart();
-
-        if (RomUtils.isHuawei() && getIntent().getData() != null) {
-            String dataStr = this.getIntent().getData().toString();
-            if (dataStr.contains("url=") && dataStr.startsWith("unityconnect://com.unity3d.unityconnect/push")) {
-                String[] urls = dataStr.split("url=");
-                String url = urls[urls.length - 1];
-                if (JPushPlugin.getInstance().isListenCompleted) {
-                    this.getIntent().setData(null);
-                    UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("jpush", "OnOpenUrl", Arrays.asList(url));
-                } else {
-                    JPushPlugin.getInstance().schemeUrl = url;
-                }
-                return;
-            }
-        }
-        if (this.getIntent().getScheme() != null && this.getIntent().getScheme().equals("unityconnect")) {
-            String data = this.getIntent().getDataString();
-            if (JPushPlugin.getInstance().isListenCompleted) {
+        if (RomUtils.isHuawei()) {
+            if (getIntent().getData() != null) {
+                String dataStr = this.getIntent().getData().toString();
                 this.getIntent().setData(null);
-                UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("jpush", "OnOpenUrl", Arrays.asList(data));
-            } else {
-                JPushPlugin.getInstance().schemeUrl = data;
+                if (dataStr.contains("url=") && dataStr.startsWith("unityconnect://com.unity3d.unityconnect/push")) {
+                    String[] urls = dataStr.split("url=");
+                    String url = urls[urls.length - 1];
+                    if (JPushPlugin.getInstance().isListenCompleted) {
+                        UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("jpush", "OnOpenUrl", Arrays.asList(url));
+                    } else {
+                        JPushPlugin.getInstance().schemeUrl = url;
+                    }
+                    return;
+                }
+            }
+        } else {
+            if (this.getIntent().getScheme() != null && this.getIntent().getScheme().equals("unityconnect")) {
+                String data = this.getIntent().getDataString();
+                this.getIntent().setData(null);
+                if (JPushPlugin.getInstance().isListenCompleted) {
+                    UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("jpush", "OnOpenUrl", Arrays.asList(data));
+                } else {
+                    JPushPlugin.getInstance().schemeUrl = data;
+                }
             }
         }
     }
