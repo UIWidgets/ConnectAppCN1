@@ -22,7 +22,7 @@ namespace ConnectApp.Api {
         }
 
         public static Promise Feedback(FeedbackType type, string content, string name = "", string contact = "") {
-            var userId = UserInfoManager.isLogin() ? UserInfoManager.initUserInfo().userId : "";
+            var userId = UserInfoManager.isLogin() ? UserInfoManager.getUserInfo().userId : "";
             var device = AnalyticsManager.deviceId() + (SystemInfo.deviceModel ?? "");
             var dict = new Dictionary<string, string> {
                 {"userId", userId}, {"device", device}

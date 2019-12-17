@@ -107,14 +107,12 @@ namespace ConnectApp.Components {
             Widget likeCountWidget;
             if (this.widget.totalLikeCount + this._likeCount > 0) {
                 var totalLikeCount = CStringUtils.CountToString(this.widget.totalLikeCount + this._likeCount);
-                likeCountWidget = new Container(
-                    child: new Text(
-                        data: totalLikeCount,
-                        style: new TextStyle(
-                            fontSize: 14,
-                            fontFamily: "Roboto-Regular",
-                            color: CColors.Error
-                        )
+                likeCountWidget = new Text(
+                    data: totalLikeCount,
+                    style: new TextStyle(
+                        fontSize: 12,
+                        fontFamily: "Roboto-Regular",
+                        color: CColors.Thumb
                     )
                 );
             }
@@ -174,7 +172,7 @@ namespace ConnectApp.Components {
                                             borderRadius: BorderRadius.all(24),
                                             boxShadow: new List<BoxShadow> {
                                                 new BoxShadow(
-                                                    color: CColors.Black.withOpacity(0.16f),
+                                                    CColors.Black.withOpacity(0.16f),
                                                     blurRadius: 6,
                                                     spreadRadius: 0,
                                                     offset: new Offset(0, 2))
@@ -183,10 +181,10 @@ namespace ConnectApp.Components {
                                         child: new Column(
                                             mainAxisAlignment: MainAxisAlignment.center,
                                             children: new List<Widget> {
-                                                Image.asset(
-                                                    this.widget.like || this._like ? "image/like-button" : "image/unLike-button",
-                                                    width: 20,
-                                                    height: 19
+                                                new Icon(
+                                                    this.widget.like || this._like ? Icons.thumb_bold : Icons.thumb_line, 
+                                                    size: 24, 
+                                                    color: CColors.Thumb
                                                 ),
                                                 likeCountWidget
                                             }

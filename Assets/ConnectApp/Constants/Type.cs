@@ -43,7 +43,7 @@ namespace ConnectApp.Constants {
         public static List<ReactionType> typesList {
             get {
                 return new List<ReactionType> {
-                    Like,
+                    Thumb,
                     Oppose,
                     Coverface,
                     Heartbeat,
@@ -52,29 +52,29 @@ namespace ConnectApp.Constants {
             }
         }
 
-        public static ReactionType Like {
-            get { return new ReactionType("thumb-up", "image/reaction-like.gif", "image/reaction-like", "喜欢"); }
+        public static ReactionType Thumb {
+            get { return new ReactionType("thumb", "image/reaction-thumb.gif", "image/reaction-thumb", "喜欢"); }
         }
 
         public static ReactionType Oppose {
-            get { return new ReactionType("thumb-down", "image/reaction-oppose.gif", "image/reaction-oppose", "反对"); }
+            get { return new ReactionType("oppose", "image/reaction-oppose.gif", "image/reaction-oppose", "反对"); }
         }
 
         public static ReactionType Coverface {
             get {
-                return new ReactionType("facepalming", "image/reaction-coverface.gif", "image/reaction-coverface",
+                return new ReactionType("coverface", "image/reaction-coverface.gif", "image/reaction-coverface",
                     "捂脸");
             }
         }
 
         public static ReactionType Heartbeat {
             get {
-                return new ReactionType("heart-eyes", "image/reaction-heartbeat.gif", "image/reaction-heartbeat", "心动");
+                return new ReactionType("heartbeat", "image/reaction-heartbeat.gif", "image/reaction-heartbeat", "心动");
             }
         }
 
         public static ReactionType Doubt {
-            get { return new ReactionType("question", "image/reaction-doubt.gif", "image/reaction-doubt", "疑惑"); }
+            get { return new ReactionType("doubt", "image/reaction-doubt.gif", "image/reaction-doubt", "疑惑"); }
         }
     }
 }

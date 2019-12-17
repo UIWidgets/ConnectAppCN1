@@ -266,7 +266,7 @@ namespace ConnectApp.Models.Api {
         public List<User> replyUsers;
         public List<User> lowerUsers;
         public List<Reaction> reactions;
-        public Dictionary<string, int> likeImageStats;
+        public Dictionary<string, int> likeEmojiStats;
         public List<Embed> embeds;
         public bool pending;
         public string deletedTime;
