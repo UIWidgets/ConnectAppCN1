@@ -25,14 +25,13 @@ public class UnityPlayerActivityStatusBar extends UnityPlayerActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (this.getIntent().getScheme() != null && this.getIntent().getScheme().equals("unityconnect")) {
-            JPushPlugin.getInstance().schemeUrl = this.getIntent().getDataString();
-        }
-        if (RomUtils.isHuawei() && getIntent().getData() != null) {
             String dataStr = this.getIntent().getData().toString();
             if (dataStr.contains("url=") && dataStr.startsWith("unityconnect://com.unity3d.unityconnect/push")) {
                 String[] urls = dataStr.split("url=");
                 String url = urls[urls.length - 1];
-                JPushPlugin.getInstance().schemeUrl = url;
+                JPushPlugin.getInstance().pushJson = url;
+            } else {
+                JPushPlugin.getInstance().schemeUrl = this.getIntent().getDataString();
             }
         }
 
@@ -99,18 +98,17 @@ public class UnityPlayerActivityStatusBar extends UnityPlayerActivity {
         super.onResume();
         showSystemUi();
         videoView.resume();
-        if (RomUtils.isHuawei() && getIntent().getData() != null) {
+        if (this.getIntent().getScheme() != null && this.getIntent().getScheme().equals("unityconnect")) {
             String dataStr = this.getIntent().getData().toString();
             this.getIntent().setData(null);
             if (dataStr.contains("url=") && dataStr.startsWith("unityconnect://com.unity3d.unityconnect/push")) {
                 String[] urls = dataStr.split("url=");
                 String url = urls[urls.length - 1];
                 if (JPushPlugin.getInstance().isListenCompleted) {
-                    UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("jpush", "OnOpenUrl", Arrays.asList(url));
+                    UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("jpush", "OnOpenNotification", Arrays.asList(url));
                 } else {
-                    JPushPlugin.getInstance().schemeUrl = url;
+                    JPushPlugin.getInstance().pushJson = url;
                 }
-                return;
             }
         }
 
@@ -126,29 +124,22 @@ public class UnityPlayerActivityStatusBar extends UnityPlayerActivity {
     @Override
     protected void onRestart() {
         super.onRestart();
-        if (RomUtils.isHuawei()) {
-            if (getIntent().getData() != null) {
-                String dataStr = this.getIntent().getData().toString();
-                this.getIntent().setData(null);
-                if (dataStr.contains("url=") && dataStr.startsWith("unityconnect://com.unity3d.unityconnect/push")) {
-                    String[] urls = dataStr.split("url=");
-                    String url = urls[urls.length - 1];
-                    if (JPushPlugin.getInstance().isListenCompleted) {
-                        UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("jpush", "OnOpenUrl", Arrays.asList(url));
-                    } else {
-                        JPushPlugin.getInstance().schemeUrl = url;
-                    }
-                    return;
-                }
-            }
-        } else {
-            if (this.getIntent().getScheme() != null && this.getIntent().getScheme().equals("unityconnect")) {
-                String data = this.getIntent().getDataString();
-                this.getIntent().setData(null);
+        if (this.getIntent().getScheme() != null && this.getIntent().getScheme().equals("unityconnect")) {
+            String dataStr = this.getIntent().getData().toString();
+            this.getIntent().setData(null);
+            if (dataStr.contains("url=") && dataStr.startsWith("unityconnect://com.unity3d.unityconnect/push")) {
+                String[] urls = dataStr.split("url=");
+                String url = urls[urls.length - 1];
                 if (JPushPlugin.getInstance().isListenCompleted) {
-                    UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("jpush", "OnOpenUrl", Arrays.asList(data));
+                    UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("jpush", "OnOpenNotification", Arrays.asList(url));
                 } else {
-                    JPushPlugin.getInstance().schemeUrl = data;
+                    JPushPlugin.getInstance().pushJson = url;
+                }
+            } else {
+                if (JPushPlugin.getInstance().isListenCompleted) {
+                    UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("jpush", "OnOpenUrl", Arrays.asList(dataStr));
+                } else {
+                    JPushPlugin.getInstance().schemeUrl = dataStr;
                 }
             }
         }
