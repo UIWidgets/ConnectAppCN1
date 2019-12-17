@@ -194,7 +194,6 @@ namespace ConnectApp.screens {
         _ArticleJumpToCommentState _jumpState;
         bool _needRebuildWithCachedCommentPosition;
         bool _isPullUp;
-        float _lastDownY;
 
         float? _cachedCommentPosition;
 
@@ -342,6 +341,10 @@ namespace ConnectApp.screens {
                 }
             }
 
+            var notificationListener = new NotificationListener<UserScrollNotification>(
+                child: contentWidget,
+                onNotification: this._onUserNotification
+            );
             var child = new Container(
                 color: CColors.Background,
                 child: new Column(
@@ -350,10 +353,10 @@ namespace ConnectApp.screens {
                         new Expanded(
                             child: new CrazyLikeButton(
                                 new CustomScrollbar(
-                                    child: contentWidget
+                                    child: notificationListener
                                 ),
-                                this._article.like && this.widget.viewModel.isLoggedIn,
-                                likeCount: this._article.appCurrentUserLikeCount,
+                                (this._article.like ?? false) && this.widget.viewModel.isLoggedIn,
+                                this._article.appCurrentUserLikeCount ?? 0,
                                 this._article.likeCount + this._article.appLikeCount,
                                 isPullUp: this._isPullUp,
                                 () => {
@@ -497,7 +500,7 @@ namespace ConnectApp.screens {
 
         Widget _buildArticleTabBar() {
             return new ArticleTabBar(
-                this._article.like && this.widget.viewModel.isLoggedIn,
+                (this._article.like ?? false) && this.widget.viewModel.isLoggedIn,
                 this.widget.viewModel.isLoggedIn
                 && this._article.favorites.isNotNullAndEmpty(),
                 () => this._sendComment("Article"),
@@ -507,7 +510,7 @@ namespace ConnectApp.screens {
                         this.widget.actionModel.pushToLogin();
                     }
                     else {
-                        if (!this._article.like) {
+                        if (!(this._article.like ?? false)) {
                             this.widget.actionModel.likeArticle(arg1: this._article.id, 1);
                         }
                     }
@@ -588,18 +591,21 @@ namespace ConnectApp.screens {
                     this.setState(() => this._isHaveTitle = false);
                 }
             }
+            return true;
+        }
 
-            if (pixels - this._lastDownY > 0.0f) {
+        bool _onUserNotification(UserScrollNotification notification) {
+            if (notification.direction == ScrollDirection.reverse) {
                 if (!this._isPullUp) {
                     this.setState(() => this._isPullUp = true);
                 }
             }
-            if (pixels - this._lastDownY < 0.0f) {
+
+            if (notification.direction == ScrollDirection.forward) {
                 if (this._isPullUp) {
                     this.setState(() => this._isPullUp = false);
                 }
             }
-            this._lastDownY = pixels;
             return true;
         }
 
