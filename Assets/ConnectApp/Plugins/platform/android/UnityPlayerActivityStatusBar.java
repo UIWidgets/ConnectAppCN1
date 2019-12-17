@@ -97,6 +97,7 @@ public class UnityPlayerActivityStatusBar extends UnityPlayerActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        showSystemUi();
         videoView.resume();
         if (RomUtils.isHuawei() && getIntent().getData() != null) {
             String dataStr = this.getIntent().getData().toString();
