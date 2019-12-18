@@ -2122,6 +2122,24 @@ namespace ConnectApp.screens {
             });
         }
 
+        float calculateReactionBarHeight(ChannelMessageView message, float maxWidth) {
+            float reactionBarWidth = 0;
+            message.fillReactionsCountDict();
+            foreach (var pair in message.reactionsCountDict) {
+                if (pair.Value > 0 || message.isReactionSelectedByLocalAndServer(pair.Key)) {
+                    if (reactionBarWidth > 0) {
+                        reactionBarWidth += 8;
+                    }
+
+                    reactionBarWidth += 40 + CTextUtils.CalculateTextWidth(
+                                            $"{message.adjustedReactionCount(pair.Key)}",
+                                            CTextStyle.PRegularBody,
+                                            float.PositiveInfinity);
+                }
+            }
+            return (reactionBarWidth / maxWidth).ceil() * 36;
+        }
+
         float calculateMessageHeight(ChannelMessageView message, bool showTime, float width) {
             if (message.type == ChannelMessageType.skip || message.type == ChannelMessageType.deleted) {
                 return 0;
@@ -2142,25 +2160,9 @@ namespace ConnectApp.screens {
                 return -message.buildHeight.Value;
             }
 
-            float reactionBarWidth = 0;
-            message.fillReactionsCountDict();
-            foreach (var pair in message.reactionsCountDict) {
-                if (pair.Value > 0 || message.isReactionSelectedByLocalAndServer(pair.Key)) {
-                    if (reactionBarWidth > 0) {
-                        reactionBarWidth += 8;
-                    }
-
-                    reactionBarWidth += 40 + CTextUtils.CalculateTextWidth(
-                                            $"{message.adjustedReactionCount(pair.Key)}",
-                                            CTextStyle.PRegularBody,
-                                            float.PositiveInfinity);
-                }
-            }
-            float reactionBarHeight = (reactionBarWidth / (MediaQuery.of(this.context).size.width - 74)).ceil() * 36;
-            var reactionsCountItem = message.reactionsCountDict.Where(pair => 
-                pair.Value > 0 || message.isReactionSelectedByLocalAndServer(pair.Key)).ToArray();
             float height = 20 + 6 + 16 + (showTime ? 36 : 0) + // Name + Internal + Bottom padding + time
-                           reactionBarHeight; // Reaction bar
+                           this.calculateReactionBarHeight(message,
+                               MediaQuery.of(this.context).size.width - 74); // Reaction bar
             switch (message.type) {
                 case ChannelMessageType.deleted:
 //                    height += DeletedMessage.CalculateTextHeight(width: width);
