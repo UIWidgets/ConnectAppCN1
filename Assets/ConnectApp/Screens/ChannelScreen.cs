@@ -29,7 +29,7 @@ using Image = Unity.UIWidgets.widgets.Image;
 using Transform = Unity.UIWidgets.widgets.Transform;
 
 namespace ConnectApp.screens {
-    public class ChannelScreenConnector : StatelessWidget {
+    public class  ChannelScreenConnector : StatelessWidget {
         public ChannelScreenConnector(
             string channelId,
             Key key = null
@@ -1655,7 +1655,7 @@ namespace ConnectApp.screens {
                     child: new Container(
                         width: avatarSize,
                         height: avatarSize,
-                        color: CColors.Disable,
+                        color: CColors.LoadingGrey,
                         child: new Stack(
                             children: new List<Widget> {
                                 user.avatar.isEmpty()

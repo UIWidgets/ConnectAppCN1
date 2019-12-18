@@ -308,7 +308,7 @@ namespace ConnectApp.screens {
                 : new Container(
                     width: 120,
                     height: 120,
-                    color: CColors.AvatarLoading,
+                    color: CColors.LoadingGrey,
                     child: image
                 );
             return new Container(
