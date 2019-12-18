@@ -2739,6 +2739,13 @@ namespace ConnectApp.redux.reducers {
                     for (var i = 0; i < action.messages.Count; i++) {
                         var channelMessage = ChannelMessageView.fromChannelMessage(action.messages[i]);
                         MyReactionsManager.initialMyReactions(channelMessage.id, channelMessage.allUserReactionsDict);
+                        if (state.channelState.messageDict.TryGetValue(channelMessage.id, out var message)) {
+                            if (message.type == ChannelMessageType.image &&
+                                channelMessage.type == ChannelMessageType.image &&
+                                channelMessage.imageData == null) {
+                                channelMessage.imageData = message.imageData;
+                            }
+                        }
                         state.channelState.messageDict[channelMessage.id] = channelMessage;
 
                         if (!channel.newMessageIds.Contains(channelMessage.id) &&
