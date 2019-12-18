@@ -201,9 +201,11 @@ namespace ConnectApp.screens {
                     var actionModel = new ChannelScreenActionModel {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
                         openUrl = url => OpenUrlUtil.OpenUrl(url: url, dispatcher: dispatcher),
-                        browserImage = (url, imageUrls) => dispatcher.dispatch(new MainNavigatorPushToPhotoViewAction {
+                        browserImage = (url, imageUrls, imageData) => dispatcher.dispatch(
+                            new MainNavigatorPushToPhotoViewAction {
                             url = url,
-                            urls = imageUrls
+                            urls = imageUrls,
+                            imageData = imageData
                         }),
                         playVideo = url => {
                             dispatcher.dispatch(new MainNavigatorPushToVideoPlayerAction {
@@ -684,13 +686,18 @@ namespace ConnectApp.screens {
 
         void _browserImage(string imageUrl) {
             var imageUrls = new List<string>();
+            var imageData = new Dictionary<string, byte[]>();
             this.widget.viewModel.messages.ForEach(msg => {
                 if (msg.type == ChannelMessageType.image) {
-                    imageUrls.Add(CImageUtils.SizeToScreenImageUrl(imageUrl: msg.content));
+                    var sizedUrl = CImageUtils.SizeToScreenImageUrl(imageUrl: msg.content);
+                    imageUrls.Add(sizedUrl);
+                    if (msg.imageData != null) {
+                        imageData[sizedUrl] = msg.imageData;
+                    }
                 }
             });
             var url = CImageUtils.SizeToScreenImageUrl(imageUrl: imageUrl);
-            this.widget.actionModel.browserImage(arg1: url, arg2: imageUrls);
+            this.widget.actionModel.browserImage(arg1: url, arg2: imageUrls, arg3: imageData);
         }
 
         public override Widget build(BuildContext context) {

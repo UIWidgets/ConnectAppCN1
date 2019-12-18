@@ -1626,8 +1626,12 @@ namespace ConnectApp.redux.reducers {
                     if (action.url.isNotEmpty() && action.urls.isNotEmpty() && action.urls.Contains(action.url)) {
                         var index = action.urls.IndexOf(action.url);
                         Router.navigator.push(new PageRouteBuilder(
-                            pageBuilder: (context, _, __) => new PhotoView(urls: action.urls, index: index,
-                                useCachedNetworkImage: action.useCachedNetworkImage),
+                            pageBuilder: (context, _, __) => new PhotoView(
+                                urls: action.urls,
+                                index: index,
+                                useCachedNetworkImage: action.useCachedNetworkImage,
+                                imageData: action.imageData
+                            ),
                             transitionDuration: TimeSpan.FromMilliseconds(200),
                             transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
                                 new FadeTransition( //使用渐隐渐入过渡, 
