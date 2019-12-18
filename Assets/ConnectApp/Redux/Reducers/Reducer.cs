@@ -3092,6 +3092,11 @@ namespace ConnectApp.redux.reducers {
 
                     var channelMessage = ChannelMessageView.fromPushMessage(message);
                     MyReactionsManager.initialMyReactions(channelMessage.id, channelMessage.allUserReactionsDict);
+                    if (state.channelState.messageDict.TryGetValue(channelMessage.id, out var original)) {
+                        if (original.type == ChannelMessageType.image && original.imageData != null) {
+                            channelMessage.imageData = original.imageData;
+                        }
+                    }
                     state.channelState.messageDict[channelMessage.id] = channelMessage;
 
                     //insert new if not exists yet
