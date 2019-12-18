@@ -10,6 +10,8 @@ import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Base64;
+import android.view.View;
+
 import com.unity.uiwidgets.plugin.UIWidgetsMessageManager;
 import com.unity3d.unityconnect.PickImageActivity;
 
@@ -21,6 +23,8 @@ import java.util.Arrays;
 public class CommonPlugin {
 
     public static Context mContext;
+
+    public static View splashView;
 
     public static void pauseAudioSession(){
 
@@ -143,5 +147,9 @@ public class CommonPlugin {
         NotificationManagerCompat notification = NotificationManagerCompat.from(mContext);
         boolean isEnabled = notification.areNotificationsEnabled();
         return isEnabled;
+    }
+
+    public static void hiddenSplash() {
+        splashView.setVisibility(View.INVISIBLE);
     }
 }

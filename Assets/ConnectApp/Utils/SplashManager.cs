@@ -81,5 +81,33 @@ namespace ConnectApp.Utils {
 
             return null;
         }
+
+        public static void hiddenAndroidSpalsh() {
+            if (CCommonUtils.isAndroid) {
+                hiddenSplash();
+            }
+        }
+#if UNITY_IOS
+        [DllImport("__Internal")]
+        static extern void hiddenSplash();
+
+#elif UNITY_ANDROID
+        static AndroidJavaObject _plugin;
+
+        static AndroidJavaObject Plugin() {
+            if (_plugin == null) {
+                _plugin = new AndroidJavaClass("com.unity3d.unityconnect.plugins.CommonPlugin");
+            }
+
+            return _plugin;
+        }
+
+        static void hiddenSplash() {
+            Plugin().CallStatic("hiddenSplash");
+        }
+#else
+        static void hiddenSplash() {
+        }
+#endif
     }
 }
