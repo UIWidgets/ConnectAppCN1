@@ -136,6 +136,7 @@ namespace ConnectApp.redux.actions {
         public List<string> urls;
         public string url;
         public bool useCachedNetworkImage = true;
+        public Dictionary<string, byte[]> imageData;
     }
 
     public class MainNavigatorPushToChannelMentionAction : BaseAction {

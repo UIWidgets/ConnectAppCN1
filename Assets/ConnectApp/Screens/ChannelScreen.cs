@@ -22,8 +22,11 @@ using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 using Config = ConnectApp.Constants.Config;
 using Image = Unity.UIWidgets.widgets.Image;
+using Transform = Unity.UIWidgets.widgets.Transform;
 
 namespace ConnectApp.screens {
     public class ChannelScreenConnector : StatelessWidget {
@@ -198,9 +201,11 @@ namespace ConnectApp.screens {
                     var actionModel = new ChannelScreenActionModel {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
                         openUrl = url => OpenUrlUtil.OpenUrl(url: url, dispatcher: dispatcher),
-                        browserImage = (url, imageUrls) => dispatcher.dispatch(new MainNavigatorPushToPhotoViewAction {
+                        browserImage = (url, imageUrls, imageData) => dispatcher.dispatch(
+                            new MainNavigatorPushToPhotoViewAction {
                             url = url,
-                            urls = imageUrls
+                            urls = imageUrls,
+                            imageData = imageData
                         }),
                         playVideo = url => {
                             dispatcher.dispatch(new MainNavigatorPushToVideoPlayerAction {
@@ -266,14 +271,12 @@ namespace ConnectApp.screens {
                             message = message
                         }),
                         selectReactionFromMe = (message, type) => {
-                            MyReactionsManager.updateMyReaction(messageId: message.id, type: type);
-                            dispatcher.dispatch(new UpdateMyReactionToMessage());
-                            dispatcher.dispatch(Actions.addReaction(messageId: message.id, likeEmoji: type));
+                            MyReactionsManager.updateMyReaction(message: message, type: type);
+                            dispatcher.dispatch(new UpdateMyReactionToMessage {messageId = message.id});
                         },
                         cancelReactionFromMe = (message, type) => {
-                            MyReactionsManager.updateMyReaction(messageId: message.id, type: type);
-                            dispatcher.dispatch(new UpdateMyReactionToMessage());
-                            dispatcher.dispatch(Actions.cancelReaction(messageId: message.id, type: type));
+                            MyReactionsManager.updateMyReaction(message: message, type: type);
+                            dispatcher.dispatch(new UpdateMyReactionToMessage {messageId = message.id});
                         }
                     };
                     return new ChannelScreen(viewModel: viewModel, actionModel: actionModel);
@@ -681,13 +684,18 @@ namespace ConnectApp.screens {
 
         void _browserImage(string imageUrl) {
             var imageUrls = new List<string>();
+            var imageData = new Dictionary<string, byte[]>();
             this.widget.viewModel.messages.ForEach(msg => {
                 if (msg.type == ChannelMessageType.image) {
-                    imageUrls.Add(CImageUtils.SizeToScreenImageUrl(imageUrl: msg.content));
+                    var sizedUrl = CImageUtils.SizeToScreenImageUrl(imageUrl: msg.content);
+                    imageUrls.Add(sizedUrl);
+                    if (msg.imageData != null) {
+                        imageData[sizedUrl] = msg.imageData;
+                    }
                 }
             });
             var url = CImageUtils.SizeToScreenImageUrl(imageUrl: imageUrl);
-            this.widget.actionModel.browserImage(arg1: url, arg2: imageUrls);
+            this.widget.actionModel.browserImage(arg1: url, arg2: imageUrls, arg3: imageData);
         }
 
         public override Widget build(BuildContext context) {
@@ -1336,7 +1344,8 @@ namespace ConnectApp.screens {
                 child: this._buildReactionBox(
                     type,
                     message.isReactionSelectedByLocalAndServer(type),
-                    message.adjustReactionCount(type, message.reactionsCountDict.getOrDefault(type, 0)))
+                    message.adjustedReactionCount(type)
+                )
             );
         }
 
@@ -1345,13 +1354,7 @@ namespace ConnectApp.screens {
                 return new Container();
             }
 
-            if (MyReactionsManager.getMessageReactions(message.id) != null) {
-                foreach (var pair in MyReactionsManager.getMessageReactions(message.id)) {
-                    if (pair.Value > 0 && !message.reactionsCountDict.ContainsKey(pair.Key)) {
-                        message.reactionsCountDict[pair.Key] = 0;
-                    }
-                }
-            }
+            message.fillReactionsCountDict();
             var reactionsCountItem = message.reactionsCountDict.Where(pair => 
                 pair.Value > 0 || message.isReactionSelectedByLocalAndServer(pair.Key)).ToArray();
             
@@ -1440,7 +1443,7 @@ namespace ConnectApp.screens {
                         });
                     }
                 }
-                else {
+                else if(this._reactionAppearAnimationController.status == AnimationStatus.reverse) {
                     result = new Container(
                         padding: EdgeInsets.only(top: 8),
                         child: new Wrap(
@@ -1574,7 +1577,7 @@ namespace ConnectApp.screens {
                 child: ret
             );
 
-            if (left || !message.isReactionsEmpty()) {
+            if (left || !message.isReactionsEmpty() || this._animatingMessageReaction == message.id) {
                 ret = new Expanded(
                     child: new Column(
                         crossAxisAlignment: left ? CrossAxisAlignment.start : CrossAxisAlignment.end,
@@ -2124,6 +2127,24 @@ namespace ConnectApp.screens {
             });
         }
 
+        float calculateReactionBarHeight(ChannelMessageView message, float maxWidth) {
+            float reactionBarWidth = 0;
+            message.fillReactionsCountDict();
+            foreach (var pair in message.reactionsCountDict) {
+                if (pair.Value > 0 || message.isReactionSelectedByLocalAndServer(pair.Key)) {
+                    if (reactionBarWidth > 0) {
+                        reactionBarWidth += 8;
+                    }
+
+                    reactionBarWidth += 40 + CTextUtils.CalculateTextWidth(
+                                            $"{message.adjustedReactionCount(pair.Key)}",
+                                            CTextStyle.PRegularBody,
+                                            float.PositiveInfinity);
+                }
+            }
+            return (reactionBarWidth / maxWidth).ceil() * 36;
+        }
+
         float calculateMessageHeight(ChannelMessageView message, bool showTime, float width) {
             if (message.type == ChannelMessageType.skip || message.type == ChannelMessageType.deleted) {
                 return 0;
@@ -2144,7 +2165,9 @@ namespace ConnectApp.screens {
                 return -message.buildHeight.Value;
             }
 
-            float height = 20 + 6 + 16 + (showTime ? 36 : 0); // Name + Internal + Bottom padding + time
+            float height = 20 + 6 + 16 + (showTime ? 36 : 0) + // Name + Internal + Bottom padding + time
+                           this.calculateReactionBarHeight(message,
+                               MediaQuery.of(this.context).size.width - 74); // Reaction bar
             switch (message.type) {
                 case ChannelMessageType.deleted:
 //                    height += DeletedMessage.CalculateTextHeight(width: width);
