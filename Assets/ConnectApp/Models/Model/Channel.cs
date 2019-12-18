@@ -546,6 +546,10 @@ namespace ConnectApp.Models.Model {
         public int adjustReactionCount (string type, int count) {
             return count + (this.isReactionSelectedByLocalAndServer(type) ? 1 : 0);
         }
+
+        public int adjustedReactionCount(string type) {
+            return this.adjustReactionCount(type, this.reactionsCountDict.getOrDefault(type, 0));
+        }
         
         public bool isReactionSelectedByLocalAndServer(string type) {
             var localData = MyReactionsManager.getMessageReactions(this.id);
@@ -566,6 +570,16 @@ namespace ConnectApp.Models.Model {
             }
             var localData = MyReactionsManager.getMessageReactions(this.id);
             return localData.isNullOrEmpty() || localData.Sum(entry => entry.Value) == 0;
+        }
+
+        public void fillReactionsCountDict() {
+            if (MyReactionsManager.getMessageReactions(this.id) != null) {
+                foreach (var pair in MyReactionsManager.getMessageReactions(this.id)) {
+                    if (pair.Value > 0 && !this.reactionsCountDict.ContainsKey(pair.Key)) {
+                        this.reactionsCountDict[pair.Key] = 0;
+                    }
+                }
+            }
         }
 
         public bool isOnlyMeSelected() {

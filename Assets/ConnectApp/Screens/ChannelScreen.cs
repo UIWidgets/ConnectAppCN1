@@ -22,8 +22,11 @@ using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 using Config = ConnectApp.Constants.Config;
 using Image = Unity.UIWidgets.widgets.Image;
+using Transform = Unity.UIWidgets.widgets.Transform;
 
 namespace ConnectApp.screens {
     public class ChannelScreenConnector : StatelessWidget {
@@ -1336,7 +1339,8 @@ namespace ConnectApp.screens {
                 child: this._buildReactionBox(
                     type,
                     message.isReactionSelectedByLocalAndServer(type),
-                    message.adjustReactionCount(type, message.reactionsCountDict.getOrDefault(type, 0)))
+                    message.adjustedReactionCount(type)
+                )
             );
         }
 
@@ -1345,13 +1349,7 @@ namespace ConnectApp.screens {
                 return new Container();
             }
 
-            if (MyReactionsManager.getMessageReactions(message.id) != null) {
-                foreach (var pair in MyReactionsManager.getMessageReactions(message.id)) {
-                    if (pair.Value > 0 && !message.reactionsCountDict.ContainsKey(pair.Key)) {
-                        message.reactionsCountDict[pair.Key] = 0;
-                    }
-                }
-            }
+            message.fillReactionsCountDict();
             var reactionsCountItem = message.reactionsCountDict.Where(pair => 
                 pair.Value > 0 || message.isReactionSelectedByLocalAndServer(pair.Key)).ToArray();
             
@@ -2144,8 +2142,25 @@ namespace ConnectApp.screens {
                 return -message.buildHeight.Value;
             }
 
+            float reactionBarWidth = 0;
+            message.fillReactionsCountDict();
+            foreach (var pair in message.reactionsCountDict) {
+                if (pair.Value > 0 || message.isReactionSelectedByLocalAndServer(pair.Key)) {
+                    if (reactionBarWidth > 0) {
+                        reactionBarWidth += 8;
+                    }
+
+                    reactionBarWidth += 40 + CTextUtils.CalculateTextWidth(
+                                            $"{message.adjustedReactionCount(pair.Key)}",
+                                            CTextStyle.PRegularBody,
+                                            float.PositiveInfinity);
+                }
+            }
+            float reactionBarHeight = (reactionBarWidth / (MediaQuery.of(this.context).size.width - 74)).ceil() * 36;
+            var reactionsCountItem = message.reactionsCountDict.Where(pair => 
+                pair.Value > 0 || message.isReactionSelectedByLocalAndServer(pair.Key)).ToArray();
             float height = 20 + 6 + 16 + (showTime ? 36 : 0) + // Name + Internal + Bottom padding + time
-                           (!message.isReactionsEmpty() ? 36 : 0); // Reaction bar
+                           reactionBarHeight; // Reaction bar
             switch (message.type) {
                 case ChannelMessageType.deleted:
 //                    height += DeletedMessage.CalculateTextHeight(width: width);
