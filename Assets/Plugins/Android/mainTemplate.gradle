@@ -37,6 +37,7 @@ dependencies {
     implementation(name: 'webview', ext: 'aar')
     implementation(name: 'dkplayer-java', ext: 'aar')
     implementation(name: 'dkplayer-ui', ext: 'aar')
+    implementation(name: 'splash', ext: 'aar')
     implementation 'com.tencent.mm.opensdk:wechat-sdk-android-without-mta:+'
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'com.jph.takephoto:takephoto_library:4.0.3'

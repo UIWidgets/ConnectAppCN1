@@ -12,6 +12,7 @@ import android.view.WindowManager;
 import com.dueeeke.videoplayer.player.VideoView;
 import com.unity.uiwidgets.plugin.UIWidgetsMessageManager;
 import com.unity3d.unityconnect.plugins.AVPlayerPlugin;
+import com.unity3d.unityconnect.plugins.CommonPlugin;
 import com.unity3d.unityconnect.plugins.JPushPlugin;
 
 import java.util.Arrays;
@@ -24,6 +25,12 @@ public class UnityPlayerActivityStatusBar extends UnityPlayerActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        LayoutInflater mInflater = LayoutInflater.from(this);
+        View myView = mInflater.inflate(R.layout.splash, null);
+        mUnityPlayer.addView(myView);
+        CommonPlugin.splashView = myView;
+
         if (this.getIntent().getScheme() != null && this.getIntent().getScheme().equals("unityconnect")) {
             String dataStr = this.getIntent().getData().toString();
             if (dataStr.contains("url=") && dataStr.startsWith("unityconnect://com.unity3d.unityconnect/push")) {
