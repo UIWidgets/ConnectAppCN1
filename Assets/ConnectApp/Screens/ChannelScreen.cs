@@ -1440,7 +1440,7 @@ namespace ConnectApp.screens {
                         });
                     }
                 }
-                else {
+                else if(this._reactionAppearAnimationController.status == AnimationStatus.reverse) {
                     result = new Container(
                         padding: EdgeInsets.only(top: 8),
                         child: new Wrap(
@@ -1574,7 +1574,7 @@ namespace ConnectApp.screens {
                 child: ret
             );
 
-            if (left || !message.isReactionsEmpty()) {
+            if (left || !message.isReactionsEmpty() || this._animatingMessageReaction == message.id) {
                 ret = new Expanded(
                     child: new Column(
                         crossAxisAlignment: left ? CrossAxisAlignment.start : CrossAxisAlignment.end,
