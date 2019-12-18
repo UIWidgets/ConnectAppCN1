@@ -25,6 +25,7 @@ namespace ConnectApp.Components {
     public class _VersionUpdaterState : State<VersionUpdater> {
         public override void initState() {
             base.initState();
+            SplashManager.hiddenAndroidSpalsh();
             fetchInitData();
             VersionManager.checkForUpdates(type: CheckVersionType.initialize);
             StatusBarManager.hideStatusBar(false);
