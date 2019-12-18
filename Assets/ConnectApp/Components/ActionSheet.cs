@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using ConnectApp.Constants;
 using ConnectApp.Main;
+using ConnectApp.Utils;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -54,9 +55,11 @@ namespace ConnectApp.Components {
                     children: new List<Widget> {
                         _buildTitle(title: this.title),
                         _buildButtons(items: this.items),
-                        new Container(
-                            height: MediaQuery.of(context: context).padding.bottom
-                        )
+                        this.title.isNotEmpty() || this.items.isNotNullAndEmpty()
+                            ? new Container(
+                                height: MediaQuery.of(context: context).padding.bottom
+                            )
+                            : new Container()
                     }
                 )
             );
@@ -86,7 +89,7 @@ namespace ConnectApp.Components {
         }
 
         static Widget _buildButtons(List<ActionSheetItem> items) {
-            if (items == null || items.Count <= 0) {
+            if (items.isNullOrEmpty()) {
                 return new Container();
             }
 
@@ -149,6 +152,7 @@ namespace ConnectApp.Components {
             if (widgets.isNotEmpty() && widgets.last() is CustomDivider) {
                 widgets.removeLast();
             }
+
             return new Column(
                 children: widgets
             );
@@ -168,12 +172,8 @@ namespace ConnectApp.Components {
                     : ctx => overlay,
                 barrierLabel: "Dismiss"
             );
-            Router.navigator.push(route: route).Then(_ => {
-                if (onPop != null) {
-                    onPop();
-                }
-            });
-    }
+            Router.navigator.push(route: route).Then(_ => onPop?.Invoke());
+        }
 
         public static void hiddenModalPopup() {
             if (Router.navigator.canPop()) {
