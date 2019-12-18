@@ -13,6 +13,7 @@ import android.util.Base64;
 import android.view.View;
 
 import com.unity.uiwidgets.plugin.UIWidgetsMessageManager;
+import com.unity3d.player.UnityPlayer;
 import com.unity3d.unityconnect.PickImageActivity;
 
 import java.io.File;
@@ -26,7 +27,7 @@ public class CommonPlugin {
 
     public static View splashView;
 
-    public static void pauseAudioSession(){
+    public static void pauseAudioSession() {
 
         AudioManager.OnAudioFocusChangeListener afChangeListener = new AudioManager.OnAudioFocusChangeListener() {
             public void onAudioFocusChange(int focusChange) {
@@ -50,23 +51,23 @@ public class CommonPlugin {
             }
         };
         AudioManager manager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
-        manager.requestAudioFocus(afChangeListener,AudioManager.STREAM_MUSIC,AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
+        manager.requestAudioFocus(afChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
     }
 
     /**
      * 判断屏幕旋转功能是否开启
      */
-    public static boolean isOpenSensor(){
+    public static boolean isOpenSensor() {
         boolean isOpen = false;
-        if(getSensorState(mContext) == 1){
+        if (getSensorState(mContext) == 1) {
             isOpen = true;
-        }else if(getSensorState(mContext) == 0){
+        } else if (getSensorState(mContext) == 0) {
             isOpen = false;
         }
         return isOpen;
     }
 
-    public static void pickImage(String source, boolean cropped, int maxSize){
+    public static void pickImage(String source, boolean cropped, int maxSize) {
         Intent intent = new Intent(mContext, PickImageActivity.class);
         intent.putExtra("type", "image");
         intent.putExtra("source", source);
@@ -76,7 +77,7 @@ public class CommonPlugin {
         mContext.startActivity(intent);
     }
 
-    public static void pickVideo(String source){
+    public static void pickVideo(String source) {
         Intent intent = new Intent(mContext, PickImageActivity.class);
         intent.putExtra("type", "video");
         intent.putExtra("source", source);
@@ -84,13 +85,13 @@ public class CommonPlugin {
         mContext.startActivity(intent);
     }
 
-    public static void saveImage(String image){
+    public static void saveImage(String image) {
         byte[] bytes = Base64.decode(image, Base64.DEFAULT);
         Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-        if (saveImageToGallery(mContext,bitmap)){
+        if (saveImageToGallery(mContext, bitmap)) {
             UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("jpush", "SaveImageSuccess", Arrays.asList("error"));
 
-        }else{
+        } else {
             UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("jpush", "SaveImageError", Arrays.asList("error"));
         }
     }
@@ -127,7 +128,7 @@ public class CommonPlugin {
     }
 
 
-    private static int getSensorState(Context context){
+    private static int getSensorState(Context context) {
         int sensorState = 0;
         try {
             sensorState = Settings.System.getInt(context.getContentResolver(), Settings.System.ACCELEROMETER_ROTATION);
@@ -142,14 +143,20 @@ public class CommonPlugin {
         String uuid = UUIDUtils.getUUID();
         return uuid;
     }
-    
-    public static boolean isEnableNotification(){
+
+    public static boolean isEnableNotification() {
         NotificationManagerCompat notification = NotificationManagerCompat.from(mContext);
         boolean isEnabled = notification.areNotificationsEnabled();
         return isEnabled;
     }
 
     public static void hiddenSplash() {
-        splashView.setVisibility(View.INVISIBLE);
+        UnityPlayer.currentActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                splashView.setVisibility(View.INVISIBLE);
+            }
+        });
+
     }
 }
