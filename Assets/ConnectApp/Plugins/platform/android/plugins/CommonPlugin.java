@@ -150,6 +150,11 @@ public class CommonPlugin {
     }
 
     public static void hiddenSplash() {
-        splashView.setVisibility(View.INVISIBLE);
+        UnityPlayer.currentActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                splashView.setVisibility(View.INVISIBLE);
+            }
+        });
     }
 }
