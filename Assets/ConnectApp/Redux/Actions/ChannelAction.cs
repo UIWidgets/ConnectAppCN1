@@ -820,6 +820,7 @@ namespace ConnectApp.redux.actions {
     }
 
     public class UpdateMyReactionToMessage : BaseAction {
+        public string messageId;
     }
 
     public class FetchChannelMentionQuerySuccessAction : BaseAction {

@@ -267,12 +267,12 @@ namespace ConnectApp.screens {
                         }),
                         selectReactionFromMe = (message, type) => {
                             MyReactionsManager.updateMyReaction(messageId: message.id, type: type);
-                            dispatcher.dispatch(new UpdateMyReactionToMessage());
+                            dispatcher.dispatch(new UpdateMyReactionToMessage {messageId = message.id});
                             dispatcher.dispatch(Actions.addReaction(messageId: message.id, likeEmoji: type));
                         },
                         cancelReactionFromMe = (message, type) => {
                             MyReactionsManager.updateMyReaction(messageId: message.id, type: type);
-                            dispatcher.dispatch(new UpdateMyReactionToMessage());
+                            dispatcher.dispatch(new UpdateMyReactionToMessage {messageId = message.id});
                             dispatcher.dispatch(Actions.cancelReaction(messageId: message.id, type: type));
                         }
                     };
@@ -2144,7 +2144,8 @@ namespace ConnectApp.screens {
                 return -message.buildHeight.Value;
             }
 
-            float height = 20 + 6 + 16 + (showTime ? 36 : 0); // Name + Internal + Bottom padding + time
+            float height = 20 + 6 + 16 + (showTime ? 36 : 0) + // Name + Internal + Bottom padding + time
+                           (!message.isReactionsEmpty() ? 36 : 0); // Reaction bar
             switch (message.type) {
                 case ChannelMessageType.deleted:
 //                    height += DeletedMessage.CalculateTextHeight(width: width);

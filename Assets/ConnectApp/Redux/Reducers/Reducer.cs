@@ -947,7 +947,10 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
-                case UpdateMyReactionToMessage _: {
+                case UpdateMyReactionToMessage action: {
+                    if (state.channelState.messageDict.TryGetValue(action.messageId, out var message)) {
+                        message.buildHeight = null;
+                    }
                     break;
                 }
 
