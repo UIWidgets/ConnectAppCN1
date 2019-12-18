@@ -14,7 +14,7 @@ namespace ConnectApp.Models.ActionModel {
         public Action popFromScreen;
         public Action ackMessage;
         public Action<string> openUrl;
-        public Action<string, List<string>> browserImage;
+        public Action<string, List<string>, Dictionary<string, byte[]>> browserImage;
         public Action<string> playVideo;
         public Func<string, string, string, string, IPromise> sendMessage;
         public Func<string, byte[], string, IPromise> sendImage;

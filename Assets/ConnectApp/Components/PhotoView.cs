@@ -13,6 +13,7 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using Image = Unity.UIWidgets.widgets.Image;
 using ImageUtils = Unity.UIWidgets.widgets.ImageUtils;
 
 namespace ConnectApp.Components {
@@ -27,6 +28,7 @@ namespace ConnectApp.Components {
         public readonly float minScale;
         public readonly List<string> urls;
         public readonly bool useCachedNetworkImage;
+        public readonly Dictionary<string, byte[]> imageData;
 
         public PhotoView(
             List<string> urls = null,
@@ -34,6 +36,7 @@ namespace ConnectApp.Components {
             PageController controller = null,
             Dictionary<string, string> headers = null,
             bool useCachedNetworkImage = false,
+            Dictionary<string, byte[]> imageData = null,
             float maxScale = 2.0f,
             float minScale = 1.0f,
             Key key = null) : base(key: key) {
@@ -42,6 +45,7 @@ namespace ConnectApp.Components {
             D.assert(minScale >= 0.0f && minScale <= 1.0f);
             D.assert(maxScale >= 1.0f);
             this.urls = urls;
+            this.imageData = imageData;
             this.index = index;
             this.controller = controller ?? new PageController(initialPage: index);
             this.headers = headers;
@@ -100,6 +104,7 @@ namespace ConnectApp.Components {
             return new ImageWrapper(url: url,
                 headers: this.widget.headers ?? this._defaultHeaders,
                 useCachedNetworkImage: this.widget.useCachedNetworkImage,
+                imageData: this.widget.imageData?.getOrDefault(url, null),
                 maxScale: this.widget.maxScale,
                 minScale: this.widget.minScale,
                 onScaleChanged: (scale, horizontalScale, verticalScale, position, scaling) => {
@@ -184,10 +189,12 @@ namespace ConnectApp.Components {
 
         public readonly string url;
         public readonly bool useCachedNetworkImage;
+        public readonly byte[] imageData;
 
         public ImageWrapper(
             Key key = null,
             string url = null,
+            byte[] imageData = null,
             float maxScale = 2.0f,
             float minScale = 1.0f,
             bool useCachedNetworkImage = false,
@@ -200,6 +207,7 @@ namespace ConnectApp.Components {
             D.assert(maxScale >= 1.0f);
             this.url = url;
             this.useCachedNetworkImage = useCachedNetworkImage;
+            this.imageData = imageData;
             this.headers = headers;
             this.maxScale = maxScale;
             this.minScale = minScale;
@@ -340,16 +348,18 @@ namespace ConnectApp.Components {
         }
 
         public override Widget build(BuildContext context) {
-            Widget result = this.widget.useCachedNetworkImage
-                ? new CachedNetworkImage(
-                    src: this.widget.url,
-                    placeholder: this.widget.placeholder,
-                    fit: BoxFit.contain,
-                    headers: this.widget.headers,
-                    onImageResolved: this._onImageResolved)
-                : this._imageInfo != null
-                    ? new RawImage(image: this._imageInfo.image, fit: BoxFit.contain)
-                    : this.widget.placeholder;
+            Widget result = this.widget.imageData == null
+                ? this.widget.useCachedNetworkImage
+                    ? new CachedNetworkImage(
+                        src: this.widget.url,
+                        placeholder: this.widget.placeholder,
+                        fit: BoxFit.contain,
+                        headers: this.widget.headers,
+                        onImageResolved: this._onImageResolved)
+                    : this._imageInfo != null
+                        ? new RawImage(image: this._imageInfo.image, fit: BoxFit.contain)
+                        : this.widget.placeholder
+                : Image.memory(this.widget.imageData, fit: BoxFit.contain);
 
             result = new ScaleTransition(
                 scale: this._scaleAnimation, child: result);

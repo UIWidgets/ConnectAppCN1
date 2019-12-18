@@ -947,7 +947,10 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
-                case UpdateMyReactionToMessage _: {
+                case UpdateMyReactionToMessage action: {
+                    if (state.channelState.messageDict.TryGetValue(action.messageId, out var message)) {
+                        message.buildHeight = null;
+                    }
                     break;
                 }
 
@@ -1623,8 +1626,12 @@ namespace ConnectApp.redux.reducers {
                     if (action.url.isNotEmpty() && action.urls.isNotEmpty() && action.urls.Contains(action.url)) {
                         var index = action.urls.IndexOf(action.url);
                         Router.navigator.push(new PageRouteBuilder(
-                            pageBuilder: (context, _, __) => new PhotoView(urls: action.urls, index: index,
-                                useCachedNetworkImage: action.useCachedNetworkImage),
+                            pageBuilder: (context, _, __) => new PhotoView(
+                                urls: action.urls,
+                                index: index,
+                                useCachedNetworkImage: action.useCachedNetworkImage,
+                                imageData: action.imageData
+                            ),
                             transitionDuration: TimeSpan.FromMilliseconds(200),
                             transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
                                 new FadeTransition( //使用渐隐渐入过渡, 
@@ -2732,6 +2739,13 @@ namespace ConnectApp.redux.reducers {
                     for (var i = 0; i < action.messages.Count; i++) {
                         var channelMessage = ChannelMessageView.fromChannelMessage(action.messages[i]);
                         MyReactionsManager.initialMyReactions(channelMessage.id, channelMessage.allUserReactionsDict);
+                        if (state.channelState.messageDict.TryGetValue(channelMessage.id, out var message)) {
+                            if (message.type == ChannelMessageType.image &&
+                                channelMessage.type == ChannelMessageType.image &&
+                                channelMessage.imageData == null) {
+                                channelMessage.imageData = message.imageData;
+                            }
+                        }
                         state.channelState.messageDict[channelMessage.id] = channelMessage;
 
                         if (!channel.newMessageIds.Contains(channelMessage.id) &&
@@ -3089,6 +3103,11 @@ namespace ConnectApp.redux.reducers {
 
                     var channelMessage = ChannelMessageView.fromPushMessage(message);
                     MyReactionsManager.initialMyReactions(channelMessage.id, channelMessage.allUserReactionsDict);
+                    if (state.channelState.messageDict.TryGetValue(channelMessage.id, out var original)) {
+                        if (original.type == ChannelMessageType.image && original.imageData != null) {
+                            channelMessage.imageData = original.imageData;
+                        }
+                    }
                     state.channelState.messageDict[channelMessage.id] = channelMessage;
 
                     //insert new if not exists yet
