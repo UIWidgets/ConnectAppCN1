@@ -30,7 +30,7 @@ namespace ConnectApp.Models.State {
         public FavoriteState favoriteState { get; set; }
 
         public static AppState initialState() {
-            var loginInfo = UserInfoManager.initUserInfo();
+            var loginInfo = UserInfoManager.getUserInfo();
             var isLogin = UserInfoManager.isLogin();
 
             return new AppState {
@@ -115,7 +115,7 @@ namespace ConnectApp.Models.State {
                     followingUserLoading = false,
                     followingTeamLoading = false,
                     followerLoading = false,
-                    userDict = UserInfoManager.initUserDict(),
+                    userDict = UserInfoManager.getUserInfoDict(),
                     slugDict = new Dictionary<string, string>(),
                     userLicenseDict = new Dictionary<string, UserLicense>(),
                     fullName = "",

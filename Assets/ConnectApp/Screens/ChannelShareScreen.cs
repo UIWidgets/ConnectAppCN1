@@ -85,7 +85,7 @@ namespace ConnectApp.screens {
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 if (this.widget.viewModel.channel.id == null) {
                     this.widget.actionModel.fetchChannelInfo().Then(() => {
-                        if (this.widget.viewModel.channel.joined) {
+                        if (UserInfoManager.isLogin() && this.widget.viewModel.channel.joined) {
                             this.widget.actionModel.pushToChannel();
                         }
                     });

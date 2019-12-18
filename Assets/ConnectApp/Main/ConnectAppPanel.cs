@@ -36,7 +36,7 @@ namespace ConnectApp.Main {
             BuglyAgent.ConfigDebugMode(enable: Config.enableDebug);
             // Config default channel, version, user 
             BuglyAgent.ConfigDefault(channel: Config.store, $"{Config.versionName}-{Config.versionCode}",
-                user: UserInfoManager.initUserInfo().userId ?? "anonymous", 0);
+                user: UserInfoManager.getUserInfo().userId ?? "anonymous", 0);
             // Config auto report log level, default is LogSeverity.LogError, so the LogError, LogException log will auto report
             BuglyAgent.ConfigAutoReportLogLevel(level: LogSeverity.LogWarning);
             // Config auto quit the application make sure only the first one c# exception log will be report, please don't set TRUE if you do not known what are you doing.

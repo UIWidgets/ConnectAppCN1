@@ -265,33 +265,15 @@ namespace ConnectApp.screens {
                         resendMessage = message => dispatcher.dispatch(new ResendMessageAction {
                             message = message
                         }),
-                        updateMessageLikeImageCount = (message, type, count) => {
-                            dispatcher.dispatch(new UpdateMessageLikeImageCountAction {
-                                type = type,
-                                count = count
-                            });
+                        selectReactionFromMe = (message, type) => {
+                            MyReactionsManager.updateMyReaction(messageId: message.id, type: type);
+                            dispatcher.dispatch(new UpdateMyReactionToMessage());
+                            dispatcher.dispatch(Actions.addReaction(messageId: message.id, likeEmoji: type));
                         },
-                        clearMessageLikeImages = (message) => {
-                            dispatcher.dispatch(new ClearMessageLikeImages {
-                                messageId = message.id
-                            });
-                        },
-                        updateMyLikeImage = (message, type) => {
-                            if (message.getLikeImage(viewModel.me.id) != type) {
-                                dispatcher.dispatch(new AddMyLikeImageToMessage {
-                                    type = type,
-                                    messageId = message.id
-                                });
-                                dispatcher.dispatch(Actions.addReaction(message.id, type));
-                            }
-                        },
-                        cancelMyLikeImage = (message) => {
-                            if (message.getLikeImage(viewModel.me.id) != null) {
-                                dispatcher.dispatch(new RemoveMyLikeImageFromMessage {
-                                    messageId = message.id
-                                });
-                                dispatcher.dispatch(Actions.cancelReaction(message.id));
-                            }
+                        cancelReactionFromMe = (message, type) => {
+                            MyReactionsManager.updateMyReaction(messageId: message.id, type: type);
+                            dispatcher.dispatch(new UpdateMyReactionToMessage());
+                            dispatcher.dispatch(Actions.cancelReaction(messageId: message.id, type: type));
                         }
                     };
                     return new ChannelScreen(viewModel: viewModel, actionModel: actionModel);
@@ -333,11 +315,11 @@ namespace ConnectApp.screens {
         };
 
         public static readonly Dictionary<string, string> reactionStaticIcons = new Dictionary<string, string> {
-            {"thumb-up", "image/reaction-like"},
-            {"thumb-down", "image/reaction-oppose"},
-            {"facepalming", "image/reaction-coverface"},
-            {"heart-eyes", "image/reaction-heartbeat"},
-            {"question", "image/reaction-doubt"},
+            {"thumb", "image/reaction-thumb"},
+            {"oppose", "image/reaction-oppose"},
+            {"coverface", "image/reaction-coverface"},
+            {"heartbeat", "image/reaction-heartbeat"},
+            {"doubt", "image/reaction-doubt"},
         };
 
         bool _showEmojiBoard;
@@ -355,13 +337,14 @@ namespace ConnectApp.screens {
 
         bool _showUnreadMessageNotification = false;
         bool _showNewMessageNotification = false;
+        bool _showReactionOverlay = false;
         float _inputFieldHeight;
         CustomTextField customTextField;
         Dictionary<string, GlobalKey> _fullMessageKeys;
         Dictionary<string, GlobalKey> _messageBubbleKeys;
         string _animatingMessageReaction;
-
-        float _bottomPaddingWhenShowingPopupBar = 0;
+        string _animationMessageReactionType;
+        float _bottomPaddingWhenShowingPopupBar;
 
         GlobalKey _getMessageKey(string id) {
             GlobalKey key;
@@ -892,7 +875,7 @@ namespace ConnectApp.screens {
                 height: 40,
                 decoration: new BoxDecoration(
                     color: CColors.White,
-                    border: Border.all(color: CColors.Separator2, width: 1),
+                    border: Border.all(color: CColors.Separator2),
                     borderRadius: BorderRadius.only(topLeft: 20, bottomLeft: 20),
                     boxShadow: new List<BoxShadow> {
                         new BoxShadow(
@@ -1288,87 +1271,98 @@ namespace ConnectApp.screens {
                     decoration: this._messageDecoration(message.type, left),
                     child: this._buildMessageContent(message: message)
                 ),
-                onTap: (type) => {
-                    if (message.getLikeImage(this.widget.viewModel.me.id) != type) {
-                        if (message.likeImageCount.isEmpty()) {
+                onTap: type => {
+                    if (message.isReactionSelectedByLocalAndServer(type)) {
+                        if (message.isOnlyMeSelected()) {
                             this._animatingMessageReaction = message.id;
-                            this._reactionAppearAnimationController.reset();
-                            this._reactionAppearAnimationController.setValue(0);
-                        }
-
-                        this.widget.actionModel.updateMyLikeImage(message, type);
-                    }
-                    else {
-                        if (message.likeImageCount.Count == 1 &&
-                            message.likeImageCount.getOrDefault(type, 0) == 1) {
-                            this._animatingMessageReaction = message.id;
+                            this._animationMessageReactionType = type;
                             this._reactionAppearAnimationController.reset();
                             this._reactionAppearAnimationController.setValue(1);
                         }
-                        else {
-                            this.widget.actionModel.cancelMyLikeImage(message);
+                        this.widget.actionModel.cancelReactionFromMe(message, type);
+                    } else {
+                        if (message.isReactionsEmpty()) {
+                            this._animatingMessageReaction = message.id;
+                            this._animationMessageReactionType = type;
+                            this._reactionAppearAnimationController.reset();
+                            this._reactionAppearAnimationController.setValue(0);
                         }
+                        this.widget.actionModel.selectReactionFromMe(message, type);
                     }
-
                     ActionSheetUtils.hiddenModalPopup();
                 });
         }
 
+        Widget _buildReactionBox(string type, bool selected, int count) {
+            return new Container(
+                height: 28,
+                padding: EdgeInsets.symmetric(4, 8),
+                decoration: new BoxDecoration(
+                    border: Border.all(
+                        selected
+                            ? CColors.PrimaryBlue
+                            : CColors.Transparent,
+                        1.5f
+                    ),
+                    borderRadius: BorderRadius.all(14),
+                    color: CColors.MessageReaction
+                ),
+                child: new Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: new List<Widget> {
+                        Image.asset(reactionStaticIcons[type], width: 20, height: 20),
+                        new SizedBox(width: 4),
+                        new Text(
+                            $"{CStringUtils.CountToString(count)}",
+                            style: selected
+                                ? CTextStyle.PRegularBody.copyWith(color: CColors.MessageReactionCount,
+                                    height: 1.1f)
+                                : CTextStyle.PRegularBody.copyWith(height: 1.1f))
+                    }
+                )
+            );
+        }
+        
         Widget _buildReaction(ChannelMessageView message, string type) {
             return new GestureDetector(
                 onTap: () => {
-                    if (message.isLikedBy(this.widget.viewModel.me.id, type)) {
-                        this.widget.actionModel.cancelMyLikeImage(message);
+                    if (message.isReactionSelectedByLocalAndServer(type)) {
+                        this.widget.actionModel.cancelReactionFromMe(message, type);
                     }
                     else {
-                        this.widget.actionModel.updateMyLikeImage(message, type);
+                        this.widget.actionModel.selectReactionFromMe(message, type);
                     }
                 },
-                child: new Container(
-                    height: 28,
-                    padding: EdgeInsets.symmetric(4, 8),
-                    decoration: new BoxDecoration(
-                        border: Border.all(
-                            color: message.isLikedBy(this.widget.viewModel.me.id, type)
-                                ? CColors.PrimaryBlue
-                                : CColors.Transparent,
-                            width: 1.5f
-                        ),
-                        borderRadius: BorderRadius.all(14),
-                        color: CColors.MessageReaction
-                    ),
-                    child: new Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: new List<Widget> {
-                            Image.asset(reactionStaticIcons[type], width: 20, height: 20),
-                            new SizedBox(width: 4),
-                            new Text(
-                                $"{message.likeImageCount.getOrDefault(type, 0)}",
-                                style: message.isLikedBy(this.widget.viewModel.me.id, type)
-                                    ? CTextStyle.PRegularBody.copyWith(color: CColors.MessageReactionCount,
-                                        height: 1.1f)
-                                    : CTextStyle.PRegularBody.copyWith(height: 1.1f))
-                        }
-                    )
-                )
+                child: this._buildReactionBox(
+                    type,
+                    message.isReactionSelectedByLocalAndServer(type),
+                    message.adjustReactionCount(type, message.reactionsCountDict.getOrDefault(type, 0)))
             );
         }
 
         Widget _buildReactionBar(ChannelMessageView message, bool left) {
-            if (message.likeImageCount.isEmpty()) {
+            if (message.isReactionsEmpty() && this._animatingMessageReaction != message.id) {
                 return new Container();
             }
 
-            List<string> likeImageKeys = message.likeImageCount.Keys.ToList();
-            likeImageKeys.Sort();
-
+            if (MyReactionsManager.getMessageReactions(message.id) != null) {
+                foreach (var pair in MyReactionsManager.getMessageReactions(message.id)) {
+                    if (pair.Value > 0 && !message.reactionsCountDict.ContainsKey(pair.Key)) {
+                        message.reactionsCountDict[pair.Key] = 0;
+                    }
+                }
+            }
+            var reactionsCountItem = message.reactionsCountDict.Where(pair => 
+                pair.Value > 0 || message.isReactionSelectedByLocalAndServer(pair.Key)).ToArray();
+            
             Widget result = new Container(
                 padding: EdgeInsets.only(top: 8),
                 child: new Wrap(
                     alignment: left ? WrapAlignment.start : WrapAlignment.end,
                     spacing: 8,
-                    children: likeImageKeys
-                        .Select(type => this._buildReaction(message, type))
+                    runSpacing: 8,
+                    children: reactionsCountItem
+                        .Select(pair => this._buildReaction(message, pair.Key))
                         .ToList()
                 )
             );
@@ -1437,7 +1431,7 @@ namespace ConnectApp.screens {
                                     opacity: ((this._reactionAppearAnimationController.value - 0.25f) / 0.25f).clamp(0,
                                         1),
                                     child: Image.asset(
-                                        reactionStaticIcons[likeImageKeys.Single()],
+                                        reactionStaticIcons[reactionsCountItem.Single().Key],
                                         width: 20,
                                         height: 20
                                     )
@@ -1447,9 +1441,23 @@ namespace ConnectApp.screens {
                     }
                 }
                 else {
+                    result = new Container(
+                        padding: EdgeInsets.only(top: 8),
+                        child: new Wrap(
+                            alignment: left ? WrapAlignment.start : WrapAlignment.end,
+                            spacing: 8,
+                            children: new List<Widget> {
+                                this._buildReactionBox(this._animationMessageReactionType, true, 1)
+                            }
+                        )
+                    );
                     result = new SizedBox(
                         height: this._reactionAppearAnimationController.value * 36,
-                        child: new Opacity(opacity: this._reactionAppearAnimationController.value, child: result));
+                        child: new Opacity(
+                            opacity: this._reactionAppearAnimationController.value,
+                            child: result
+                        )
+                    );
                 }
             }
 
@@ -1472,9 +1480,7 @@ namespace ConnectApp.screens {
             var renderBox = (RenderBox) this._getMessageKey(message.id).currentContext.findRenderObject();
             var messageBoxSize = renderBox.size;
             var originalMessageBoxOffset = renderBox.localToGlobal(Offset.zero);
-            var items = this._buildMessageActionSheet(message,
-                showDeleteButton: message.author.id == this.widget.viewModel.me.id
-                                  && message.type != ChannelMessageType.deleted);
+            var items = this._buildMessageActionSheet(message, message.author.id == this.widget.viewModel.me.id && message.type != ChannelMessageType.deleted);
             var messageBoxOffset = new Offset(
                 originalMessageBoxOffset.dx,
                 originalMessageBoxOffset.dy
@@ -1497,6 +1503,7 @@ namespace ConnectApp.screens {
             }
 
             this.widget.actionModel.reportLeaveBottom();
+            this._showReactionOverlay = true;
             ActionSheetUtils.showModalActionSheet(
                 child: new ActionSheet(items: items),
                 overlay: this._buildReactionOverlay(message, messageBoxOffset, messageBoxSize, left),
@@ -1522,9 +1529,6 @@ namespace ConnectApp.screens {
                                 this.setState(
                                     () => {
                                         this._animatingMessageReaction = null;
-                                        if (this._reactionAppearAnimationController.value < 0.5f) {
-                                            this.widget.actionModel.clearMessageLikeImages(message);
-                                        }
                                     }
                                 );
                             });
@@ -1533,6 +1537,7 @@ namespace ConnectApp.screens {
                     if (this._refreshController.offset < bottomThreshold) {
                         this.widget.actionModel.reportHitBottom();
                     }
+                    this._showReactionOverlay = false;
                 }
             );
         }
@@ -1569,7 +1574,7 @@ namespace ConnectApp.screens {
                 child: ret
             );
 
-            if (left || message.likeImageCount.isNotEmpty()) {
+            if (left || !message.isReactionsEmpty()) {
                 ret = new Expanded(
                     child: new Column(
                         crossAxisAlignment: left ? CrossAxisAlignment.start : CrossAxisAlignment.end,
@@ -1723,7 +1728,9 @@ namespace ConnectApp.screens {
                             }
 
                             if (filename.EndsWith(".mp4")) {
-                                this.widget.actionModel.playVideo(obj: attachment.url);
+                                if (!this._showReactionOverlay) {
+                                    this.widget.actionModel.playVideo(obj: attachment.url);
+                                }
                             }
                             else {
                                 this.widget.actionModel.openUrl(obj: attachment.url);
@@ -1943,9 +1950,9 @@ namespace ConnectApp.screens {
                 plainText = plainText,
                 time = DateTime.UtcNow,
                 status = "waiting",
-                likeImageCount = new Dictionary<string, int>(),
+                reactionsCountDict = new SortedDictionary<string, int>(),
                 reactions = new List<Reaction>(),
-                userLikeImages = new Dictionary<string, string>()
+                allUserReactionsDict = new Dictionary<string, Dictionary<string, int>>()
             });
             this._textController.clear();
             this._textController.selection = TextSelection.collapsed(0);
@@ -1974,6 +1981,10 @@ namespace ConnectApp.screens {
         }
 
         float? _lastScrollPosition = null;
+
+        public _ChannelScreenState() {
+            this._bottomPaddingWhenShowingPopupBar = 0;
+        }
 
         const float bottomThreshold = 50;
 
@@ -2084,8 +2095,8 @@ namespace ConnectApp.screens {
                 imageData = pickImage,
                 time = DateTime.UtcNow,
                 status = "waiting",
-                likeImageCount = new Dictionary<string, int>(),
-                userLikeImages = new Dictionary<string, string>()
+                reactionsCountDict = new SortedDictionary<string, int>(),
+                allUserReactionsDict = new Dictionary<string, Dictionary<string, int>>()
             });
         }
 
@@ -2108,8 +2119,8 @@ namespace ConnectApp.screens {
                 },
                 time = DateTime.UtcNow,
                 status = "waiting",
-                likeImageCount = new Dictionary<string, int>(),
-                userLikeImages = new Dictionary<string, string>()
+                reactionsCountDict = new SortedDictionary<string, int>(),
+                allUserReactionsDict = new Dictionary<string, Dictionary<string, int>>()
             });
         }
 
@@ -2288,7 +2299,7 @@ namespace ConnectApp.screens {
                 ReactionType.typesList.Select(type => 
                     new PopupLikeButtonItem {
                         content = type.gifImagePath,
-                        selected = message.getLikeImage(userId: this.widget.userId) == type.value,
+                        selected = message.isReactionSelectedByLocalAndServer(type: type.value),
                         type = type.value
                     }
                 ).ToList()

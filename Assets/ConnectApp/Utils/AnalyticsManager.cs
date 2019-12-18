@@ -395,7 +395,7 @@ namespace ConnectApp.Utils {
                 return;
             }
 
-            var userId = UserInfoManager.isLogin() ? UserInfoManager.initUserInfo().userId : null;
+            var userId = UserInfoManager.isLogin() ? UserInfoManager.getUserInfo().userId : null;
             var data = new List<Dictionary<string, string>> {
                 new Dictionary<string, string> {
                     {"key", "enableNotification"}, {"dataType", "bool"}, {"value", enableNotification().ToString()}
@@ -409,7 +409,7 @@ namespace ConnectApp.Utils {
                 return;
             }
 
-            var userId = UserInfoManager.isLogin() ? UserInfoManager.initUserInfo().userId : null;
+            var userId = UserInfoManager.isLogin() ? UserInfoManager.getUserInfo().userId : null;
             var data = new List<Dictionary<string, string>>();
             if (id.isNotEmpty()) {
                 data.Add(new Dictionary<string, string> {
@@ -451,7 +451,7 @@ namespace ConnectApp.Utils {
                 return;
             }
 
-            var userId = UserInfoManager.isLogin() ? UserInfoManager.initUserInfo().userId : null;
+            var userId = UserInfoManager.isLogin() ? UserInfoManager.getUserInfo().userId : null;
             var data = new List<Dictionary<string, string>> {
                 new Dictionary<string, string> {
                     {"key", "duration"}, {"dataType", "int"}, {"value", timespan.ToString()}
@@ -465,7 +465,7 @@ namespace ConnectApp.Utils {
                 return;
             }
 
-            var userId = UserInfoManager.isLogin() ? UserInfoManager.initUserInfo().userId : null;
+            var userId = UserInfoManager.isLogin() ? UserInfoManager.getUserInfo().userId : null;
             var data = new List<Dictionary<string, string>> {
                 new Dictionary<string, string> {
                     {"key", "index"}, {"dataType", "int"}, {"value", index.ToString()}
@@ -479,7 +479,7 @@ namespace ConnectApp.Utils {
                 return;
             }
 
-            var userId = UserInfoManager.isLogin() ? UserInfoManager.initUserInfo().userId : null;
+            var userId = UserInfoManager.isLogin() ? UserInfoManager.getUserInfo().userId : null;
             var data = new List<Dictionary<string, string>> {
                 new Dictionary<string, string> {
                     {"key", "state"}, {"dataType", "string"}, {"value", state.ToString()}
@@ -496,7 +496,7 @@ namespace ConnectApp.Utils {
                 return;
             }
 
-            var userId = UserInfoManager.isLogin() ? UserInfoManager.initUserInfo().userId : null;
+            var userId = UserInfoManager.isLogin() ? UserInfoManager.getUserInfo().userId : null;
             var data = new List<Dictionary<string, string>> {
                 new Dictionary<string, string> {
                     {"key", "type"}, {"dataType", "string"}, {"value", type.ToString()}
@@ -510,7 +510,7 @@ namespace ConnectApp.Utils {
                 return;
             }
 
-            var userId = UserInfoManager.isLogin() ? UserInfoManager.initUserInfo().userId : null;
+            var userId = UserInfoManager.isLogin() ? UserInfoManager.getUserInfo().userId : null;
             var data = new List<Dictionary<string, string>> {
                 new Dictionary<string, string> {
                     {"key", "articleId"}, {"dataType", "string"}, {"value", articleId}
@@ -527,7 +527,7 @@ namespace ConnectApp.Utils {
                 return;
             }
 
-            var userId = UserInfoManager.isLogin() ? UserInfoManager.initUserInfo().userId : null;
+            var userId = UserInfoManager.isLogin() ? UserInfoManager.getUserInfo().userId : null;
             var data = new List<Dictionary<string, string>> {
                 new Dictionary<string, string> {
                     {"key", "favoriteId"}, {"dataType", "string"}, {"value", favoriteId}
@@ -541,7 +541,7 @@ namespace ConnectApp.Utils {
                 return;
             }
 
-            var userId = UserInfoManager.isLogin() ? UserInfoManager.initUserInfo().userId : null;
+            var userId = UserInfoManager.isLogin() ? UserInfoManager.getUserInfo().userId : null;
             var data = new List<Dictionary<string, string>>();
             AnalyticsApi.AnalyticsApp(userId: userId, "ClickHomeFocus",
                 data: data);

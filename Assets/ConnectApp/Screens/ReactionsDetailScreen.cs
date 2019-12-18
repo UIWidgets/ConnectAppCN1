@@ -28,7 +28,7 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, ReactionsDetailScreenViewModel>(
                 converter: state => new ReactionsDetailScreenViewModel {
                     reactionsUsernameDict =
-                        state.channelState.messageDict[key: this.messageId]?.reactionsUsernameDict ??
+                        state.channelState.messageDict[key: this.messageId]?.reactionsUsernameListDict ??
                         new Dictionary<string, List<string>>()
                 }, 
                 builder: (context1, viewModel, dispatcher) => {
@@ -68,7 +68,7 @@ namespace ConnectApp.screens {
                                         children: new List<Widget> {
                                             new Container(width: 56),
                                             new Text(
-                                                "反应详情",
+                                                "详情",
                                                 style: CTextStyle.PXLargeMedium.merge(new TextStyle(height: 1))
                                             ),
                                             new CustomButton(
@@ -119,7 +119,7 @@ namespace ConnectApp.screens {
                content = string.Join(", ", nameList.ToArray());
             }
 
-            if (type.value == ReactionType.Like.value) {
+            if (type.value == ReactionType.Thumb.value) {
                 title = $"{nameList?.Count ?? 0} 人表示喜欢";
             }
             else if (type.value == ReactionType.Oppose.value) {

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace ConnectApp.Models.Model {
     [Serializable]
@@ -10,6 +11,6 @@ namespace ConnectApp.Models.Model {
         public User user;
         public DateTime updatedTime;
         public int count;
-        public string likeImage;
+        public Dictionary<string, int> likeEmoji;
     }
 }

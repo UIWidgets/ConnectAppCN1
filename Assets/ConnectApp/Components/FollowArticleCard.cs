@@ -296,9 +296,7 @@ namespace ConnectApp.Components {
         }
 
         Widget _buildBottom() {
-            int articleLikeCount = this.article.likeCount + this.article.appLikeCount > 0
-                ? this.article.likeCount + this.article.appLikeCount
-                : 0;
+            int articleLikeCount = this.article.appLikeCount > 0 ? this.article.appLikeCount : 0;
 
             return new Container(
                 height: 56,
@@ -314,22 +312,25 @@ namespace ConnectApp.Components {
                                     height: 56,
                                     padding: EdgeInsets.only(16, right: 20),
                                     child: new IgnorePointer(
-                                        child: new LikeButton.LikeButton(
-                                            isLiked => new Icon(
-                                                isLiked ? Icons.favorite : Icons.favorite_border,
-                                                color: isLiked ? CColors.SecondaryPink : CColors.Icon,
-                                                size: 24
-                                            ),
-                                            circleColor: new CircleColor(
-                                                start: CColors.SecondaryPink,
-                                                end: CColors.SecondaryPink
-                                            ),
-                                            likeCount: articleLikeCount,
-                                            isLiked: this.isLike,
-                                            size: 24,
-                                            isShowBubbles: false,
-                                            showLikeCount: true,
-                                            likeButtonPadding: EdgeInsets.zero
+                                        child: new Row(
+                                            children: new List<Widget> {
+                                                new Container(
+                                                    padding: EdgeInsets.only(bottom: 4),
+                                                    child: new Icon(
+                                                        this.isLike ? Icons.thumb_bold : Icons.thumb_line, 
+                                                        size: 24, 
+                                                        color: this.isLike ? CColors.Thumb : CColors.Icon
+                                                    )
+                                                ),
+                                                new Container(
+                                                    margin: EdgeInsets.only(6),
+                                                    child: new Text(
+                                                        CStringUtils.CountToString(count: articleLikeCount,
+                                                            "点赞"),
+                                                        style: CTextStyle.PRegularBody5.merge(new TextStyle(height: 1))
+                                                    )
+                                                )
+                                            }
                                         )
                                     )
                                 )
