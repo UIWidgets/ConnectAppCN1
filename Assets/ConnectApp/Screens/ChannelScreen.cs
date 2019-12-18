@@ -269,14 +269,14 @@ namespace ConnectApp.screens {
                             message = message
                         }),
                         selectReactionFromMe = (message, type) => {
-                            MyReactionsManager.updateMyReaction(messageId: message.id, type: type);
+                            MyReactionsManager.updateMyReaction(message: message, type: type);
                             dispatcher.dispatch(new UpdateMyReactionToMessage {messageId = message.id});
-                            dispatcher.dispatch(Actions.addReaction(messageId: message.id, likeEmoji: type));
+                            // dispatcher.dispatch(Actions.addReaction(messageId: message.id, likeEmoji: type));
                         },
                         cancelReactionFromMe = (message, type) => {
-                            MyReactionsManager.updateMyReaction(messageId: message.id, type: type);
+                            MyReactionsManager.updateMyReaction(message: message, type: type);
                             dispatcher.dispatch(new UpdateMyReactionToMessage {messageId = message.id});
-                            dispatcher.dispatch(Actions.cancelReaction(messageId: message.id, type: type));
+                            // dispatcher.dispatch(Actions.cancelReaction(messageId: message.id, type: type));
                         }
                     };
                     return new ChannelScreen(viewModel: viewModel, actionModel: actionModel);
