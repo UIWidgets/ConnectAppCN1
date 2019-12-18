@@ -140,7 +140,7 @@ namespace ConnectApp.Components {
                         : new Container(
                             width: avatarSize,
                             height: avatarSize,
-                            color: CColors.AvatarLoading,
+                            color: CColors.LoadingGrey,
                             child: this.useCachedNetworkImage
                                 ? (Widget) new CachedNetworkImage(src: httpsUrl)
                                 : Image.network(src: httpsUrl)

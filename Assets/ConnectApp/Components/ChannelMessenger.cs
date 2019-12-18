@@ -531,7 +531,7 @@ namespace ConnectApp.Components {
                     width: this.widget.size,
                     height: this.widget.size,
                     decoration: new BoxDecoration(
-                        color: CColors.Disable,
+                        color: CColors.LoadingGrey,
                         borderRadius: BorderRadius.all(this.widget.radius)
                     ))
                 : (Widget) new ClipRRect(
@@ -539,7 +539,7 @@ namespace ConnectApp.Components {
                     child: new Container(
                         width: this.size.width,
                         height: this.size.height,
-                        color: CColors.Disable,
+                        color: CColors.LoadingGrey,
                         child: this._getImage())
                 );
         }
