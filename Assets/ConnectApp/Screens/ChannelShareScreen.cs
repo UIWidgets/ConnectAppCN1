@@ -11,8 +11,8 @@ using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 
@@ -30,13 +30,14 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ChannelShareScreenViewModel>(
                 converter: state => {
-                    ChannelView channel = !state.channelState.channelDict.ContainsKey(this.channelId)
+                    var channel = !state.channelState.channelDict.ContainsKey(this.channelId)
                         ? ChannelView.fromChannel(new Channel())
                         : state.channelState.channelDict[this.channelId];
                     channel.isTop = state.channelState.channelTop.TryGetValue(key: this.channelId, out var isTop) &&
                                     isTop;
                     return new ChannelShareScreenViewModel {
-                        channel = channel
+                        channel = channel,
+                        channelShareInfoLoading = state.channelState.channelShareInfoLoading
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -50,7 +51,7 @@ namespace ConnectApp.screens {
                             routeName = MainNavigatorRoutes.Login
                         }),
                         fetchChannelInfo = () => dispatcher.dispatch<IPromise>(
-                            Actions.fetchChannelInfo(channelId: this.channelId, ignoreError: true)),
+                            Actions.fetchChannelInfo(channelId: this.channelId, true)),
                         joinChannel = () => dispatcher.dispatch<IPromise>(
                             Actions.joinChannel(channelId: this.channelId, groupId: viewModel.channel.groupId, true))
                     };
@@ -84,7 +85,7 @@ namespace ConnectApp.screens {
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 if (this.widget.viewModel.channel.id == null) {
                     this.widget.actionModel.fetchChannelInfo().Then(() => {
-                        if (this.widget.viewModel.channel.joined) {
+                        if (UserInfoManager.isLogin() && this.widget.viewModel.channel.joined) {
                             this.widget.actionModel.pushToChannel();
                         }
                     });
@@ -108,10 +109,6 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
-            if (this.widget.viewModel.channel.id == null) {
-                return new GlobalLoading();
-            }
-
             return new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(
@@ -212,6 +209,15 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildContent() {
+            if (this.widget.viewModel.channelShareInfoLoading && this.widget.viewModel.channel.id == null) {
+                return new GlobalLoading();
+            }
+
+            if (this.widget.viewModel.channel.id == null ||
+                this.widget.viewModel.channel.errorCode == "ResourceNotFound") {
+                return new BlankView("频道不存在");
+            }
+
             return new Container(
                 color: CColors.Background,
                 child: new ListView(

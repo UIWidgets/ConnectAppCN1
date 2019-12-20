@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using ConnectApp.Models.State;
 using ConnectApp.screens;
-using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.redux.actions {
     public class MainNavigatorPushToAction : BaseAction {
@@ -51,7 +50,6 @@ namespace ConnectApp.redux.actions {
 
     public class MainNavigatorPushToUserDetailAction : BaseAction {
         public string userId;
-        public bool isSlug = false;
     }
 
     public class MainNavigatorPushToUserFollowingAction : BaseAction {
@@ -69,7 +67,6 @@ namespace ConnectApp.redux.actions {
 
     public class MainNavigatorPushToTeamDetailAction : BaseAction {
         public string teamId;
-        public bool isSlug = false;
     }
 
     public class MainNavigatorPushToTeamFollowerAction : BaseAction {
@@ -89,6 +86,10 @@ namespace ConnectApp.redux.actions {
     public class MainNavigatorPushToReportAction : BaseAction {
         public string reportId;
         public ReportType reportType;
+    }
+    
+    public class MainNavigatorPushToReactionsDetailAction : BaseAction {
+        public string messageId;
     }
 
     public class LoginNavigatorPushToAction : BaseAction {
@@ -135,6 +136,7 @@ namespace ConnectApp.redux.actions {
         public List<string> urls;
         public string url;
         public bool useCachedNetworkImage = true;
+        public Dictionary<string, byte[]> imageData;
     }
 
     public class MainNavigatorPushToChannelMentionAction : BaseAction {

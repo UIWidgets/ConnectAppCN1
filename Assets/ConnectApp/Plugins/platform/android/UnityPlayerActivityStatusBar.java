@@ -12,6 +12,7 @@ import android.view.WindowManager;
 import com.dueeeke.videoplayer.player.VideoView;
 import com.unity.uiwidgets.plugin.UIWidgetsMessageManager;
 import com.unity3d.unityconnect.plugins.AVPlayerPlugin;
+import com.unity3d.unityconnect.plugins.CommonPlugin;
 import com.unity3d.unityconnect.plugins.JPushPlugin;
 
 import java.util.Arrays;
@@ -24,9 +25,23 @@ public class UnityPlayerActivityStatusBar extends UnityPlayerActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        LayoutInflater mInflater = LayoutInflater.from(this);
+        View myView = mInflater.inflate(R.layout.splash, null);
+        mUnityPlayer.addView(myView);
+        CommonPlugin.splashView = myView;
+
         if (this.getIntent().getScheme() != null && this.getIntent().getScheme().equals("unityconnect")) {
-            JPushPlugin.getInstance().schemeUrl = this.getIntent().getDataString();
+            String dataStr = this.getIntent().getData().toString();
+            if (dataStr.contains("url=") && dataStr.startsWith("unityconnect://com.unity3d.unityconnect/push")) {
+                String[] urls = dataStr.split("url=");
+                String url = urls[urls.length - 1];
+                JPushPlugin.getInstance().pushJson = url;
+            } else {
+                JPushPlugin.getInstance().schemeUrl = this.getIntent().getDataString();
+            }
         }
+
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -88,7 +103,22 @@ public class UnityPlayerActivityStatusBar extends UnityPlayerActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        showSystemUi();
         videoView.resume();
+        if (this.getIntent().getScheme() != null && this.getIntent().getScheme().equals("unityconnect")) {
+            String dataStr = this.getIntent().getData().toString();
+            this.getIntent().setData(null);
+            if (dataStr.contains("url=") && dataStr.startsWith("unityconnect://com.unity3d.unityconnect/push")) {
+                String[] urls = dataStr.split("url=");
+                String url = urls[urls.length - 1];
+                if (JPushPlugin.getInstance().isListenCompleted) {
+                    UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("jpush", "OnOpenNotification", Arrays.asList(url));
+                } else {
+                    JPushPlugin.getInstance().pushJson = url;
+                }
+            }
+        }
+
     }
 
     @Override
@@ -102,12 +132,22 @@ public class UnityPlayerActivityStatusBar extends UnityPlayerActivity {
     protected void onRestart() {
         super.onRestart();
         if (this.getIntent().getScheme() != null && this.getIntent().getScheme().equals("unityconnect")) {
-            String data = this.getIntent().getDataString();
-            if (JPushPlugin.getInstance().isListenCompleted) {
-                this.getIntent().setData(null);
-                UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("jpush", "OnOpenUrl", Arrays.asList(data));
+            String dataStr = this.getIntent().getData().toString();
+            this.getIntent().setData(null);
+            if (dataStr.contains("url=") && dataStr.startsWith("unityconnect://com.unity3d.unityconnect/push")) {
+                String[] urls = dataStr.split("url=");
+                String url = urls[urls.length - 1];
+                if (JPushPlugin.getInstance().isListenCompleted) {
+                    UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("jpush", "OnOpenNotification", Arrays.asList(url));
+                } else {
+                    JPushPlugin.getInstance().pushJson = url;
+                }
             } else {
-                JPushPlugin.getInstance().schemeUrl = data;
+                if (JPushPlugin.getInstance().isListenCompleted) {
+                    UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("jpush", "OnOpenUrl", Arrays.asList(dataStr));
+                } else {
+                    JPushPlugin.getInstance().schemeUrl = dataStr;
+                }
             }
         }
     }

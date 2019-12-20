@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Web;
+using ConnectApp.Api;
 using ConnectApp.Components;
 using ConnectApp.Constants;
 using ConnectApp.Main;
@@ -13,6 +14,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using EventType = ConnectApp.Models.State.EventType;
+
 #if UNITY_IOS
 using System.Runtime.InteropServices;
 
@@ -22,6 +24,8 @@ namespace ConnectApp.Plugins {
     public static class JPushPlugin {
         public static bool isListen;
         public static bool isShowPushAlert;
+        public static string hmsToken;
+
         static int callbackId = 0;
 
         public static void addListener() {
@@ -84,7 +88,8 @@ namespace ConnectApp.Plugins {
                             }
 
                             var id = dict["id"] ?? "";
-                            if (MessageUtils.currentChannelId.isEmpty() || id != MessageUtils.currentChannelId) {
+                            if (CTemporaryValue.currentPageModelId.isEmpty() ||
+                                id != CTemporaryValue.currentPageModelId) {
                                 playMessageSound();
                             }
 
@@ -135,6 +140,20 @@ namespace ConnectApp.Plugins {
                                 }
                             }
 
+                            break;
+                        }
+                        case "RegisterToken": {
+                            if (args.isEmpty()) {
+                                return;
+                            }
+
+                            var node = args.first();
+                            var dict = JSON.Parse(node);
+                            var token = (string) dict["token"];
+                            hmsToken = token;
+                            registerHmsToken(StoreProvider.store.getState().loginState.isLoggedIn
+                                ? StoreProvider.store.getState().loginState.loginInfo.userId
+                                : "");
                             break;
                         }
                         case "SaveImageSuccess": {
@@ -213,7 +232,7 @@ namespace ConnectApp.Plugins {
             }
         }
 
-        public static void pushPage(string type, string subType, string id, bool isPush = false) {
+        static void pushPage(string type, string subType, string id, bool isPush = false) {
             if (id.isEmpty()) {
                 return;
             }
@@ -221,6 +240,10 @@ namespace ConnectApp.Plugins {
             if (type == "project") {
                 if (subType == "article") {
                     AnalyticsManager.ClickEnterArticleDetail("Push_Article", id, $"PushArticle_{id}");
+                    if (CTemporaryValue.currentPageModelId.isNotEmpty() && id == CTemporaryValue.currentPageModelId) {
+                        return;
+                    }
+
                     StoreProvider.store.dispatcher.dispatch(
                         new MainNavigatorPushToArticleDetailAction {articleId = id, isPush = isPush});
                 }
@@ -233,16 +256,28 @@ namespace ConnectApp.Plugins {
 
                 AnalyticsManager.ClickEnterEventDetail("Push_Event", id, $"PushEvent_{id}", eventType.ToString());
 
+                if (CTemporaryValue.currentPageModelId.isNotEmpty() && id == CTemporaryValue.currentPageModelId) {
+                    return;
+                }
+
                 StoreProvider.store.dispatcher.dispatch(
                     new MainNavigatorPushToEventDetailAction {eventId = id, eventType = eventType});
             }
             else if (type == "team") {
+                if (CTemporaryValue.currentPageModelId.isNotEmpty() && id == CTemporaryValue.currentPageModelId) {
+                    return;
+                }
+
                 if (subType == "follower") {
                     StoreProvider.store.dispatcher.dispatch(
                         new MainNavigatorPushToTeamDetailAction {teamId = id});
                 }
             }
             else if (type == "user") {
+                if (CTemporaryValue.currentPageModelId.isNotEmpty() && id == CTemporaryValue.currentPageModelId) {
+                    return;
+                }
+
                 if (subType == "follower") {
                     StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToUserDetailAction {userId = id});
                 }
@@ -252,17 +287,20 @@ namespace ConnectApp.Plugins {
                     new MainNavigatorPushToWebViewAction {url = id});
             }
             else if (type == "messenger") {
-                if (MessageUtils.currentChannelId.isNotEmpty() && id == MessageUtils.currentChannelId) {
+                if (CTemporaryValue.currentPageModelId.isNotEmpty() && id == CTemporaryValue.currentPageModelId) {
                     return;
                 }
 
-                if (subType == "channelAt") {
-                    StoreProvider.store.dispatcher.dispatch(
-                        new MainNavigatorPushToChannelAction {channelId = id});
+                if (isPush) {
+                    if (UserInfoManager.isLogin()) {
+                        StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToChannelAction {channelId = id});
+                    }
+                    else {
+                        Router.navigator.pushNamed(routeName: MainNavigatorRoutes.Login);
+                    }
                 }
-                else if (subType == "channelShare") {
-                    StoreProvider.store.dispatcher.dispatch(
-                        new MainNavigatorPushToChannelShareAction {channelId = id});
+                else {
+                    StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToChannelShareAction {channelId = id});
                 }
             }
         }
@@ -274,6 +312,14 @@ namespace ConnectApp.Plugins {
 
             listenCompleted();
         }
+
+
+        public static void registerHmsToken(string userId = "") {
+            if (hmsToken.isNotEmpty()) {
+                UserApi.RegisterToken(hmsToken, userId);
+            }
+        }
+
 
         static void setJPushChannel(string channel) {
             if (Application.isEditor) {
@@ -297,14 +343,15 @@ namespace ConnectApp.Plugins {
             }
 
             setAlias(sequence: callbackId++, alias: alias);
+            registerHmsToken(alias);
         }
 
-        public static void deleteJPushAlias() {
+        public static void deleteJPushAlias(string alias = "") {
             if (Application.isEditor) {
                 return;
             }
 
-            deleteAlias(sequence: callbackId++);
+            deleteAlias(sequence: callbackId++, alias);
         }
 
         static void setJPushTags(List<string> tags) {
@@ -369,7 +416,7 @@ namespace ConnectApp.Plugins {
         static extern void setAlias(int sequence, string alias);
 
         [DllImport("__Internal")]
-        static extern void deleteAlias(int sequence);
+        static extern void deleteAlias(int sequence, string alias);
 
         [DllImport("__Internal")]
         static extern void setTags(int sequence, string tagsJsonStr);
@@ -413,8 +460,8 @@ namespace ConnectApp.Plugins {
             Plugin().Call("setAlias", sequence, alias);
         }
 
-        static void deleteAlias(int sequence) {
-            Plugin().Call("deleteAlias", sequence);
+        static void deleteAlias(int sequence, string alias) {
+            Plugin().Call("deleteAlias", sequence, alias);
         }
 
         static void setTags(int sequence, string tagsJsonStr) {
@@ -437,14 +484,32 @@ namespace ConnectApp.Plugins {
             Plugin().Call("clearBadge");
         }
 #else
-        static void listenCompleted() {}
-        static void setChannel(string channel) {}
-        static void setAlias(int sequence, string channel) {}
-        static void deleteAlias(int sequence) {}
-        static void setTags(int sequence, string tagsJsonStr) {}
-        static void updateShowAlert(bool isShow) {}
-        static void clearAllAlert() {}
-        static void clearBadge() {}
+        static void listenCompleted() {
+        }
+
+        static void setChannel(string channel) {
+        }
+
+        static void setAlias(int sequence, string alias) {
+        }
+
+        static void deleteAlias(int sequence) {
+        }
+
+        static void setTags(int sequence, string tagsJsonStr) {
+        }
+
+        static void playSystemSound() {
+        }
+
+        static void updateShowAlert(bool isShow) {
+        }
+
+        static void clearAllAlert() {
+        }
+
+        static void clearBadge() {
+        }
 #endif
     }
 }

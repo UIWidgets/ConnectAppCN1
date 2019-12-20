@@ -76,6 +76,8 @@ namespace ConnectApp.Constants {
         public static readonly IconData camera_alt = new IconData(0xe3b0, "Material Icons");
         public static readonly IconData add = new IconData(0xe145, "Material Icons");
         public static readonly IconData edit = new IconData(0xe3c9, "Material Icons");
+        public static readonly IconData thumb_bold = new IconData(0xe627, "iconfont");
+        public static readonly IconData thumb_line = new IconData(0xe628, "iconfont");
     }
 
     public static class CTextStyle {
@@ -464,6 +466,7 @@ namespace ConnectApp.Constants {
         public static readonly Color PrimaryBlue = new Color(0xFF2196F3);
         public static readonly Color SecondaryPink = new Color(0xFFF32194);
         public static readonly Color Error = new Color(0xFFF44336);
+        public static readonly Color Thumb = new Color(0xFFF44336);
         public static readonly Color Cancel = new Color(0xFF797979);
         public static readonly Color TextTitle = new Color(0xFF000000);
         public static readonly Color TextBody = new Color(0xFF212121);
@@ -479,7 +482,7 @@ namespace ConnectApp.Constants {
         public static readonly Color Disable2 = new Color(0xFFD8D8D8);
         public static readonly Color WechatGreen = new Color(0xFF48B34F);
         public static readonly Color ButtonActive = new Color(0xFF227ABF);
-        public static readonly Color AvatarLoading = new Color(0xFFD8D8D8);
+        public static readonly Color LoadingGrey = new Color(0xFFD8D8D8);
         public static readonly Color LightBlueGrey = new Color(0xFFC7CBCF);
         public static readonly Color ShadyLady = new Color(0xFF9D9D9D);
         public static readonly Color BlackHaze = new Color(0xFFF5F7F8);
@@ -513,5 +516,7 @@ namespace ConnectApp.Constants {
         public static readonly Color MuteIcon = new Color(0xFFC7CBCF);
         public static readonly Color GreyMessage = new Color(0xFFF0F0F0);
         public static readonly Color BlueMessage = new Color(0xFFC5E8FF);
+        public static readonly Color MessageReaction = new Color(0xFFF8F8F8);
+        public static readonly Color MessageReactionCount = new Color(0xFF0069C0);
     }
 }

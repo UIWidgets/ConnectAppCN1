@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using ConnectApp.Constants;
 using ConnectApp.Main;
+using ConnectApp.Utils;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -54,9 +55,11 @@ namespace ConnectApp.Components {
                     children: new List<Widget> {
                         _buildTitle(title: this.title),
                         _buildButtons(items: this.items),
-                        new Container(
-                            height: MediaQuery.of(context: context).padding.bottom
-                        )
+                        this.title.isNotEmpty() || this.items.isNotNullAndEmpty()
+                            ? new Container(
+                                height: MediaQuery.of(context: context).padding.bottom
+                            )
+                            : new Container()
                     }
                 )
             );
@@ -86,7 +89,7 @@ namespace ConnectApp.Components {
         }
 
         static Widget _buildButtons(List<ActionSheetItem> items) {
-            if (items == null || items.Count <= 0) {
+            if (items.isNullOrEmpty()) {
                 return new Container();
             }
 
@@ -146,6 +149,10 @@ namespace ConnectApp.Components {
             widgets.AddRange(collection: normalWidgets);
             widgets.AddRange(collection: destructiveWidgets);
             widgets.AddRange(collection: cancelWidgets);
+            if (widgets.isNotEmpty() && widgets.last() is CustomDivider) {
+                widgets.removeLast();
+            }
+
             return new Column(
                 children: widgets
             );
@@ -154,13 +161,18 @@ namespace ConnectApp.Components {
 
     public static class ActionSheetUtils {
         public static void showModalActionSheet(
-            Widget child
+            Widget child,
+            Widget overlay = null,
+            VoidCallback onPop = null
         ) {
             var route = new _ModalPopupRoute(
-                cxt => child,
-                "Dismiss"
+                builder: cxt => child,
+                overlayBuilder: overlay == null
+                    ? (WidgetBuilder) null
+                    : ctx => overlay,
+                barrierLabel: "Dismiss"
             );
-            Router.navigator.push(route: route);
+            Router.navigator.push(route: route).Then(_ => onPop?.Invoke());
         }
 
         public static void hiddenModalPopup() {
@@ -173,14 +185,18 @@ namespace ConnectApp.Components {
     class _ModalPopupRoute : PopupRoute {
         public _ModalPopupRoute(
             WidgetBuilder builder = null,
+            WidgetBuilder overlayBuilder = null,
             string barrierLabel = "",
             RouteSettings settings = null
         ) : base(settings: settings) {
             this.builder = builder;
             this.barrierLabel = barrierLabel;
+            this.overlayBuilder = overlayBuilder;
         }
 
         readonly WidgetBuilder builder;
+
+        readonly WidgetBuilder overlayBuilder;
 
         public string barrierLabel { get; }
 
@@ -202,6 +218,8 @@ namespace ConnectApp.Components {
 
         Tween<Offset> _offsetTween;
 
+        Tween<float> _opacityTween;
+
         public override Animation<float> createAnimation() {
             D.assert(this._animation == null);
             this._animation = new CurvedAnimation(
@@ -213,6 +231,7 @@ namespace ConnectApp.Components {
                 new Offset(0, 1),
                 new Offset(0, 0)
             );
+            this._opacityTween = new FloatTween(0, 1);
             return this._animation;
         }
 
@@ -223,13 +242,28 @@ namespace ConnectApp.Components {
 
         public override Widget buildTransitions(BuildContext context, Animation<float> animation,
             Animation<float> secondaryAnimation, Widget child) {
-            return new Align(
+            Widget result = new Align(
                 alignment: Alignment.bottomCenter,
                 child: new FractionalTranslation(
                     translation: this._offsetTween.evaluate(animation: this._animation),
                     child: child
                 )
             );
+
+            if (this.overlayBuilder != null) {
+                result = new Stack(
+                    children: new List<Widget> {
+                        Positioned.fill(
+                            child: new Opacity(
+                                opacity: this._opacityTween.evaluate(animation: this._animation),
+                                child: this.overlayBuilder(context)
+                            )
+                        ),
+                        result
+                    });
+            }
+
+            return result;
         }
     }
 }

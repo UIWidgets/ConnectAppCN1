@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using ConnectApp.Components;
@@ -54,13 +55,13 @@ namespace ConnectApp.screens {
                                     return 1;
                                 }
 
-                                return (c2.lastMessage.time - c1.lastMessage.time).Milliseconds;
+                                return DateTime.Compare(t1: c2.lastMessage.time, t2: c1.lastMessage.time);
                             });
                     }
 
                     var lastMessageMap = new Dictionary<string, string>();
                     foreach (var channel in joinedChannels) {
-                        if (!string.IsNullOrEmpty(value: channel.lastMessageId)) {
+                        if (channel.lastMessageId.isNotEmpty()) {
                             lastMessageMap[key: channel.id] = channel.lastMessageId;
                         }
                     }
@@ -200,8 +201,7 @@ namespace ConnectApp.screens {
                         child: new SectionView(
                             controller: this._refreshController,
                             enablePullDown: true,
-                            enablePullUp: this.widget.viewModel.hasMore &&
-                                          this.widget.viewModel.joinedChannels.isEmpty(),
+                            enablePullUp: this.widget.viewModel.hasMore,
                             onRefresh: this._onRefresh,
                             hasBottomMargin: true,
                             sectionCount: 2,
@@ -211,7 +211,6 @@ namespace ConnectApp.screens {
                                         ? 1
                                         : this.widget.viewModel.joinedChannels.Count;
                                 }
-
                                 return this.widget.viewModel.publicChannels.Count;
                             },
                             headerInSection: this._headerInSection,

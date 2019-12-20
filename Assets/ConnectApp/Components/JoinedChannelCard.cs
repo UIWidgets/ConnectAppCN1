@@ -46,8 +46,8 @@ namespace ConnectApp.Components {
             }
 
             var contentTextSpans = new List<TextSpan>();
-            if ((bool) this.channel.lastMessage.author?.fullName.isNotEmpty() &&
-                text.isNotEmpty() && this.channel.lastMessage.author.id != this.myUserId) {
+            if (this.channel.lastMessage.author?.fullName.isNotEmpty() ?? text.isNotEmpty() &&
+                this.channel.lastMessage.author.id != this.myUserId) {
                 contentTextSpans.Add(new TextSpan(
                     $"{this.channel.lastMessage.author?.fullName}: ",
                     style: CTextStyle.PRegularBody4

@@ -6,6 +6,7 @@ using RSG;
 namespace ConnectApp.Models.ActionModel {
     public class ChannelScreenActionModel : BaseActionModel {
         public Action<string> pushToUserDetail;
+        public Action<string> pushToReactionsDetail;
         public Action pushToChannelDetail;
         public Action clearUnread;
         public Action reportLeaveBottom;
@@ -13,7 +14,7 @@ namespace ConnectApp.Models.ActionModel {
         public Action popFromScreen;
         public Action ackMessage;
         public Action<string> openUrl;
-        public Action<string, List<string>> browserImage;
+        public Action<string, List<string>, Dictionary<string, byte[]>> browserImage;
         public Action<string> playVideo;
         public Func<string, string, string, string, IPromise> sendMessage;
         public Func<string, byte[], string, IPromise> sendImage;
@@ -27,5 +28,7 @@ namespace ConnectApp.Models.ActionModel {
         public Action clearLastChannelMention;
         public Action<ChannelMessageView> addLocalMessage;
         public Action<ChannelMessageView> resendMessage;
+        public Action<ChannelMessageView, string> selectReactionFromMe;
+        public Action<ChannelMessageView, string> cancelReactionFromMe;
     }
 }

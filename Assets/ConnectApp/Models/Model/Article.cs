@@ -14,6 +14,7 @@ namespace ConnectApp.Models.Model {
         public string subTitle;
         public int viewCount;
         public int likeCount;
+        public int appLikeCount;
         public int commentCount;
         public Thumbnail thumbnail;
         public DateTime updatedTime;
@@ -22,7 +23,8 @@ namespace ConnectApp.Models.Model {
         public DateTime lastPublishedTime;
         public string type;
         public string body;
-        public bool like;
+        public bool? like;
+        public int? appCurrentUserLikeCount;
         public List<Favorite> favorites;
         public List<string> projectIds;
         public string channelId;
@@ -44,6 +46,7 @@ namespace ConnectApp.Models.Model {
             string subTitle = null,
             int? viewCount = null,
             int? likeCount = null,
+            int? appLikeCount = null,
             int? commentCount = null,
             Thumbnail thumbnail = null,
             DateTime? updatedTime = null,
@@ -53,6 +56,7 @@ namespace ConnectApp.Models.Model {
             string type = null,
             string body = null,
             bool? like = null,
+            int? appCurrentUserLikeCount = null,
             List<Favorite> favorites = null,
             List<string> projectIds = null,
             string channelId = null,
@@ -72,6 +76,7 @@ namespace ConnectApp.Models.Model {
                 subTitle = subTitle ?? this.subTitle,
                 viewCount = viewCount ?? this.viewCount,
                 likeCount = likeCount ?? this.likeCount,
+                appLikeCount = appLikeCount ?? this.appLikeCount,
                 commentCount = commentCount ?? this.commentCount,
                 thumbnail = thumbnail ?? this.thumbnail,
                 updatedTime = updatedTime ?? this.updatedTime,
@@ -81,6 +86,7 @@ namespace ConnectApp.Models.Model {
                 type = type ?? this.type,
                 body = body ?? this.body,
                 like = like ?? this.like,
+                appCurrentUserLikeCount = appCurrentUserLikeCount ?? this.appCurrentUserLikeCount,
                 favorites = favorites ?? this.favorites,
                 projectIds = projectIds ?? this.projectIds,
                 channelId = channelId ?? this.channelId,
@@ -107,6 +113,7 @@ namespace ConnectApp.Models.Model {
                 subTitle: other.subTitle,
                 viewCount: other.viewCount,
                 likeCount: other.likeCount,
+                appLikeCount: other.appLikeCount,
                 commentCount: other.commentCount,
                 thumbnail: other.thumbnail,
                 updatedTime: other.updatedTime,
@@ -116,6 +123,7 @@ namespace ConnectApp.Models.Model {
                 type: other.type,
                 body: other.body,
                 like: other.like,
+                appCurrentUserLikeCount: other.appCurrentUserLikeCount,
                 favorites: other.favorites,
                 projectIds: other.projectIds,
                 channelId: other.channelId,

@@ -108,9 +108,9 @@ namespace ConnectApp.screens {
                                 Actions.fetchArticleComments(channelId: channelId,
                                     currOldestMessageId: currOldestMessageId)
                             ),
-                        likeArticle = id => {
+                        likeArticle = (id, count) => {
                             AnalyticsManager.ClickLike("Article", articleId: this.articleId);
-                            return dispatcher.dispatch<IPromise>(Actions.likeArticle(articleId: id));
+                            return dispatcher.dispatch<IPromise>(Actions.likeArticle(articleId: id, addCount: count));
                         },
                         likeComment = message => {
                             AnalyticsManager.ClickLike("Article_Comment", articleId: this.articleId,
@@ -193,6 +193,7 @@ namespace ConnectApp.screens {
         string _loginSubId;
         _ArticleJumpToCommentState _jumpState;
         bool _needRebuildWithCachedCommentPosition;
+        bool _isPullUp;
 
         float? _cachedCommentPosition;
 
@@ -222,6 +223,7 @@ namespace ConnectApp.screens {
             this._jumpState = _ArticleJumpToCommentState.Inactive;
             this._cachedCommentPosition = null;
             this._needRebuildWithCachedCommentPosition = false;
+            this._isPullUp = false;
         }
 
         public override void didChangeDependencies() {
@@ -256,7 +258,7 @@ namespace ConnectApp.screens {
                 );
             }
 
-            if (this._article == null || this._article.channelId == null) {
+            if (this._article?.channelId == null) {
                 return new Container(
                     color: CColors.White,
                     child: new CustomSafeArea(
@@ -270,7 +272,6 @@ namespace ConnectApp.screens {
                         )
                     )
                 );
-                ;
             }
 
             if (this._article.ownerType == "user") {
@@ -340,14 +341,31 @@ namespace ConnectApp.screens {
                 }
             }
 
+            var notificationListener = new NotificationListener<UserScrollNotification>(
+                child: contentWidget,
+                onNotification: this._onUserNotification
+            );
             var child = new Container(
                 color: CColors.Background,
                 child: new Column(
                     children: new List<Widget> {
                         this._buildNavigationBar(),
                         new Expanded(
-                            child: new CustomScrollbar(
-                                child: contentWidget
+                            child: new CrazyLikeButton(
+                                new CustomScrollbar(
+                                    child: notificationListener
+                                ),
+                                (this._article.like ?? false) && this.widget.viewModel.isLoggedIn,
+                                this._article.appCurrentUserLikeCount ?? 0,
+                                totalLikeCount: this._article.appLikeCount,
+                                isPullUp: this._isPullUp,
+                                () => {
+                                    if (!this.widget.viewModel.isLoggedIn) {
+                                        this.widget.actionModel.pushToLogin();
+                                    }
+                                    return this.widget.viewModel.isLoggedIn;
+                                },
+                                likeCount => this.widget.actionModel.likeArticle(arg1: this._article.id, arg2: likeCount)
                             )
                         ),
                         this._buildArticleTabBar()
@@ -377,7 +395,7 @@ namespace ConnectApp.screens {
                     playVideo: this.widget.actionModel.playVideo,
                     this.widget.actionModel.pushToLogin,
                     UserInfoManager.isLogin()
-                        ? CCommonUtils.GetUserLicense(UserInfoManager.initUserInfo().userId,
+                        ? CCommonUtils.GetUserLicense(UserInfoManager.getUserInfo().userId,
                             this.widget.viewModel.userLicenseDict)
                         : "",
                     this.widget.actionModel.browserImage
@@ -482,7 +500,7 @@ namespace ConnectApp.screens {
 
         Widget _buildArticleTabBar() {
             return new ArticleTabBar(
-                this._article.like && this.widget.viewModel.isLoggedIn,
+                (this._article.like ?? false) && this.widget.viewModel.isLoggedIn,
                 this.widget.viewModel.isLoggedIn
                 && this._article.favorites.isNotNullAndEmpty(),
                 () => this._sendComment("Article"),
@@ -492,8 +510,8 @@ namespace ConnectApp.screens {
                         this.widget.actionModel.pushToLogin();
                     }
                     else {
-                        if (!this._article.like) {
-                            this.widget.actionModel.likeArticle(arg: this._article.id);
+                        if (!(this._article.like ?? false)) {
+                            this.widget.actionModel.likeArticle(arg1: this._article.id, 1);
                         }
                     }
                 },
@@ -573,7 +591,21 @@ namespace ConnectApp.screens {
                     this.setState(() => this._isHaveTitle = false);
                 }
             }
+            return true;
+        }
 
+        bool _onUserNotification(UserScrollNotification notification) {
+            if (notification.direction == ScrollDirection.reverse) {
+                if (!this._isPullUp) {
+                    this.setState(() => this._isPullUp = true);
+                }
+            }
+
+            if (notification.direction == ScrollDirection.forward) {
+                if (this._isPullUp) {
+                    this.setState(() => this._isPullUp = false);
+                }
+            }
             return true;
         }
 
@@ -771,7 +803,7 @@ namespace ConnectApp.screens {
                             }
                             else {
                                 if (!like) {
-                                    this.widget.actionModel.likeArticle(arg: this._article.id);
+                                    this.widget.actionModel.likeArticle(arg1: this._article.id, 1);
                                 }
                             }
                         }),
@@ -1061,16 +1093,28 @@ namespace ConnectApp.screens {
         }
 
         public void didPopNext() {
+            if (this.widget.viewModel.articleId.isNotEmpty()) {
+                CTemporaryValue.currentPageModelId = this.widget.viewModel.articleId;
+            }
+
             StatusBarManager.statusBarStyle(false);
         }
 
         public void didPush() {
+            if (this.widget.viewModel.articleId.isNotEmpty()) {
+                CTemporaryValue.currentPageModelId = this.widget.viewModel.articleId;
+            }
         }
 
         public void didPop() {
+            if (CTemporaryValue.currentPageModelId.isNotEmpty() &&
+                this.widget.viewModel.articleId == CTemporaryValue.currentPageModelId) {
+                CTemporaryValue.currentPageModelId = null;
+            }
         }
 
         public void didPushNext() {
+            CTemporaryValue.currentPageModelId = null;
         }
     }
 }

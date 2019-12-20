@@ -12,10 +12,6 @@ namespace ConnectApp.Utils {
     public delegate void MentionTapCallback(string userId);
 
     public static class MessageUtils {
-        public static string lastWaitingMessageId;
-
-        public static string currentChannelId;
-
         public static string AnalyzeMessage(string content, List<User> mentions, bool mentionEveryone) {
             if (content.isEmpty()) {
                 return "";
@@ -37,12 +33,14 @@ namespace ConnectApp.Utils {
             return parsingContent;
         }
 
-        public static string truncateMessage(string content, int head = 1000, int tail = 1000, string connector = "...") {
+        public static string truncateMessage(string content, int head = 1000, int tail = 1000,
+            string connector = "...") {
             if (content.isEmpty() || content.Length <= head + tail + connector.Length) {
                 return content;
             }
-            return content.Substring(0, head > 0 && char.IsHighSurrogate(content[head-1])
-                       ? head-1
+
+            return content.Substring(0, head > 0 && char.IsHighSurrogate(content[head - 1])
+                       ? head - 1
                        : head) +
                    connector +
                    content.Substring(tail > 0 && char.IsLowSurrogate(content[content.Length - tail])

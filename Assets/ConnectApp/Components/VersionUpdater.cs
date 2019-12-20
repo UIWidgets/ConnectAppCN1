@@ -25,6 +25,7 @@ namespace ConnectApp.Components {
     public class _VersionUpdaterState : State<VersionUpdater> {
         public override void initState() {
             base.initState();
+            SplashManager.hiddenAndroidSpalsh();
             fetchInitData();
             VersionManager.checkForUpdates(type: CheckVersionType.initialize);
             StatusBarManager.hideStatusBar(false);
@@ -32,7 +33,7 @@ namespace ConnectApp.Components {
             AnalyticsManager.AnalyticsOpenApp();
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 if (UserInfoManager.isLogin()) {
-                    var userId = UserInfoManager.initUserInfo().userId ?? "";
+                    var userId = UserInfoManager.getUserInfo().userId ?? "";
                     if (userId.isNotEmpty()) {
                         StoreProvider.store.dispatcher.dispatch(Actions.fetchUserProfile(userId: userId));
                     }

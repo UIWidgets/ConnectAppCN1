@@ -30,7 +30,7 @@ namespace ConnectApp.Models.State {
         public FavoriteState favoriteState { get; set; }
 
         public static AppState initialState() {
-            var loginInfo = UserInfoManager.initUserInfo();
+            var loginInfo = UserInfoManager.getUserInfo();
             var isLogin = UserInfoManager.isLogin();
 
             return new AppState {
@@ -115,7 +115,7 @@ namespace ConnectApp.Models.State {
                     followingUserLoading = false,
                     followingTeamLoading = false,
                     followerLoading = false,
-                    userDict = UserInfoManager.initUserDict(),
+                    userDict = UserInfoManager.getUserInfoDict(),
                     slugDict = new Dictionary<string, string>(),
                     userLicenseDict = new Dictionary<string, UserLicense>(),
                     fullName = "",
@@ -171,15 +171,16 @@ namespace ConnectApp.Models.State {
                     createChannelFilterIds = new List<string>(),
                     discoverPage = 1,
                     discoverHasMore = true,
-                    messageLoading = false,
                     totalUnread = 0,
                     totalMention = 0,
+                    channelInfoLoadingDict = new Dictionary<string, bool>(),
+                    channelMessageLoadingDict = new Dictionary<string, bool>(),
                     channelDict = new Dictionary<string, ChannelView>(),
                     messageDict = new Dictionary<string, ChannelMessageView>(),
                     localMessageDict = new Dictionary<string, ChannelMessageView>(),
                     channelTop = new Dictionary<string, bool>(),
                     socketConnected = true,
-                    mentionSuggestions = new Dictionary<string, Dictionary<string, ChannelMember>>(),
+                    mentionSuggestions = new Dictionary<string, List<ChannelMember>>(),
                     newNotifications = isLogin
                         ? NewNotificationManager.getNewNotification(loginInfo.userId)
                         : null,

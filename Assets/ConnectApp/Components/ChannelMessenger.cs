@@ -131,11 +131,15 @@ namespace ConnectApp.Components {
                                 children: new List<Widget> {
                                     new Text(
                                         data: attachment.filename,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
                                         style: _fileTitleStyle
                                     ),
                                     new SizedBox(height: 4),
                                     new Text(
                                         CStringUtils.FileSize(bytes: attachment.size),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
                                         style: _fileSizeStyle
                                     )
                                 }
@@ -181,9 +185,9 @@ namespace ConnectApp.Components {
         public static float CalculateTextHeight(ChannelMessageView message, float width) {
             var attachment = message.attachments.first();
             var fileTitleHeight = CTextUtils.CalculateTextHeight(text: attachment.filename, textStyle: _fileTitleStyle,
-                width - _filePadding.horizontal - 42 - 16);
+                width - _filePadding.horizontal - 42 - 16, 2);
             var fileSizeHeight = CTextUtils.CalculateTextHeight(CStringUtils.FileSize(bytes: attachment.size),
-                textStyle: _fileSizeStyle, width - _filePadding.horizontal - 42 - 16);
+                textStyle: _fileSizeStyle, width - _filePadding.horizontal - 42 - 16, 1);
             return _filePadding.vertical + fileTitleHeight + fileSizeHeight + 4;
         }
     }
@@ -527,7 +531,7 @@ namespace ConnectApp.Components {
                     width: this.widget.size,
                     height: this.widget.size,
                     decoration: new BoxDecoration(
-                        color: CColors.Disable,
+                        color: CColors.LoadingGrey,
                         borderRadius: BorderRadius.all(this.widget.radius)
                     ))
                 : (Widget) new ClipRRect(
@@ -535,7 +539,7 @@ namespace ConnectApp.Components {
                     child: new Container(
                         width: this.size.width,
                         height: this.size.height,
-                        color: CColors.Disable,
+                        color: CColors.LoadingGrey,
                         child: this._getImage())
                 );
         }

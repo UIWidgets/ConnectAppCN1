@@ -7,6 +7,7 @@ using ConnectApp.Models.Api;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Utils;
+using Newtonsoft.Json;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.Redux;
@@ -154,20 +155,26 @@ namespace ConnectApp.redux.actions {
             });
         }
 
-        public static object fetchChannelInfo(string channelId, bool ignoreError = false) {
+        public static object fetchChannelInfo(string channelId, bool isInfoPage = false) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                dispatcher.dispatch(new StartFetchChannelInfoAction {channelId = channelId});
+                dispatcher.dispatch(new StartFetchChannelInfoAction {channelId = channelId, isInfoPage = isInfoPage});
                 return ChannelApi.FetchChannelInfo(channelId: channelId)
                     .Then(channelInfoResponse => {
-                        if (channelInfoResponse.channelMember == null && !ignoreError) {
-                            dispatcher.dispatch(new FetchChannelInfoErrorAction());
-                        }
-
                         dispatcher.dispatch(new FetchChannelInfoSuccessAction {
-                            channel = channelInfoResponse.channel
+                            channel = channelInfoResponse.channel,
+                            isInfoPage = isInfoPage
                         });
                     })
-                    .Catch(onRejected: Debuger.LogError);
+                    .Catch(error => {
+                        var errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(value: error.Message);
+                        var errorCode = errorResponse.errorCode;
+                        dispatcher.dispatch(new FetchChannelInfoErrorAction {
+                            isInfoPage = isInfoPage,
+                            channelId = channelId,
+                            errorCode = errorCode
+                        });
+                        Debuger.LogError(message: error);
+                    });
             });
         }
 
@@ -207,7 +214,7 @@ namespace ConnectApp.redux.actions {
                         }
                     })
                     .Catch(error => {
-                        dispatcher.dispatch(new FetchChannelMessagesFailureAction());
+                        dispatcher.dispatch(new FetchChannelMessagesFailureAction {channelId = channelId});
                         Debuger.LogError(message: error);
                         dispatcher.dispatch(loadMessagesFromDB(channelId, before.hexToLong()));
                     });
@@ -447,6 +454,34 @@ namespace ConnectApp.redux.actions {
                 "video/mp4");
         }
 
+        public static object addReaction(string messageId, string likeEmoji) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return ChannelApi.UpdateReaction(messageId: messageId, likeEmoji: likeEmoji)
+                    .Then(ackMessageResponse => {
+                        dispatcher.dispatch(
+                            new AddChannelMessageReactionSuccessAction());
+                    })
+                    .Catch(error => {
+                        dispatcher.dispatch(new AddChannelMessageReactionFailureAction());
+                        Debuger.LogError(message: error);
+                    });
+            });
+        }
+
+        public static object cancelReaction(string messageId, string type) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return ChannelApi.UpdateReaction(messageId: messageId, likeEmoji: type, true)
+                    .Then(ackMessageResponse => {
+                        dispatcher.dispatch(
+                            new CancelChannelMessageReactionSuccessAction());
+                    })
+                    .Catch(error => {
+                        dispatcher.dispatch(new CancelChannelMessageReactionFailureAction());
+                        Debuger.LogError(message: error);
+                    });
+            });
+        }
+
         public static object saveMessagesToDB(List<ChannelMessage> messages) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 MessengerDBApi.SyncSaveMessages(messages);
@@ -528,13 +563,18 @@ namespace ConnectApp.redux.actions {
 
     public class StartFetchChannelInfoAction : BaseAction {
         public string channelId;
+        public bool isInfoPage = false;
     }
 
     public class FetchChannelInfoSuccessAction : BaseAction {
         public Channel channel;
+        public bool isInfoPage = false;
     }
 
     public class FetchChannelInfoErrorAction : BaseAction {
+        public bool isInfoPage = false;
+        public string channelId;
+        public string errorCode;
     }
 
     public class StartFetchChannelMessageAction : BaseAction {
@@ -551,6 +591,7 @@ namespace ConnectApp.redux.actions {
     }
 
     public class FetchChannelMessagesFailureAction : BaseAction {
+        public string channelId;
     }
 
     public class FetchChannelMembersSuccessAction : BaseAction {
@@ -645,6 +686,20 @@ namespace ConnectApp.redux.actions {
         public string channelId;
     }
 
+    public class AddChannelMessageReactionSuccessAction : BaseAction {
+    }
+
+    public class AddChannelMessageReactionFailureAction : BaseAction {
+        public string messageId;
+    }
+
+    public class CancelChannelMessageReactionSuccessAction : BaseAction {
+    }
+
+    public class CancelChannelMessageReactionFailureAction : BaseAction {
+        public string messageId;
+    }
+
     public class PushReadyAction : BaseAction {
         public SocketResponseSessionData readyData;
     }
@@ -722,8 +777,10 @@ namespace ConnectApp.redux.actions {
     }
 
     public class ChannelChooseMentionConfirmAction : BaseAction {
+        public string channelId;
         public string mentionUserId;
         public string mentionUserName;
+        public ChannelMember member;
     }
 
     public class ChannelChooseMentionCancelAction : BaseAction {
@@ -760,6 +817,10 @@ namespace ConnectApp.redux.actions {
 
     public class ResendMessageAction : BaseAction {
         public ChannelMessageView message;
+    }
+
+    public class UpdateMyReactionToMessage : BaseAction {
+        public string messageId;
     }
 
     public class FetchChannelMentionQuerySuccessAction : BaseAction {

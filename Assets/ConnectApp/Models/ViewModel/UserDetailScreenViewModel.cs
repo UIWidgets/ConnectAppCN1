@@ -9,6 +9,7 @@ namespace ConnectApp.Models.ViewModel {
         public Dictionary<string, List<string>> favoriteTagIdDict;
         public bool userFavoriteHasMore;
         public User user;
+        public string userId;
         public Dictionary<string, UserLicense> userLicenseDict;
         public Dictionary<string, Article> articleDict;
         public Dictionary<string, FavoriteTag> favoriteTagDict;

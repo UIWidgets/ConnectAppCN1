@@ -10,9 +10,8 @@ namespace ConnectApp.Utils {
 
             set {
                 if (value != _isConnected) {
-                    Promise.Delayed(TimeSpan.FromMilliseconds(1000))
-                        .Then(onResolved: _updateConnectedState);
                     _isConnected = value;
+                    _updateConnectedState();
                 }
             }
         }
@@ -40,7 +39,7 @@ namespace ConnectApp.Utils {
 
         static bool _isShowNoNetworkBanner;
         static bool _isShowNoNetworkBannerInState;
-
+        
         static void _updateConnectedState() {
             if (_isConnectedInState == _isConnected) {
                 return;

@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace ConnectApp.Utils {
     public static class UserInfoManager {
-        const string _userInfo = "UserInfo";
+        const string UserInfoKey = "UserInfo";
 
         public static void saveUserInfo(LoginInfo loginInfo) {
             if (loginInfo == null) {
@@ -16,12 +16,12 @@ namespace ConnectApp.Utils {
 
             var list = new List<LoginInfo> {loginInfo};
             var infoStr = JsonConvert.SerializeObject(list);
-            PlayerPrefs.SetString(_userInfo, infoStr);
+            PlayerPrefs.SetString(key: UserInfoKey, infoStr);
             PlayerPrefs.Save();
         }
 
-        public static LoginInfo initUserInfo() {
-            var info = PlayerPrefs.GetString(_userInfo);
+        public static LoginInfo getUserInfo() {
+            var info = PlayerPrefs.GetString(key: UserInfoKey);
             if (info.isNotEmpty()) {
                 var list = JsonConvert.DeserializeObject<List<LoginInfo>>(info);
                 var loginInfo = list.first();
@@ -32,12 +32,12 @@ namespace ConnectApp.Utils {
         }
 
         public static bool isLogin() {
-            var info = PlayerPrefs.GetString(_userInfo);
+            var info = PlayerPrefs.GetString(key: UserInfoKey);
             return info.isNotEmpty();
         }
 
-        public static Dictionary<string, User> initUserDict() {
-            var info = initUserInfo();
+        public static Dictionary<string, User> getUserInfoDict() {
+            var info = getUserInfo();
             if (info.userId.isEmpty()) {
                 return new Dictionary<string, User>();
             }
@@ -53,10 +53,11 @@ namespace ConnectApp.Utils {
         }
 
         public static void clearUserInfo() {
-            if (PlayerPrefs.HasKey(_userInfo)) {
-                PlayerPrefs.DeleteKey(_userInfo);
+            if (PlayerPrefs.HasKey(key: UserInfoKey)) {
+                PlayerPrefs.DeleteKey(key: UserInfoKey);
             }
-            JPushPlugin.deleteJPushAlias();
+
+            JPushPlugin.registerHmsToken();
         }
     }
 }

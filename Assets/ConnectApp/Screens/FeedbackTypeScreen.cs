@@ -97,7 +97,7 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildTypeItem(FeedbackType type) {
-            var isCheck = this.viewModel.feedbackType.Value.Equals(value: type.Value);
+            var isCheck = this.viewModel.feedbackType.value.Equals(value: type.value);
             Widget checkWidget;
             if (isCheck) {
                 checkWidget = new Icon(
@@ -120,7 +120,7 @@ namespace ConnectApp.screens {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: new List<Widget> {
                             new Text(
-                                data: type.Description,
+                                data: type.description,
                                 style: isCheck ? CTextStyle.PLargeBlue : CTextStyle.PLargeBody
                             ),
                             checkWidget

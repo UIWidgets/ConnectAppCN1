@@ -48,6 +48,7 @@ namespace ConnectApp.screens {
                         teamLoading = state.teamState.teamLoading,
                         teamArticleLoading = state.teamState.teamArticleLoading,
                         team = team,
+                        teamId = this.teamId,
                         articleDict = state.articleState.articleDict,
                         followMap = followMap,
                         currentUserId = state.loginState.loginInfo.userId ?? "",
@@ -286,7 +287,10 @@ namespace ConnectApp.screens {
             if (this.widget.viewModel.teamLoading && this.widget.viewModel.team == null) {
                 content = new GlobalLoading();
             }
-            else if (this.widget.viewModel.team != null) {
+            else if (this.widget.viewModel.team == null || this.widget.viewModel.team.errorCode == "ResourceNotFound") {
+                content = new BlankView("公司不存在");
+            }
+            else {
                 content = this._buildContent(context: context);
             }
 
@@ -326,6 +330,9 @@ namespace ConnectApp.screens {
                 );
             }
 
+            var hasTeam = !(this.widget.viewModel.team == null ||
+                            this.widget.viewModel.team.errorCode == "ResourceNotFound");
+
             return new Positioned(
                 left: 0,
                 top: 0,
@@ -349,7 +356,9 @@ namespace ConnectApp.screens {
                                     child: new Icon(
                                         icon: Icons.arrow_back,
                                         size: 24,
-                                        color: this._hideNavBar ? CColors.White : CColors.Icon
+                                        color: hasTeam
+                                            ? this._hideNavBar ? CColors.White : CColors.Icon
+                                            : CColors.Icon
                                     )
                                 )
                             ),
@@ -706,16 +715,28 @@ namespace ConnectApp.screens {
         }
 
         public void didPopNext() {
-            StatusBarManager.statusBarStyle(this._hideNavBar);
+            if (this.widget.viewModel.teamId.isNotEmpty()) {
+                CTemporaryValue.currentPageModelId = this.widget.viewModel.teamId;
+            }
+
+            StatusBarManager.statusBarStyle(isLight: this._hideNavBar);
         }
 
         public void didPush() {
+            if (this.widget.viewModel.teamId.isNotEmpty()) {
+                CTemporaryValue.currentPageModelId = this.widget.viewModel.teamId;
+            }
         }
 
         public void didPop() {
+            if (CTemporaryValue.currentPageModelId.isNotEmpty() &&
+                this.widget.viewModel.teamId == CTemporaryValue.currentPageModelId) {
+                CTemporaryValue.currentPageModelId = null;
+            }
         }
 
         public void didPushNext() {
+            CTemporaryValue.currentPageModelId = null;
         }
     }
 }
