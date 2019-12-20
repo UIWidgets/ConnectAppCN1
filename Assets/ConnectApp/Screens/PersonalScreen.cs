@@ -253,7 +253,7 @@ namespace ConnectApp.screens {
                         padding: EdgeInsets.only(16, 16, 20, 16),
                         onPressed: QRScanPlugin.PushToQRScan,
                         child: new Icon(
-                            icon: Icons.qr_scan,
+                            icon: Icons.outline_scan,
                             size: 28,
                             color: CColors.LightBlueGrey
                         )
@@ -293,7 +293,7 @@ namespace ConnectApp.screens {
                     onTap: () => this.widget.actionModel.mainRouterPushTo(obj: MainNavigatorRoutes.History)
                 ),
                 new CustomListTile(
-                    new Icon(icon: Icons.settings, size: 24, color: CColors.TextBody2),
+                    new Icon(icon: Icons.outline_settings, size: 24, color: CColors.TextBody2),
                     "设置",
                     trailing: CustomListTileConstant.defaultTrailing,
                     onTap: () => this.widget.actionModel.mainRouterPushTo(obj: MainNavigatorRoutes.Setting)

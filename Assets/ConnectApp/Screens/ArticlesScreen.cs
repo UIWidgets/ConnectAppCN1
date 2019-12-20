@@ -282,7 +282,7 @@ namespace ConnectApp.screens {
                         padding: EdgeInsets.only(8, 8, 16, 8),
                         onPressed: () => this.widget.actionModel.pushToSearch(),
                         child: new Icon(
-                            icon: Icons.search,
+                            icon: Icons.outline_search,
                             size: 28,
                             color: CColors.Icon
                         )
