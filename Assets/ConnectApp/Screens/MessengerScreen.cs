@@ -255,7 +255,7 @@ namespace ConnectApp.screens {
                             child: new Stack(
                                 children: new List<Widget> {
                                     new Icon(
-                                        icon: Icons.outline_notification,
+                                        icon: Icons.outline_notifications,
                                         color: CColors.Icon,
                                         size: 28
                                     ),
