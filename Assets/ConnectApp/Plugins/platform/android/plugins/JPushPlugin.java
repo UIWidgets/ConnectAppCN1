@@ -88,7 +88,12 @@ public class JPushPlugin {
             @Override
             public void run() {
                 try {
-                    HmsInstanceId.getInstance(CommonPlugin.mContext).getToken(hmsAppId, "HCM");
+                    String token =  HmsInstanceId.getInstance(CommonPlugin.mContext).getToken(hmsAppId, "HCM");
+                    if (token.length()>0){
+                        HashMap<String, String> hashMap = new HashMap<>();
+                        hashMap.put("token", token);
+                        UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("jpush", "RegisterToken", Arrays.asList(new Gson().toJson(hashMap)));
+                    }                
                 } catch (Exception e) {
                 }
             }
