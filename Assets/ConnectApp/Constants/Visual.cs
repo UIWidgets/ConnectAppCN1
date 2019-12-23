@@ -482,7 +482,7 @@ namespace ConnectApp.Constants {
         public static readonly Color Disable2 = new Color(0xFFD8D8D8);
         public static readonly Color WechatGreen = new Color(0xFF48B34F);
         public static readonly Color ButtonActive = new Color(0xFF227ABF);
-        public static readonly Color AvatarLoading = new Color(0xFFD8D8D8);
+        public static readonly Color LoadingGrey = new Color(0xFFD8D8D8);
         public static readonly Color LightBlueGrey = new Color(0xFFC7CBCF);
         public static readonly Color ShadyLady = new Color(0xFF9D9D9D);
         public static readonly Color BlackHaze = new Color(0xFFF5F7F8);

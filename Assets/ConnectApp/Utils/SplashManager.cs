@@ -83,15 +83,12 @@ namespace ConnectApp.Utils {
         }
 
         public static void hiddenAndroidSpalsh() {
-            if (CCommonUtils.isAndroid) {
-                hiddenSplash();
-            }
+#if UNITY_ANDROID
+            hiddenSplash();
+#endif
         }
-#if UNITY_IOS
-        [DllImport("__Internal")]
-        static extern void hiddenSplash();
 
-#elif UNITY_ANDROID
+#if UNITY_ANDROID
         static AndroidJavaObject _plugin;
 
         static AndroidJavaObject Plugin() {
@@ -104,9 +101,6 @@ namespace ConnectApp.Utils {
 
         static void hiddenSplash() {
             Plugin().CallStatic("hiddenSplash");
-        }
-#else
-        static void hiddenSplash() {
         }
 #endif
     }

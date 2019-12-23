@@ -172,10 +172,10 @@ namespace ConnectApp.Components {
                                             borderRadius: BorderRadius.all(24),
                                             boxShadow: new List<BoxShadow> {
                                                 new BoxShadow(
-                                                    CColors.Black.withOpacity(0.16f),
-                                                    blurRadius: 6,
+                                                    CColors.Black.withOpacity(0.1f),
+                                                    blurRadius: 8,
                                                     spreadRadius: 0,
-                                                    offset: new Offset(0, 2))
+                                                    offset: new Offset(0, 0))
                                             }
                                         ),
                                         child: new Column(
