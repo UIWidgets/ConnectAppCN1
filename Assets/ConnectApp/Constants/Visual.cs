@@ -55,6 +55,7 @@ namespace ConnectApp.Constants {
         public static readonly IconData tab_messenger_fill = new IconData(0xe62c, "iconfont");
         public static readonly IconData tab_mine_line = new IconData(0xe630, "iconfont");
         public static readonly IconData tab_mine_fill = new IconData(0xe62e, "iconfont");
+        public static readonly IconData baseline_forward_arrow = new IconData(0xe601, "iconfont");
 
         public static readonly IconData outline_keyboard = new IconData(0xeaf9, "Outline Material Icons");
         public static readonly IconData outline_question_answer = new IconData(0xeaa4, "Outline Material Icons");
@@ -139,6 +140,12 @@ namespace ConnectApp.Constants {
             fontSize: 24,
             fontFamily: "Roboto-Medium",
             color: CColors.White
+        );
+        
+        public static readonly TextStyle Bold20 = new TextStyle(
+            fontSize: 20,
+            fontFamily: "Roboto-Bold",
+            color: CColors.TextTitle
         );
 
         public static readonly TextStyle H5 = new TextStyle(
@@ -484,12 +491,13 @@ namespace ConnectApp.Constants {
         public static readonly Color BrownGrey = new Color(0xFFB5B5B5);
         public static readonly Color Disable = new Color(0xFFB2B2B2);
         public static readonly Color Disable2 = new Color(0xFFD8D8D8);
-        public static readonly Color WechatGreen = new Color(0xFF48B34F);
+        public static readonly Color WeChatGreen = new Color(0xFF48B34F);
         public static readonly Color ButtonActive = new Color(0xFF227ABF);
         public static readonly Color LoadingGrey = new Color(0xFFD8D8D8);
         public static readonly Color LightBlueGrey = new Color(0xFFC7CBCF);
         public static readonly Color ShadyLady = new Color(0xFF9D9D9D);
         public static readonly Color BlackHaze = new Color(0xFFF5F7F8);
+        public static readonly Color Grey80 = new Color(0xFFCCCCCC);
 
         public static readonly Color H5White = Color.fromRGBO(255, 255, 255, 0.8f);
         public static readonly Color TabBarBg = Color.fromRGBO(255, 255, 255, 0.8f);
