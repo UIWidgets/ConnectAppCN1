@@ -5,6 +5,8 @@ namespace ConnectApp.Models.ActionModel {
     public class PersonalScreenActionModel {
         public Action<string> mainRouterPushTo;
         public Action<string> pushToUserDetail;
+        public Action<string, int> pushToUserFollowing;
+        public Action<string> pushToUserFollower;
         public Func<string, IPromise> fetchUserProfile;
     }
 }
