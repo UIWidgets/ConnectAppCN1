@@ -18,6 +18,7 @@ namespace ConnectApp.Utils {
 
     public static class VersionManager {
         const string _noticeNewVersionTimeKey = "noticeNewVersionTimeKey";
+        const string _needForceUpdateMinVersionCodeKey = "needForceUpdateMinVersionCodeKey";
 
         public static void checkForUpdates(CheckVersionType type) {
             if (type == CheckVersionType.setting) {
@@ -88,6 +89,22 @@ namespace ConnectApp.Utils {
                         CustomDialogUtils.hiddenCustomDialog();
                     }
                 });
+        }
+
+        public static void saveMinVersionCode(int versionCode = 0) {
+            if (versionCode == 0) {
+                return;
+            }
+            PlayerPrefs.SetInt(key: _needForceUpdateMinVersionCodeKey, value: versionCode);
+            PlayerPrefs.Save();
+        }
+
+        public static bool needForceUpdate() {
+            if (!PlayerPrefs.HasKey(key: _needForceUpdateMinVersionCodeKey)) {
+                return false;
+            }
+            var minVersionCode = PlayerPrefs.GetInt(key: _needForceUpdateMinVersionCodeKey, 0);
+            return minVersionCode > Config.versionCode;
         }
 
         static bool needNoticeNewVersion() {
