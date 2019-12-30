@@ -43,10 +43,7 @@
         <!--表示该页面可以被隐式调用，必须加上该项-->
         <category android:name="android.intent.category.DEFAULT" />
         <!--协议部分-->
-        <data
-                android:host="com.unity3d.unityconnect"
-                android:path="/push"
-                android:scheme="unityconnect" />
+        <data android:scheme="unityconnect" />
       </intent-filter>
       <meta-data
               android:name="unityplayer.UnityActivity"
@@ -295,6 +292,8 @@
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
   <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
   <uses-permission android:name="android.permission.CAMERA" />
+  <!--  AG渠道号查询权限 for Huawei Analytics -->
+  <uses-permission android:name="com.huawei.appmarket.service.commondata.permission.GET_COMMON_DATA" />
   <!-- Optional for location -->
   <uses-permission
           android:name="android.permission.READ_LOGS"

@@ -50,6 +50,7 @@ dependencies {
     implementation 'com.huawei.hms:push:'+HMSSDKVersion
     implementation 'com.huawei.hms:opendevice:'+HMSSDKVersion
     implementation 'com.huawei.hms:base:'+HMSSDKVersion
+    implementation 'com.huawei.hms:hianalytics:2.3.0.304'
 }
 
 android {
