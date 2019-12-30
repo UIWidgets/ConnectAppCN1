@@ -95,6 +95,7 @@ namespace ConnectApp.Main {
                     {MainNavigatorRoutes.ChannelIntroduction, context => new ChannelIntroductionScreenConnector("")},
                     {MainNavigatorRoutes.ReactionsDetail, context => new ReactionsDetailScreenConnector("")}
                 };
+
                 if (Application.isEditor) {
                     var isExistSplash = SplashManager.isExistSplash();
                     if (isExistSplash) {
@@ -110,7 +111,11 @@ namespace ConnectApp.Main {
                     routes.Add(key: MainNavigatorRoutes.Main, context => new MainScreen());
                     routes.Add(key: MainNavigatorRoutes.Root, context => new RootScreen());
                 }
-
+                
+                if (VersionManager.needForceUpdate()) {
+                    routes[key: MainNavigatorRoutes.Root] = context => new ForceUpdateScreenConnector();
+                }
+                
                 return routes;
             }
         }
