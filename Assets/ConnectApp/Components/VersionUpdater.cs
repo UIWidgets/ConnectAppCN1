@@ -30,6 +30,7 @@ namespace ConnectApp.Components {
             base.initState();
             SplashManager.hiddenAndroidSpalsh();
             fetchInitData();
+            VersionManager.checkForUpdates(type: CheckVersionType.initialize);
             StatusBarManager.hideStatusBar(false);
             SplashManager.fetchSplash();
             AnalyticsManager.AnalyticsOpenApp();
@@ -63,9 +64,6 @@ namespace ConnectApp.Components {
                         // need update
                         StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToAction{routeName = MainNavigatorRoutes.ForceUpdate});
                         VersionManager.saveMinVersionCode(versionCode: minVersionCode);
-                    }
-                    else {
-                        VersionManager.checkForUpdates(type: CheckVersionType.initialize);
                     }
                 }
             }).Catch(exception => {

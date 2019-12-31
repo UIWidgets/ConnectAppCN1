@@ -35,7 +35,7 @@ namespace ConnectApp.Utils {
 
                     var status = versionResponse.status;
                     if (status == "NEED_UPDATE" && versionResponse.url.isNotEmpty()) {
-                        if (type == CheckVersionType.initialize && !needNoticeNewVersion()) {
+                        if (type == CheckVersionType.initialize && !needNoticeNewVersion()||needForceUpdate()) {
                             return;
                         }
 
