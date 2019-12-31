@@ -62,6 +62,7 @@ namespace ConnectApp.Components {
                     }
                     if (minVersionCode > 0 && minVersionCode > Config.versionCode) {
                         // need update
+                        StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToAction{routeName = MainNavigatorRoutes.ForceUpdate});
                         VersionManager.saveMinVersionCode(versionCode: minVersionCode);
                     }
                 }

@@ -240,6 +240,10 @@ namespace ConnectApp.Plugins {
                 return;
             }
 
+            if (VersionManager.needForceUpdate()) {
+                return;
+            }
+            
             if (type == "project") {
                 if (subType == "article") {
                     AnalyticsManager.ClickEnterArticleDetail("Push_Article", id, $"PushArticle_{id}");
