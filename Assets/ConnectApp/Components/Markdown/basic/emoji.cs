@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
-namespace markdown {
-    public class Emojis {
-        public static Dictionary<string, string> emojis = new Dictionary<string, string>() {
+namespace markdown
+{
+    public static class Emojis
+    {
+        public static Dictionary<string, string> emojis = new Dictionary<string, string>()
+        {
             {"grinning", "😀"},
             {"grimacing", "😬"},
             {"grin", "😁"},

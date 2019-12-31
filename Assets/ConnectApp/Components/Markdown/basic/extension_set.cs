@@ -1,12 +1,13 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace markdown {
     public class ExtensionSet {
         public static ExtensionSet none = new ExtensionSet(new List<BlockSyntax>(), new List<InlineSyntax>());
 
-        public static ExtensionSet commonMark = new ExtensionSet(
+        public static ExtensionSet commanMark = new ExtensionSet(
             new List<BlockSyntax>() {new FencedCodeBlockSyntax()},
-            new List<InlineSyntax>() {new InlineHtmlSyntax()});
+            new List<InlineSyntax>() {new InlineHtmlSyntax()}
+        );
 
         public static ExtensionSet githubWeb = new ExtensionSet(
             new List<BlockSyntax>() {
@@ -20,9 +21,11 @@ namespace markdown {
                 new StrikethroughSyntax(),
                 new EmojiSyntax(),
                 new AutolinkExtensionSyntax()
-            });
+            }
+        );
 
-        public static ExtensionSet githubFlavored = new ExtensionSet(new List<BlockSyntax>() {
+        public static ExtensionSet githubFlavored = new ExtensionSet(
+            new List<BlockSyntax>() {
                 new FencedCodeBlockSyntax(),
                 new TableSyntax()
             },
@@ -30,13 +33,14 @@ namespace markdown {
                 new InlineHtmlSyntax(),
                 new StrikethroughSyntax(),
                 new AutolinkExtensionSyntax()
-            });
+            }
+        );
 
 
         internal List<BlockSyntax> blockSyntaxes;
         internal List<InlineSyntax> inlineSyntaxes;
 
-        ExtensionSet(List<BlockSyntax> blockSyntaxes, List<InlineSyntax> inlineSyntaxes) {
+        public ExtensionSet(List<BlockSyntax> blockSyntaxes, List<InlineSyntax> inlineSyntaxes) {
             this.blockSyntaxes = blockSyntaxes;
             this.inlineSyntaxes = inlineSyntaxes;
         }

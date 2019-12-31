@@ -1,5 +1,5 @@
-﻿namespace markdown {
-    public class CharCode {
+namespace markdown {
+    public static class CharCode {
         public const int exclamation = 0x21; // ! 
         public const int quote = 0x22; // " 
         public const int hash = 0x23; // # 
