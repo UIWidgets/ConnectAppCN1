@@ -10,17 +10,20 @@ namespace ConnectApp.Components {
     public class FrameAnimationImage : StatefulWidget {
         public FrameAnimationImage(
             List<string> images,
+            float size = 56,
             float duration = 17,
             AnimatingType type = AnimatingType.repeat,
             Key key = null
         ) : base(key: key) {
             D.assert(images != null && images.Count > 0);
             this.images = images;
+            this.size = size;
             this.duration = duration;
             this.type = type;
         }
 
         public readonly List<string> images;
+        public readonly float size;
         public readonly float duration;
         public readonly AnimatingType type;
 
@@ -59,6 +62,9 @@ namespace ConnectApp.Components {
                 if (this.widget.type != frameAnimationImage.type) {
                     this._startAnimating();
                 }
+                if (!this.widget.images.equalsList(list: frameAnimationImage.images)) {
+                    this._startAnimating();
+                }
             }
         }
 
@@ -75,6 +81,10 @@ namespace ConnectApp.Components {
                 case AnimatingType.reset:
                     this._controller.reset();
                     break;
+                case AnimatingType.forward: {
+                    this._controller.forward(0);
+                    break;
+                }
             }
         }
 
@@ -85,8 +95,8 @@ namespace ConnectApp.Components {
                     var value = this._animation.value;
                     return Image.asset(
                         this.widget.images[index: value],
-                        width: 56,
-                        height: 56,
+                        width: this.widget.size,
+                        height: this.widget.size,
                         fit: BoxFit.fill,
                         gaplessPlayback: true
                     );

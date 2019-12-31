@@ -26,26 +26,26 @@ namespace ConnectApp.screens {
                         new List<CustomTabBarItem> {
                             new CustomTabBarItem(
                                 0,
-                                Icons.UnityTabIcon,
-                                Icons.UnityTabIcon,
+                                normalIcon: Icons.tab_home_line,
+                                _getSelectedImages("home"),
                                 "首页"
                             ),
                             new CustomTabBarItem(
                                 1,
-                                Icons.outline_event,
-                                Icons.eventIcon,
+                                normalIcon: Icons.tab_events_line,
+                                _getSelectedImages("event"),
                                 "活动"
                             ),
                             new CustomTabBarItem(
                                 2,
-                                Icons.outline_question_answer,
-                                Icons.question_answer,
+                                normalIcon: Icons.tab_messenger_line,
+                                _getSelectedImages("messenger"),
                                 "群聊"
                             ),
                             new CustomTabBarItem(
                                 3,
-                                Icons.mood,
-                                Icons.mood,
+                                normalIcon: Icons.tab_mine_line,
+                                _getSelectedImages("mine"),
                                 "我的"
                             )
                         },
@@ -64,13 +64,22 @@ namespace ConnectApp.screens {
                             Router.navigator.pushNamed(routeName: MainNavigatorRoutes.Login);
                             return false;
                         },
-                        initialTabIndex: PreferencesManager.initTabIndex()
+                        PreferencesManager.initTabIndex()
                     )
                 )
             );
             return new VersionUpdater(
                 child: child
             );
+        }
+
+        static List<string> _getSelectedImages(string name) {
+            List<string> loadingImages = new List<string>();
+            for (int index = 0; index <= 60; index++) {
+                loadingImages.Add($"image/tab-loading/{name}-tab-loading/{name}-tab-loading{index}");
+            }
+
+            return loadingImages;
         }
     }
 }
