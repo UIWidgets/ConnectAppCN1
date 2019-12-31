@@ -102,6 +102,17 @@
             android:authorities="${applicationId}.DataProvider"
             android:exported="false"
             android:process=":pushcore" />
+    <!-- since 1.8.0 option 可选项。用于同一设备中不同应用的JPush服务相互拉起的功能。 -->
+    <!-- 若不启用该功能可删除该组件，将不拉起其他应用也不能被其他应用拉起 -->
+    <!-- <service
+            android:name="cn.jpush.android.service.DaemonService"
+            android:enabled="true"
+            android:exported="true">
+      <intent-filter>
+        <action android:name="cn.jpush.android.intent.DaemonService" />
+        <category android:name="${applicationId}" />
+      </intent-filter>
+    </service> -->
     <!-- since 3.1.0 Required SDK 核心功能-->
     <provider
             android:name="cn.jpush.android.service.DownloadProvider"
@@ -281,6 +292,8 @@
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
   <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
   <uses-permission android:name="android.permission.CAMERA" />
+  <!--  AG渠道号查询权限 for Huawei Analytics -->
+  <uses-permission android:name="com.huawei.appmarket.service.commondata.permission.GET_COMMON_DATA" />
   <!-- Optional for location -->
   <uses-permission
           android:name="android.permission.READ_LOGS"
