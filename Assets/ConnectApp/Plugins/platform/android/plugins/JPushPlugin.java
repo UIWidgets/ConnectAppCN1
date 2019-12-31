@@ -142,6 +142,7 @@ public class JPushPlugin {
                 }
             } else if (RomUtils.isHuawei()) {
                 for (int i = 0; i < tagsJsonArr.length(); i++) {
+                    // >= EMUI 10.0 
                     HmsMessaging.getInstance(CommonPlugin.mContext).subscribe(tagsJsonArr.getString(i));
                 }
             } else {
