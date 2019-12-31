@@ -58,9 +58,6 @@ namespace ConnectApp.screens {
         public override void initState() {
             base.initState();
             SchedulerBinding.instance.addPostFrameCallback(_ => {
-                if (UserInfoManager.isLogin()) {
-                    this.widget.actionModel.logout();
-                }
                 SettingApi.CheckNewVersion(platform: Config.platform, store: Config.store, $"{Config.versionCode}")
                     .Then(versionResponse => {
                         this.url = versionResponse.url;
