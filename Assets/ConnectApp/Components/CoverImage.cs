@@ -37,13 +37,16 @@ namespace ConnectApp.Components {
                 coverImageColor = Color.fromRGBO(0, 0, 0, 0.4f);
             }
             else {
-                coverImageWidget = Image.asset(
-                    "image/default-cover-image",
-                    height: this.height,
-                    width: coverImageWidth,
-                    fit: BoxFit.cover
+                coverImageWidget = new Container(
+                    color: CColors.Black,
+                    child: Image.asset(
+                        "image/default-background-cover",
+                        height: this.height,
+                        width: coverImageWidth,
+                        fit: BoxFit.cover
+                    )
                 );
-                coverImageColor = Color.fromRGBO(0, 0, 0, 0.2f);
+                coverImageColor = CColors.Transparent;
             }
 
             return new Stack(
