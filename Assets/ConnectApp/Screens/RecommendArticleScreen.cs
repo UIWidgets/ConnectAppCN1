@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
@@ -8,6 +10,7 @@ using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using RSG;
+using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
@@ -34,7 +37,7 @@ namespace ConnectApp.screens {
                     teamDict = state.teamState.teamDict,
                     isLoggedIn = state.loginState.isLoggedIn,
                     hosttestOffset = state.articleState.recommendArticleIds.Count,
-                    currentUserId = state.loginState.loginInfo.userId ?? "",
+                    currentUserId = state.loginState.loginInfo.userId ?? ""
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new ArticlesScreenActionModel {
@@ -46,6 +49,15 @@ namespace ConnectApp.screens {
                                 articleId = id
                             }
                         ),
+                        pushToLeaderBoard = () => dispatcher.dispatch(new MainNavigatorPushToAction {
+                            routeName = MainNavigatorRoutes.LeaderBoard
+                        }),
+                        pushToBlogger = () => dispatcher.dispatch(new MainNavigatorPushToAction {
+                            routeName = MainNavigatorRoutes.Blogger
+                        }),
+                        pushToUserDetail = userId => dispatcher.dispatch(new MainNavigatorPushToUserDetailAction {
+                            userId = userId
+                        }),
                         pushToReport = (reportId, reportType) => dispatcher.dispatch(
                             new MainNavigatorPushToReportAction {
                                 reportId = reportId,
@@ -91,6 +103,7 @@ namespace ConnectApp.screens {
         int offset = initOffset;
         RefreshController _refreshController;
         bool _hasBeenLoadedData;
+        string _articleTabSubId;
 
         public override void initState() {
             base.initState();
@@ -108,6 +121,15 @@ namespace ConnectApp.screens {
                         this.setState(() => { });
                     });
             });
+            this._articleTabSubId = EventBus.subscribe(sName: EventBusConstant.article_tab, args => {
+                this._refreshController.sendBack(true, mode: RefreshStatus.refreshing);
+                this._refreshController.animateTo(0.0f, TimeSpan.FromMilliseconds(300), curve: Curves.linear);
+            });
+        }
+
+        public override void dispose() {
+            EventBus.unSubscribe(sName: EventBusConstant.article_tab, id: this._articleTabSubId);
+            base.dispose();
         }
 
         protected override bool wantKeepAlive {
@@ -158,6 +180,38 @@ namespace ConnectApp.screens {
                     hasBottomMargin: true,
                     itemCount: recommendArticleIds.Count,
                     itemBuilder: this._buildArticleCard,
+                    headerWidget: new Column(
+                        children: new List<Widget> {
+                            new KingKongView(type => {
+                                if (type == KingKongType.dailyCollection) {
+                                    var articleId = this.widget.viewModel.recommendArticleIds[0];
+                                    this.widget.actionModel.pushToArticleDetail(obj: articleId);
+                                }
+                                if (type == KingKongType.leaderBoard) {
+                                    this.widget.actionModel.pushToLeaderBoard();
+                                }
+                                if (type == KingKongType.blogger) {
+                                    this.widget.actionModel.pushToBlogger();
+                                }
+                            }),
+                            new RecommendBlogger(
+                                onPressMore: () => this.widget.actionModel.pushToBlogger(),
+                                onPressItem: userId => this.widget.actionModel.pushToUserDetail("5a0535f5880c64001886db04")
+                            ),
+                            new RecommendLeaderBoard(
+                                onPressMore: () => this.widget.actionModel.pushToLeaderBoard()
+                            ),
+                            new LeaderBoard(
+                                onPressMore: () => this.widget.actionModel.pushToLeaderBoard()
+                            ),
+                            new RefreshDivider(
+                                () => {
+                                    this._refreshController.sendBack(true, mode: RefreshStatus.refreshing);
+                                    this._refreshController.animateTo(0.0f, TimeSpan.FromMilliseconds(300), curve: Curves.linear);
+                                }
+                            )
+                        }
+                    ),
                     footerWidget: enablePullUp ? null : new EndView(hasBottomMargin: true),
                     hasScrollBar: false
                 );
