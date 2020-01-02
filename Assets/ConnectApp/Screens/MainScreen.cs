@@ -27,24 +27,28 @@ namespace ConnectApp.screens {
                             new CustomTabBarItem(
                                 0,
                                 normalIcon: Icons.tab_home_line,
+                                selectedIcon: Icons.tab_home_fill,
                                 _getSelectedImages("home"),
                                 "首页"
                             ),
                             new CustomTabBarItem(
                                 1,
                                 normalIcon: Icons.tab_events_line,
+                                selectedIcon: Icons.tab_events_fill,
                                 _getSelectedImages("event"),
                                 "活动"
                             ),
                             new CustomTabBarItem(
                                 2,
                                 normalIcon: Icons.tab_messenger_line,
+                                selectedIcon: Icons.tab_messenger_fill,
                                 _getSelectedImages("messenger"),
                                 "群聊"
                             ),
                             new CustomTabBarItem(
                                 3,
                                 normalIcon: Icons.tab_mine_line,
+                                selectedIcon: Icons.tab_mine_fill,
                                 _getSelectedImages("mine"),
                                 "我的"
                             )

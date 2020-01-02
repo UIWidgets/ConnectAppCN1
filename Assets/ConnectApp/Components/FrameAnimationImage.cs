@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ConnectApp.Constants;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -13,6 +14,7 @@ namespace ConnectApp.Components {
             float size = 56,
             float duration = 17,
             AnimatingType type = AnimatingType.repeat,
+            Widget defaultWidget = null,
             Key key = null
         ) : base(key: key) {
             D.assert(images != null && images.Count > 0);
@@ -20,12 +22,14 @@ namespace ConnectApp.Components {
             this.size = size;
             this.duration = duration;
             this.type = type;
+            this.defaultWidget = defaultWidget;
         }
 
         public readonly List<string> images;
         public readonly float size;
         public readonly float duration;
         public readonly AnimatingType type;
+        public readonly Widget defaultWidget;
 
         public override State createState() {
             return new _FrameAnimationImageState();
@@ -93,6 +97,10 @@ namespace ConnectApp.Components {
                 animation: this._controller,
                 builder: (cxt, widget) => {
                     var value = this._animation.value;
+                    if (value + 1 == this.widget.images.Count && this.widget.defaultWidget != null) {
+                        return this.widget.defaultWidget;
+                    }
+
                     return Image.asset(
                         this.widget.images[index: value],
                         width: this.widget.size,

@@ -124,13 +124,11 @@ namespace ConnectApp.screens {
                         onNotification: this._onNotification,
                         child: new Container(
                             decoration: new BoxDecoration(
-                                gradient: this._isHaveTitle
-                                    ? new LinearGradient(
-                                        colors: colors,
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight
-                                    )
-                                    : null
+                                gradient: new LinearGradient(
+                                    colors: colors,
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight
+                                )
                             ),
                             child: new Stack(
                                 alignment: Alignment.topLeft,
@@ -166,10 +164,12 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildNavigationBar(BuildContext context) {
+            Color navigationBarColor;
             Border border;
             Widget titleWidget;
             Color backColor;
             if (this._isHaveTitle) {
+                navigationBarColor = CColors.Transparent;
                 border = null;
                 titleWidget = new Text(
                     "优选榜单",
@@ -182,6 +182,7 @@ namespace ConnectApp.screens {
                 backColor = CColors.White;
             }
             else {
+                navigationBarColor = CColors.White;
                 border = new Border(bottom: new BorderSide(color: CColors.Separator2));
                 titleWidget = this._buildTabBarHeader();
                 backColor = CColors.TextTitle;
@@ -191,7 +192,7 @@ namespace ConnectApp.screens {
                 height: CustomAppBarUtil.appBarHeight + CCommonUtils.getSafeAreaTopPadding(context: context),
                 padding: EdgeInsets.only(top: CCommonUtils.getSafeAreaTopPadding(context: context)),
                 decoration: new BoxDecoration(
-                    color: CColors.Transparent,
+                    color: navigationBarColor,
                     border: border
                 ),
                 child: new Row(
