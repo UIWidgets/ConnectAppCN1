@@ -137,6 +137,12 @@ namespace ConnectApp.Models.Api {
     }
 
     [Serializable]
+    public class FetchUserLikeArticleResponse {
+        public List<Article> likes;
+        public bool likesHasMore;
+    }
+
+    [Serializable]
     public class FetchFollowingResponse {
         public List<Following> followings;
         public bool hasMore;

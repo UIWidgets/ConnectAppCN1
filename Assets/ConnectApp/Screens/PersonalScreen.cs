@@ -33,6 +33,14 @@ namespace ConnectApp.screens {
                             mainRouterPushTo = routeName => dispatcher.dispatch(new MainNavigatorPushToAction {
                                 routeName = routeName
                             }),
+                            pushToNotifications = () => {
+                                dispatcher.dispatch(new MainNavigatorPushToAction {
+                                    routeName = MainNavigatorRoutes.Notification
+                                });
+                                dispatcher.dispatch(new UpdateNewNotificationAction {
+                                    notification = null
+                                });
+                            },
                             pushToUserDetail = userId => dispatcher.dispatch(new MainNavigatorPushToUserDetailAction {
                                 userId = userId
                             }),
@@ -40,6 +48,11 @@ namespace ConnectApp.screens {
                                 new MainNavigatorPushToUserFollowingAction {
                                     userId = userId,
                                     initialPage = initialPage
+                                }
+                            ),
+                            pushToUserLike = userId => dispatcher.dispatch(
+                                new MainNavigatorPushToUserLikeAction {
+                                    userId = userId
                                 }
                             ),
                             pushToUserFollower = userId => dispatcher.dispatch(
@@ -461,10 +474,9 @@ namespace ConnectApp.screens {
                                     new Expanded(
                                         child: new CustomButton(
                                             onPressed: () => {
-                                                var routeName = this.widget.viewModel.isLoggedIn
-                                                    ? MainNavigatorRoutes.MyFavorite
-                                                    : MainNavigatorRoutes.Login;
-                                                this.widget.actionModel.mainRouterPushTo(obj: routeName);
+                                                if (this.widget.viewModel.isLoggedIn && user.id.isNotEmpty()) {
+                                                    this.widget.actionModel.pushToUserLike(obj: user.id);
+                                                }
                                             },
                                             child: new Column(
                                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -499,7 +511,7 @@ namespace ConnectApp.screens {
                         isLoggedIn
                             ? (Widget) new CustomButton(
                                 padding: EdgeInsets.symmetric(8, 16),
-                                onPressed: QRScanPlugin.PushToQRScan,
+                                onPressed: () => this.widget.actionModel.pushToNotifications(),
                                 child: new Container(
                                     width: 28,
                                     height: 28,

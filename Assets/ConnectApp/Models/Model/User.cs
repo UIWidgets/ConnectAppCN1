@@ -27,6 +27,8 @@ namespace ConnectApp.Models.Model {
         public bool? followingsHasMore;
         public List<string> articleIds;
         public bool? articlesHasMore;
+        public List<string> likeArticleIds;
+        public bool? likeArticlesHasMore;
         public Dictionary<string, JobRole> jobRoleMap;
         public List<string> jobRoleIds;
         public bool? followUserLoading;
@@ -56,6 +58,8 @@ namespace ConnectApp.Models.Model {
             bool? followingsHasMore = null,
             List<string> articleIds = null,
             bool? articlesHasMore = null,
+            List<string> likeArticleIds = null,
+            bool? likeArticlesHasMore = null,
             Dictionary<string, JobRole> jobRoleMap = null,
             List<string> jobRoleIds = null,
             bool? followUserLoading = null,
@@ -85,6 +89,8 @@ namespace ConnectApp.Models.Model {
                 followingsHasMore = followingsHasMore ?? this.followingsHasMore,
                 articleIds = articleIds ?? this.articleIds,
                 articlesHasMore = articlesHasMore ?? this.articlesHasMore,
+                likeArticleIds = likeArticleIds ?? this.likeArticleIds,
+                likeArticlesHasMore = likeArticlesHasMore ?? this.likeArticlesHasMore,
                 jobRoleMap = jobRoleMap ?? this.jobRoleMap,
                 jobRoleIds = jobRoleIds ?? this.jobRoleIds,
                 followUserLoading = followUserLoading ?? this.followUserLoading,
@@ -121,6 +127,8 @@ namespace ConnectApp.Models.Model {
                 followingsHasMore: other.followingsHasMore,
                 articleIds: other.articleIds,
                 articlesHasMore: other.articlesHasMore,
+                likeArticleIds: other.likeArticleIds,
+                likeArticlesHasMore: other.likeArticlesHasMore,
                 jobRoleMap: other.jobRoleMap,
                 jobRoleIds: other.jobRoleIds,
                 followUserLoading: other.followUserLoading,

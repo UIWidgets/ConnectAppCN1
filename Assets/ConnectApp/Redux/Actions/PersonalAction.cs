@@ -35,6 +35,19 @@ namespace ConnectApp.redux.actions {
     public class FetchUserArticleFailureAction : BaseAction {
     }
 
+    public class StartFetchUserLikeArticleAction : RequestAction {
+    }
+
+    public class FetchUserLikeArticleSuccessAction : BaseAction {
+        public List<Article> articles;
+        public bool hasMore;
+        public int offset;
+        public string userId;
+    }
+
+    public class FetchUserLikeArticleFailureAction : BaseAction {
+    }
+
     public class StartFollowUserAction : RequestAction {
         public string followUserId;
     }
@@ -205,6 +218,24 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new FetchUserArticleFailureAction());
+                        Debuger.LogError(message: error);
+                    });
+            });
+        }
+
+        public static object fetchUserLikeArticle(string userId, int offset) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return UserApi.FetchUserLikeArticle(userId: userId, offset: offset)
+                    .Then(userLikeArticleResponse => {
+                        dispatcher.dispatch(new FetchUserLikeArticleSuccessAction {
+                            articles = userLikeArticleResponse.likes,
+                            hasMore = userLikeArticleResponse.likesHasMore,
+                            offset = offset,
+                            userId = userId
+                        });
+                    })
+                    .Catch(error => {
+                        dispatcher.dispatch(new FetchUserLikeArticleFailureAction());
                         Debuger.LogError(message: error);
                     });
             });
