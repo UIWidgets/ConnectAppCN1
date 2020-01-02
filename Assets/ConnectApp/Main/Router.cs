@@ -45,6 +45,8 @@ namespace ConnectApp.Main {
         public const string ChannelMembers = "/channel-members";
         public const string ChannelIntroduction = "/channel-introduction";
         public const string ReactionsDetail = "/reactions-detail";
+        public const string LeaderBoard = "/leader-board";
+        public const string Blogger = "/blogger";
     }
 
     class Router : StatelessWidget {
@@ -93,7 +95,9 @@ namespace ConnectApp.Main {
                     {MainNavigatorRoutes.ChannelDetail, context => new ChannelDetailScreenConnector("")},
                     {MainNavigatorRoutes.ChannelMembers, context => new ChannelMembersScreenConnector("")},
                     {MainNavigatorRoutes.ChannelIntroduction, context => new ChannelIntroductionScreenConnector("")},
-                    {MainNavigatorRoutes.ReactionsDetail, context => new ReactionsDetailScreenConnector("")}
+                    {MainNavigatorRoutes.ReactionsDetail, context => new ReactionsDetailScreenConnector("")},
+                    {MainNavigatorRoutes.LeaderBoard, context => new LeaderBoardScreenConnector()},
+                    {MainNavigatorRoutes.Blogger, context => new BloggerScreenConnector()}
                 };
                 if (Application.isEditor) {
                     var isExistSplash = SplashManager.isExistSplash();

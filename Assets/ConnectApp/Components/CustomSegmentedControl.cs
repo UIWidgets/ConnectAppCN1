@@ -57,8 +57,8 @@ namespace ConnectApp.Components {
             this.items = items;
             this.children = children;
             this.onValueChanged = onValueChanged;
-            this.unselectedColor = unselectedColor ?? CColors.TextTitle;
-            this.selectedColor = selectedColor ?? CColors.PrimaryBlue;
+            this.unselectedColor = unselectedColor ?? CColors.TextBody4;
+            this.selectedColor = selectedColor ?? CColors.TextTitle;
             this.currentIndex = currentIndex;
             this.headerHeight = headerHeight;
             this.trailing = trailing;
@@ -68,10 +68,10 @@ namespace ConnectApp.Components {
                                     );
             this.indicator = indicator ?? new CustomUnderlineTabIndicator(
                                  insets: EdgeInsets.zero,
-                                 borderSide: new BorderSide(width: 2, color: CColors.PrimaryBlue)
+                                 borderSide: new BorderSide(width: 8, color: CColors.PrimaryBlue)
                              );
-            this.headerPadding = headerPadding ?? EdgeInsets.zero;
-            this.labelPadding = labelPadding ?? EdgeInsets.symmetric(horizontal: 16, vertical: 10);
+            this.headerPadding = headerPadding ?? EdgeInsets.only(bottom: 10);
+            this.labelPadding = labelPadding ?? EdgeInsets.symmetric(horizontal: 16);
             this.indicatorWidth = indicatorWidth;
             this.unselectedTextStyle = unselectedTextStyle ?? new TextStyle(
                                            fontSize: 16,

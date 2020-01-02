@@ -53,5 +53,7 @@ namespace ConnectApp.Utils {
         public const string changeOrientation = "CHANGE_ORIENTATION";
         public const string follow_user = "FOLLOW_USER";
         public const string shareAction = "SHARE_ACTION";
+        public const string article_refresh = "ARTICLE_REFRESH";
+        public const string article_tab = "ARTICLE_TAB";
     }
 }
