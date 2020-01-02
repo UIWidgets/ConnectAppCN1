@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
+using ConnectApp.Components.Swiper;
 using ConnectApp.Constants;
 using ConnectApp.Main;
 using ConnectApp.Models.ActionModel;
@@ -182,6 +183,24 @@ namespace ConnectApp.screens {
                     itemBuilder: this._buildArticleCard,
                     headerWidget: new Column(
                         children: new List<Widget> {
+                            new Container(
+                                height: 116,
+                                padding: EdgeInsets.symmetric(horizontal: 16),
+                                decoration: new BoxDecoration(
+                                    borderRadius: BorderRadius.all(8)
+                                ),
+                                child: new ClipRRect(
+                                    borderRadius: BorderRadius.all(8),
+                                    child: new Swiper(
+                                        (cxt, index) => {
+                                            return Image.network("http://via.placeholder.com/350x150", fit: BoxFit.fill);
+                                        },
+                                        itemCount: 3,
+                                        autoplay: true,
+                                        pagination: new SwiperPagination()
+                                    )
+                                )
+                            ),
                             new KingKongView(type => {
                                 if (type == KingKongType.dailyCollection) {
                                     var articleId = this.widget.viewModel.recommendArticleIds[0];
