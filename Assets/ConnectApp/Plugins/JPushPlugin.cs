@@ -84,7 +84,9 @@ namespace ConnectApp.Plugins {
                             var dict = JSON.Parse(node);
                             var type = dict["type"] ?? "";
                             if (type != "messenger") {
-                                EventBus.publish(EventBusConstant.newNotifications, new List<object>());
+                                StoreProvider.store.dispatcher.dispatch(new UpdateNewNotificationAction {
+                                    notification = ""
+                                });
                             }
 
                             var id = dict["id"] ?? "";

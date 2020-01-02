@@ -14,8 +14,8 @@ using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
@@ -71,7 +71,6 @@ namespace ConnectApp.screens {
                         myUserId = state.loginState.loginInfo.userId,
                         joinedChannels = joinedChannels,
                         lastMessageMap = lastMessageMap,
-                        hasUnreadNotifications = state.channelState.newNotifications != null,
                         page = state.channelState.discoverPage,
                         hasMore = state.channelState.discoverHasMore,
                         popularChannels = state.channelState.publicChannels
@@ -104,9 +103,6 @@ namespace ConnectApp.screens {
                         },
                         pushToDiscoverChannels = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.DiscoverChannel
-                        }),
-                        updateNewNotification = () => dispatcher.dispatch(new UpdateNewNotificationAction {
-                            notification = ""
                         }),
                         pushToChannel = channelId => {
                             dispatcher.dispatch(new MainNavigatorPushToChannelAction {
@@ -165,8 +161,6 @@ namespace ConnectApp.screens {
         public override void initState() {
             base.initState();
             this._refreshController = new RefreshController();
-            this._newNotificationSubId = EventBus.subscribe(sName: EventBusConstant.newNotifications,
-                args => { this.widget.actionModel.updateNewNotification(); });
         }
 
         public override void didChangeDependencies() {
@@ -176,7 +170,6 @@ namespace ConnectApp.screens {
 
         public override void dispose() {
             Router.routeObserve.unsubscribe(this);
-            EventBus.unSubscribe(sName: EventBusConstant.newNotifications, id: this._newNotificationSubId);
             base.dispose();
         }
 
@@ -211,6 +204,7 @@ namespace ConnectApp.screens {
                                         ? 1
                                         : this.widget.viewModel.joinedChannels.Count;
                                 }
+
                                 return this.widget.viewModel.publicChannels.Count;
                             },
                             headerInSection: this._headerInSection,
@@ -245,34 +239,6 @@ namespace ConnectApp.screens {
                     : this.widget.viewModel.socketConnected
                         ? new Text("群聊", style: CTextStyle.H2)
                         : new Text("收取中...", style: CTextStyle.H2Body4),
-                new List<Widget> {
-                    new CustomButton(
-                        onPressed: () => this.widget.actionModel.pushToNotifications(),
-                        padding: EdgeInsets.symmetric(8, 16),
-                        child: new Container(
-                            width: 28,
-                            height: 28,
-                            child: new Stack(
-                                children: new List<Widget> {
-                                    new Icon(
-                                        icon: Icons.outline_notifications,
-                                        color: CColors.Icon,
-                                        size: 28
-                                    ),
-                                    Positioned.fill(
-                                        new Align(
-                                            alignment: Alignment.topRight,
-                                            child: new NotificationDot(
-                                                this.widget.viewModel.hasUnreadNotifications ? "" : null,
-                                                new BorderSide(color: CColors.White, 2)
-                                            )
-                                        )
-                                    )
-                                }
-                            )
-                        )
-                    )
-                },
                 padding: EdgeInsets.only(16, bottom: 8)
             );
         }
