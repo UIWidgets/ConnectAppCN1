@@ -39,7 +39,10 @@ namespace ConnectApp.Models.State {
                     password = "",
                     loginInfo = loginInfo,
                     isLoggedIn = isLogin,
-                    loading = false
+                    loading = false,
+                    newNotifications = isLogin
+                        ? NewNotificationManager.getNewNotification(loginInfo.userId)
+                        : null
                 },
                 serviceConfigState = new ServiceConfigState {
                     showFirstEgg = false,
@@ -181,9 +184,6 @@ namespace ConnectApp.Models.State {
                     channelTop = new Dictionary<string, bool>(),
                     socketConnected = true,
                     mentionSuggestions = new Dictionary<string, List<ChannelMember>>(),
-                    newNotifications = isLogin
-                        ? NewNotificationManager.getNewNotification(loginInfo.userId)
-                        : null,
                     lastMentionQuery = null
                 },
                 tabBarState = new TabBarState {

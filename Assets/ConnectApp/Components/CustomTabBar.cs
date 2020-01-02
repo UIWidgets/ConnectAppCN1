@@ -52,7 +52,7 @@ namespace ConnectApp.Components {
                     null,
                     null,
                     state.channelState.totalNotification(),
-                    null
+                    state.loginState.newNotifications
                 },
                 builder: (context1, notifications, dispatcher) => new CustomTabBar(
                     controllers: this.controllers,
