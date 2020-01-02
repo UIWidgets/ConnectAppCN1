@@ -45,6 +45,8 @@ namespace ConnectApp.Main {
         public const string ChannelMembers = "/channel-members";
         public const string ChannelIntroduction = "/channel-introduction";
         public const string ReactionsDetail = "/reactions-detail";
+        public const string ForceUpdate = "/force-update";
+
     }
 
     class Router : StatelessWidget {
@@ -93,8 +95,11 @@ namespace ConnectApp.Main {
                     {MainNavigatorRoutes.ChannelDetail, context => new ChannelDetailScreenConnector("")},
                     {MainNavigatorRoutes.ChannelMembers, context => new ChannelMembersScreenConnector("")},
                     {MainNavigatorRoutes.ChannelIntroduction, context => new ChannelIntroductionScreenConnector("")},
-                    {MainNavigatorRoutes.ReactionsDetail, context => new ReactionsDetailScreenConnector("")}
+                    {MainNavigatorRoutes.ReactionsDetail, context => new ReactionsDetailScreenConnector("")},
+                    {MainNavigatorRoutes.ForceUpdate, context => new ForceUpdateScreenConnector()}
+
                 };
+
                 if (Application.isEditor) {
                     var isExistSplash = SplashManager.isExistSplash();
                     if (isExistSplash) {
@@ -110,7 +115,11 @@ namespace ConnectApp.Main {
                     routes.Add(key: MainNavigatorRoutes.Main, context => new MainScreen());
                     routes.Add(key: MainNavigatorRoutes.Root, context => new RootScreen());
                 }
-
+                
+                if (VersionManager.needForceUpdate()) {
+                    routes[key: MainNavigatorRoutes.Root] = context => new ForceUpdateScreenConnector();
+                }
+                
                 return routes;
             }
         }
@@ -119,7 +128,8 @@ namespace ConnectApp.Main {
             get {
                 return new Dictionary<string, WidgetBuilder> {
                     {MainNavigatorRoutes.Search, context => new SearchScreenConnector()},
-                    {MainNavigatorRoutes.Login, context => new LoginScreen()}
+                    {MainNavigatorRoutes.Login, context => new LoginScreen()},
+                    {MainNavigatorRoutes.ForceUpdate, context => new ForceUpdateScreen()}
                 };
             }
         }
@@ -130,7 +140,9 @@ namespace ConnectApp.Main {
                 onWillPop: () => {
                     TipMenu.dismiss();
                     var promise = new Promise<bool>();
-                    if (LoginScreen.navigator?.canPop() ?? false) {
+                    if (VersionManager.needForceUpdate()) {
+                        promise.Resolve(false);
+                    }else if (LoginScreen.navigator?.canPop() ?? false) {
                         LoginScreen.navigator.pop();
                         promise.Resolve(false);
                     }
@@ -142,8 +154,7 @@ namespace ConnectApp.Main {
                     else if (navigator.canPop()) {
                         navigator.pop();
                         promise.Resolve(false);
-                    }
-                    else {
+                    }else {
                         if (Application.platform == RuntimePlatform.Android) {
                             if (this._exitApp) {
                                 CustomToast.hidden();

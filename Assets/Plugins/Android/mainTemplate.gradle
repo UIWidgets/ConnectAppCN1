@@ -50,6 +50,7 @@ dependencies {
     implementation 'com.huawei.hms:push:'+HMSSDKVersion
     implementation 'com.huawei.hms:opendevice:'+HMSSDKVersion
     implementation 'com.huawei.hms:base:'+HMSSDKVersion
+    implementation 'com.huawei.hms:hianalytics:2.3.0.304'
 }
 
 android {
@@ -68,8 +69,8 @@ android {
         ndk {
             abiFilters 'armeabi-v7a', 'x86'
         }
-        versionCode 99
-        versionName '1.2.6'
+        versionCode 101
+        versionName '1.2.8'
     }
 
     lintOptions {
