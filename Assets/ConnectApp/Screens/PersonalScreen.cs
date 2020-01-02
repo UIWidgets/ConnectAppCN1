@@ -10,10 +10,9 @@ using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.widgets;
-using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.screens {
     public class PersonalScreenConnector : StatelessWidget {
@@ -24,7 +23,8 @@ namespace ConnectApp.screens {
                     user = state.loginState.loginInfo,
                     userDict = state.userState.userDict,
                     userLicenseDict = state.userState.userLicenseDict,
-                    currentTabBarIndex = state.tabBarState.currentTabIndex
+                    currentTabBarIndex = state.tabBarState.currentTabIndex,
+                    hasUnreadNotifications = state.loginState.newNotifications != null
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     return new PersonalScreen(
@@ -202,7 +202,8 @@ namespace ConnectApp.screens {
                         ),
                         new Expanded(
                             child: new CustomButton(
-                                onPressed:() => this.widget.actionModel.mainRouterPushTo(obj: MainNavigatorRoutes.History),
+                                onPressed: () =>
+                                    this.widget.actionModel.mainRouterPushTo(obj: MainNavigatorRoutes.History),
                                 padding: EdgeInsets.symmetric(16),
                                 child: new Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -235,7 +236,7 @@ namespace ConnectApp.screens {
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
-                        _buildQrScanWidget(false),
+                        this._buildQrScanWidget(false),
                         new Container(
                             padding: EdgeInsets.only(16, 8, 16, 24),
                             child: new Row(
@@ -250,7 +251,8 @@ namespace ConnectApp.screens {
                                                 child: new CustomButton(
                                                     padding: EdgeInsets.zero,
                                                     onPressed: () =>
-                                                        this.widget.actionModel.mainRouterPushTo(obj: MainNavigatorRoutes.Login),
+                                                        this.widget.actionModel.mainRouterPushTo(
+                                                            obj: MainNavigatorRoutes.Login),
                                                     child: new Container(
                                                         height: 40,
                                                         width: 120,
@@ -302,6 +304,7 @@ namespace ConnectApp.screens {
             else {
                 titleWidget = new Container();
             }
+
             return new Stack(
                 children: new List<Widget> {
                     new Container(
@@ -310,7 +313,8 @@ namespace ConnectApp.screens {
                         child: new GestureDetector(
                             onTap: () => this.widget.actionModel.pushToUserDetail(obj: user.id),
                             child: new Container(
-                                padding: EdgeInsets.only(top: CCommonUtils.getSafeAreaTopPadding(context: this.context)),
+                                padding: EdgeInsets.only(
+                                    top: CCommonUtils.getSafeAreaTopPadding(context: this.context)),
                                 decoration: new BoxDecoration(
                                     color: CColors.Black,
                                     new DecorationImage(
@@ -321,7 +325,7 @@ namespace ConnectApp.screens {
                                 child: new Column(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: new List<Widget> {
-                                        _buildQrScanWidget(true),
+                                        this._buildQrScanWidget(true),
                                         new Container(
                                             padding: EdgeInsets.only(16, 16, 16, 64),
                                             child: new Row(
@@ -344,7 +348,8 @@ namespace ConnectApp.screens {
                                                                         new Flexible(
                                                                             child: new Text(
                                                                                 user.fullName ?? user.name,
-                                                                                style: CTextStyle.H4White.defaultHeight(),
+                                                                                style: CTextStyle.H4White
+                                                                                    .defaultHeight(),
                                                                                 maxLines: 1,
                                                                                 overflow: TextOverflow.ellipsis
                                                                             )
@@ -353,7 +358,8 @@ namespace ConnectApp.screens {
                                                                             badges: user.badges,
                                                                             CCommonUtils.GetUserLicense(
                                                                                 userId: user.id,
-                                                                                userLicenseMap: this.widget.viewModel.userLicenseDict
+                                                                                userLicenseMap: this.widget.viewModel
+                                                                                    .userLicenseDict
                                                                             ),
                                                                             EdgeInsets.only(4, 6)
                                                                         )
@@ -484,7 +490,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        static Widget _buildQrScanWidget(bool isLoggedIn) {
+        Widget _buildQrScanWidget(bool isLoggedIn) {
             return new Container(
                 height: 44,
                 child: new Row(
@@ -494,10 +500,27 @@ namespace ConnectApp.screens {
                             ? (Widget) new CustomButton(
                                 padding: EdgeInsets.symmetric(8, 16),
                                 onPressed: QRScanPlugin.PushToQRScan,
-                                child: new Icon(
-                                    icon: Icons.outline_notifications,
-                                    size: 28,
-                                    color: CColors.LightBlueGrey
+                                child: new Container(
+                                    width: 28,
+                                    height: 28,
+                                    child: new Stack(
+                                        children: new List<Widget> {
+                                            new Icon(
+                                                icon: Icons.outline_notifications,
+                                                color: CColors.LightBlueGrey,
+                                                size: 28
+                                            ),
+                                            Positioned.fill(
+                                                new Align(
+                                                    alignment: Alignment.topRight,
+                                                    child: new NotificationDot(
+                                                        this.widget.viewModel.hasUnreadNotifications ? "" : null,
+                                                        new BorderSide(color: CColors.White, 2)
+                                                    )
+                                                )
+                                            )
+                                        }
+                                    )
                                 )
                             )
                             : new Container(),

@@ -51,6 +51,8 @@ namespace ConnectApp.redux.reducers {
                     state.loginState.loading = false;
                     state.loginState.loginInfo = action.loginInfo;
                     state.loginState.isLoggedIn = true;
+                    state.loginState.newNotifications =
+                        NewNotificationManager.getNewNotification(state.loginState.loginInfo.userId);
                     state.articleState.feedHasNew = true;
                     state.articleState.articleHistory =
                         HistoryManager.articleHistoryList(userId: action.loginInfo.userId);
@@ -59,8 +61,7 @@ namespace ConnectApp.redux.reducers {
                         HistoryManager.searchArticleHistoryList(userId: action.loginInfo.userId);
                     state.articleState.blockArticleList =
                         HistoryManager.blockArticleList(userId: action.loginInfo.userId);
-                    state.channelState.newNotifications =
-                        NewNotificationManager.getNewNotification(state.loginState.loginInfo.userId);
+
                     break;
                 }
 
@@ -73,6 +74,8 @@ namespace ConnectApp.redux.reducers {
                     state.loginState.loading = false;
                     state.loginState.loginInfo = action.loginInfo;
                     state.loginState.isLoggedIn = true;
+                    state.loginState.newNotifications =
+                        NewNotificationManager.getNewNotification(state.loginState.loginInfo.userId);
                     state.articleState.feedHasNew = true;
                     state.articleState.articleHistory =
                         HistoryManager.articleHistoryList(userId: action.loginInfo.userId);
@@ -81,8 +84,6 @@ namespace ConnectApp.redux.reducers {
                         HistoryManager.searchArticleHistoryList(userId: action.loginInfo.userId);
                     state.articleState.blockArticleList =
                         HistoryManager.blockArticleList(userId: action.loginInfo.userId);
-                    state.channelState.newNotifications =
-                        NewNotificationManager.getNewNotification(state.loginState.loginInfo.userId);
                     break;
                 }
 
@@ -137,6 +138,7 @@ namespace ConnectApp.redux.reducers {
                         if (!state.articleState.recommendArticleIds.Contains(article.id)) {
                             state.articleState.recommendArticleIds.Add(item: article.id);
                         }
+
                         if (!state.articleState.articleDict.ContainsKey(key: article.id)) {
                             state.articleState.articleDict.Add(key: article.id, value: article);
                         }
@@ -735,7 +737,7 @@ namespace ConnectApp.redux.reducers {
                     }
 
                     state.notificationState.loading = false;
-                    state.channelState.newNotifications = null;
+                    state.loginState.newNotifications = null;
                     break;
                 }
 
@@ -951,6 +953,7 @@ namespace ConnectApp.redux.reducers {
                     if (state.channelState.messageDict.TryGetValue(action.messageId, out var message)) {
                         message.buildHeight = null;
                     }
+
                     break;
                 }
 
@@ -2746,6 +2749,7 @@ namespace ConnectApp.redux.reducers {
                                 channelMessage.imageData = message.imageData;
                             }
                         }
+
                         state.channelState.messageDict[channelMessage.id] = channelMessage;
 
                         if (!channel.newMessageIds.Contains(channelMessage.id) &&
@@ -2991,6 +2995,7 @@ namespace ConnectApp.redux.reducers {
                         messageIds.AddRange(channel.messageIds);
                         channel.messageIds = messageIds;
                     }
+
                     if (state.channelState.channelMessageLoadingDict.ContainsKey(action.channelId)) {
                         state.channelState.channelMessageLoadingDict[action.channelId] = false;
                     }
@@ -3038,7 +3043,7 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case UpdateNewNotificationAction action: {
-                    state.channelState.newNotifications = action.notification;
+                    state.loginState.newNotifications = action.notification;
                     NewNotificationManager.saveNewNotification(state.loginState.loginInfo.userId, action.notification);
                     break;
                 }
@@ -3108,6 +3113,7 @@ namespace ConnectApp.redux.reducers {
                             channelMessage.imageData = original.imageData;
                         }
                     }
+
                     state.channelState.messageDict[channelMessage.id] = channelMessage;
 
                     //insert new if not exists yet

@@ -8,7 +8,6 @@ namespace ConnectApp.Models.ViewModel {
         public int currentTabBarIndex;
         public int page;
         public bool hasMore;
-        public bool hasUnreadNotifications;
         public bool socketConnected;
         public bool networkConnected;
         public bool dismissNoNetworkBanner;
