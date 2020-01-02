@@ -48,6 +48,7 @@ namespace ConnectApp.Main {
         public const string ReactionsDetail = "/reactions-detail";
         public const string LeaderBoard = "/leader-board";
         public const string Blogger = "/blogger";
+        public const string ForceUpdate = "/force-update";
     }
 
     class Router : StatelessWidget {
@@ -99,8 +100,10 @@ namespace ConnectApp.Main {
                     {MainNavigatorRoutes.ChannelIntroduction, context => new ChannelIntroductionScreenConnector("")},
                     {MainNavigatorRoutes.ReactionsDetail, context => new ReactionsDetailScreenConnector("")},
                     {MainNavigatorRoutes.LeaderBoard, context => new LeaderBoardScreenConnector()},
-                    {MainNavigatorRoutes.Blogger, context => new BloggerScreenConnector()}
+                    {MainNavigatorRoutes.Blogger, context => new BloggerScreenConnector()},
+                    {MainNavigatorRoutes.ForceUpdate, context => new ForceUpdateScreenConnector()}
                 };
+
                 if (Application.isEditor) {
                     var isExistSplash = SplashManager.isExistSplash();
                     if (isExistSplash) {
@@ -116,7 +119,11 @@ namespace ConnectApp.Main {
                     routes.Add(key: MainNavigatorRoutes.Main, context => new MainScreen());
                     routes.Add(key: MainNavigatorRoutes.Root, context => new RootScreen());
                 }
-
+                
+                if (VersionManager.needForceUpdate()) {
+                    routes[key: MainNavigatorRoutes.Root] = context => new ForceUpdateScreenConnector();
+                }
+                
                 return routes;
             }
         }
@@ -125,7 +132,8 @@ namespace ConnectApp.Main {
             get {
                 return new Dictionary<string, WidgetBuilder> {
                     {MainNavigatorRoutes.Search, context => new SearchScreenConnector()},
-                    {MainNavigatorRoutes.Login, context => new LoginScreen()}
+                    {MainNavigatorRoutes.Login, context => new LoginScreen()},
+                    {MainNavigatorRoutes.ForceUpdate, context => new ForceUpdateScreen()}
                 };
             }
         }
@@ -136,7 +144,9 @@ namespace ConnectApp.Main {
                 onWillPop: () => {
                     TipMenu.dismiss();
                     var promise = new Promise<bool>();
-                    if (LoginScreen.navigator?.canPop() ?? false) {
+                    if (VersionManager.needForceUpdate()) {
+                        promise.Resolve(false);
+                    }else if (LoginScreen.navigator?.canPop() ?? false) {
                         LoginScreen.navigator.pop();
                         promise.Resolve(false);
                     }
@@ -148,8 +158,7 @@ namespace ConnectApp.Main {
                     else if (navigator.canPop()) {
                         navigator.pop();
                         promise.Resolve(false);
-                    }
-                    else {
+                    }else {
                         if (Application.platform == RuntimePlatform.Android) {
                             if (this._exitApp) {
                                 CustomToast.hidden();

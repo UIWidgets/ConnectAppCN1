@@ -211,6 +211,7 @@ namespace ConnectApp.Models.Api {
     [Serializable]
     public class FetchInitDataResponse {
         public string VS;
+        public ServerConfig config;
     }
 
     [Serializable]
