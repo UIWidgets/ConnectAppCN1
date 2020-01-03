@@ -184,7 +184,7 @@ namespace ConnectApp.screens {
                 currentIndex: this.widget.viewModel.initialPage
             );
         }
-        
+
         public void didPopNext() {
             StatusBarManager.statusBarStyle(false);
         }

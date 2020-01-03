@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
+using ConnectApp.Main;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
@@ -93,18 +94,29 @@ namespace ConnectApp.screens {
         }
     }
 
-    class _UserLikeArticleScreenState : State<UserLikeArticleScreen> {
+    class _UserLikeArticleScreenState : State<UserLikeArticleScreen>, RouteAware {
         int _articleOffset;
         RefreshController _refreshController;
 
         public override void initState() {
             base.initState();
+            StatusBarManager.statusBarStyle(false);
             this._articleOffset = 0;
             this._refreshController = new RefreshController();
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this.widget.actionModel.startFetchUserLikeArticle();
                 this.widget.actionModel.fetchUserLikeArticle(arg: this._articleOffset);
             });
+        }
+
+        public override void didChangeDependencies() {
+            base.didChangeDependencies();
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(context: this.context));
+        }
+
+        public override void dispose() {
+            Router.routeObserve.unsubscribe(this);
+            base.dispose();
         }
 
         void _onRefresh(bool up) {
@@ -122,8 +134,8 @@ namespace ConnectApp.screens {
             }
             else if (likeArticleIds.Count <= 0) {
                 content = new BlankView(
-                    "暂无点赞的项目",
-                    "image/default-following",
+                    "暂无点赞的文章",
+                    "image/default-article",
                     true,
                     () => {
                         this.widget.actionModel.startFetchUserLikeArticle();
@@ -166,7 +178,7 @@ namespace ConnectApp.screens {
         Widget _buildNavigationBar() {
             return new CustomNavigationBar(
                 new Text(
-                    "点赞的项目",
+                    "点赞的文章",
                     style: CTextStyle.H2
                 ),
                 onBack: () => this.widget.actionModel.mainRouterPop()
@@ -223,6 +235,19 @@ namespace ConnectApp.screens {
                 fullName: fullName,
                 new ObjectKey(value: article.id)
             );
+        }
+
+        public void didPopNext() {
+            StatusBarManager.statusBarStyle(false);
+        }
+
+        public void didPush() {
+        }
+
+        public void didPop() {
+        }
+
+        public void didPushNext() {
         }
     }
 }
