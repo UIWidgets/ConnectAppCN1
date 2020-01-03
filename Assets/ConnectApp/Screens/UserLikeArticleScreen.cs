@@ -37,7 +37,7 @@ namespace ConnectApp.screens {
                     return new UserLikeArticleScreenViewModel {
                         likeArticleLoading = state.userState.userLikeArticleLoading,
                         likeArticleIds = likeArticleIds,
-                        likeArticleOffset = likeArticleIds.Count,
+                        likeArticlePage = user.likeArticlesPage ?? 1,
                         likeArticleHasMore = user.likeArticlesHasMore ?? false,
                         isLoggedIn = state.loginState.isLoggedIn,
                         articleDict = state.articleState.articleDict,
@@ -49,8 +49,8 @@ namespace ConnectApp.screens {
                     var actionModel = new UserLikeArticleScreenActionModel {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
                         startFetchUserLikeArticle = () => dispatcher.dispatch(new StartFetchUserLikeArticleAction()),
-                        fetchUserLikeArticle = offset =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchUserLikeArticle(userId: this.userId, offset: offset)),
+                        fetchUserLikeArticle = pageNumber =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchUserLikeArticle(userId: this.userId, pageNumber: pageNumber)),
                         pushToArticleDetail = articleId => dispatcher.dispatch(
                             new MainNavigatorPushToArticleDetailAction {
                                 articleId = articleId
@@ -95,17 +95,17 @@ namespace ConnectApp.screens {
     }
 
     class _UserLikeArticleScreenState : State<UserLikeArticleScreen>, RouteAware {
-        int _articleOffset;
+        const int firstPageNumber = 1;
+        int _articlePageNumber = firstPageNumber;
         RefreshController _refreshController;
 
         public override void initState() {
             base.initState();
             StatusBarManager.statusBarStyle(false);
-            this._articleOffset = 0;
             this._refreshController = new RefreshController();
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this.widget.actionModel.startFetchUserLikeArticle();
-                this.widget.actionModel.fetchUserLikeArticle(arg: this._articleOffset);
+                this.widget.actionModel.fetchUserLikeArticle(arg: firstPageNumber);
             });
         }
 
@@ -120,8 +120,8 @@ namespace ConnectApp.screens {
         }
 
         void _onRefresh(bool up) {
-            this._articleOffset = up ? 0 : this.widget.viewModel.likeArticleOffset;
-            this.widget.actionModel.fetchUserLikeArticle(arg: this._articleOffset)
+            this._articlePageNumber = up ? firstPageNumber : this.widget.viewModel.likeArticlePage + 1;
+            this.widget.actionModel.fetchUserLikeArticle(arg: this._articlePageNumber)
                 .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(_ => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed));
         }
@@ -139,7 +139,7 @@ namespace ConnectApp.screens {
                     true,
                     () => {
                         this.widget.actionModel.startFetchUserLikeArticle();
-                        this.widget.actionModel.fetchUserLikeArticle(0);
+                        this.widget.actionModel.fetchUserLikeArticle(arg: firstPageNumber);
                     }
                 );
             }

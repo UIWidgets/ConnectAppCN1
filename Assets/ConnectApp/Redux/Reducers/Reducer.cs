@@ -1810,7 +1810,8 @@ namespace ConnectApp.redux.reducers {
                     if (state.userState.userDict.ContainsKey(key: action.userId)) {
                         var user = state.userState.userDict[key: action.userId];
                         user.likeArticlesHasMore = action.hasMore;
-                        if (action.offset == 0) {
+                        user.likeArticlesPage = action.pageNumber;
+                        if (action.pageNumber == 1) {
                             user.likeArticleIds = articleIds;
                         }
                         else {

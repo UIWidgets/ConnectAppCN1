@@ -5,7 +5,7 @@ namespace ConnectApp.Models.ViewModel {
     public class UserLikeArticleScreenViewModel {
         public bool likeArticleLoading;
         public List<string> likeArticleIds;
-        public int likeArticleOffset;
+        public int likeArticlePage;
         public bool likeArticleHasMore;
         public bool isLoggedIn;
         public Dictionary<string, Article> articleDict;

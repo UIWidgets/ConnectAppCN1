@@ -17,6 +17,7 @@ namespace ConnectApp.Models.Model {
         public int? followCount;
         public int? followingUsersCount;
         public int? followingTeamsCount;
+        public int? likeCount;
         public List<User> followingUsers;
         public bool? followingUsersHasMore;
         public List<User> followers;
@@ -29,6 +30,7 @@ namespace ConnectApp.Models.Model {
         public bool? articlesHasMore;
         public List<string> likeArticleIds;
         public bool? likeArticlesHasMore;
+        public int? likeArticlesPage;
         public Dictionary<string, JobRole> jobRoleMap;
         public List<string> jobRoleIds;
         public bool? followUserLoading;
@@ -48,6 +50,7 @@ namespace ConnectApp.Models.Model {
             int? followCount = null,
             int? followingUsersCount = null,
             int? followingTeamsCount = null,
+            int? likeCount = null,
             List<User> followingUsers = null,
             bool? followingUsersHasMore = null,
             List<User> followers = null,
@@ -60,6 +63,7 @@ namespace ConnectApp.Models.Model {
             bool? articlesHasMore = null,
             List<string> likeArticleIds = null,
             bool? likeArticlesHasMore = null,
+            int? likeArticlesPage = null,
             Dictionary<string, JobRole> jobRoleMap = null,
             List<string> jobRoleIds = null,
             bool? followUserLoading = null,
@@ -79,6 +83,7 @@ namespace ConnectApp.Models.Model {
                 followCount = followCount ?? this.followCount,
                 followingUsersCount = followingUsersCount ?? this.followingUsersCount,
                 followingTeamsCount = followingTeamsCount ?? this.followingTeamsCount,
+                likeCount = likeCount ?? this.likeCount,
                 followingUsers = followingUsers ?? this.followingUsers,
                 followingUsersHasMore = followingUsersHasMore ?? this.followingUsersHasMore,
                 followers = followers ?? this.followers,
@@ -91,6 +96,7 @@ namespace ConnectApp.Models.Model {
                 articlesHasMore = articlesHasMore ?? this.articlesHasMore,
                 likeArticleIds = likeArticleIds ?? this.likeArticleIds,
                 likeArticlesHasMore = likeArticlesHasMore ?? this.likeArticlesHasMore,
+                likeArticlesPage = likeArticlesPage ?? this.likeArticlesPage,
                 jobRoleMap = jobRoleMap ?? this.jobRoleMap,
                 jobRoleIds = jobRoleIds ?? this.jobRoleIds,
                 followUserLoading = followUserLoading ?? this.followUserLoading,
@@ -117,6 +123,7 @@ namespace ConnectApp.Models.Model {
                 followCount: other.followCount,
                 followingUsersCount: other.followingUsersCount,
                 followingTeamsCount: other.followingTeamsCount,
+                likeCount: other.likeCount,
                 followingUsers: other.followingUsers,
                 followingUsersHasMore: other.followingUsersHasMore,
                 followers: other.followers,
@@ -129,6 +136,7 @@ namespace ConnectApp.Models.Model {
                 articlesHasMore: other.articlesHasMore,
                 likeArticleIds: other.likeArticleIds,
                 likeArticlesHasMore: other.likeArticlesHasMore,
+                likeArticlesPage: other.likeArticlesPage,
                 jobRoleMap: other.jobRoleMap,
                 jobRoleIds: other.jobRoleIds,
                 followUserLoading: other.followUserLoading,

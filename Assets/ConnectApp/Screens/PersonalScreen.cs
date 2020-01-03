@@ -482,7 +482,7 @@ namespace ConnectApp.screens {
                                                 mainAxisAlignment: MainAxisAlignment.center,
                                                 children: new List<Widget> {
                                                     new Text(
-                                                        "20",
+                                                        $"{user.likeCount ?? 0}",
                                                         style: CTextStyle.Bold20
                                                     ),
                                                     new Container(height: 4),

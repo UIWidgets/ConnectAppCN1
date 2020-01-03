@@ -41,7 +41,7 @@ namespace ConnectApp.redux.actions {
     public class FetchUserLikeArticleSuccessAction : BaseAction {
         public List<Article> articles;
         public bool hasMore;
-        public int offset;
+        public int pageNumber;
         public string userId;
     }
 
@@ -223,14 +223,16 @@ namespace ConnectApp.redux.actions {
             });
         }
 
-        public static object fetchUserLikeArticle(string userId, int offset) {
+        public static object fetchUserLikeArticle(string userId, int pageNumber) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return UserApi.FetchUserLikeArticle(userId: userId, offset: offset)
+                return UserApi.FetchUserLikeArticle(userId: userId, pageNumber: pageNumber)
                     .Then(userLikeArticleResponse => {
+                        dispatcher.dispatch(new UserMapAction {userMap = userLikeArticleResponse.userSimpleV2Map});
+                        dispatcher.dispatch(new TeamMapAction {teamMap = userLikeArticleResponse.teamSimpleMap});
                         dispatcher.dispatch(new FetchUserLikeArticleSuccessAction {
-                            articles = userLikeArticleResponse.likes,
-                            hasMore = userLikeArticleResponse.likesHasMore,
-                            offset = offset,
+                            articles = userLikeArticleResponse.projectSimpleList,
+                            hasMore = userLikeArticleResponse.projectSimpleList.isNotNullAndEmpty(),
+                            pageNumber = userLikeArticleResponse.currentPage,
                             userId = userId
                         });
                     })

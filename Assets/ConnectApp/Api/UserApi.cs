@@ -32,13 +32,12 @@ namespace ConnectApp.Api {
             return promise;
         }
 
-        public static Promise<FetchUserLikeArticleResponse> FetchUserLikeArticle(string userId, int offset) {
+        public static Promise<FetchUserLikeArticleResponse> FetchUserLikeArticle(string userId, int pageNumber) {
             var promise = new Promise<FetchUserLikeArticleResponse>();
             var para = new Dictionary<string, object> {
-                {"offset", offset},
-                {"userId", userId}
+                {"page", pageNumber}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}/api/u/getLikes", parameter: para);
+            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/u/{userId}/likes", parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var userArticleResponse = JsonConvert.DeserializeObject<FetchUserLikeArticleResponse>(value: responseText);
                 promise.Resolve(value: userArticleResponse);
