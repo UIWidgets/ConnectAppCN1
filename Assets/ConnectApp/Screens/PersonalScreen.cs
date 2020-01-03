@@ -46,7 +46,15 @@ namespace ConnectApp.screens {
                                 new MainNavigatorPushToUserFollowerAction {
                                     userId = userId
                                 }
-                            )
+                            ),
+                            pushToNotifications = () => {
+                                dispatcher.dispatch(new MainNavigatorPushToAction {
+                                    routeName = MainNavigatorRoutes.Notification
+                                });
+                                dispatcher.dispatch(new UpdateNewNotificationAction {
+                                    notification = null
+                                });
+                            }
                         }
                     );
                 }
@@ -499,7 +507,7 @@ namespace ConnectApp.screens {
                         isLoggedIn
                             ? (Widget) new CustomButton(
                                 padding: EdgeInsets.symmetric(8, 16),
-                                onPressed: QRScanPlugin.PushToQRScan,
+                                onPressed: () => this.widget.actionModel.pushToNotifications(),
                                 child: new Container(
                                     width: 28,
                                     height: 28,

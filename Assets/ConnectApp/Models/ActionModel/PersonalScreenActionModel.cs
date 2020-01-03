@@ -8,5 +8,6 @@ namespace ConnectApp.Models.ActionModel {
         public Action<string, int> pushToUserFollowing;
         public Action<string> pushToUserFollower;
         public Func<string, IPromise> fetchUserProfile;
+        public Action pushToNotifications;
     }
 }
