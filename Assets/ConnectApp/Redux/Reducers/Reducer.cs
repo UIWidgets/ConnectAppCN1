@@ -1444,6 +1444,16 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case MainNavigatorPushToUserLikeAction action: {
+                    if (action.userId.isNotEmpty()) {
+                        Router.navigator.push(new CustomPageRoute(
+                            context => new UserLikeArticleScreenConnector(userId: action.userId)
+                        ));
+                    }
+
+                    break;
+                }
+
                 case MainNavigatorPushToEditPersonalInfoAction action: {
                     if (action.userId.isNotEmpty()) {
                         Router.navigator.push(new CustomPageRoute(
@@ -1776,6 +1786,47 @@ namespace ConnectApp.redux.reducers {
 
                 case FetchUserArticleFailureAction _: {
                     state.userState.userArticleLoading = false;
+                    break;
+                }
+
+                case StartFetchUserLikeArticleAction _: {
+                    state.userState.userLikeArticleLoading = true;
+                    break;
+                }
+
+                case FetchUserLikeArticleSuccessAction action: {
+                    state.userState.userLikeArticleLoading = false;
+                    var articleIds = new List<string>();
+                    action.articles.ForEach(article => {
+                        articleIds.Add(item: article.id);
+                        if (!state.articleState.articleDict.ContainsKey(key: article.id)) {
+                            state.articleState.articleDict.Add(key: article.id, value: article);
+                        }
+                        else {
+                            var oldArticle = state.articleState.articleDict[key: article.id];
+                            state.articleState.articleDict[key: article.id] = oldArticle.Merge(other: article);
+                        }
+                    });
+                    if (state.userState.userDict.ContainsKey(key: action.userId)) {
+                        var user = state.userState.userDict[key: action.userId];
+                        user.likeArticlesHasMore = action.hasMore;
+                        user.likeArticlesPage = action.pageNumber;
+                        if (action.pageNumber == 1) {
+                            user.likeArticleIds = articleIds;
+                        }
+                        else {
+                            var userLikeArticleIds = user.likeArticleIds;
+                            userLikeArticleIds.AddRange(collection: articleIds);
+                            user.likeArticleIds = userLikeArticleIds;
+                        }
+
+                        state.userState.userDict[key: action.userId] = user;
+                    }
+                    break;
+                }
+
+                case FetchUserLikeArticleFailureAction _: {
+                    state.userState.userLikeArticleLoading = false;
                     break;
                 }
 

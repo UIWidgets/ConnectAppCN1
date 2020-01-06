@@ -61,6 +61,10 @@ namespace ConnectApp.redux.actions {
         public string userId;
     }
 
+    public class MainNavigatorPushToUserLikeAction : BaseAction {
+        public string userId;
+    }
+
     public class MainNavigatorPushToEditPersonalInfoAction : BaseAction {
         public string userId;
     }

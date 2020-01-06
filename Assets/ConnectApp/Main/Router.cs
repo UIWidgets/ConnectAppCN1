@@ -31,6 +31,7 @@ namespace ConnectApp.Main {
         public const string UserDetail = "/user-detail";
         public const string UserFollowing = "/user-following";
         public const string UserFollower = "/user-follower";
+        public const string UserLike = "/user-like";
         public const string EditPersonalInfo = "/edit-personalInfo";
         public const string PersonalRole = "/personal-role";
         public const string TeamDetail = "/team-detail";
@@ -83,6 +84,7 @@ namespace ConnectApp.Main {
                     {MainNavigatorRoutes.UserDetail, context => new UserDetailScreenConnector("")},
                     {MainNavigatorRoutes.UserFollowing, context => new UserFollowingScreenConnector("")},
                     {MainNavigatorRoutes.UserFollower, context => new UserFollowerScreenConnector("")},
+                    {MainNavigatorRoutes.UserLike, context => new UserLikeArticleScreenConnector("")},
                     {MainNavigatorRoutes.EditPersonalInfo, context => new EditPersonalInfoScreenConnector("")},
                     {MainNavigatorRoutes.PersonalRole, context => new PersonalJobRoleScreenConnector()},
                     {MainNavigatorRoutes.TeamDetail, context => new TeamDetailScreenConnector("")},

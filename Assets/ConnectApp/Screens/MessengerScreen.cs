@@ -93,14 +93,6 @@ namespace ConnectApp.screens {
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new MessengerScreenActionModel {
-                        pushToNotifications = () => {
-                            dispatcher.dispatch(new MainNavigatorPushToAction {
-                                routeName = MainNavigatorRoutes.Notification
-                            });
-                            dispatcher.dispatch(new UpdateNewNotificationAction {
-                                notification = null
-                            });
-                        },
                         pushToDiscoverChannels = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.DiscoverChannel
                         }),

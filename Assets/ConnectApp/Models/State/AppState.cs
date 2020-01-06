@@ -114,6 +114,7 @@ namespace ConnectApp.Models.State {
                 userState = new UserState {
                     userLoading = false,
                     userArticleLoading = false,
+                    userLikeArticleLoading = false,
                     followingLoading = false,
                     followingUserLoading = false,
                     followingTeamLoading = false,
