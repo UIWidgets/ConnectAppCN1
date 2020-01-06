@@ -13,17 +13,15 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
-using Color = Unity.UIWidgets.ui.Color;
 
 namespace ConnectApp.screens {
-    public class AlbumScreenConnector : StatelessWidget {
-        public AlbumScreenConnector(
+    public class ArticleAlbumScreenConnector : StatelessWidget {
+        public ArticleAlbumScreenConnector(
             string albumId = null,
             Key key = null
         ) : base(key: key) {
@@ -55,14 +53,14 @@ namespace ConnectApp.screens {
                         shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch<IPromise>(
                             Actions.shareToWechat(type, title, description, linkUrl, imageUrl))
                     };
-                    return new AlbumScreen(viewModel: viewModel, actionModel: actionModel);
+                    return new ArticleAlbumScreen(viewModel: viewModel, actionModel: actionModel);
                 }
             );
         }
     }
 
-    public class AlbumScreen : StatefulWidget {
-        public AlbumScreen(
+    public class ArticleAlbumScreen : StatefulWidget {
+        public ArticleAlbumScreen(
             UserDetailScreenViewModel viewModel = null,
             UserDetailScreenActionModel actionModel = null,
             Key key = null
@@ -75,11 +73,11 @@ namespace ConnectApp.screens {
         public readonly UserDetailScreenActionModel actionModel;
 
         public override State createState() {
-            return new _AlbumScreenState();
+            return new _ArticleAlbumScreenState();
         }
     }
 
-    class _AlbumScreenState : State<AlbumScreen>, TickerProvider {
+    class _ArticleAlbumScreenState : State<ArticleAlbumScreen>, TickerProvider {
         int _pageNumber;
         bool _isHaveTitle;
         RefreshController _refreshController;
@@ -247,7 +245,7 @@ namespace ConnectApp.screens {
 
         Widget _buildAlbumCard(BuildContext context, int index) {
             if (index == 0) {
-                return new AlbumHeader();
+                return new ArticleAlbumHeader();
             }
 
             return new ArticleCard(null);

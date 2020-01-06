@@ -7,8 +7,8 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.Components {
-    public class AlbumHeader : StatelessWidget {
-        public AlbumHeader(
+    public class ArticleAlbumHeader : StatelessWidget {
+        public ArticleAlbumHeader(
             Key key = null
         ) : base(key) {
         }
@@ -91,12 +91,12 @@ namespace ConnectApp.Components {
 
                         new SizedBox(height: 4),
                         new Padding(
-                            padding:EdgeInsets.only(16,0,16),
-                            child:new Text(
+                            padding: EdgeInsets.only(16, 0, 16),
+                            child: new Text(
                                 "作者 10 • 文章 10",
                                 style: CTextStyle.PSmallBody4
                             )
-                            ),
+                        ),
                         new SizedBox(height: 16),
                         new Container(
                             height: 16,
