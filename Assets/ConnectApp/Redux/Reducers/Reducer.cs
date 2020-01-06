@@ -560,6 +560,16 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case ClearEventOngoingAction _: {
+                    state.eventState.ongoingEvents.Clear();
+                    break;
+                }
+
+                case ClearEventCompletedAction _: {
+                    state.eventState.completedEvents.Clear();
+                    break;
+                }
+
                 case StartFetchEventOngoingAction _: {
                     state.eventState.eventsOngoingLoading = true;
                     break;

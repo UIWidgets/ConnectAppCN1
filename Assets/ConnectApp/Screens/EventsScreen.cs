@@ -13,12 +13,15 @@ namespace ConnectApp.screens {
     }
 
     class _EventsScreenState : AutomaticKeepAliveClientMixin<EventsScreen> {
+        string _selectValue = "all";
+
         protected override bool wantKeepAlive {
             get { return true; }
         }
 
         public override Widget build(BuildContext context) {
             base.build(context: context);
+            var mode = this._selectValue == "all" ? "" : this._selectValue;
             return new Container(
                 padding: EdgeInsets.only(top: CCommonUtils.getSafeAreaTopPadding(context: context)),
                 color: CColors.White,
@@ -31,12 +34,39 @@ namespace ConnectApp.screens {
                             child: new CustomSegmentedControl(
                                 new List<object> {"即将开始", "往期活动"},
                                 new List<Widget> {
-                                    new EventOngoingScreenConnector(),
-                                    new EventCompletedScreenConnector()
+                                    new EventOngoingScreenConnector(mode: mode),
+                                    new EventCompletedScreenConnector(mode: mode)
                                 },
                                 newValue => AnalyticsManager.ClickEventSegment("Event",
                                     0 == newValue ? "ongoing" : "completed"),
-                                1
+                                1,
+                                trailing: new Container(
+                                    padding: EdgeInsets.only(right: 12),
+                                    child: new CustomDropdownButton<string>(
+                                        value: this._selectValue,
+                                        items: new List<CustomDropdownMenuItem<string>> {
+                                            new CustomDropdownMenuItem<string>(
+                                                value: "all",
+                                                child: new Text("全部")
+                                            ),
+                                            new CustomDropdownMenuItem<string>(
+                                                value: "online",
+                                                child: new Text("线上")
+                                            ),
+                                            new CustomDropdownMenuItem<string>(
+                                                value: "offline",
+                                                child: new Text("线下")
+                                            )
+                                        },
+                                        onChanged: newValue => {
+                                            if (this._selectValue != newValue) {
+                                                this.setState(() => this._selectValue = newValue);
+                                            }
+                                        },
+                                        headerWidget: new Container(height: 6, color: CColors.White),
+                                        footerWidget: new Container(height: 6, color: CColors.White)
+                                    )
+                                )
                             )
                         )
                     }

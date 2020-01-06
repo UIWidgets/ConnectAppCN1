@@ -1,3 +1,4 @@
+using System;
 using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
@@ -7,6 +8,7 @@ using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using RSG;
+using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
@@ -16,9 +18,13 @@ using Unity.UIWidgets.widgets;
 namespace ConnectApp.screens {
     public class EventOngoingScreenConnector : StatelessWidget {
         public EventOngoingScreenConnector(
+            string mode,
             Key key = null
         ) : base(key: key) {
+            this.mode = mode;
         }
+
+        readonly string mode;
 
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, EventsScreenViewModel>(
@@ -35,11 +41,12 @@ namespace ConnectApp.screens {
                             new MainNavigatorPushToEventDetailAction {
                                 eventId = eventId, eventType = eventType
                             }),
+                        clearEventOngoing = () => dispatcher.dispatch(new ClearEventOngoingAction()),
                         startFetchEventOngoing = () => dispatcher.dispatch(new StartFetchEventOngoingAction()),
                         fetchEvents = (pageNumber, tab) =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchEvents(pageNumber: pageNumber, tab: tab))
+                            dispatcher.dispatch<IPromise>(Actions.fetchEvents(pageNumber: pageNumber, tab: tab, mode: this.mode))
                     };
-                    return new EventOngoingScreen(viewModel: viewModel, actionModel: actionModel);
+                    return new EventOngoingScreen(viewModel: viewModel, actionModel: actionModel, mode: this.mode);
                 }
             );
         }
@@ -50,14 +57,17 @@ namespace ConnectApp.screens {
         public EventOngoingScreen(
             EventsScreenViewModel viewModel = null,
             EventsScreenActionModel actionModel = null,
+            string mode = null,
             Key key = null
         ) : base(key: key) {
             this.viewModel = viewModel;
             this.actionModel = actionModel;
+            this.mode = mode;
         }
 
         public readonly EventsScreenViewModel viewModel;
         public readonly EventsScreenActionModel actionModel;
+        public readonly string mode;
 
         public override State createState() {
             return new _EventOngoingScreenState();
@@ -90,6 +100,18 @@ namespace ConnectApp.screens {
                     this.setState(() => { });
                 });
             });
+        }
+
+        public override void didUpdateWidget(StatefulWidget oldWidget) {
+            base.didUpdateWidget(oldWidget: oldWidget);
+            if (oldWidget is EventOngoingScreen _oldWidget) {
+                if (this.widget.mode != _oldWidget.mode) {
+                    this._ongoingRefreshController.animateTo(0, TimeSpan.FromMilliseconds(100), curve: Curves.linear);
+                    this.widget.actionModel.clearEventOngoing();
+                    this.widget.actionModel.startFetchEventOngoing();
+                    this.widget.actionModel.fetchEvents(arg1: firstPageNumber, arg2: eventTab);
+                }
+            }
         }
 
         public override Widget build(BuildContext context) {
