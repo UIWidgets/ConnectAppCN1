@@ -48,6 +48,8 @@ namespace ConnectApp.Main {
         public const string LeaderBoard = "/leader-board";
         public const string Blogger = "/blogger";
         public const string ForceUpdate = "/force-update";
+        public const string AlbumScreen = "/album-screen";
+
     }
 
     class Router : StatelessWidget {
@@ -99,7 +101,8 @@ namespace ConnectApp.Main {
                     {MainNavigatorRoutes.ReactionsDetail, context => new ReactionsDetailScreenConnector("")},
                     {MainNavigatorRoutes.LeaderBoard, context => new LeaderBoardScreenConnector()},
                     {MainNavigatorRoutes.Blogger, context => new BloggerScreenConnector()},
-                    {MainNavigatorRoutes.ForceUpdate, context => new ForceUpdateScreenConnector()}
+                    {MainNavigatorRoutes.ForceUpdate, context => new ForceUpdateScreenConnector()},
+                    {MainNavigatorRoutes.AlbumScreen, context => new AlbumScreenConnector()}
                 };
 
                 if (Application.isEditor) {
