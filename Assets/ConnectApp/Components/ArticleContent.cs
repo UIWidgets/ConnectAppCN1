@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using ConnectApp.Constants;
+using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -148,12 +149,6 @@ namespace ConnectApp.Components {
         }
 
         Widget _buildLeaderBoardItem(BuildContext context, int index) {
-            List<string> images = new List<string> {
-                "image/refresh-pattern1",
-                "image/refresh-pattern2",
-                "image/refresh-pattern3",
-                "image/refresh-pattern4"
-            };
             return new GestureDetector(
                 onTap: () => this.onPressItem?.Invoke($"{index}"),
                 child: new Container(
@@ -168,10 +163,14 @@ namespace ConnectApp.Components {
                         child: new Stack(
                             children: new List<Widget> {
                                 Positioned.fill(
-                                    new Container(color: new Color(0xFF80C3D4))
+                                    new Container(
+                                        // Todo: v2.0.0 change index.ToString() to id 
+                                        color: CColorUtils.GetCardColorFromId(index.ToString())
+                                    )
                                 ),
                                 Image.asset(
-                                    images[index % images.Count],
+                                    // Todo: v2.0.0 change index.ToString() to id
+                                    CImageUtils.GetSpecificPatternImageNameFromId(index.ToString()),
                                     width: 160,
                                     height: 80,
                                     fit: BoxFit.fill
@@ -271,7 +270,8 @@ namespace ConnectApp.Components {
                             children: new List<Widget> {
                                 new Container(
                                     height: 88,
-                                    color: CColors.Tan,
+                                    // Todo: v2.0.0 change bloggerName to id
+                                    color: CColorUtils.GetSpecificDarkColorFromId(id: bloggerName),
                                     child: new Stack(
                                         fit: StackFit.expand,
                                         children: new List<Widget> {
