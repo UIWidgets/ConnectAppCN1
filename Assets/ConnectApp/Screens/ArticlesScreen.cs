@@ -264,7 +264,6 @@ namespace ConnectApp.screens {
                             end: Alignment.centerRight,
                             new List<Color> {
                                 new Color(0xFFB1E0FF),
-                                CColors.PrimaryBlue,
                                 new Color(0xFF6EC6FF)
                             }
                         )
