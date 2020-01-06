@@ -59,15 +59,7 @@ namespace ConnectApp.screens {
                                 new MainNavigatorPushToUserFollowerAction {
                                     userId = userId
                                 }
-                            ),
-                            pushToNotifications = () => {
-                                dispatcher.dispatch(new MainNavigatorPushToAction {
-                                    routeName = MainNavigatorRoutes.Notification
-                                });
-                                dispatcher.dispatch(new UpdateNewNotificationAction {
-                                    notification = null
-                                });
-                            }
+                            )
                         }
                     );
                 }
