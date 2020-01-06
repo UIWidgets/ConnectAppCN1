@@ -290,6 +290,7 @@ namespace ConnectApp.Components {
             return new GestureDetector(
                 // onTap: () => this.onClickImage(obj: this.message.embeds[0].embedData.imageUrl),
                 child: new ImageMessage(
+                    id: this.message.id,
                     url: this.message.embeds[0].embedData.imageUrl,
                     data: this.message.imageData,
                     size: 140,
@@ -405,6 +406,7 @@ namespace ConnectApp.Components {
 
     public class ImageMessage : StatefulWidget {
         public ImageMessage(
+            string id,
             string url,
             byte[] data,
             float size,
@@ -416,6 +418,7 @@ namespace ConnectApp.Components {
             bool isOriginalImage = false,
             Key key = null
         ) : base(key: key) {
+            this.id = id;
             this.url = url;
             this.data = data;
             this.size = size;
@@ -427,6 +430,7 @@ namespace ConnectApp.Components {
             this.isOriginalImage = isOriginalImage;
         }
 
+        public readonly string id;
         public readonly string url;
         public readonly byte[] data;
         public readonly float size;
@@ -531,7 +535,7 @@ namespace ConnectApp.Components {
                     width: this.widget.size,
                     height: this.widget.size,
                     decoration: new BoxDecoration(
-                        color: CColors.LoadingGrey,
+                        CColorUtils.GetSpecificDarkColorFromId(id: this.widget.id),
                         borderRadius: BorderRadius.all(this.widget.radius)
                     ))
                 : (Widget) new ClipRRect(
@@ -539,7 +543,7 @@ namespace ConnectApp.Components {
                     child: new Container(
                         width: this.size.width,
                         height: this.size.height,
-                        color: CColors.LoadingGrey,
+                        color: CColorUtils.GetSpecificDarkColorFromId(id: this.widget.id),
                         child: this._getImage())
                 );
         }

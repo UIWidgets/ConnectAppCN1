@@ -10,6 +10,7 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 
 namespace ConnectApp.Components {
     public class EventCard : StatelessWidget {
@@ -105,21 +106,35 @@ namespace ConnectApp.Components {
                                         imageWidth,
                                         imageHeight,
                                         borderRadius,
-                                        BoxFit.cover
+                                        BoxFit.cover,
+                                        color: CColorUtils.GetSpecificDarkColorFromId(id: this.model.id)
                                     ),
                                     new Positioned(
                                         bottom: 0,
                                         right: 0,
                                         child: new ClipRRect(
-                                            borderRadius: BorderRadius.only(bottomRight: 4),
+                                            borderRadius: BorderRadius.only(4, bottomRight: 4),
                                             child: new Container(
                                                 width: 41,
                                                 height: 24,
-                                                color: this.model.mode == "online"
-                                                    ? CColors.SecondaryPink
-                                                    : CColors.PrimaryBlue,
+                                                decoration: new BoxDecoration(
+                                                    gradient: new LinearGradient(
+                                                        begin: Alignment.centerLeft,
+                                                        end: Alignment.centerRight,
+                                                        this.model.mode == "online"
+                                                            ? new List<Color> {
+                                                                Color.fromARGB(255, 250, 69, 198),
+                                                                CColors.SecondaryPink
+                                                            }
+                                                            : new List<Color> {
+                                                                Color.fromARGB(255, 69, 199, 250),
+                                                                CColors.PrimaryBlue
+                                                            }
+                                                    )
+                                                ),
                                                 alignment: Alignment.center,
-                                                child: new Text(this.model.mode == "online" ? "线上" : "线下",
+                                                child: new Text(
+                                                    this.model.mode == "online" ? "线上" : "线下",
                                                     style: CTextStyle.CaptionWhite,
                                                     textAlign: TextAlign.center
                                                 )
