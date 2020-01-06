@@ -4,9 +4,7 @@ using ConnectApp.Components;
 using ConnectApp.screens;
 using ConnectApp.Utils;
 using RSG;
-using Unity.UIWidgets.animation;
 using Unity.UIWidgets.async;
-using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
@@ -49,6 +47,7 @@ namespace ConnectApp.Main {
         public const string LeaderBoard = "/leader-board";
         public const string Blogger = "/blogger";
         public const string ForceUpdate = "/force-update";
+        public const string AlbumScreen = "/album-screen";
     }
 
     class Router : StatelessWidget {
@@ -101,7 +100,8 @@ namespace ConnectApp.Main {
                     {MainNavigatorRoutes.ReactionsDetail, context => new ReactionsDetailScreenConnector("")},
                     {MainNavigatorRoutes.LeaderBoard, context => new LeaderBoardScreenConnector()},
                     {MainNavigatorRoutes.Blogger, context => new BloggerScreenConnector()},
-                    {MainNavigatorRoutes.ForceUpdate, context => new ForceUpdateScreenConnector()}
+                    {MainNavigatorRoutes.ForceUpdate, context => new ForceUpdateScreenConnector()},
+                    {MainNavigatorRoutes.AlbumScreen, context => new ArticleAlbumScreenConnector()}
                 };
 
                 if (Application.isEditor) {
@@ -119,11 +119,11 @@ namespace ConnectApp.Main {
                     routes.Add(key: MainNavigatorRoutes.Main, context => new MainScreen());
                     routes.Add(key: MainNavigatorRoutes.Root, context => new RootScreen());
                 }
-                
+
                 if (VersionManager.needForceUpdate()) {
                     routes[key: MainNavigatorRoutes.Root] = context => new ForceUpdateScreenConnector();
                 }
-                
+
                 return routes;
             }
         }
@@ -146,7 +146,8 @@ namespace ConnectApp.Main {
                     var promise = new Promise<bool>();
                     if (VersionManager.needForceUpdate()) {
                         promise.Resolve(false);
-                    }else if (LoginScreen.navigator?.canPop() ?? false) {
+                    }
+                    else if (LoginScreen.navigator?.canPop() ?? false) {
                         LoginScreen.navigator.pop();
                         promise.Resolve(false);
                     }
@@ -158,7 +159,8 @@ namespace ConnectApp.Main {
                     else if (navigator.canPop()) {
                         navigator.pop();
                         promise.Resolve(false);
-                    }else {
+                    }
+                    else {
                         if (Application.platform == RuntimePlatform.Android) {
                             if (this._exitApp) {
                                 CustomToast.hidden();

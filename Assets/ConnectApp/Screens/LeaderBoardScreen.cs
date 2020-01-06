@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
+using ConnectApp.Main;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
@@ -27,7 +28,8 @@ namespace ConnectApp.screens {
                 converter: state => new LeaderBoardScreenViewModel(),
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new LeaderBoardScreenActionModel {
-                        mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction())
+                        mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
+                        pushToAlbumAction = () => dispatcher.dispatch(new MainNavigatorPushToAction{routeName = MainNavigatorRoutes.AlbumScreen})
                     };
                     return new LeaderBoardScreen(viewModel: viewModel, actionModel: actionModel);
                 }
@@ -367,7 +369,7 @@ namespace ConnectApp.screens {
 
         Widget _buildLeaderBoardCard(BuildContext context, int index) {
             if (this._selectedIndex == 0) {
-                return new LeaderBoardCollectionCard(index: index);
+                return new LeaderBoardCollectionCard(index: index,onPress: () => this.widget.actionModel.pushToAlbumAction());
             }
 
             if (this._selectedIndex == 1) {
