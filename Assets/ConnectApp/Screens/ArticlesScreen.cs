@@ -11,6 +11,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
@@ -255,11 +256,17 @@ namespace ConnectApp.screens {
                         color: CColors.White,
                         border: new Border(bottom: new BorderSide(this._navBarHeight <= 0 ? CColors.Separator2 : CColors.Transparent))
                     ),
-                    indicator: new CustomUnderlineTabIndicator(
+                    indicator: new CustomGradientsTabIndicator(
                         insets: EdgeInsets.symmetric(horizontal: 8),
-                        borderSide: new BorderSide(
-                            width: 8,
-                            color: CColors.PrimaryBlue
+                        height: 8,
+                        gradient: new LinearGradient(
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                            new List<Color> {
+                                new Color(0xFFB1E0FF),
+                                CColors.PrimaryBlue,
+                                new Color(0xFF6EC6FF)
+                            }
                         )
                     ),
                     headerPadding: EdgeInsets.only(8, bottom: 8),
