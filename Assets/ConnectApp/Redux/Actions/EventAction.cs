@@ -6,6 +6,12 @@ using ConnectApp.Models.State;
 using Unity.UIWidgets.Redux;
 
 namespace ConnectApp.redux.actions {
+    public class ClearEventOngoingAction : RequestAction {
+    }
+
+    public class ClearEventCompletedAction : RequestAction {
+    }
+
     public class StartFetchEventOngoingAction : RequestAction {
     }
 
@@ -84,21 +90,20 @@ namespace ConnectApp.redux.actions {
     }
 
     public static partial class Actions {
-        public static object fetchEvents(int pageNumber, string tab) {
+        public static object fetchEvents(int pageNumber, string tab, string mode) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return EventApi.FetchEvents(pageNumber, tab)
+                return EventApi.FetchEvents(pageNumber: pageNumber, tab: tab, mode: mode)
                     .Then(eventsResponse => {
                         dispatcher.dispatch(new UserMapAction {userMap = eventsResponse.userMap});
                         dispatcher.dispatch(new PlaceMapAction {placeMap = eventsResponse.placeMap});
                         dispatcher.dispatch(new FetchEventsSuccessAction {
-                                eventsResponse = eventsResponse,
-                                tab = tab,
-                                pageNumber = pageNumber
-                            }
-                        );
+                            eventsResponse = eventsResponse,
+                            tab = tab,
+                            pageNumber = pageNumber
+                        });
                     })
                     .Catch(error => {
-                        dispatcher.dispatch(new FetchEventsFailureAction() {
+                        dispatcher.dispatch(new FetchEventsFailureAction {
                             tab = tab,
                             pageNumber = pageNumber
                         });
@@ -109,7 +114,7 @@ namespace ConnectApp.redux.actions {
 
         public static object fetchEventDetail(string eventId, EventType eventType) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return EventApi.FetchEventDetail(eventId)
+                return EventApi.FetchEventDetail(eventId: eventId)
                     .Then(eventObj => {
                         if (getState().loginState.isLoggedIn && eventType == EventType.online) {
                             dispatcher.dispatch(new StartFetchMessagesAction());
@@ -154,7 +159,7 @@ namespace ConnectApp.redux.actions {
 
         public static object joinEvent(string eventId) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return EventApi.JoinEvent(eventId)
+                return EventApi.JoinEvent(eventId: eventId)
                     .Then(id => { dispatcher.dispatch(new JoinEventSuccessAction {eventId = id}); })
                     .Catch(error => {
                         dispatcher.dispatch(new JoinEventFailureAction());
@@ -165,7 +170,7 @@ namespace ConnectApp.redux.actions {
 
         public static object fetchMessages(string channelId, string currOldestMessageId, bool isFirstLoad) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return MessageApi.FetchMessages(channelId, currOldestMessageId)
+                return MessageApi.FetchMessages(channelId: channelId, currOldestMessageId: currOldestMessageId)
                     .Then(messagesResponse => {
                         var messageIds = new List<string>();
                         var messageDict = new Dictionary<string, Message>();
