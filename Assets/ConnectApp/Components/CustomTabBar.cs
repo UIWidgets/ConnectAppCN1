@@ -251,7 +251,7 @@ namespace ConnectApp.Components {
                                 )
                             ),
                             new Positioned(
-                                left: (float) Math.Ceiling(screenWidth / 8) + 2,
+                                left: (float) Math.Ceiling(screenWidth / 8) + 1,
                                 top: 4,
                                 child: new IgnorePointer(
                                     child: new NotificationDot(
