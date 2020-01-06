@@ -137,6 +137,14 @@ namespace ConnectApp.Models.Api {
     }
 
     [Serializable]
+    public class FetchUserLikeArticleResponse {
+        public List<Article> projectSimpleList;
+        public Dictionary<string, User> userSimpleV2Map;
+        public Dictionary<string, Team> teamSimpleMap;
+        public int currentPage;
+    }
+
+    [Serializable]
     public class FetchFollowingResponse {
         public List<Following> followings;
         public bool hasMore;

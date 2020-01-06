@@ -32,6 +32,19 @@ namespace ConnectApp.Api {
             return promise;
         }
 
+        public static Promise<FetchUserLikeArticleResponse> FetchUserLikeArticle(string userId, int pageNumber) {
+            var promise = new Promise<FetchUserLikeArticleResponse>();
+            var para = new Dictionary<string, object> {
+                {"page", pageNumber}
+            };
+            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/u/{userId}/likes", parameter: para);
+            HttpManager.resume(request: request).Then(responseText => {
+                var userArticleResponse = JsonConvert.DeserializeObject<FetchUserLikeArticleResponse>(value: responseText);
+                promise.Resolve(value: userArticleResponse);
+            }).Catch(exception => promise.Reject(ex: exception));
+            return promise;
+        }
+
         public static Promise<bool> FetchFollowUser(string userId) {
             var promise = new Promise<bool>();
             var para = new FollowParameter {

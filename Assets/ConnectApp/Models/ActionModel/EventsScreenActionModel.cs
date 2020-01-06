@@ -7,6 +7,8 @@ namespace ConnectApp.Models.ActionModel {
         public Action<string, EventType> pushToEventDetail;
         public Action startFetchEventOngoing;
         public Action startFetchEventCompleted;
+        public Action clearEventOngoing;
+        public Action clearEventCompleted;
         public Func<int, string, IPromise> fetchEvents;
     }
 }

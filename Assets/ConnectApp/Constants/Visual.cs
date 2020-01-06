@@ -68,6 +68,7 @@ namespace ConnectApp.Constants {
         public static readonly IconData notifications_off = new IconData(0xe7f6, "Material Icons");
         public static readonly IconData chevron_right = new IconData(0xe5cc, "Material Icons");
         public static readonly IconData keyboard_arrow_up = new IconData(0xe316, fontFamily: "Material Icons");
+        public static readonly IconData keyboard_arrow_down = new IconData(0xe313, "Material Icons");
         public static readonly IconData bookmark_border = new IconData(0xe867, "Material Icons");
         public static readonly IconData play_arrow = new IconData(0xe037, "Material Icons");
         public static readonly IconData replay = new IconData(0xe042, "Material Icons");

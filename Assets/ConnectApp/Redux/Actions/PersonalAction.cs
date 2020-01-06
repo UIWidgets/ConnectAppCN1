@@ -35,6 +35,19 @@ namespace ConnectApp.redux.actions {
     public class FetchUserArticleFailureAction : BaseAction {
     }
 
+    public class StartFetchUserLikeArticleAction : RequestAction {
+    }
+
+    public class FetchUserLikeArticleSuccessAction : BaseAction {
+        public List<Article> articles;
+        public bool hasMore;
+        public int pageNumber;
+        public string userId;
+    }
+
+    public class FetchUserLikeArticleFailureAction : BaseAction {
+    }
+
     public class StartFollowUserAction : RequestAction {
         public string followUserId;
     }
@@ -205,6 +218,26 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new FetchUserArticleFailureAction());
+                        Debuger.LogError(message: error);
+                    });
+            });
+        }
+
+        public static object fetchUserLikeArticle(string userId, int pageNumber) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return UserApi.FetchUserLikeArticle(userId: userId, pageNumber: pageNumber)
+                    .Then(userLikeArticleResponse => {
+                        dispatcher.dispatch(new UserMapAction {userMap = userLikeArticleResponse.userSimpleV2Map});
+                        dispatcher.dispatch(new TeamMapAction {teamMap = userLikeArticleResponse.teamSimpleMap});
+                        dispatcher.dispatch(new FetchUserLikeArticleSuccessAction {
+                            articles = userLikeArticleResponse.projectSimpleList,
+                            hasMore = userLikeArticleResponse.projectSimpleList.isNotNullAndEmpty(),
+                            pageNumber = userLikeArticleResponse.currentPage,
+                            userId = userId
+                        });
+                    })
+                    .Catch(error => {
+                        dispatcher.dispatch(new FetchUserLikeArticleFailureAction());
                         Debuger.LogError(message: error);
                     });
             });
