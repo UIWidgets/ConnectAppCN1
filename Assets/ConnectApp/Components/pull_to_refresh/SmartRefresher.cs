@@ -442,11 +442,11 @@ namespace ConnectApp.Components.pull_to_refresh {
         }
 
         public void scrollTo(float offset) {
-            this.scrollController.jumpTo(offset);
+            this.scrollController?.jumpTo(offset);
         }
 
         public void animateTo(float to, TimeSpan duration, Curve curve) {
-            this.scrollController.animateTo(to, duration, curve);
+            this.scrollController?.animateTo(to, duration, curve);
         }
 
         public float offset {
