@@ -95,11 +95,13 @@ namespace ConnectApp.screens {
             var pixels = notification.metrics.pixels;
             if (pixels >= 44) {
                 if (this._isHaveTitle) {
+                    StatusBarManager.statusBarStyle(false);
                     this.setState(() => this._isHaveTitle = false);
                 }
             }
             else {
                 if (!this._isHaveTitle) {
+                    StatusBarManager.statusBarStyle(true);
                     this.setState(() => this._isHaveTitle = true);
                 }
             }
@@ -414,7 +416,7 @@ namespace ConnectApp.screens {
         }
 
         public void didPopNext() {
-            StatusBarManager.statusBarStyle(true);
+            StatusBarManager.statusBarStyle(isLight: this._isHaveTitle);
         }
 
         public void didPush() {
