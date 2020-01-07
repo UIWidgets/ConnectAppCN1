@@ -51,21 +51,28 @@ namespace ConnectApp.Components {
                             child: new Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: new List<Widget> {
-                                    new CoverImages(
-                                        verticalGap: 0
+                                    new Padding(
+                                        padding: EdgeInsets.only(top: 8),
+                                        child: new CoverImages(
+                                            verticalGap: 0
+                                        )
                                     ),
+
                                     new SizedBox(width: 16),
                                     new Expanded(
                                         child: new Column(
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: new List<Widget> {
-                                                new Text(
-                                                    "Unity官方博主预备营准备启动",
-                                                    maxLines: 2,
-                                                    overflow: TextOverflow.ellipsis,
-                                                    style: CTextStyle.H5
-                                                ),
+                                                new Container(
+                                                    margin: EdgeInsets.only(bottom: 4),
+                                                    height: 56,
+                                                    child: new Text(
+                                                        "Unity官方博主预备营准备启动",
+                                                        maxLines: 2,
+                                                        overflow: TextOverflow.ellipsis,
+                                                        style: CTextStyle.H5
+                                                    )),
                                                 new CustomButton(
                                                     onPressed: () => { },
                                                     padding: EdgeInsets.zero,

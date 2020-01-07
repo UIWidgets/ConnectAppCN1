@@ -108,7 +108,7 @@ namespace ConnectApp.Components {
         public override void initState() {
             base.initState();
             this._currentIndex = this.widget.currentIndex;
-            this._controller = this.widget.controller 
+            this._controller = this.widget.controller
                                ?? new CustomTabController(length: this.widget.children.Count, this);
             this._controller.addListener(() => {
                 if (this._controller.index != this._currentIndex) {
@@ -142,9 +142,11 @@ namespace ConnectApp.Components {
                 if (item is string itemString) {
                     children.Add(new Text(data: itemString));
                 }
+
                 if (item is int itemInt) {
                     children.Add(new Text($"{itemInt}"));
                 }
+
                 if (item is Widget widget) {
                     children.Add(item: widget);
                 }
@@ -164,6 +166,7 @@ namespace ConnectApp.Components {
                                 indicator: this.widget.indicator,
                                 indicatorSize: CustomTabBarIndicatorSize.fixedOrLabel,
                                 indicatorFixedSize: this.widget.indicatorWidth,
+                                indicatorPadding: EdgeInsets.zero,
                                 indicatorChangeStyle: CustomTabBarIndicatorChangeStyle.enlarge,
                                 unselectedLabelStyle: this.widget.unselectedTextStyle,
                                 unselectedLabelColor: this.widget.unselectedColor,
