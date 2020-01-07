@@ -4,6 +4,9 @@ using ConnectApp.Models.State;
 using Unity.UIWidgets.Redux;
 
 namespace ConnectApp.redux.actions {
+    public class ClearMyFutureEventsAction : RequestAction {
+    }
+
     public class StartFetchMyFutureEventsAction : RequestAction {
     }
 
@@ -13,6 +16,9 @@ namespace ConnectApp.redux.actions {
     }
 
     public class FetchMyFutureEventsFailureAction : BaseAction {
+    }
+
+    public class ClearMyPastEventsAction : RequestAction {
     }
 
     public class StartFetchMyPastEventsAction : RequestAction {
@@ -27,9 +33,9 @@ namespace ConnectApp.redux.actions {
     }
 
     public static partial class Actions {
-        public static object fetchMyFutureEvents(int pageNumber) {
+        public static object fetchMyFutureEvents(int pageNumber, string mode) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return MineApi.FetchMyFutureEvents(pageNumber)
+                return MineApi.FetchMyFutureEvents(pageNumber: pageNumber, mode: mode)
                     .Then(eventsResponse => {
                         dispatcher.dispatch(new UserMapAction {userMap = eventsResponse.userMap});
                         dispatcher.dispatch(new PlaceMapAction {placeMap = eventsResponse.placeMap});
@@ -43,9 +49,9 @@ namespace ConnectApp.redux.actions {
             });
         }
 
-        public static object fetchMyPastEvents(int pageNumber) {
+        public static object fetchMyPastEvents(int pageNumber, string mode) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return MineApi.FetchMyPastEvents(pageNumber)
+                return MineApi.FetchMyPastEvents(pageNumber: pageNumber, mode: mode)
                     .Then(eventsResponse => {
                         dispatcher.dispatch(new UserMapAction {userMap = eventsResponse.userMap});
                         dispatcher.dispatch(new PlaceMapAction {placeMap = eventsResponse.placeMap});
