@@ -191,7 +191,7 @@ namespace ConnectApp.Components {
                             height: 16,
                             alignment: Alignment.center,
                             decoration: new BoxDecoration(
-                                this.member.role != "admin" ? CColors.Tan : CColors.Portage,
+                                this.member.role != "admin" ? CColors.Orange : CColors.JordyBlue,
                                 borderRadius: BorderRadius.all(2)
                             ),
                             padding: EdgeInsets.symmetric(0, 4),

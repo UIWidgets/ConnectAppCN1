@@ -1692,6 +1692,7 @@ namespace ConnectApp.screens {
                 child: new Hero(
                     tag: CImageUtils.SizeToScreenImageUrl(imageUrl: message.content),
                     child: new ImageMessage(
+                        id: message.id,
                         url: message.content,
                         data: message.imageData,
                         size: 140,

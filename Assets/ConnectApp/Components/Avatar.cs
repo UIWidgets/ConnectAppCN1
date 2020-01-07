@@ -178,7 +178,7 @@ namespace ConnectApp.Components {
                 width: this.size,
                 height: this.size,
                 alignment: Alignment.center,
-                color: CColorUtils.GetAvatarBackgroundColor(id: this.id),
+                color: CColorUtils.GetSpecificColorFromId(id: this.id),
                 child: new Container(
                     alignment: Alignment.center,
                     child: new Text(

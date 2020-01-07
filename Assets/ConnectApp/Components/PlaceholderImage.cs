@@ -1,3 +1,4 @@
+using ConnectApp.Constants;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
@@ -13,6 +14,7 @@ namespace ConnectApp.Components {
             float? borderRadius = null,
             BoxFit? fit = null,
             bool useCachedNetworkImage = false,
+            Color color = null,
             Key key = null
         ) : base(key: key) {
             D.assert(imageUrl != null);
@@ -23,6 +25,7 @@ namespace ConnectApp.Components {
             this.borderRadius = borderRadius;
             this.fit = fit;
             this.useCachedNetworkImage = useCachedNetworkImage;
+            this.color = color ?? CColors.LoadingGrey;
         }
 
         readonly string imageUrl;
@@ -31,6 +34,7 @@ namespace ConnectApp.Components {
         readonly float? borderRadius;
         readonly BoxFit? fit;
         readonly bool useCachedNetworkImage;
+        readonly Color color;
 
         public override Widget build(BuildContext context) {
             Widget child;
@@ -38,14 +42,14 @@ namespace ConnectApp.Components {
                 child = new Container(
                     width: this.width,
                     height: this.height,
-                    color: new Color(0xFFD8D8D8)
+                    color: this.color
                 );
             }
             else {
                 child = new Container(
                     width: this.width,
                     height: this.height,
-                    color: new Color(0xFFD8D8D8),
+                    color: this.color,
                     child: !this.useCachedNetworkImage
                         ? Image.network(
                             src: this.imageUrl,

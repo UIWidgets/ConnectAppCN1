@@ -771,6 +771,11 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case ClearMyFutureEventsAction _: {
+                    state.mineState.futureEventsList.Clear();
+                    break;
+                }
+
                 case StartFetchMyFutureEventsAction _: {
                     state.mineState.futureListLoading = true;
                     break;
@@ -796,6 +801,11 @@ namespace ConnectApp.redux.reducers {
 
                 case FetchMyFutureEventsFailureAction _: {
                     state.mineState.futureListLoading = false;
+                    break;
+                }
+
+                case ClearMyPastEventsAction _: {
+                    state.mineState.pastEventsList.Clear();
                     break;
                 }
 

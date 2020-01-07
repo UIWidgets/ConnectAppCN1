@@ -66,9 +66,17 @@ namespace ConnectApp.Components {
                                         color: CColors.White,
                                         border: new Border(bottom: new BorderSide(color: CColors.Separator2))
                                     );
-            this.indicator = indicator ?? new CustomUnderlineTabIndicator(
+            this.indicator = indicator ?? new CustomGradientsTabIndicator(
                                  insets: EdgeInsets.zero,
-                                 borderSide: new BorderSide(width: 8, color: CColors.PrimaryBlue)
+                                 height: 8,
+                                 gradient: new LinearGradient(
+                                     begin: Alignment.centerLeft,
+                                     end: Alignment.centerRight,
+                                     new List<Color> {
+                                         new Color(0xFFB1E0FF),
+                                         new Color(0xFF6EC6FF)
+                                     }
+                                 )
                              );
             this.headerPadding = headerPadding ?? EdgeInsets.only(bottom: 10);
             this.labelPadding = labelPadding ?? EdgeInsets.symmetric(horizontal: 16);

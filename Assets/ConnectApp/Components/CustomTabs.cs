@@ -10,6 +10,7 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using Gradient = Unity.UIWidgets.painting.Gradient;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.Components {
@@ -1367,6 +1368,94 @@ namespace ConnectApp.Components {
                 indicator.bottomRight.dx,
                 indicator.bottomRight.dy + this.borderSide.width / 2.0f,
                 this.borderSide.width / 2.0f), paint);
+        }
+    }
+
+    public class CustomGradientsTabIndicator : Decoration {
+        public CustomGradientsTabIndicator(
+            Gradient gradient = null,
+            EdgeInsets insets = null,
+            float height = 2
+        ) {
+            this.gradient = gradient;
+            this.insets = insets ?? EdgeInsets.zero;
+            this.height = height;
+        }
+
+        public readonly Gradient gradient;
+        public readonly EdgeInsets insets;
+        public readonly float height;
+
+        public override Decoration lerpFrom(Decoration a, float t) {
+            if (a is CustomGradientsTabIndicator _a) {
+                return new CustomGradientsTabIndicator(
+                    Gradient.lerp(a: _a.gradient, b: this.gradient, t: t),
+                    EdgeInsets.lerp(a: _a.insets, b: this.insets, t: t)
+                );
+            }
+
+            return base.lerpFrom(a: a, t: t);
+        }
+
+        public override Decoration lerpTo(Decoration b, float t) {
+            if (b is CustomGradientsTabIndicator _b) {
+                return new CustomGradientsTabIndicator(
+                    Gradient.lerp(a: this.gradient, b: _b.gradient, t: t),
+                    EdgeInsets.lerp(a: this.insets, b: _b.insets, t: t)
+                );
+            }
+
+            return base.lerpTo(b: b, t: t);
+        }
+
+        public override BoxPainter createBoxPainter(VoidCallback onChanged = null) {
+            return new _CustomGradientsPainter(this, onChanged: onChanged);
+        }
+    }
+
+    class _CustomGradientsPainter : BoxPainter {
+        public _CustomGradientsPainter(
+            CustomGradientsTabIndicator decoration = null,
+            VoidCallback onChanged = null
+        ) : base(onChanged: onChanged) {
+            D.assert(decoration != null);
+            this.decoration = decoration;
+        }
+
+        readonly CustomGradientsTabIndicator decoration;
+
+        public Gradient gradient {
+            get { return this.decoration.gradient; }
+        }
+
+        public EdgeInsets insets {
+            get { return this.decoration.insets; }
+        }
+
+        public float height {
+            get { return this.decoration.height; }
+        }
+
+        Rect _indicatorRectFor(Rect rect) {
+            D.assert(rect != null);
+            Rect indicator = this.insets.deflateRect(rect: rect);
+            return Rect.fromLTWH(
+                left: indicator.left,
+                indicator.bottom - this.height,
+                width: indicator.width,
+                height: this.height
+            );
+        }
+
+        public override void paint(Canvas canvas, Offset offset, ImageConfiguration configuration) {
+            D.assert(configuration != null);
+            D.assert(configuration.size != null);
+            Rect rect = offset & configuration.size;
+            Rect indicator = this._indicatorRectFor(rect: rect);
+            Paint paint = new Paint {
+                shader = this.gradient.createShader(rect: rect)
+            };
+            canvas.drawRRect(RRect.fromRectAndRadius(rect: indicator, 0), paint: paint);
         }
     }
 }
