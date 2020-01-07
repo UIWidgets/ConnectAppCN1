@@ -9,8 +9,8 @@ using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.Components.Swiper {
     static class TransformerPageViewUtils {
-        public const int kMaxValue = 2000000;
-        public const int kMiddleValue = 1000000;
+        public const int kMaxValue = 20000;
+        public const int kMiddleValue = 10000;
         public const int kDefaultTransactionDuration = 300;
     }
 
