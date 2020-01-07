@@ -189,7 +189,7 @@ namespace ConnectApp.screens {
             Widget rightWidget = new Container();
             if (this._isHaveTitle) {
                 rightWidget = new Padding(
-                    padding: EdgeInsets.only(right: 16),
+                    padding: EdgeInsets.symmetric(horizontal: 16),
                     child: new CustomButton(
                         onPressed: () => { },
                         padding: EdgeInsets.zero,
