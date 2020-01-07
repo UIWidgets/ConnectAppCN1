@@ -2,11 +2,18 @@ using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Constants;
 using ConnectApp.Utils;
+using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
     public class EventsScreen : StatefulWidget {
+        public EventsScreen(
+            Key key = null
+        ) : base(key: key) {
+            
+        }
+
         public override State createState() {
             return new _EventsScreenState();
         }

@@ -169,6 +169,19 @@ namespace ConnectApp.Constants {
             color: CColors.TextTitle
         );
 
+        public static readonly TextStyle PXLargeMediumWhite = new TextStyle(
+            fontSize: 18,
+            fontFamily: "Roboto-Medium",
+            color: CColors.White
+        );
+
+        public static readonly TextStyle PXLargeMediumBody = new TextStyle(
+            height: 1.44f,
+            fontSize: 18,
+            fontFamily: "Roboto-Medium",
+            color: CColors.TextBody
+        );
+
         public static readonly TextStyle PXLarge = new TextStyle(
             height: 1.68f,
             fontSize: 18,
