@@ -18,8 +18,8 @@ namespace ConnectApp.Components {
             GestureTapCallback onBack = null,
             Widget title = null,
             Widget rightWidget = null,
-            Color backgroundColor = null,
             Color bottomSeparatorColor = null,
+            Color backgroundColor = null,
             float height = CustomAppBarUtil.appBarHeight,
             Key key = null
         ) : base(key: key) {

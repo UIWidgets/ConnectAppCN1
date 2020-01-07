@@ -30,7 +30,8 @@ namespace ConnectApp.screens {
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new LeaderBoardScreenActionModel {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
-                        pushToAlbumAction = () => dispatcher.dispatch(new MainNavigatorPushToAction{routeName = MainNavigatorRoutes.AlbumScreen})
+                        pushToAlbumAction = () => dispatcher.dispatch(new MainNavigatorPushToAction
+                            {routeName = MainNavigatorRoutes.AlbumScreen})
                     };
                     return new LeaderBoardScreen(viewModel: viewModel, actionModel: actionModel);
                 }
@@ -257,6 +258,7 @@ namespace ConnectApp.screens {
                     controller: this._tabController,
                     indicatorSize: CustomTabBarIndicatorSize.fixedOrLabel,
                     indicatorFixedSize: 16,
+                    indicatorPadding: EdgeInsets.zero,
                     indicatorChangeStyle: CustomTabBarIndicatorChangeStyle.enlarge,
                     indicatorColor: this._isHaveTitle ? CColors.White : CColors.TextTitle,
                     unselectedLabelStyle: this._isHaveTitle ? CTextStyle.PLargeWhite : CTextStyle.PLargeTitle,
