@@ -57,12 +57,7 @@ namespace ConnectApp.Components {
                                             "Unity官方博主预备营准备启动",
                                             maxLines: 2,
                                             overflow: TextOverflow.ellipsis,
-                                            style: new TextStyle(
-                                                height: 1.68f,
-                                                fontSize: 18,
-                                                fontFamily: "Roboto-Medium",
-                                                color: CColors.TextBody
-                                            )
+                                            style: CTextStyle.PXLargeMediumBody
                                         ),
                                         new Text(
                                             "作者 10 • 文章 10",
@@ -131,12 +126,7 @@ namespace ConnectApp.Components {
                                             "商汤SenseAR丨Setup演示及基本功能讲解",
                                             maxLines: 2,
                                             overflow: TextOverflow.ellipsis,
-                                            style: new TextStyle(
-                                                height: 1.68f,
-                                                fontSize: 18,
-                                                fontFamily: "Roboto-Medium",
-                                                color: CColors.TextBody
-                                            )
+                                            style: CTextStyle.PXLargeMediumBody
                                         ),
                                         new Text(
                                             "作者 10 • 文章 10",

@@ -14,6 +14,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
@@ -106,10 +107,12 @@ namespace ConnectApp.screens {
             base.didUpdateWidget(oldWidget: oldWidget);
             if (oldWidget is EventCompletedScreen _oldWidget) {
                 if (this.widget.mode != _oldWidget.mode) {
-                    this._completedRefreshController.animateTo(0, TimeSpan.FromMilliseconds(100), curve: Curves.linear);
-                    this.widget.actionModel.clearEventCompleted();
-                    this.widget.actionModel.startFetchEventCompleted();
-                    this.widget.actionModel.fetchEvents(arg1: firstPageNumber, arg2: eventTab);
+                    Window.instance.run(TimeSpan.FromMilliseconds(0.1f), () => {
+                        this._completedRefreshController.animateTo(0, TimeSpan.FromMilliseconds(100), curve: Curves.linear);
+                        this.widget.actionModel.clearEventCompleted();
+                        this.widget.actionModel.startFetchEventCompleted();
+                        this.widget.actionModel.fetchEvents(arg1: firstPageNumber, arg2: eventTab);
+                    });
                 }
             }
         }

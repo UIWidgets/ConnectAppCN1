@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
@@ -135,7 +136,7 @@ namespace ConnectApp.screens {
                             child: new Stack(
                                 alignment: Alignment.topLeft,
                                 children: new List<Widget> {
-                                    this._isHaveTitle ? (Widget) Image.asset(name: patternImage) : new Container(),
+                                    Image.asset(name: patternImage),
                                     Positioned.fill(
                                         new Column(
                                             children: new List<Widget> {
@@ -168,25 +169,15 @@ namespace ConnectApp.screens {
         Widget _buildNavigationBar(BuildContext context) {
             Color navigationBarColor;
             Border border;
-            Widget titleWidget;
             Color backColor;
             if (this._isHaveTitle) {
                 navigationBarColor = CColors.Transparent;
                 border = null;
-                titleWidget = new Text(
-                    "优选榜单",
-                    style: new TextStyle(
-                        fontSize: 18,
-                        fontFamily: "Roboto-Medium",
-                        color: CColors.White
-                    )
-                );
                 backColor = CColors.White;
             }
             else {
                 navigationBarColor = CColors.White;
                 border = new Border(bottom: new BorderSide(color: CColors.Separator2));
-                titleWidget = this._buildTabBarHeader();
                 backColor = CColors.TextTitle;
             }
 
@@ -210,7 +201,34 @@ namespace ConnectApp.screens {
                                 color: backColor
                             )
                         ),
-                        titleWidget,
+                        new Expanded(
+                            child: new Stack(
+                                fit: StackFit.expand,
+                                children: new List<Widget> {
+                                    new AnimatedPositioned(
+                                        left: 0,
+                                        top: this._isHaveTitle ? 13 : -44,
+                                        right: 0,
+                                        duration: TimeSpan.FromMilliseconds(100),
+                                        child: new Text(
+                                            "优选榜单",
+                                            textAlign: TextAlign.center,
+                                            style: CTextStyle.PXLargeMediumWhite
+                                        )
+                                    ),
+                                    new AnimatedPositioned(
+                                        left: 0,
+                                        top: this._isHaveTitle ? 44 : 0,
+                                        right: 0,
+                                        duration: TimeSpan.FromMilliseconds(100),
+                                        child: new Container(
+                                            alignment: Alignment.center,
+                                            child: this._buildTabBarHeader()
+                                        )
+                                    )
+                                }
+                            )
+                        ),
                         new Container(width: 56)
                     }
                 )
@@ -358,18 +376,21 @@ namespace ConnectApp.screens {
                         alignment: Alignment.center,
                         decoration: new BoxDecoration(
                             color: CColors.White,
-                            borderRadius: BorderRadius.only(12, 12),
-                            border: new Border(bottom: new BorderSide(color: CColors.Separator2))
+                            borderRadius: BorderRadius.only(12, 12)
                         ),
                         child: new Text("每周三更新", style: CTextStyle.PRegularBody4)
-                    )
+                    ),
+                    new CustomDivider(height: 1, color: CColors.Separator2)
                 }
             );
         }
 
         Widget _buildLeaderBoardCard(BuildContext context, int index) {
             if (this._selectedIndex == 0) {
-                return new LeaderBoardCollectionCard(index: index,onPress: () => this.widget.actionModel.pushToAlbumAction());
+                return new LeaderBoardCollectionCard(
+                    index: index,
+                    onPress: () => this.widget.actionModel.pushToAlbumAction()
+                );
             }
 
             if (this._selectedIndex == 1) {
