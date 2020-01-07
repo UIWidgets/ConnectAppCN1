@@ -77,7 +77,7 @@ namespace ConnectApp.screens {
         }
     }
 
-    class _ArticleAlbumScreenState : State<ArticleAlbumScreen>, TickerProvider {
+    class _ArticleAlbumScreenState : State<ArticleAlbumScreen>, TickerProvider, RouteAware {
         int _pageNumber;
         bool _isHaveTitle;
         RefreshController _refreshController;
@@ -88,7 +88,7 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
-            StatusBarManager.statusBarStyle(true);
+            StatusBarManager.statusBarStyle(false);
             this._pageNumber = 1;
             this._refreshController = new RefreshController();
             this._controller = new AnimationController(
@@ -103,6 +103,15 @@ namespace ConnectApp.screens {
             SchedulerBinding.instance.addPostFrameCallback(_ => { });
         }
 
+        public override void didChangeDependencies() {
+            base.didChangeDependencies();
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(context: this.context));
+        }
+
+        public override void dispose() {
+            Router.routeObserve.unsubscribe(this);
+            base.dispose();
+        }
 
         void _onRefresh(bool up) {
             if (up) {
@@ -119,16 +128,8 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
-            Widget ret = new Stack(
-                children: new List<Widget> {
-                    new Container(
-                        child: this._buildContent()
-                    )
-                }
-            );
-
             return new Container(
-                color: CColors.White,
+                color: this._isHaveTitle ? CColors.White : CColors.Background,
                 child: new CustomSafeArea(
                     bottom: false,
                     child: new Container(
@@ -228,7 +229,7 @@ namespace ConnectApp.screens {
 
         Widget _buildContent() {
             Widget content = new Container(
-                color: CColors.White,
+                color: CColors.Background,
                 child: new CustomListView(
                     controller: this._refreshController,
                     enablePullDown: true,
@@ -271,6 +272,19 @@ namespace ConnectApp.screens {
 
         public Ticker createTicker(TickerCallback onTick) {
             return new Ticker(onTick: onTick, () => $"created by {this}");
+        }
+
+        public void didPopNext() {
+            StatusBarManager.statusBarStyle(true);
+        }
+
+        public void didPush() {
+        }
+
+        public void didPop() {
+        }
+
+        public void didPushNext() {
         }
     }
 }
