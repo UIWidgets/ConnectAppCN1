@@ -89,7 +89,7 @@ namespace ConnectApp.screens {
     class _LoginSwitchScreen : State<LoginSwitchScreen>, RouteAware {
         public override void initState() {
             base.initState();
-            StatusBarManager.statusBarStyle(false);
+            StatusBarManager.statusBarStyle(true);
         }
 
         public override void didChangeDependencies() {
@@ -98,6 +98,7 @@ namespace ConnectApp.screens {
         }
 
         public override void dispose() {
+            StatusBarManager.statusBarStyle(false);
             Router.routeObserve.unsubscribe(this);
             base.dispose();
         }
@@ -132,31 +133,32 @@ namespace ConnectApp.screens {
                 child: new Stack(
                     children: new List<Widget> {
                         new Container(
-                            width: MediaQuery.of(context).size.width,
-                            height: MediaQuery.of(context).size.height,
+                            width: MediaQuery.of(context: context).size.width,
+                            height: MediaQuery.of(context: context).size.height,
                             child: Image.asset(
                                 "image/img-bg-login@4x",
                                 fit: BoxFit.cover
                             )
                         ),
                         new Positioned(
-                            child: new Column(
+                            new Column(
                                 children: new List<Widget> {
-                                    this._buildTopView(),
+                                    this._buildTopView(context: context),
                                     this._buildBottomView(context: context)
                                 }
                             )
                         )
-                    })
+                    }
+                    )
             );
         }
 
-        Widget _buildTopView() {
+        Widget _buildTopView(BuildContext context) {
             return new Flexible(
                 child: new Stack(
                     children: new List<Widget> {
                         new Positioned(
-                            top: 0,
+                            top: CCommonUtils.getSafeAreaTopPadding(context: context),
                             left: 0,
                             child: new CustomButton(
                                 padding: EdgeInsets.symmetric(10, 16),
@@ -210,7 +212,7 @@ namespace ConnectApp.screens {
                             child: new Container(
                                 height: 48,
                                 decoration: new BoxDecoration(
-                                    border: Border.all(color: CColors.White),
+                                    border: Border.all(color: CColors.White, 2),
                                     borderRadius: BorderRadius.all(24)
                                 ),
                                 child: new Row(
@@ -219,7 +221,7 @@ namespace ConnectApp.screens {
                                         new Text(
                                             "使用 Unity ID 登录",
                                             maxLines: 1,
-                                            style: CTextStyle.PLargeWhite
+                                            style: CTextStyle.PLargeMediumWhite
                                         )
                                     }
                                 )
@@ -297,7 +299,7 @@ namespace ConnectApp.screens {
                             new Text(
                                 "使用微信账号登录",
                                 maxLines: 1,
-                                style: CTextStyle.PLargeBlue
+                                style: CTextStyle.PLargeMediumBlue
                             )
                         }
                     )

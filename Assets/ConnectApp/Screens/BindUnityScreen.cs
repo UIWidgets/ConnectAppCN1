@@ -65,7 +65,7 @@ namespace ConnectApp.screens {
                         clearEmailAndPassword = () => dispatcher.dispatch(new CleanEmailAndPasswordAction()),
                         loginByEmail = () => dispatcher.dispatch<IPromise>(Actions.loginByEmail())
                     };
-                    return new BindUnityScreen(viewModel, actionModel);
+                    return new BindUnityScreen(viewModel: viewModel, actionModel: actionModel);
                 }
             );
         }
@@ -100,10 +100,11 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
+            StatusBarManager.statusBarStyle(false);
             this._isEmailFocus = true;
             this._isPasswordFocus = false;
-            this._emailFocusNode.addListener(this._focusNodeListener);
-            this._passwordFocusNode.addListener(this._focusNodeListener);
+            this._emailFocusNode.addListener(listener: this._focusNodeListener);
+            this._passwordFocusNode.addListener(listener: this._focusNodeListener);
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 if (this.widget.viewModel.loginEmail.Length > 0 || this.widget.viewModel.loginPassword.Length > 0) {
                     this.widget.actionModel.clearEmailAndPassword();

@@ -1,3 +1,4 @@
+using System;
 using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
@@ -6,6 +7,7 @@ using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
 using RSG;
+using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
@@ -14,10 +16,13 @@ using Unity.UIWidgets.widgets;
 namespace ConnectApp.screens {
     public class MyPastEventsScreenConnector : StatelessWidget {
         public MyPastEventsScreenConnector(
+            string mode,
             Key key = null
         ) : base(key: key) {
-            
+            this.mode = mode;
         }
+
+        readonly string mode;
 
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, MyEventsScreenViewModel>(
@@ -33,11 +38,12 @@ namespace ConnectApp.screens {
                         pushToEventDetail = (id, type) =>
                             dispatcher.dispatch(new MainNavigatorPushToEventDetailAction
                                 {eventId = id, eventType = type}),
+                        clearMyPastEvents = () => dispatcher.dispatch(new ClearMyPastEventsAction()),
                         startFetchMyPastEvents = () => dispatcher.dispatch(new StartFetchMyPastEventsAction()),
                         fetchMyPastEvents = pageNumber =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchMyPastEvents(pageNumber: pageNumber))
+                            dispatcher.dispatch<IPromise>(Actions.fetchMyPastEvents(pageNumber: pageNumber, mode: this.mode))
                     };
-                    return new MyPastEventsScreen(viewModel: viewModel, actionModel: actionModel);
+                    return new MyPastEventsScreen(viewModel: viewModel, actionModel: actionModel, mode: this.mode);
                 }
             );
         }
@@ -47,14 +53,17 @@ namespace ConnectApp.screens {
         public MyPastEventsScreen(
             MyEventsScreenViewModel viewModel = null,
             MyEventsScreenActionModel actionModel = null,
+            string mode = null,
             Key key = null
         ) : base(key: key) {
             this.viewModel = viewModel;
             this.actionModel = actionModel;
+            this.mode = mode;
         }
 
         public readonly MyEventsScreenViewModel viewModel;
         public readonly MyEventsScreenActionModel actionModel;
+        public readonly string mode;
 
         public override State createState() {
             return new _MyPastEventsScreenState();
@@ -78,6 +87,18 @@ namespace ConnectApp.screens {
                 this.widget.actionModel.startFetchMyPastEvents();
                 this.widget.actionModel.fetchMyPastEvents(arg: firstPageNumber);
             });
+        }
+
+        public override void didUpdateWidget(StatefulWidget oldWidget) {
+            base.didUpdateWidget(oldWidget: oldWidget);
+            if (oldWidget is MyPastEventsScreen _oldWidget) {
+                if (this.widget.mode != _oldWidget.mode) {
+                    this._refreshController.animateTo(0, TimeSpan.FromMilliseconds(100), curve: Curves.linear);
+                    this.widget.actionModel.clearMyPastEvents();
+                    this.widget.actionModel.startFetchMyPastEvents();
+                    this.widget.actionModel.fetchMyPastEvents(arg: firstPageNumber);
+                }
+            }
         }
 
         public override Widget build(BuildContext context) {

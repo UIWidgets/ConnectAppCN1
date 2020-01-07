@@ -1,3 +1,4 @@
+using System;
 using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
@@ -6,6 +7,7 @@ using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
 using RSG;
+using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
@@ -14,10 +16,13 @@ using Unity.UIWidgets.widgets;
 namespace ConnectApp.screens {
     public class MyFutureEventsScreenConnector : StatelessWidget {
         public MyFutureEventsScreenConnector(
+            string mode,
             Key key = null
         ) : base(key: key) {
-            
+            this.mode = mode;
         }
+
+        readonly string mode;
 
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, MyEventsScreenViewModel>(
@@ -33,11 +38,12 @@ namespace ConnectApp.screens {
                         pushToEventDetail = (id, type) =>
                             dispatcher.dispatch(new MainNavigatorPushToEventDetailAction
                                 {eventId = id, eventType = type}),
+                        clearMyFutureEvents = () => dispatcher.dispatch(new ClearMyFutureEventsAction()),
                         startFetchMyFutureEvents = () => dispatcher.dispatch(new StartFetchMyFutureEventsAction()),
                         fetchMyFutureEvents = pageNumber =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchMyFutureEvents(pageNumber: pageNumber))
+                            dispatcher.dispatch<IPromise>(Actions.fetchMyFutureEvents(pageNumber: pageNumber, mode: this.mode))
                     };
-                    return new MyFutureEventsScreen(viewModel: viewModel, actionModel: actionModel);
+                    return new MyFutureEventsScreen(viewModel: viewModel, actionModel: actionModel, mode: this.mode);
                 }
             );
         }
@@ -47,14 +53,17 @@ namespace ConnectApp.screens {
         public MyFutureEventsScreen(
             MyEventsScreenViewModel viewModel = null,
             MyEventsScreenActionModel actionModel = null,
+            string mode = null,
             Key key = null
         ) : base(key: key) {
             this.viewModel = viewModel;
             this.actionModel = actionModel;
+            this.mode = mode;
         }
 
         public readonly MyEventsScreenViewModel viewModel;
         public readonly MyEventsScreenActionModel actionModel;
+        public readonly string mode;
 
         public override State createState() {
             return new _MyFutureEventsScreenState();
@@ -78,6 +87,18 @@ namespace ConnectApp.screens {
                 this.widget.actionModel.startFetchMyFutureEvents();
                 this.widget.actionModel.fetchMyFutureEvents(arg: firstPageNumber);
             });
+        }
+
+        public override void didUpdateWidget(StatefulWidget oldWidget) {
+            base.didUpdateWidget(oldWidget: oldWidget);
+            if (oldWidget is MyFutureEventsScreen _oldWidget) {
+                if (this.widget.mode != _oldWidget.mode) {
+                    this._refreshController.animateTo(0, TimeSpan.FromMilliseconds(100), curve: Curves.linear);
+                    this.widget.actionModel.clearMyFutureEvents();
+                    this.widget.actionModel.startFetchMyFutureEvents();
+                    this.widget.actionModel.fetchMyFutureEvents(arg: firstPageNumber);
+                }
+            }
         }
 
         public override Widget build(BuildContext context) {
