@@ -56,7 +56,7 @@ namespace ConnectApp.screens {
         }
     }
 
-    class _LeaderBoardScreenState : TickerProviderStateMixin<LeaderBoardScreen> {
+    class _LeaderBoardScreenState : TickerProviderStateMixin<LeaderBoardScreen>, RouteAware {
         int _selectedIndex;
         CustomTabController _tabController;
         RefreshController _refreshController;
@@ -64,6 +64,7 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
+            StatusBarManager.statusBarStyle(true);
             this._selectedIndex = 0;
             this._tabController = new CustomTabController(3, this, initialIndex: this._selectedIndex);
             this._refreshController = new RefreshController();
@@ -75,8 +76,14 @@ namespace ConnectApp.screens {
             });
         }
 
+        public override void didChangeDependencies() {
+            base.didChangeDependencies();
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(context: this.context));
+        }
+
         public override void dispose() {
             this._tabController.dispose();
+            Router.routeObserve.unsubscribe(this);
             base.dispose();
         }
 
@@ -384,6 +391,19 @@ namespace ConnectApp.screens {
             }
 
             return new Container();
+        }
+
+        public void didPopNext() {
+            StatusBarManager.statusBarStyle(true);
+        }
+
+        public void didPush() {
+        }
+
+        public void didPop() {
+        }
+
+        public void didPushNext() {
         }
     }
 }
