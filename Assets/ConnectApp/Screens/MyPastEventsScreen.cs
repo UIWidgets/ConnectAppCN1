@@ -11,6 +11,7 @@ using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
@@ -93,10 +94,12 @@ namespace ConnectApp.screens {
             base.didUpdateWidget(oldWidget: oldWidget);
             if (oldWidget is MyPastEventsScreen _oldWidget) {
                 if (this.widget.mode != _oldWidget.mode) {
-                    this._refreshController.animateTo(0, TimeSpan.FromMilliseconds(100), curve: Curves.linear);
-                    this.widget.actionModel.clearMyPastEvents();
-                    this.widget.actionModel.startFetchMyPastEvents();
-                    this.widget.actionModel.fetchMyPastEvents(arg: firstPageNumber);
+                    Window.instance.run(TimeSpan.FromMilliseconds(0.1f), () => {
+                        this._refreshController.animateTo(0, TimeSpan.FromMilliseconds(100), curve: Curves.linear);
+                        this.widget.actionModel.clearMyPastEvents();
+                        this.widget.actionModel.startFetchMyPastEvents();
+                        this.widget.actionModel.fetchMyPastEvents(arg: firstPageNumber);
+                    });
                 }
             }
         }

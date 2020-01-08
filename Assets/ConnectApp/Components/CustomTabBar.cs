@@ -305,7 +305,8 @@ namespace ConnectApp.Components {
                 return new FrameAnimationImage(
                     images: loadingImages,
                     size: item.size,
-                    type: AnimatingType.forward
+                    type: AnimatingType.forward,
+                    defaultWidget: new Icon(icon: item.selectedIcon, size: item.size, color: item.activeColor)
                 );
             }
 
