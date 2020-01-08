@@ -15,6 +15,7 @@ using Color = Unity.UIWidgets.ui.Color;
 
 namespace ConnectApp.Components {
     public enum TabBarItemStatus {
+        normalAnimation,
         normal,
         toRefresh,
         toHome,
@@ -113,16 +114,9 @@ namespace ConnectApp.Components {
             this._pageController = new PageController(initialPage: this._selectedIndex);
             this._articleRefreshSubId = EventBus.subscribe(sName: EventBusConstant.article_refresh, args => {
                 if (args.isNotNullAndEmpty()) {
-                    bool isRefresh = (bool) args[0];
-                    if (isRefresh) {
-                        if (this._tabBarItemStatus != TabBarItemStatus.toRefresh) {
-                            this.setState(() => this._tabBarItemStatus = TabBarItemStatus.toRefresh);
-                        }
-                    }
-                    else {
-                        if (this._tabBarItemStatus != TabBarItemStatus.toHome) {
-                            this.setState(() => this._tabBarItemStatus = TabBarItemStatus.toHome);
-                        }
+                    TabBarItemStatus status = (TabBarItemStatus) args[0];
+                    if (this._tabBarItemStatus != status) {
+                        this.setState(() => this._tabBarItemStatus = status);
                     }
                 }
             });
@@ -204,7 +198,7 @@ namespace ConnectApp.Components {
                                                     status = TabBarItemStatus.refreshToLeave;
                                                 }
                                                 else if (this._tabBarItemStatus == TabBarItemStatus.toHome) {
-                                                    status = TabBarItemStatus.normal;
+                                                    status = TabBarItemStatus.normalAnimation;
                                                 }
                                                 else {
                                                     status = this._tabBarItemStatus;
@@ -315,6 +309,10 @@ namespace ConnectApp.Components {
                     child: new Icon(icon: Icons.tab_home_refresh_fill, size: item.size, color: item.activeColor),
                     animating: AnimatingType.forward
                 );
+            }
+
+            if (this._tabBarItemStatus == TabBarItemStatus.normal) {
+                return new Icon(icon: item.selectedIcon, size: item.size, color: item.activeColor);
             }
 
             return new FrameAnimationImage(

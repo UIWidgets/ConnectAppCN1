@@ -37,7 +37,7 @@ namespace ConnectApp.Components.pull_to_refresh {
             NotificationListenerCallback<ScrollNotification> onNotification = null,
             bool hasBottomMargin = false,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.child = child;
             this.initialOffset = initialOffset;
             this.headerBuilder =
@@ -162,8 +162,16 @@ namespace ConnectApp.Components.pull_to_refresh {
         }
 
         bool _dispatchScrollEvent(ScrollNotification notification) {
-            if (this.widget.onNotification != null) {
-                this.widget.onNotification(notification);
+            this.widget.onNotification?.Invoke(notification);
+
+            var axisDirection = notification.metrics.axisDirection;
+            var scrollDirection = this.widget.child.scrollDirection;
+            if ((axisDirection == AxisDirection.left || axisDirection == AxisDirection.right) && scrollDirection == Axis.vertical) {
+                return false;
+            }
+
+            if ((axisDirection == AxisDirection.up || axisDirection == AxisDirection.down) && scrollDirection == Axis.horizontal) {
+                return false;
             }
 
             // when is scroll in the ScrollInside,nothing to do

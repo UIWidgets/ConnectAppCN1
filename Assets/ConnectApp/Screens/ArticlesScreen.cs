@@ -71,6 +71,8 @@ namespace ConnectApp.screens {
         string _loginSubId;
         string _logoutSubId;
         bool _isRefresh;
+        float _recommendArticlePixels;
+        float _followArticlePixels;
 
         protected override bool wantKeepAlive {
             get { return true; }
@@ -83,6 +85,8 @@ namespace ConnectApp.screens {
             this._tabController = new CustomTabController(2, this, initialIndex: this._selectedIndex);
             this._navBarHeight = CustomAppBarUtil.appBarHeight;
             this._isRefresh = false;
+            this._recommendArticlePixels = 0;
+            this._followArticlePixels = 0;
             this._loginSubId = EventBus.subscribe(sName: EventBusConstant.login_success, args => {
                 if (this._selectedIndex != 1) {
                     this._selectedIndex = 1;
@@ -120,6 +124,13 @@ namespace ConnectApp.screens {
             }
 
             var pixels = notification.metrics.pixels;
+            if (this._selectedIndex == 0) {
+                this._followArticlePixels = pixels;
+            }
+            if (this._selectedIndex == 1) {
+                this._recommendArticlePixels = pixels;
+            }
+
             if (pixels <= 0) {
                 if (this._navBarHeight != CustomAppBarUtil.appBarHeight) {
                     this._navBarHeight = CustomAppBarUtil.appBarHeight;
@@ -139,19 +150,23 @@ namespace ConnectApp.screens {
                 }
             }
 
+            this._changeTabBarItemStatus(pixels: pixels, status: TabBarItemStatus.toHome);
+            return true;
+        }
+
+        void _changeTabBarItemStatus(float pixels, TabBarItemStatus status) {
             if (pixels > MediaQuery.of(context: this.context).size.height) {
                 if (!this._isRefresh) {
                     this._isRefresh = true;
-                    EventBus.publish(sName: EventBusConstant.article_refresh, new List<object>{true});
+                    EventBus.publish(sName: EventBusConstant.article_refresh, new List<object>{TabBarItemStatus.toRefresh});
                 }
             }
             else {
                 if (this._isRefresh) {
                     this._isRefresh = false;
-                    EventBus.publish(sName: EventBusConstant.article_refresh, new List<object>{false});
+                    EventBus.publish(sName: EventBusConstant.article_refresh, new List<object>{status});
                 }
             }
-            return true;
         }
 
         public override Widget build(BuildContext context) {
@@ -241,13 +256,17 @@ namespace ConnectApp.screens {
                         this._buildSelectItem("推荐", 1)
                     },
                     new List<Widget> {
-                        new FollowArticleScreenConnector(),
-                        new RecommendArticleScreenConnector()
+                        new FollowArticleScreenConnector(selectedIndex: this._selectedIndex),
+                        new RecommendArticleScreenConnector(selectedIndex: this._selectedIndex)
                     },
                     newValue => {
                         this.setState(() => this._selectedIndex = newValue);
                         if (newValue == 0) {
                             AnalyticsManager.AnalyticsClickHomeFocus();
+                            this._changeTabBarItemStatus(pixels: this._followArticlePixels, status: TabBarItemStatus.normal);
+                        }
+                        if (newValue == 1) {
+                            this._changeTabBarItemStatus(pixels: this._recommendArticlePixels, status: TabBarItemStatus.normal);
                         }
                     },
                     1,
