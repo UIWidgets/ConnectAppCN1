@@ -22,13 +22,13 @@ namespace ConnectApp.screens {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: new List<Widget> {
                             new Container(
-                                width: 228,
-                                height: 40,
+                                width: 182,
+                                height: 32,
                                 child: Image.asset("image/iOS/unityConnectBlack.imageset/unityConnectBlack",
                                     fit: BoxFit.cover)
                             ),
                             new Container(
-                                width: 102,
+                                width: 101,
                                 height: 22,
                                 margin: EdgeInsets.only(bottom: 16, top: 16),
                                 child: Image.asset("image/iOS/madeWithUnity.imageset/madeWithUnity", fit: BoxFit.cover))
