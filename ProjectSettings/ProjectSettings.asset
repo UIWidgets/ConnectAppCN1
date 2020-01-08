@@ -236,7 +236,7 @@ PlayerSettings:
   iOSLaunchScreeniPadSize: 100
   iOSLaunchScreeniPadCustomXibPath: 
   iOSUseLaunchScreenStoryboard: 1
-  iOSLaunchScreenCustomStoryboardPath: Assets/ConnectApp/Resources/files/Launch Screen.storyboard
+  iOSLaunchScreenCustomStoryboardPath: Assets/ConnectApp/Resources/files/LaunchScreen.storyboard
   iOSDeviceRequirements: []
   iOSURLSchemes:
   - weixin

@@ -123,6 +123,7 @@ namespace ConnectApp.Plugins {
                             if (args.isEmpty()) {
                                 return;
                             }
+
                             clearIconBadge();
                             var node = args.first();
                             var dict = JSON.Parse(node);
@@ -138,13 +139,17 @@ namespace ConnectApp.Plugins {
                                 }
                                 else {
                                     if (PreferencesManager.initTabIndex() == 0 && SplashManager.isExistSplash()) {
-                                        StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushReplaceSplashAction());
+                                        SplashManager.hiddenAndroidSpalsh();
+                                        StoreProvider.store.dispatcher.dispatch(
+                                            new MainNavigatorPushReplaceSplashAction());
                                     }
                                     else {
-                                        StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushReplaceMainAction());
+                                        StoreProvider.store.dispatcher.dispatch(
+                                            new MainNavigatorPushReplaceMainAction());
                                     }
                                 }
                             }
+
                             break;
                         }
                         case "RegisterToken": {
@@ -245,7 +250,7 @@ namespace ConnectApp.Plugins {
             if (VersionManager.needForceUpdate()) {
                 return;
             }
-            
+
             if (type == "project") {
                 if (subType == "article") {
                     AnalyticsManager.ClickEnterArticleDetail("Push_Article", id, $"PushArticle_{id}");
