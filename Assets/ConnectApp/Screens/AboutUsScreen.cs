@@ -4,6 +4,7 @@ using ConnectApp.Constants;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.State;
 using ConnectApp.redux.actions;
+using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
@@ -43,6 +44,7 @@ namespace ConnectApp.screens {
         readonly AboutUsScreenActionModel actionModel;
 
         public override Widget build(BuildContext context) {
+            StatusBarManager.statusBarStyle(false);
             return new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(

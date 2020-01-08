@@ -178,8 +178,8 @@ namespace ConnectApp.screens {
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: new List<Widget> {
                                         new Container(
-                                            width: 240,
-                                            height: 42,
+                                            width: 251,
+                                            height: 53,
                                             child: Image.asset(
                                                 "image/img-logo-unity-connect-white-with-shadow@4x",
                                                 fit: BoxFit.cover

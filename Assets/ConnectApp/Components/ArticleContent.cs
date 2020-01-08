@@ -81,11 +81,7 @@ namespace ConnectApp.Components {
                                             Positioned.fill(
                                                 new Container(
                                                     padding: EdgeInsets.all(6),
-                                                    child: Image.asset(
-                                                        $"image/{imageName}",
-                                                        width: 36,
-                                                        height: 36
-                                                    )
+                                                    child: Image.asset($"image/{imageName}")
                                                 )
                                             )
                                         }
