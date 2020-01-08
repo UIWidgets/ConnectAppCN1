@@ -100,7 +100,7 @@ namespace ConnectApp.Main {
                     {MainNavigatorRoutes.ReactionsDetail, context => new ReactionsDetailScreenConnector("")},
                     {MainNavigatorRoutes.LeaderBoard, context => new LeaderBoardScreenConnector()},
                     {MainNavigatorRoutes.Blogger, context => new BloggerScreenConnector()},
-                    {MainNavigatorRoutes.ForceUpdate, context => new ForceUpdateScreenConnector()},
+                    {MainNavigatorRoutes.ForceUpdate, context => new ForceUpdateScreen()},
                     {MainNavigatorRoutes.AlbumScreen, context => new ArticleAlbumScreenConnector()}
                 };
 
@@ -121,7 +121,7 @@ namespace ConnectApp.Main {
                 }
 
                 if (VersionManager.needForceUpdate()) {
-                    routes[key: MainNavigatorRoutes.Root] = context => new ForceUpdateScreenConnector();
+                    routes[key: MainNavigatorRoutes.Root] = context => new ForceUpdateScreen();
                 }
 
                 return routes;

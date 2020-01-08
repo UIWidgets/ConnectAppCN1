@@ -22,9 +22,13 @@ using Unity.UIWidgets.widgets;
 namespace ConnectApp.screens {
     public class RecommendArticleScreenConnector : StatelessWidget {
         public RecommendArticleScreenConnector(
+            int selectedIndex,
             Key key = null
         ) : base(key: key) {
+            this.selectedIndex = selectedIndex;
         }
+
+        readonly int selectedIndex;
 
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ArticlesScreenViewModel>(
@@ -38,7 +42,8 @@ namespace ConnectApp.screens {
                     teamDict = state.teamState.teamDict,
                     isLoggedIn = state.loginState.isLoggedIn,
                     hosttestOffset = state.articleState.recommendArticleIds.Count,
-                    currentUserId = state.loginState.loginInfo.userId ?? ""
+                    currentUserId = state.loginState.loginInfo.userId ?? "",
+                    selectedIndex = this.selectedIndex
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new ArticlesScreenActionModel {
@@ -123,8 +128,10 @@ namespace ConnectApp.screens {
                     });
             });
             this._articleTabSubId = EventBus.subscribe(sName: EventBusConstant.article_tab, args => {
-                this._refreshController.sendBack(true, mode: RefreshStatus.refreshing);
-                this._refreshController.animateTo(0.0f, TimeSpan.FromMilliseconds(300), curve: Curves.linear);
+                if (this.widget.viewModel.selectedIndex == 1) {
+                    this._refreshController.sendBack(true, mode: RefreshStatus.refreshing);
+                    this._refreshController.animateTo(0.0f, TimeSpan.FromMilliseconds(300), curve: Curves.linear);
+                }
             });
         }
 

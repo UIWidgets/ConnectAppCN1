@@ -553,7 +553,6 @@ namespace ConnectApp.Components {
         ) : base(key: key) {
             D.assert(tabs != null);
             D.assert(indicator != null || indicatorWeight > 0.0f);
-            D.assert(indicator != null || indicatorPadding != null);
             this.tabs = tabs;
             this.controller = controller;
             this.isScrollable = isScrollable;

@@ -24,9 +24,13 @@ using Unity.UIWidgets.widgets;
 namespace ConnectApp.screens {
     public class FollowArticleScreenConnector : StatelessWidget {
         public FollowArticleScreenConnector(
+            int selectedIndex,
             Key key = null
         ) : base(key: key) {
+            this.selectedIndex = selectedIndex;
         }
+
+        readonly int selectedIndex;
 
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ArticlesScreenViewModel>(
@@ -67,7 +71,8 @@ namespace ConnectApp.screens {
                         isLoggedIn = state.loginState.isLoggedIn,
                         currentUserId = state.loginState.loginInfo.userId ?? "",
                         beforeTime = state.articleState.beforeTime,
-                        afterTime = state.articleState.afterTime
+                        afterTime = state.articleState.afterTime,
+                        selectedIndex = this.selectedIndex
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -190,8 +195,10 @@ namespace ConnectApp.screens {
                 this.widget.actionModel.fetchFollowArticles(arg1: firstPageNumber, true, false);
             });
             this._articleTabSubId = EventBus.subscribe(sName: EventBusConstant.article_tab, args => {
-                this._refreshController.sendBack(true, mode: RefreshStatus.refreshing);
-                this._refreshController.animateTo(0.0f, TimeSpan.FromMilliseconds(300), curve: Curves.linear);
+                if (this.widget.viewModel.selectedIndex == 0) {
+                    this._refreshController.sendBack(true, mode: RefreshStatus.refreshing);
+                    this._refreshController.animateTo(0.0f, TimeSpan.FromMilliseconds(300), curve: Curves.linear);
+                }
             });
         }
 

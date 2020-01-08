@@ -30,5 +30,6 @@ namespace ConnectApp.Models.ViewModel {
         public string afterTime;
         public int currentTabBarIndex;
         public bool nationalDayEnabled;
+        public int selectedIndex;
     }
 }
