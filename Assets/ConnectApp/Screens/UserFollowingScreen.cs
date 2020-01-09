@@ -155,7 +155,7 @@ namespace ConnectApp.screens {
                     prefix: new Container(
                         padding: EdgeInsets.only(11, 9, 7, 9),
                         child: new Icon(
-                            icon: Icons.search,
+                            icon: Icons.outline_search,
                             color: CColors.BrownGrey
                         )
                     ),
@@ -184,7 +184,7 @@ namespace ConnectApp.screens {
                 currentIndex: this.widget.viewModel.initialPage
             );
         }
-        
+
         public void didPopNext() {
             StatusBarManager.statusBarStyle(false);
         }

@@ -8,13 +8,14 @@ using RSG;
 
 namespace ConnectApp.Api {
     public static class EventApi {
-        public static IPromise<FetchEventsResponse> FetchEvents(int pageNumber, string tab) {
+        public static IPromise<FetchEventsResponse> FetchEvents(int pageNumber, string tab, string mode = "") {
             var promise = new Promise<FetchEventsResponse>();
             var para = new Dictionary<string, object> {
                 {"tab", tab},
                 {"page", pageNumber},
                 {"status", tab},
-                {"language", "zh_CN"}
+                {"language", "zh_CN"},
+                {"mode", mode}
             };
             var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/events", parameter: para);
             HttpManager.resume(request: request).Then(responseText => {

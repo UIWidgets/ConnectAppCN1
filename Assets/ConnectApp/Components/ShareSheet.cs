@@ -125,7 +125,7 @@ namespace ConnectApp.Components {
                         icon: Icons.WechatIcon,
                         "微信好友",
                         color: CColors.White,
-                        background: CColors.WechatGreen,
+                        background: CColors.WeChatGreen,
                         () => this.onPressed(type: ShareType.friends)
                     )
                 );
@@ -134,7 +134,7 @@ namespace ConnectApp.Components {
                         icon: Icons.WechatMoment,
                         "朋友圈",
                         color: CColors.White,
-                        background: CColors.WechatGreen,
+                        background: CColors.WeChatGreen,
                         () => this.onPressed(type: ShareType.moments)
                     )
                 );

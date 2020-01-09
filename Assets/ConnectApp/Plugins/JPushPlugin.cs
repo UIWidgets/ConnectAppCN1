@@ -84,7 +84,9 @@ namespace ConnectApp.Plugins {
                             var dict = JSON.Parse(node);
                             var type = dict["type"] ?? "";
                             if (type != "messenger") {
-                                EventBus.publish(EventBusConstant.newNotifications, new List<object>());
+                                StoreProvider.store.dispatcher.dispatch(new UpdateNewNotificationAction {
+                                    notification = ""
+                                });
                             }
 
                             var id = dict["id"] ?? "";
@@ -132,11 +134,19 @@ namespace ConnectApp.Plugins {
                                 });
                             }
                             else {
-                                if (PreferencesManager.initTabIndex() == 0 && SplashManager.isExistSplash()) {
-                                    StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushReplaceSplashAction());
+                                if (VersionManager.needForceUpdate()) {
+                                    SplashManager.hiddenAndroidSpalsh();
                                 }
                                 else {
-                                    StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushReplaceMainAction());
+                                    if (PreferencesManager.initTabIndex() == 0 && SplashManager.isExistSplash()) {
+                                        SplashManager.hiddenAndroidSpalsh();
+                                        StoreProvider.store.dispatcher.dispatch(
+                                            new MainNavigatorPushReplaceSplashAction());
+                                    }
+                                    else {
+                                        StoreProvider.store.dispatcher.dispatch(
+                                            new MainNavigatorPushReplaceMainAction());
+                                    }
                                 }
                             }
 
@@ -234,6 +244,10 @@ namespace ConnectApp.Plugins {
 
         static void pushPage(string type, string subType, string id, bool isPush = false) {
             if (id.isEmpty()) {
+                return;
+            }
+
+            if (VersionManager.needForceUpdate()) {
                 return;
             }
 

@@ -31,5 +31,9 @@ namespace ConnectApp.Utils {
             int? maxLines = null) {
             return CalculateTextSize(text, textStyle, textWidth, maxLines).width;
         }
+        
+        public static TextStyle defaultHeight(this TextStyle style) {
+            return style.merge(new TextStyle(height: 1));
+        }
     }
 }

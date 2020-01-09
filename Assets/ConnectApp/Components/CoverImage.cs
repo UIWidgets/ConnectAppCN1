@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using ConnectApp.Constants;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
@@ -36,13 +37,16 @@ namespace ConnectApp.Components {
                 coverImageColor = Color.fromRGBO(0, 0, 0, 0.4f);
             }
             else {
-                coverImageWidget = Image.asset(
-                    "image/default-cover-image",
-                    height: this.height,
-                    width: coverImageWidth,
-                    fit: BoxFit.cover
+                coverImageWidget = new Container(
+                    color: CColors.Black,
+                    child: Image.asset(
+                        "image/default-background-cover",
+                        height: this.height,
+                        width: coverImageWidth,
+                        fit: BoxFit.cover
+                    )
                 );
-                coverImageColor = Color.fromRGBO(0, 0, 0, 0.2f);
+                coverImageColor = CColors.Transparent;
             }
 
             return new Stack(
@@ -99,6 +103,73 @@ namespace ConnectApp.Components {
                     child: Image.asset(
                         name: this.coverImage
                     )
+                )
+            );
+        }
+    }
+
+    public class CoverImages : StatelessWidget {
+        public CoverImages(
+            float size = 48,
+            float ratioGap = 16,
+            float horizontalGap = 16,
+            float verticalGap = 16,
+            Key key = null
+        ) : base(key: key) {
+            this.size = size;
+            this.ratioGap = ratioGap;
+            this.horizontalGap = horizontalGap;
+            this.verticalGap = verticalGap;
+        }
+
+        readonly float size;
+        readonly float ratioGap;
+        readonly float horizontalGap;
+        readonly float verticalGap;
+
+        public override Widget build(BuildContext context) {
+            return new Container(
+                width: this.size + this.ratioGap * 2 + this.horizontalGap * 2,
+                height: this.size + this.ratioGap * 2 + this.verticalGap * 2,
+                child: new Stack(
+                    children: new List<Widget> {
+                        new Positioned(
+                            right: 0,
+                            bottom: 0,
+                            child: new Container(
+                                width: this.size,
+                                height: this.size,
+                                decoration: new BoxDecoration(
+                                    color: CColors.Red,
+                                    borderRadius: BorderRadius.all(6)
+                                )
+                            )
+                        ),
+                        new Positioned(
+                            right: this.horizontalGap,
+                            bottom: this.verticalGap,
+                            child: new Container(
+                                width: this.size + this.ratioGap,
+                                height: this.size + this.ratioGap,
+                                decoration: new BoxDecoration(
+                                    color: CColors.Green,
+                                    borderRadius: BorderRadius.all(6)
+                                )
+                            )
+                        ),
+                        new Positioned(
+                            right: this.horizontalGap + this.horizontalGap,
+                            bottom: this.verticalGap + this.verticalGap,
+                            child: new Container(
+                                width: this.size + this.ratioGap * 2,
+                                height: this.size + this.ratioGap * 2,
+                                decoration: new BoxDecoration(
+                                    color: CColors.PrimaryBlue,
+                                    borderRadius: BorderRadius.all(6)
+                                )
+                            )
+                        )
+                    }
                 )
             );
         }

@@ -6,6 +6,7 @@ using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.Components {
     public enum AnimatingType {
+        forward,
         repeat,
         stop,
         reset

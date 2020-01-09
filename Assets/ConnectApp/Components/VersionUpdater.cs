@@ -1,6 +1,9 @@
 using ConnectApp.Api;
+using ConnectApp.Constants;
+using ConnectApp.Main;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
+using ConnectApp.screens;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.scheduler;
@@ -48,8 +51,20 @@ namespace ConnectApp.Components {
 
         static void fetchInitData() {
             LoginApi.InitData().Then(initDataResponse => {
-                if (initDataResponse.VS.isNotEmpty()) {
-                    HttpManager.updateCookie($"VS={initDataResponse.VS}");
+                var vs = initDataResponse.VS;
+                var serverConfig = initDataResponse.config;
+                if (vs.isNotEmpty()) {
+                    HttpManager.updateCookie($"VS={vs}");
+                }
+                if (serverConfig.minVersionCode.isNotEmpty()) {
+                    if (!int.TryParse(serverConfig.minVersionCode, out var minVersionCode)) {
+                        return;
+                    }
+                    if (minVersionCode > 0 && minVersionCode > Config.versionCode) {
+                        // need update
+                        StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToAction{routeName = MainNavigatorRoutes.ForceUpdate});
+                        VersionManager.saveMinVersionCode(versionCode: minVersionCode);
+                    }
                 }
             }).Catch(exception => {
                 StoreProvider.store.dispatcher.dispatch(new NetworkAvailableStateAction {available = false});

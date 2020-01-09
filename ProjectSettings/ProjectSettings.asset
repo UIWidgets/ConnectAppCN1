@@ -121,7 +121,7 @@ PlayerSettings:
     16:10: 1
     16:9: 1
     Others: 1
-  bundleVersion: 1.2.6
+  bundleVersion: 1.2.8
   preloadedAssets: []
   metroInputSource: 0
   wsaTransparentSwapchain: 0
@@ -165,8 +165,8 @@ PlayerSettings:
     Android: com.unity3d.unityconnect
     iPhone: com.unity3d.unityconnect
   buildNumber:
-    iPhone: 99
-  AndroidBundleVersionCode: 99
+    iPhone: 101
+  AndroidBundleVersionCode: 101
   AndroidMinSdkVersion: 21
   AndroidTargetSdkVersion: 0
   AndroidPreferredInstallLocation: 1
@@ -236,7 +236,7 @@ PlayerSettings:
   iOSLaunchScreeniPadSize: 100
   iOSLaunchScreeniPadCustomXibPath: 
   iOSUseLaunchScreenStoryboard: 1
-  iOSLaunchScreenCustomStoryboardPath: Assets/ConnectApp/Resources/files/Launch Screen.storyboard
+  iOSLaunchScreenCustomStoryboardPath: Assets/ConnectApp/Resources/files/LaunchScreen.storyboard
   iOSDeviceRequirements: []
   iOSURLSchemes:
   - weixin

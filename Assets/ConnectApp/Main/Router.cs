@@ -4,9 +4,7 @@ using ConnectApp.Components;
 using ConnectApp.screens;
 using ConnectApp.Utils;
 using RSG;
-using Unity.UIWidgets.animation;
 using Unity.UIWidgets.async;
-using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
@@ -31,6 +29,7 @@ namespace ConnectApp.Main {
         public const string UserDetail = "/user-detail";
         public const string UserFollowing = "/user-following";
         public const string UserFollower = "/user-follower";
+        public const string UserLike = "/user-like";
         public const string EditPersonalInfo = "/edit-personalInfo";
         public const string PersonalRole = "/personal-role";
         public const string TeamDetail = "/team-detail";
@@ -45,6 +44,10 @@ namespace ConnectApp.Main {
         public const string ChannelMembers = "/channel-members";
         public const string ChannelIntroduction = "/channel-introduction";
         public const string ReactionsDetail = "/reactions-detail";
+        public const string LeaderBoard = "/leader-board";
+        public const string Blogger = "/blogger";
+        public const string ForceUpdate = "/force-update";
+        public const string AlbumScreen = "/album-screen";
     }
 
     class Router : StatelessWidget {
@@ -80,6 +83,7 @@ namespace ConnectApp.Main {
                     {MainNavigatorRoutes.UserDetail, context => new UserDetailScreenConnector("")},
                     {MainNavigatorRoutes.UserFollowing, context => new UserFollowingScreenConnector("")},
                     {MainNavigatorRoutes.UserFollower, context => new UserFollowerScreenConnector("")},
+                    {MainNavigatorRoutes.UserLike, context => new UserLikeArticleScreenConnector("")},
                     {MainNavigatorRoutes.EditPersonalInfo, context => new EditPersonalInfoScreenConnector("")},
                     {MainNavigatorRoutes.PersonalRole, context => new PersonalJobRoleScreenConnector()},
                     {MainNavigatorRoutes.TeamDetail, context => new TeamDetailScreenConnector("")},
@@ -93,8 +97,13 @@ namespace ConnectApp.Main {
                     {MainNavigatorRoutes.ChannelDetail, context => new ChannelDetailScreenConnector("")},
                     {MainNavigatorRoutes.ChannelMembers, context => new ChannelMembersScreenConnector("")},
                     {MainNavigatorRoutes.ChannelIntroduction, context => new ChannelIntroductionScreenConnector("")},
-                    {MainNavigatorRoutes.ReactionsDetail, context => new ReactionsDetailScreenConnector("")}
+                    {MainNavigatorRoutes.ReactionsDetail, context => new ReactionsDetailScreenConnector("")},
+                    {MainNavigatorRoutes.LeaderBoard, context => new LeaderBoardScreenConnector()},
+                    {MainNavigatorRoutes.Blogger, context => new BloggerScreenConnector()},
+                    {MainNavigatorRoutes.ForceUpdate, context => new ForceUpdateScreen()},
+                    {MainNavigatorRoutes.AlbumScreen, context => new ArticleAlbumScreenConnector()}
                 };
+
                 if (Application.isEditor) {
                     var isExistSplash = SplashManager.isExistSplash();
                     if (isExistSplash) {
@@ -111,6 +120,10 @@ namespace ConnectApp.Main {
                     routes.Add(key: MainNavigatorRoutes.Root, context => new RootScreen());
                 }
 
+                if (VersionManager.needForceUpdate()) {
+                    routes[key: MainNavigatorRoutes.Root] = context => new ForceUpdateScreen();
+                }
+
                 return routes;
             }
         }
@@ -119,7 +132,8 @@ namespace ConnectApp.Main {
             get {
                 return new Dictionary<string, WidgetBuilder> {
                     {MainNavigatorRoutes.Search, context => new SearchScreenConnector()},
-                    {MainNavigatorRoutes.Login, context => new LoginScreen()}
+                    {MainNavigatorRoutes.Login, context => new LoginScreen()},
+                    {MainNavigatorRoutes.ForceUpdate, context => new ForceUpdateScreen()}
                 };
             }
         }
@@ -130,7 +144,10 @@ namespace ConnectApp.Main {
                 onWillPop: () => {
                     TipMenu.dismiss();
                     var promise = new Promise<bool>();
-                    if (LoginScreen.navigator?.canPop() ?? false) {
+                    if (VersionManager.needForceUpdate()) {
+                        promise.Resolve(false);
+                    }
+                    else if (LoginScreen.navigator?.canPop() ?? false) {
                         LoginScreen.navigator.pop();
                         promise.Resolve(false);
                     }

@@ -89,7 +89,8 @@ namespace ConnectApp.Components {
                                             height: imageHeight,
                                             borderRadius: borderRadius,
                                             fit: BoxFit.cover,
-                                            true
+                                            true,
+                                            CColorUtils.GetSpecificDarkColorFromId(id: this.article.id)
                                         )
                                     )
                                 }

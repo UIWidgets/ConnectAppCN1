@@ -116,7 +116,8 @@ namespace ConnectApp.Components {
                                 48,
                                 4,
                                 fit: BoxFit.cover,
-                                true
+                                true,
+                                CColorUtils.GetSpecificDarkColorFromId(id: this.channel?.id)
                             ),
                             new Expanded(
                                 child: new Column(

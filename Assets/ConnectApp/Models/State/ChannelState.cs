@@ -27,7 +27,6 @@ namespace ConnectApp.Models.State {
         public bool mentionAutoFocus;
         public Dictionary<string, List<ChannelMember>> mentionSuggestions;
         public bool mentionLoading;
-        public string newNotifications;
         public string lastMentionQuery;
         public bool mentionSearching;
         public List<ChannelMember> queryMentions;
@@ -84,7 +83,7 @@ namespace ConnectApp.Models.State {
         }
 
         public string totalNotification() {
-            return this.totalUnread > 0 || this.newNotifications != null
+            return this.totalUnread > 0
                 ? this.totalMention > 0
                     ? $"{this.totalMention}"
                     : ""

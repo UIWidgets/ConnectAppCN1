@@ -204,7 +204,7 @@ namespace ConnectApp.Components {
                                     width: 32,
                                     height: 32,
                                     decoration: new BoxDecoration(
-                                        color: CColors.Gerakdine,
+                                        color: CColors.Coral,
                                         borderRadius: BorderRadius.all(16)
                                     ),
                                     alignment: Alignment.center,

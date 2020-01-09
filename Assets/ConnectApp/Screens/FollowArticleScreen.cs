@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
@@ -10,6 +11,7 @@ using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using RSG;
+using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
@@ -22,9 +24,13 @@ using Unity.UIWidgets.widgets;
 namespace ConnectApp.screens {
     public class FollowArticleScreenConnector : StatelessWidget {
         public FollowArticleScreenConnector(
+            int selectedIndex,
             Key key = null
         ) : base(key: key) {
+            this.selectedIndex = selectedIndex;
         }
+
+        readonly int selectedIndex;
 
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ArticlesScreenViewModel>(
@@ -65,7 +71,8 @@ namespace ConnectApp.screens {
                         isLoggedIn = state.loginState.isLoggedIn,
                         currentUserId = state.loginState.loginInfo.userId ?? "",
                         beforeTime = state.articleState.beforeTime,
-                        afterTime = state.articleState.afterTime
+                        afterTime = state.articleState.afterTime,
+                        selectedIndex = this.selectedIndex
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -161,6 +168,7 @@ namespace ConnectApp.screens {
         float avatarSize;
         string _followUserSubId;
         string _loginSubId;
+        string _articleTabSubId;
 
         public override void initState() {
             base.initState();
@@ -186,11 +194,18 @@ namespace ConnectApp.screens {
                 this.widget.actionModel.fetchFollowing(arg1: currentUserId, 0);
                 this.widget.actionModel.fetchFollowArticles(arg1: firstPageNumber, true, false);
             });
+            this._articleTabSubId = EventBus.subscribe(sName: EventBusConstant.article_tab, args => {
+                if (this.widget.viewModel.selectedIndex == 0) {
+                    this._refreshController.sendBack(true, mode: RefreshStatus.refreshing);
+                    this._refreshController.animateTo(0.0f, TimeSpan.FromMilliseconds(300), curve: Curves.linear);
+                }
+            });
         }
 
         public override void dispose() {
             EventBus.unSubscribe(sName: EventBusConstant.follow_user, id: this._followUserSubId);
             EventBus.unSubscribe(sName: EventBusConstant.login_success, id: this._loginSubId);
+            EventBus.unSubscribe(sName: EventBusConstant.article_tab, id: this._articleTabSubId);
             base.dispose();
         }
 

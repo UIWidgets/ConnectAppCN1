@@ -10,9 +10,9 @@ using Unity.UIWidgets.widgets;
 namespace ConnectApp.Components {
     public static class CustomListTileConstant {
         public static readonly Icon defaultTrailing = new Icon(
-            icon: Icons.chevron_right,
-            size: 24,
-            color: Color.fromRGBO(199, 203, 207, 1)
+            icon: Icons.baseline_forward_arrow,
+            size: 16,
+            color: CColors.LightBlueGrey
         );
     }
 
