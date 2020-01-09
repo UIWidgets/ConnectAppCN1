@@ -6,6 +6,7 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.Components {
     /// <summary>
@@ -225,6 +226,132 @@ namespace ConnectApp.Components {
                             )
                         }
                     )
+                )
+            );
+        }
+    }
+
+    /// <summary>
+    /// 每周三更新
+    /// </summary>
+    public class LeaderBoardUpdateTip : StatelessWidget {
+        public LeaderBoardUpdateTip(
+            Key key = null
+        ) : base(key: key) {
+        }
+
+        public override Widget build(BuildContext context) {
+            return new Container(
+                height: 54,
+                alignment: Alignment.center,
+                decoration: new BoxDecoration(
+                    color: CColors.White,
+                    borderRadius: BorderRadius.only(12, 12)
+                ),
+                child: new Text("每周三更新", style: CTextStyle.PRegularBody4)
+            );
+        }
+    }
+
+    /// <summary>
+    /// 博主头视图
+    /// </summary>
+    public class LeaderBoardBloggerHeader : StatelessWidget {
+        public LeaderBoardBloggerHeader(
+            Key key = null
+        ) : base(key: key) {
+        }
+
+        public override Widget build(BuildContext context) {
+            return new Container(
+                height: 286,
+                child: new Stack(
+                    children: new List<Widget> {
+                        Image.asset(
+                            "image/leaderboard-podium",
+                            width: MediaQuery.of(context: context).size.width - 32,
+                            height: 128,
+                            fit: BoxFit.fill
+                        ),
+                        new Positioned(
+                            left: 24,
+                            bottom: 116,
+                            width: 96,
+                            child: new Column(
+                                children: new List<Widget> {
+                                    new Container(
+                                        width: 64,
+                                        height: 64,
+                                        decoration: new BoxDecoration(
+                                            color: CColors.Red,
+                                            borderRadius: BorderRadius.all(32)
+                                        )
+                                    ),
+                                    new Padding(
+                                        padding: EdgeInsets.only(top: 8),
+                                        child: new Text(
+                                            "Michael Wang",
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: CTextStyle.PMediumWhite
+                                        )
+                                    )
+                                }
+                            )
+                        ),
+                        new Positioned(
+                            left: (MediaQuery.of(context: context).size.width - 104) / 2 - 6,
+                            bottom: 152,
+                            width: 104,
+                            child: new Column(
+                                children: new List<Widget> {
+                                    new Container(
+                                        width: 64,
+                                        height: 64,
+                                        decoration: new BoxDecoration(
+                                            color: CColors.Red,
+                                            borderRadius: BorderRadius.all(32)
+                                        )
+                                    ),
+                                    new Padding(
+                                        padding: EdgeInsets.only(top: 8),
+                                        child: new Text(
+                                            "Wu Xiaomu",
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: CTextStyle.PMediumWhite
+                                        )
+                                    )
+                                }
+                            )
+                        ),
+                        new Positioned(
+                            right: 24,
+                            bottom: 96,
+                            width: 96,
+                            child: new Column(
+                                children: new List<Widget> {
+                                    new Container(
+                                        width: 64,
+                                        height: 64,
+                                        decoration: new BoxDecoration(
+                                            color: CColors.Red,
+                                            borderRadius: BorderRadius.all(32)
+                                        )
+                                    ),
+                                    new Padding(
+                                        padding: EdgeInsets.only(top: 8),
+                                        child: new Text(
+                                            "樱花兔",
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: CTextStyle.PMediumWhite
+                                        )
+                                    )
+                                }
+                            )
+                        )
+                    }
                 )
             );
         }
