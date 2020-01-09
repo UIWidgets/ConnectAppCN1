@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using ConnectApp.Components;
-using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
 using ConnectApp.Main;
 using ConnectApp.Models.ActionModel;
@@ -29,9 +28,7 @@ namespace ConnectApp.screens {
                 converter: state => new LeaderBoardScreenViewModel(),
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new LeaderBoardScreenActionModel {
-                        mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
-                        pushToAlbumAction = () => dispatcher.dispatch(new MainNavigatorPushToAction
-                            {routeName = MainNavigatorRoutes.AlbumScreen})
+                        mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction())
                     };
                     return new LeaderBoardScreen(viewModel: viewModel, actionModel: actionModel);
                 }
@@ -58,17 +55,27 @@ namespace ConnectApp.screens {
     }
 
     class _LeaderBoardScreenState : TickerProviderStateMixin<LeaderBoardScreen>, RouteAware {
+        readonly List<string> tabTitles = new List<string> {"合辑", "专栏", "博主"};
+
+        readonly List<Widget> tabWidgets = new List<Widget> {
+            new LeaderBoardCollectionScreenConnector(),
+            new LeaderBoardColumnScreenConnector(),
+            new LeaderBoardBloggerScreenConnector()
+        };
+
         int _selectedIndex;
         CustomTabController _tabController;
-        RefreshController _refreshController;
         bool _isHaveTitle;
 
         public override void initState() {
             base.initState();
             StatusBarManager.statusBarStyle(true);
             this._selectedIndex = 0;
-            this._tabController = new CustomTabController(3, this, initialIndex: this._selectedIndex);
-            this._refreshController = new RefreshController();
+            this._tabController = new CustomTabController(
+                length: this.tabTitles.Count,
+                this,
+                initialIndex: this._selectedIndex
+            );
             this._isHaveTitle = true;
             this._tabController.addListener(() => {
                 if (this._tabController.index != this._selectedIndex) {
@@ -88,12 +95,14 @@ namespace ConnectApp.screens {
             base.dispose();
         }
 
-        void _onRefresh(bool up) {
-        }
-
         bool _onNotification(ScrollNotification notification) {
+            var axisDirection = notification.metrics.axisDirection;
+            if (axisDirection == AxisDirection.left || axisDirection == AxisDirection.right) {
+                return true;
+            }
+
             var pixels = notification.metrics.pixels;
-            if (pixels >= 44) {
+            if (pixels >= 3) {
                 if (this._isHaveTitle) {
                     StatusBarManager.statusBarStyle(false);
                     this.setState(() => this._isHaveTitle = false);
@@ -133,43 +142,27 @@ namespace ConnectApp.screens {
                 child: new CustomSafeArea(
                     top: false,
                     bottom: false,
-                    child: new NotificationListener<ScrollNotification>(
-                        onNotification: this._onNotification,
-                        child: new Container(
-                            decoration: new BoxDecoration(
-                                gradient: new LinearGradient(
-                                    colors: colors,
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight
-                                )
-                            ),
-                            child: new Stack(
-                                alignment: Alignment.topLeft,
-                                children: new List<Widget> {
-                                    Image.asset(name: patternImage),
-                                    Positioned.fill(
-                                        new Column(
-                                            children: new List<Widget> {
-                                                this._buildNavigationBar(context: context),
-                                                new Flexible(
-                                                    child: new Container(
-                                                        child: new CustomListView(
-                                                            controller: this._refreshController,
-                                                            enablePullDown: false,
-                                                            enablePullUp: false,
-                                                            onRefresh: this._onRefresh,
-                                                            itemCount: 10,
-                                                            itemBuilder: this._buildLeaderBoardCard,
-                                                            headerWidget: this._buildListViewHeader(context: context),
-                                                            footerWidget: CustomListViewConstant.defaultFooterWidget
-                                                        )
-                                                    )
-                                                )
-                                            }
-                                        )
-                                    )
-                                }
+                    child: new Container(
+                        decoration: new BoxDecoration(
+                            gradient: new LinearGradient(
+                                colors: colors,
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight
                             )
+                        ),
+                        child: new Stack(
+                            alignment: Alignment.topLeft,
+                            children: new List<Widget> {
+                                Image.asset(name: patternImage),
+                                Positioned.fill(
+                                    new Column(
+                                        children: new List<Widget> {
+                                            this._buildNavigationBar(context: context),
+                                            new Flexible(child: this._buildContent())
+                                        }
+                                    )
+                                )
+                            }
                         )
                     )
                 )
@@ -246,24 +239,20 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildTabBarHeader() {
+            var tabs = new List<Widget>();
+            this.tabTitles.ForEach(tabTitle => {
+                var tab = new Padding(
+                    padding: EdgeInsets.symmetric(10),
+                    child: new Text(data: tabTitle)
+                );
+                tabs.Add(item: tab);
+            });
             return new Container(
                 height: 44,
                 color: CColors.Transparent,
+                alignment: Alignment.center,
                 child: new CustomTabBarHeader(
-                    tabs: new List<Widget> {
-                        new Padding(
-                            padding: EdgeInsets.symmetric(10),
-                            child: new Text("合辑")
-                        ),
-                        new Padding(
-                            padding: EdgeInsets.symmetric(10),
-                            child: new Text("专栏")
-                        ),
-                        new Padding(
-                            padding: EdgeInsets.symmetric(10),
-                            child: new Text("博主")
-                        )
-                    },
+                    tabs: tabs,
                     controller: this._tabController,
                     indicatorSize: CustomTabBarIndicatorSize.fixedOrLabel,
                     indicatorFixedSize: 16,
@@ -279,140 +268,28 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildListViewHeader(BuildContext context) {
-            Widget centerWidget;
-            if (this._selectedIndex == 2) {
-                centerWidget = new Container(
-                    height: 286,
-                    child: new Stack(
-                        children: new List<Widget> {
-                            Image.asset(
-                                "image/leaderboard-podium",
-                                width: MediaQuery.of(context: context).size.width - 32,
-                                height: 128,
-                                fit: BoxFit.fill
-                            ),
-                            new Positioned(
-                                left: 24,
-                                bottom: 116,
-                                width: 96,
-                                child: new Column(
-                                    children: new List<Widget> {
-                                        new Container(
-                                            width: 64,
-                                            height: 64,
-                                            decoration: new BoxDecoration(
-                                                color: CColors.Red,
-                                                borderRadius: BorderRadius.all(32)
-                                            )
-                                        ),
-                                        new Padding(
-                                            padding: EdgeInsets.only(top: 8),
-                                            child: new Text(
-                                                "Michael Wang",
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: CTextStyle.PMediumWhite
-                                            )
-                                        )
-                                    }
-                                )
-                            ),
-                            new Positioned(
-                                left: (MediaQuery.of(context: context).size.width - 104) / 2 - 6,
-                                bottom: 152,
-                                width: 104,
-                                child: new Column(
-                                    children: new List<Widget> {
-                                        new Container(
-                                            width: 64,
-                                            height: 64,
-                                            decoration: new BoxDecoration(
-                                                color: CColors.Red,
-                                                borderRadius: BorderRadius.all(32)
-                                            )
-                                        ),
-                                        new Padding(
-                                            padding: EdgeInsets.only(top: 8),
-                                            child: new Text(
-                                                "Wu Xiaomu",
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: CTextStyle.PMediumWhite
-                                            )
-                                        )
-                                    }
-                                )
-                            ),
-                            new Positioned(
-                                right: 24,
-                                bottom: 96,
-                                width: 96,
-                                child: new Column(
-                                    children: new List<Widget> {
-                                        new Container(
-                                            width: 64,
-                                            height: 64,
-                                            decoration: new BoxDecoration(
-                                                color: CColors.Red,
-                                                borderRadius: BorderRadius.all(32)
-                                            )
-                                        ),
-                                        new Padding(
-                                            padding: EdgeInsets.only(top: 8),
-                                            child: new Text(
-                                                "樱花兔",
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: CTextStyle.PMediumWhite
-                                            )
-                                        )
-                                    }
-                                )
-                            )
-                        }
+        Widget _buildContent() {
+            var tabChildren = new List<Widget>();
+            this.tabWidgets.ForEach(tabWidget => {
+                var tabChild = new Builder(
+                    builder: context => tabWidget
+                );
+                tabChildren.Add(item: tabChild);
+            });
+            return new NestedScrollView(
+                headerSliverBuilder: (context, innerBoxIsScrolled) => new List<Widget> {
+                    new SliverToBoxAdapter(
+                        child: this._buildTabBarHeader()
                     )
-                );
-            }
-            else {
-                centerWidget = new Container(height: 16);
-            }
-
-            return new Column(
-                children: new List<Widget> {
-                    this._buildTabBarHeader(),
-                    centerWidget,
-                    new Container(
-                        height: 54,
-                        alignment: Alignment.center,
-                        decoration: new BoxDecoration(
-                            color: CColors.White,
-                            borderRadius: BorderRadius.only(12, 12)
-                        ),
-                        child: new Text("每周三更新", style: CTextStyle.PRegularBody4)
-                    ),
-                    new CustomDivider(height: 1, color: CColors.Separator2)
-                }
+                },
+                body: new NotificationListener<ScrollNotification>(
+                    onNotification: this._onNotification,
+                    child: new CustomTabBarView(
+                        children: tabChildren,
+                        controller: this._tabController
+                    )
+                )
             );
-        }
-
-        Widget _buildLeaderBoardCard(BuildContext context, int index) {
-            if (this._selectedIndex == 0) {
-                return new LeaderBoardCollectionCard(
-                    index: index,
-                    onPress: () => this.widget.actionModel.pushToAlbumAction()
-                );
-            }
-
-            if (this._selectedIndex == 1) {
-                return new LeaderBoardColumnCard(index: index);
-            }
-
-            if (this._selectedIndex == 2) {
-                return new LeaderBoardBloggerCard(index: index);
-            }
-
-            return new Container();
         }
 
         public void didPopNext() {
