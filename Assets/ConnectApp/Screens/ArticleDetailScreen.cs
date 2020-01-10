@@ -234,6 +234,7 @@ namespace ConnectApp.screens {
         public override void dispose() {
             EventBus.unSubscribe(sName: EventBusConstant.login_success, id: this._loginSubId);
             Router.routeObserve.unsubscribe(this);
+            this._controller.dispose();
             base.dispose();
         }
 

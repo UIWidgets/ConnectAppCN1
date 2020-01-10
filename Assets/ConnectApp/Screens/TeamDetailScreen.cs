@@ -178,11 +178,12 @@ namespace ConnectApp.screens {
 
         public override void dispose() {
             Router.routeObserve.unsubscribe(this);
+            this._controller.dispose();
             base.dispose();
         }
 
         public Ticker createTicker(TickerCallback onTick) {
-            return new Ticker(onTick, () => $"created by {this}");
+            return new Ticker(onTick: onTick, () => $"created by {this}");
         }
 
         void _scrollListener() {

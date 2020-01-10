@@ -243,7 +243,8 @@ namespace ConnectApp.Components {
         public static void showCustomDialog(
             bool barrierDismissible = false,
             Color barrierColor = null,
-            Widget child = null
+            Widget child = null,
+            VoidCallback onPop = null
         ) {
             var route = new _DialogRoute(
                 (context, animation, secondaryAnimation) => new CustomSafeArea(child: child),
@@ -252,7 +253,7 @@ namespace ConnectApp.Components {
                 new TimeSpan(0, 0, 0, 0, 150),
                 transitionBuilder: _transitionBuilder
             );
-            Router.navigator.push(route: route);
+            Router.navigator.push(route: route).Then(_ => onPop?.Invoke());
         }
 
         public static void hiddenCustomDialog() {
