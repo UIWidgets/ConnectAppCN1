@@ -38,6 +38,15 @@ namespace ConnectApp.screens {
                         pushToReality = () => {
                             dispatcher.dispatch(new EnterRealityAction());
                             AnalyticsManager.AnalyticsClickEgg(1);
+                        },
+                        pushToGame = () => {
+                            dispatcher.dispatch(new MainNavigatorPushToWebViewAction {
+                                // url = "https://connect-prd-cdn.unity.com/tiny/TinyRacing.html",
+                                url = "TinyRacing.html",
+                                landscape = true,
+                                fullscreen = true,
+                                showOpenInBrowser = false
+                            });
                         }
                     };
                     return new ArticlesScreen(viewModel: viewModel, actionModel: actionModel);
@@ -227,7 +236,7 @@ namespace ConnectApp.screens {
                         ),
                         new CustomButton(
                             padding: EdgeInsets.only(16, 8, 16, 8),
-                            onPressed: () => this.widget.actionModel.pushToReality(),
+                            onPressed: () => this.widget.actionModel.pushToGame(),
                             child: new Container(
                                 color: CColors.Transparent,
                                 child: new EggButton(
@@ -372,7 +381,7 @@ namespace ConnectApp.screens {
                         ),
                         new CustomButton(
                             padding: EdgeInsets.only(8, 8, 16, 8),
-                            onPressed: () => this.widget.actionModel.pushToReality(),
+                            onPressed: () => this.widget.actionModel.pushToGame(),
                             child: new Container(
                                 color: CColors.Transparent,
                                 child: new EggButton(

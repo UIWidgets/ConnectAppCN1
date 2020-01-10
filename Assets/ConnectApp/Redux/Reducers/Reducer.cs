@@ -1606,7 +1606,11 @@ namespace ConnectApp.redux.reducers {
                 case MainNavigatorPushToWebViewAction action: {
                     if (action.url != null) {
                         Router.navigator.push(new CustomPageRoute(
-                            context => new WebViewScreen(url: action.url),
+                            context => new WebViewScreen(
+                                url: action.url,
+                                landscape: action.landscape,
+                                fullScreen: action.fullscreen,
+                                showOpenInBrowser: action.showOpenInBrowser),
                             push: true
                         ));
                     }
