@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace markdown {
     public delegate Node Resolver(string name, List<string> title = null);
-    
+
     public abstract class Node {
         public abstract void accept(NodeVisitor visitor);
 
@@ -39,12 +39,14 @@ namespace markdown {
             });
         }
 
-        public bool isEmpty => children == null;
+        public bool isEmpty {
+            get { return this.children == null; }
+        }
 
         public override void accept(NodeVisitor visitor) {
             if (visitor.visitElementBefore(this)) {
-                if (children != null) {
-                    foreach (var child in children) {
+                if (this.children != null) {
+                    foreach (var child in this.children) {
                         child.accept(visitor);
                     }
                 }
@@ -54,7 +56,7 @@ namespace markdown {
         }
 
         public override string textContent {
-            get { return children == null ? "" : string.Join("", children.Select(t => t.textContent)); }
+            get { return this.children == null ? "" : string.Join("", this.children.Select(t => t.textContent)); }
         }
     }
 
@@ -69,13 +71,16 @@ namespace markdown {
             visitor.visitText(this);
         }
 
-        public override string textContent => this.text;
+        public override string textContent {
+            get { return this.text; }
+        }
     }
 
     public class UnparsedContent : Node {
         public UnparsedContent(string textContent) {
             this.textContent = textContent;
         }
+
         public override void accept(NodeVisitor visitor) {
         }
 

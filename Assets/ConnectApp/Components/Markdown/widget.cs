@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using ConnectApp.Components.pull_to_refresh;
+using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
-
 
 namespace markdown {
     public delegate void MarkdownTapLinkCallback(string href);
@@ -81,12 +82,12 @@ namespace markdown {
     }
 
     class _MarkdownWidgetState : State<MarkdownWidget>, IMarkdownBuilderDelegate {
-        private List<Widget> _children;
+        List<Widget> _children;
 
         public List<GestureRecognizer> _recognizers = new List<GestureRecognizer> { };
 
         public override void didChangeDependencies() {
-            _parseMarkdown();
+            this._parseMarkdown();
             base.didChangeDependencies();
         }
 
@@ -96,69 +97,70 @@ namespace markdown {
                 return;
             }
 
-            if (widget.data != (oldWidget as MarkdownWidget)?.data ||
-                widget.styleSheet != (oldWidget as MarkdownWidget)?.styleSheet) {
-                _parseMarkdown();
+            if (this.widget.data != (oldWidget as MarkdownWidget)?.data ||
+                this.widget.styleSheet != (oldWidget as MarkdownWidget)?.styleSheet) {
+                this._parseMarkdown();
             }
         }
 
         public override void dispose() {
-            _disposeRecognizers();
+            this._disposeRecognizers();
             base.dispose();
         }
 
-        private void _parseMarkdown() {
-            // todo different here
-            MarkdownStyleSheet styleSheet = widget.styleSheet ?? MarkdownStyleSheet.fromTheme(Theme.of(context));
-            
-            _disposeRecognizers();
-            var lines = widget.data.Replace("\r\n", "\n").Split('\n');
-            
+        void _parseMarkdown() {
+            MarkdownStyleSheet styleSheet =
+                this.widget.styleSheet ?? MarkdownStyleSheet.fromTheme(Theme.of(this.context));
+
+            this._disposeRecognizers();
+            var lines = Regex.Split(this.widget.data, "\r?\n");
             var document = new Document(
-                extensionSet: widget.extensionSet ?? ExtensionSet.githubFlavored,
+                extensionSet: this.widget.extensionSet ?? ExtensionSet.githubFlavored,
                 inlineSyntaxes: new List<InlineSyntax> {new TaskListSyntax()},
                 encodeHtml: false
             );
             var builder = new MarkdownBuilder(
                 dele: this,
-                selectable: widget.selectable,
+                selectable: this.widget.selectable,
                 styleSheet: styleSheet, // todo merge fallback style sheet
-                imageDirectory: widget.imageDirectory,
-                imageBuilder: widget.imageBuilder,
-                checkboxBuilder: widget.checkboxBuilder,
-                fitContent: widget.fitContent
+                imageDirectory: this.widget.imageDirectory,
+                imageBuilder: this.widget.imageBuilder,
+                checkboxBuilder: this.widget.checkboxBuilder,
+                fitContent: this.widget.fitContent
             );
-            _children = builder.build(document.parseLines(lines.ToList().remove(string.IsNullOrEmpty)));
+            this._children = builder.build(document.parseLines(lines.ToList()));
         }
 
-        private void _disposeRecognizers() {
-            if (_recognizers.isEmpty()) {
+        void _disposeRecognizers() {
+            if (this._recognizers.isEmpty()) {
                 return;
             }
 
-            var localRecognizers = _recognizers.ToArray();
-            _recognizers.Clear();
+            var localRecognizers = this._recognizers.ToArray();
+            this._recognizers.Clear();
             foreach (var r in localRecognizers) {
                 r.dispose();
             }
         }
 
         public override Widget build(BuildContext context) {
-            return widget.build(context, _children);
+            return this.widget.build(context, this._children);
         }
 
         public GestureRecognizer createLink(string href) {
             var recognizer = new TapGestureRecognizer();
-            recognizer.onTap = () => { widget.onTapLink?.Invoke(href); };
+            recognizer.onTap = () => { this.widget.onTapLink?.Invoke(href); };
 
-            _recognizers.Add(recognizer);
+            this._recognizers.Add(recognizer);
             return recognizer;
         }
 
         public TextSpan formatText(MarkdownStyleSheet styleSheet, string code) {
             //TODO: format code!
-            if (widget.syntaxHighlighter != null)
-                return widget.syntaxHighlighter.format(code);
+            if (this.widget.syntaxHighlighter != null) {
+                return this.widget.syntaxHighlighter.format(code);
+            }
+
             return new TextSpan(code, styleSheet.code);
         }
     }
@@ -204,12 +206,34 @@ namespace markdown {
             MarkdownImageBuilder imageBuilder = null,
             MarkdownCheckboxBuilder checkboxBuilder = null,
             ScrollPhysics physics = null,
-            bool shrinkWrap = false
+            bool shrinkWrap = false,
+            Widget contentHead = null,
+            Widget relatedArticles = null,
+            List<Widget> commentList = null,
+            RefreshController refreshController = null,
+            bool enablePullDown = false,
+            bool enablePullUp = false,
+            OnRefresh onRefresh = null,
+            NotificationListenerCallback<ScrollNotification> onNotification = null,
+            float initialOffset = 0f,
+            bool needRebuildWithCachedCommentPosition = false,
+            bool isArticleJumpToCommentStateActive = false
         ) : base(key, data, markdownStyleSheet, syntaxHighlighter,
             onTapLink, imageDirectory, extensionSet, imageBuilder, checkboxBuilder, selectable) {
             this.padding = EdgeInsets.all(16);
             this.physics = physics;
             this.shrinkWrap = shrinkWrap;
+            this.contentHead = contentHead;
+            this.relatedArticles = relatedArticles;
+            this.commentList = commentList;
+            this.refreshController = refreshController;
+            this.enablePullDown = enablePullDown;
+            this.enablePullUp = enablePullUp;
+            this.onRefresh = onRefresh;
+            this.onNotification = onNotification;
+            this.initialOffset = initialOffset;
+            this.needRebuildWithCachedCommentPosition = needRebuildWithCachedCommentPosition;
+            this.isArticleJumpToCommentStateActive = isArticleJumpToCommentStateActive;
         }
 
         public EdgeInsets padding;
@@ -217,19 +241,71 @@ namespace markdown {
         public ScrollPhysics physics;
 
         public bool shrinkWrap;
+        public Widget contentHead;
+        public Widget relatedArticles;
+        public List<Widget> commentList;
+        public RefreshController refreshController;
+        public bool enablePullDown;
+        public bool enablePullUp;
+        public OnRefresh onRefresh;
+        public NotificationListenerCallback<ScrollNotification> onNotification;
+        public float initialOffset;
+        public bool needRebuildWithCachedCommentPosition;
+        public bool isArticleJumpToCommentStateActive;
 
         public override Widget build(BuildContext context, List<Widget> children) {
-            return new ListView(
-                padding: padding,
-                physics: physics,
-                shrinkWrap: shrinkWrap,
-                children: children
-            );
+            var commentIndex = 0;
+            List<Widget> originItems = new List<Widget>();
+            if (this.contentHead != null) {
+                originItems.Add(this.contentHead);
+            }
+
+            List<Widget> paddingWidgets = new List<Widget>();
+            children.ForEach(widget => {
+                paddingWidgets.Add(new Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: widget));
+            });
+            originItems.AddRange(paddingWidgets);
+            if (this.relatedArticles != null) {
+                originItems.Add(this.relatedArticles);
+            }
+
+            commentIndex = originItems.Count;
+            if (this.commentList.isNotNullAndEmpty()) {
+                originItems.AddRange(this.commentList);
+            }
+
+            commentIndex = this.isArticleJumpToCommentStateActive ? commentIndex : 0;
+
+
+            if (this.needRebuildWithCachedCommentPosition == false && commentIndex != 0) {
+                return new CenteredRefresher(
+                    controller: this.refreshController,
+                    enablePullDown: this.enablePullDown,
+                    enablePullUp: this.enablePullUp,
+                    onRefresh: this.onRefresh,
+                    onNotification: this.onNotification,
+                    children: originItems,
+                    centerIndex: commentIndex
+                );
+            }
+
+            return new SmartRefresher(
+                initialOffset: this.initialOffset,
+                controller: this.refreshController,
+                enablePullDown: this.enablePullDown,
+                enablePullUp: this.enablePullUp,
+                onRefresh: this.onRefresh,
+                onNotification: this.onNotification,
+                child: ListView.builder(
+                    physics: new AlwaysScrollableScrollPhysics(),
+                    itemCount: originItems.Count,
+                    itemBuilder: (cxt, index) => originItems[index]
+                ));
         }
     }
 
     class TaskListSyntax : InlineSyntax {
-        private static string _pattern = @"^ *\[([ xX])\] +";
+        static string _pattern = @"^ *\[([ xX])\] +";
 
         public TaskListSyntax() : base(_pattern) {
         }

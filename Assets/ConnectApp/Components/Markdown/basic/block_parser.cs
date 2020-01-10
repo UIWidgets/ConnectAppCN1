@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Unity.UIWidgets.foundation;
-using UnityEngine;
 
 namespace markdown {
     public class BlockParserUtil {
@@ -60,11 +59,11 @@ namespace markdown {
 
         public List<BlockSyntax> blockSyntaxes = new List<BlockSyntax>();
 
-        private int _pos = 0;
+        int _pos = 0;
 
         public bool encounteredBlankLine = false;
 
-        private List<BlockSyntax> standardBlockSyntaxes = new List<BlockSyntax>() {
+        List<BlockSyntax> standardBlockSyntaxes = new List<BlockSyntax>() {
             new EmptyBlockSyntax(),
             new BlockTagBlockHtmlSyntax(),
             new LongBlockHtmlSyntax(@"^ {0,3}<pre(?:\s|>|$)", "</pre>"),
@@ -89,14 +88,14 @@ namespace markdown {
             this.lines = lines;
             this.document = document;
 
-            blockSyntaxes.AddRange(document.blockSyntaxes);
-            blockSyntaxes.AddRange(standardBlockSyntaxes);
+            this.blockSyntaxes.AddRange(document.blockSyntaxes);
+            this.blockSyntaxes.AddRange(this.standardBlockSyntaxes);
         }
 
         public string current {
             get {
-                if (_pos < lines.Count && _pos >= 0) {
-                    return lines[_pos];
+                if (this._pos < this.lines.Count && this._pos >= 0) {
+                    return this.lines[this._pos];
                 }
                 else {
                     return null;
@@ -106,11 +105,11 @@ namespace markdown {
 
         public string next {
             get {
-                if (_pos >= lines.Count - 1) {
+                if (this._pos >= this.lines.Count - 1) {
                     return null;
                 }
 
-                return lines[_pos + 1];
+                return this.lines[this._pos + 1];
             }
         }
 
@@ -119,38 +118,48 @@ namespace markdown {
                 throw new ArgumentException(string.Format("Invalid linesAhead: {0}; must be >= 0.", linesAhead));
             }
 
-            if (_pos >= lines.Count - linesAhead) return null;
-            return lines[_pos + linesAhead];
+            if (this._pos >= this.lines.Count - linesAhead) {
+                return null;
+            }
+
+            return this.lines[this._pos + linesAhead];
         }
 
         public void advance() {
-            _pos++;
+            this._pos++;
         }
 
         public bool isDone {
-            get { return _pos >= lines.Count; }
+            get { return this._pos >= this.lines.Count; }
         }
 
         public bool matches(Regex regex) {
-            if (next == null) return false;
-            return regex.Match(next).Success;
+            if (this.next == null) {
+                return false;
+            }
+
+            return regex.Match(this.next).Success;
         }
 
         public bool matchesNext(Regex regex) {
-            if (next == null) return false;
-            return regex.Match(next).Success;
+            if (this.next == null) {
+                return false;
+            }
+
+            return regex.Match(this.next).Success;
         }
 
         public List<Node> parseLines() {
             var blocks = new List<Node>();
-            while (!isDone) {
-                foreach (var syntax in blockSyntaxes) {
+            while (!this.isDone) {
+                foreach (var syntax in this.blockSyntaxes) {
                     if (syntax.canParse(this)) {
                         var block = syntax.parse(this);
                         if (block != null) {
                             blocks.Add(block);
-                            break;
                         }
+
+                        break;
                     }
                 }
             }
@@ -160,12 +169,16 @@ namespace markdown {
     }
 
     public abstract class BlockSyntax {
-        public virtual Regex pattern => null;
+        public virtual Regex pattern {
+            get { return null; }
+        }
 
-        public virtual bool canEndBlock => true;
+        public virtual bool canEndBlock {
+            get { return true; }
+        }
 
         public virtual bool canParse(BlockParser parser) {
-            return pattern.hasMatch(parser.current);
+            return this.pattern.hasMatch(parser.current);
         }
 
         public abstract Node parse(BlockParser parser);
@@ -174,8 +187,10 @@ namespace markdown {
             var childLines = new List<string>();
 
             while (!parser.isDone) {
-                var match = pattern.Match(parser.current);
-                if (!match.Success) break;
+                var match = this.pattern.Match(parser.current);
+                if (!match.Success) {
+                    break;
+                }
 
                 childLines.Add(match.Groups[1].Value);
 
@@ -186,7 +201,10 @@ namespace markdown {
         }
 
         protected static bool isAtBlockEnd(BlockParser parser) {
-            if (parser.isDone) return true;
+            if (parser.isDone) {
+                return true;
+            }
+
             return parser.blockSyntaxes.Any(s => s.canParse(parser) && s.canEndBlock);
         }
 
@@ -198,7 +216,9 @@ namespace markdown {
     }
 
     class EmptyBlockSyntax : BlockSyntax {
-        public override Regex pattern => BlockParserUtil._emptyPattern;
+        public override Regex pattern {
+            get { return BlockParserUtil._emptyPattern; }
+        }
 
         public override Node parse(BlockParser parser) {
             parser.encounteredBlankLine = true;
@@ -210,7 +230,10 @@ namespace markdown {
 
     class SetextHeaderSyntax : BlockSyntax {
         public override bool canParse(BlockParser parser) {
-            if (!_interperableAsParagraph(parser.current)) return false;
+            if (!this._interperableAsParagraph(parser.current)) {
+                return false;
+            }
+
             var i = 1;
             while (true) {
                 var nextLine = parser.peek(i);
@@ -222,7 +245,7 @@ namespace markdown {
                     return true;
                 }
 
-                if (!_interperableAsParagraph(nextLine)) {
+                if (!this._interperableAsParagraph(nextLine)) {
                     return false;
                 }
 
@@ -266,7 +289,7 @@ namespace markdown {
     class SetextHeaderWithIdSyntax : SetextHeaderSyntax {
         public override Node parse(BlockParser parser) {
             var element = base.parse(parser) as Element;
-            element.generatedId = BlockSyntax.generateAnchorHash(element);
+            element.generatedId = generateAnchorHash(element);
             return element;
         }
     }
@@ -277,7 +300,7 @@ namespace markdown {
         }
 
         public override Node parse(BlockParser parser) {
-            var match = pattern.Match(parser.current);
+            var match = this.pattern.Match(parser.current);
             parser.advance();
             var level = match.Groups[1].Length;
             var contents = new UnparsedContent(match.Groups[2].Value.Trim());
@@ -288,7 +311,7 @@ namespace markdown {
     class HeaderWithIdSyntax : HeaderSyntax {
         public override Node parse(BlockParser parser) {
             var element = base.parse(parser) as Element;
-            element.generatedId = BlockSyntax.generateAnchorHash(element);
+            element.generatedId = generateAnchorHash(element);
             return element;
         }
     }
@@ -302,7 +325,7 @@ namespace markdown {
             var childLines = new List<string>();
 
             while (!parser.isDone) {
-                var match = pattern.Match(parser.current);
+                var match = this.pattern.Match(parser.current);
                 if (match.Success) {
                     childLines.Add(match.Groups[1].Value);
                     parser.advance();
@@ -322,7 +345,7 @@ namespace markdown {
         }
 
         public override Node parse(BlockParser parser) {
-            var childLines = parseChildLines(parser);
+            var childLines = this.parseChildLines(parser);
 
             var children = new BlockParser(childLines, parser.document).parseLines();
 
@@ -343,7 +366,7 @@ namespace markdown {
             var childLines = new List<string>();
 
             while (!parser.isDone) {
-                var match = pattern.Match(parser.current);
+                var match = this.pattern.Match(parser.current);
                 if (match.Success) {
                     childLines.Add(match.Groups[1].Value);
                     parser.advance();
@@ -352,8 +375,8 @@ namespace markdown {
                     // If there's a codeblock, then a newline, then a codeblock, keep the
                     // code blocks together.
                     var nextMatch =
-                        parser.next != null ? pattern.Match(parser.next) : null;
-                    if (parser.current.Trim() == "" && nextMatch != null) {
+                        parser.next != null ? this.pattern.Match(parser.next) : null;
+                    if (parser.current.Trim() == "" && nextMatch != null && nextMatch.Success) {
                         childLines.Add("");
                         childLines.Add(nextMatch.Groups[1].Value);
                         parser.advance();
@@ -369,7 +392,7 @@ namespace markdown {
         }
 
         public override Node parse(BlockParser parser) {
-            var childLines = parseChildLines(parser);
+            var childLines = this.parseChildLines(parser);
 
             // The Markdown tests expect a trailing newline.
             childLines.Add("");
@@ -387,14 +410,16 @@ namespace markdown {
         }
 
 
-        List<String> parseChildLines(BlockParser parser, String endBlock = "") {
-            if (endBlock == null) endBlock = "";
+        List<string> parseChildLines(BlockParser parser, string endBlock = "") {
+            if (endBlock == null) {
+                endBlock = "";
+            }
 
             var childLines = new List<string>();
             parser.advance();
 
             while (!parser.isDone) {
-                var match = pattern.Match(parser.current);
+                var match = this.pattern.Match(parser.current);
                 if (!match.Success || !match.Groups[1].Value.StartsWith(endBlock)) {
                     childLines.Add(parser.current);
                     parser.advance();
@@ -410,11 +435,11 @@ namespace markdown {
 
         public override Node parse(BlockParser parser) {
             // Get the syntax identifier, if there is one.
-            var match = pattern.Match(parser.current);
+            var match = this.pattern.Match(parser.current);
             var endBlock = match.Groups[1].Value;
             var infoString = match.Groups[2].Value;
 
-            var childLines = parseChildLines(parser, endBlock);
+            var childLines = this.parseChildLines(parser, endBlock);
 
             // The Markdown tests expect a trailing newline.
             childLines.Add("");
@@ -484,7 +509,7 @@ namespace markdown {
     }
 
     class OtherTagBlockHtmlSyntax : BlockTagBlockHtmlSyntax {
-        public override Boolean canEndBlock {
+        public override bool canEndBlock {
             get { return true; }
         }
 
@@ -494,17 +519,17 @@ namespace markdown {
     }
 
     class LongBlockHtmlSyntax : BlockHtmlSyntax {
-        private Regex _pattern;
+        Regex _pattern;
 
         public override Regex pattern {
-            get { return _pattern; }
+            get { return this._pattern; }
         }
 
         public Regex _endPattern;
 
-        public LongBlockHtmlSyntax(String patternStr, String endPatternStr) {
-            _pattern = new Regex(patternStr);
-            _endPattern = new Regex(endPatternStr);
+        public LongBlockHtmlSyntax(string patternStr, string endPatternStr) {
+            this._pattern = new Regex(patternStr);
+            this._endPattern = new Regex(endPatternStr);
         }
 
 
@@ -513,7 +538,10 @@ namespace markdown {
             // Eat until we hit [endPattern].
             while (!parser.isDone) {
                 childLines.Add(parser.current);
-                if (parser.matches(_endPattern)) break;
+                if (parser.matches(this._endPattern)) {
+                    break;
+                }
+
                 parser.advance();
             }
 
@@ -580,7 +608,7 @@ namespace markdown {
             while (!parser.isDone) {
                 var leadingSpace = _whitespaceRe.matchAsPrefix(parser.current).Groups[0].Value;
                 var leadingExpandedTabLength = _expandedTabLength(leadingSpace);
-                if (tryMatch(BlockParserUtil._emptyPattern, parser, ref match)) {
+                if (this.tryMatch(BlockParserUtil._emptyPattern, parser, ref match)) {
                     if (BlockParserUtil._emptyPattern.Match(parser.next ?? "").Success) {
                         // Two blank lines ends a list.
                         break;
@@ -596,12 +624,12 @@ namespace markdown {
                         .replaceFirst(indent, "");
                     childLines.Add(line);
                 }
-                else if (tryMatch(BlockParserUtil._hrPattern, parser, ref match)) {
+                else if (this.tryMatch(BlockParserUtil._hrPattern, parser, ref match)) {
                     // Horizontal rule takes precedence to a new list item.
                     break;
                 }
-                else if (tryMatch(BlockParserUtil._ulPattern, parser, ref match) ||
-                         tryMatch(BlockParserUtil._olPattern, parser, ref match)) {
+                else if (this.tryMatch(BlockParserUtil._ulPattern, parser, ref match) ||
+                         this.tryMatch(BlockParserUtil._olPattern, parser, ref match)) {
                     var precedingWhitespace = match.Groups[1].Value;
                     var digits = match.Groups[2].Value ?? "";
                     if (startNumber == 0 && digits.isNotEmpty()) {
@@ -644,10 +672,10 @@ namespace markdown {
                     }
 
                     // End the current list item and start a new one.
-                    endItem(ref childLines, items);
+                    this.endItem(ref childLines, items);
                     childLines.Add(restWhitespace + content);
                 }
-                else if (BlockSyntax.isAtBlockEnd(parser)) {
+                else if (isAtBlockEnd(parser)) {
                     // Done with the list.
                     break;
                 }
@@ -666,11 +694,11 @@ namespace markdown {
                 parser.advance();
             }
 
-            endItem(ref childLines, items);
+            this.endItem(ref childLines, items);
             var itemNodes = new List<Node>();
 
-            items.ForEach(removeLeadingEmptyLine);
-            var anyEmptyLines = removeTrailingEmptyLines(items);
+            items.ForEach(this.removeLeadingEmptyLine);
+            var anyEmptyLines = this.removeTrailingEmptyLines(items);
             var anyEmptyLinesBetweenBlocks = false;
 
             foreach (var item in items) {
@@ -705,13 +733,13 @@ namespace markdown {
                 }
             }
 
-            if (listTag == "ol" && startNumber != 1) {
-                var element = new Element(listTag, itemNodes);
+            if (this.listTag == "ol" && startNumber != 1) {
+                var element = new Element(this.listTag, itemNodes);
                 element.attributes["start"] = startNumber.ToString();
                 return element;
             }
             else {
-                return new Element(listTag, itemNodes);
+                return new Element(this.listTag, itemNodes);
             }
         }
 
@@ -726,7 +754,10 @@ namespace markdown {
         bool removeTrailingEmptyLines(List<ListItem> items) {
             var anyEmpty = false;
             for (var i = 0; i < items.Count; i++) {
-                if (items[i].lines.Count == 1) continue;
+                if (items[i].lines.Count == 1) {
+                    continue;
+                }
+
                 while (items[i].lines.isNotEmpty() &&
                        BlockParserUtil._emptyPattern.hasMatch(items[i].lines.last())) {
                     if (i < items.Count - 1) {
@@ -740,7 +771,7 @@ namespace markdown {
             return anyEmpty;
         }
 
-        static int _expandedTabLength(String input) {
+        static int _expandedTabLength(string input) {
             var length = 0;
             foreach (var cha in input) {
                 length += cha == 0x9 ? 4 - (length % 4) : 1;
@@ -792,9 +823,9 @@ namespace markdown {
         /// * a divider of hyphens and pipes (not rendered)
         /// * many body rows of body cells (`<td>` cells)
         public override Node parse(BlockParser parser) {
-            var alignments = parseAlignments(parser.next);
+            var alignments = this.parseAlignments(parser.next);
             var columnCount = alignments.Count;
-            var headRow = parseRow(parser, alignments, "th");
+            var headRow = this.parseRow(parser, alignments, "th");
             if (headRow.children.Count != columnCount) {
                 return null;
             }
@@ -805,8 +836,8 @@ namespace markdown {
             parser.advance();
 
             var rows = new List<Node>() { };
-            while (!parser.isDone && !BlockSyntax.isAtBlockEnd(parser)) {
-                var row = parseRow(parser, alignments, "td");
+            while (!parser.isDone && !isAtBlockEnd(parser)) {
+                var row = this.parseRow(parser, alignments, "td");
                 while (row.children.Count < columnCount) {
                     // Insert synthetic empty cells.
                     row.children.Add(Element.empty("td"));
@@ -829,19 +860,28 @@ namespace markdown {
             }
         }
 
-        List<String> parseAlignments(String line) {
+        List<string> parseAlignments(string line) {
             line = line.replaceFirst(_openingPipe, "").replaceFirst(_closingPipe, "");
             return line.Split('|').Select(column => {
                 column = column.Trim();
-                if (column.StartsWith(":") && column.EndsWith(":")) return "center";
-                if (column.StartsWith(":")) return "left";
-                if (column.EndsWith(":")) return "right";
+                if (column.StartsWith(":") && column.EndsWith(":")) {
+                    return "center";
+                }
+
+                if (column.StartsWith(":")) {
+                    return "left";
+                }
+
+                if (column.EndsWith(":")) {
+                    return "right";
+                }
+
                 return null;
             }).ToList();
         }
 
         Element parseRow(
-            BlockParser parser, List<String> alignments, String cellType) {
+            BlockParser parser, List<string> alignments, string cellType) {
             var line = parser.current
                 .replaceFirst(_openingPipe, "")
                 .replaceFirst(_closingPipe, "");
@@ -867,7 +907,10 @@ namespace markdown {
             }
 
             for (var i = 0; i < row.Count && i < alignments.Count; i++) {
-                if (alignments[i] == null) continue;
+                if (alignments[i] == null) {
+                    continue;
+                }
+
                 ((Element) row[i]).attributes["style"] = "text-align: " + alignments[i] + ';';
             }
 
@@ -885,18 +928,20 @@ namespace markdown {
             get { return false; }
         }
 
-        public override bool canParse(BlockParser parser) => true;
+        public override bool canParse(BlockParser parser) {
+            return true;
+        }
 
         public override Node parse(BlockParser parser) {
             var childLines = new List<string>();
 
             // Eat until we hit something that ends a paragraph.
-            while (!BlockSyntax.isAtBlockEnd(parser)) {
+            while (!isAtBlockEnd(parser)) {
                 childLines.Add(parser.current);
                 parser.advance();
             }
 
-            var paragraphLines = _extractReflinkDefinitions(parser, childLines);
+            var paragraphLines = this._extractReflinkDefinitions(parser, childLines);
             if (paragraphLines == null) {
                 // Paragraph consisted solely of reference link definitions.
                 return new Text("");
@@ -908,8 +953,9 @@ namespace markdown {
         }
 
         bool lineStartsReflinkDefinition(List<string> lines, int i) {
-            if (i < lines.Count && i >= 0)
+            if (i < lines.Count && i >= 0) {
                 return lines[i].startsWith(_reflinkDefinitionStart);
+            }
             else {
                 return false;
             }
@@ -917,14 +963,13 @@ namespace markdown {
 
         /// Extract reference link definitions from the front of the paragraph, and
         /// return the remaining paragraph lines.
-        List<String> _extractReflinkDefinitions(
-            BlockParser parser, List<String> lines) {
+        List<string> _extractReflinkDefinitions(
+            BlockParser parser, List<string> lines) {
             var i = 0;
             loopOverDefinitions:
             while (true) {
-//                Debug.LogWarning("--->" + i);
                 // Check for reflink definitions.
-                if (!lineStartsReflinkDefinition(lines, i)) {
+                if (!this.lineStartsReflinkDefinition(lines, i)) {
                     // It's paragraph content from here on out.
                     break;
                 }
@@ -935,12 +980,11 @@ namespace markdown {
                     // Check to see if the _next_ line might start a new reflink definition.
                     // Even if it turns out not to be, but it started with a '[', then it
                     // is not a part of _this_ possible reflink definition.
-                    if (lineStartsReflinkDefinition(lines, j)) {
+                    if (this.lineStartsReflinkDefinition(lines, j)) {
                         // Try to parse [contents] as a reflink definition.
-                        if (_parseReflinkDefinition(parser, contents)) {
+                        if (this._parseReflinkDefinition(parser, contents)) {
                             // Loop again, starting at the next possible reflink definition.
                             i = j;
-                            Debug.Log("--->" + i);
                             goto loopOverDefinitions;
                         }
                         else {
@@ -955,7 +999,7 @@ namespace markdown {
                 }
 
                 // End of the block.
-                if (_parseReflinkDefinition(parser, contents)) {
+                if (this._parseReflinkDefinition(parser, contents)) {
                     i = j;
                     break;
                 }
@@ -976,7 +1020,7 @@ namespace markdown {
                     // allocation, but we
                     // must walk backwards, checking each range.
                     contents = lines.getRange(i, j).join('\n');
-                    if (_parseReflinkDefinition(parser, contents)) {
+                    if (this._parseReflinkDefinition(parser, contents)) {
                         // That is the last reflink definition. The rest is paragraph
                         // content.
                         i = j;

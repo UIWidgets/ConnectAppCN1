@@ -11,10 +11,11 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Image = Unity.UIWidgets.widgets.Image;
+using Path = System.IO.Path;
 
 namespace markdown {
     public static class builderUtil {
-        private static readonly List<string> _kBlockTags = new List<string>() {
+        static readonly List<string> _kBlockTags = new List<string>() {
             "p",
             "h1",
             "h2",
@@ -34,7 +35,7 @@ namespace markdown {
             "tr"
         };
 
-        private static readonly List<string> _kListTags = new List<string>() {
+        static readonly List<string> _kListTags = new List<string>() {
             "ul",
             "ol"
         };
@@ -92,7 +93,7 @@ namespace markdown {
         public List<_InlineElement> _inlines = new List<_InlineElement>();
         public List<GestureRecognizer> _linkHandlers = new List<GestureRecognizer>();
 
-        private bool _isInBlockquote = false;
+        bool _isInBlockquote = false;
 
         public MarkdownBuilder(
             IMarkdownBuilderDelegate dele,
@@ -113,106 +114,115 @@ namespace markdown {
         }
 
         public List<Widget> build(List<Node> nodes) {
-            _listIndents.Clear();
-            _blocks.Clear();
-            _tables.Clear();
-            _inlines.Clear();
-            _linkHandlers.Clear();
-            _isInBlockquote = false;
+            this._listIndents.Clear();
+            this._blocks.Clear();
+            this._tables.Clear();
+            this._inlines.Clear();
+            this._linkHandlers.Clear();
+            this._isInBlockquote = false;
 
-            _blocks.Add(new _BlockElement(null));
+            this._blocks.Add(new _BlockElement(null));
 
             foreach (var node in nodes) {
-                Debug.Assert(_blocks.Count == 1);
+                Debug.Assert(this._blocks.Count == 1);
                 node.accept(this);
             }
 
-            Debug.Assert(_tables.isEmpty());
-            Debug.Assert(_inlines.isEmpty());
-            Debug.Assert(!_isInBlockquote);
-            return _blocks.Single().children;
+            Debug.Assert(this._tables.isEmpty());
+            Debug.Assert(this._inlines.isEmpty());
+            Debug.Assert(!this._isInBlockquote);
+            return this._blocks.Single().children;
         }
 
         public override bool visitElementBefore(Element element) {
             var tag = element.tag;
             if (builderUtil._isBlockTag(tag)) {
-                _addAnonymousBlockIfNeeded();
+                this._addAnonymousBlockIfNeeded();
                 if (builderUtil._isListTag(tag)) {
-                    _listIndents.Add(tag);
+                    this._listIndents.Add(tag);
                 }
                 else if (tag == "blockquote") {
-                    _isInBlockquote = true;
+                    this._isInBlockquote = true;
                 }
                 else if (tag == "table") {
-                    _tables.Add(new _TableElement());
+                    this._tables.Add(new _TableElement());
                 }
                 else if (tag == "tr") {
-                    var length = _tables.Single().rows.Count;
-                    var decoration = styleSheet.tableCellsDecoration;
-                    if (length == 0 || length % 2 == 1) decoration = null;
-                    _tables.Single().rows.Add(new TableRow(
+                    var length = this._tables.Single().rows.Count;
+                    var decoration = this.styleSheet.tableCellsDecoration;
+                    if (length == 0 || length % 2 == 1) {
+                        decoration = null;
+                    }
+
+                    this._tables.Single().rows.Add(new TableRow(
                         decoration: decoration,
                         children: new List<Widget>()
                     ));
                 }
 
-                _blocks.Add(new _BlockElement(tag));
+                this._blocks.Add(new _BlockElement(tag));
             }
             else {
-                _addParentInlineIfNeeded(_blocks.Last().tag);
+                this._addParentInlineIfNeeded(this._blocks.Last().tag);
 
-                var parentStyle = _inlines.Last().style;
-                _inlines.Add(new _InlineElement(
+                var parentStyle = this._inlines.Last().style;
+                this._inlines.Add(new _InlineElement(
                     tag,
-                    style: parentStyle.merge(styleSheet.styles.ContainsKey(tag) ? styleSheet.styles[tag] : null)
+                    style: parentStyle.merge(this.styleSheet.styles.ContainsKey(tag)
+                        ? this.styleSheet.styles[tag]
+                        : null)
                 ));
             }
 
             if (tag == "a") {
-                _linkHandlers.Add(builderDelegate.createLink(element.attributes["href"]));
+                this._linkHandlers.Add(this.builderDelegate.createLink(element.attributes["href"]));
             }
 
             return true;
         }
 
         public override void visitText(Text text) {
-            if (_blocks.Last().tag == null) return;
+            if (this._blocks.Last().tag == null) {
+                return;
+            }
 
-            _addParentInlineIfNeeded(_blocks.Last().tag);
+            this._addParentInlineIfNeeded(this._blocks.Last().tag);
 
             Widget child;
-            if (_blocks.last().tag == "pre") {
+            if (this._blocks.last().tag == "pre") {
                 child = new Scrollbar(
                     child: new SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
-                        padding: styleSheet.codeblockPadding,
-                        child: _buildRichText(builderDelegate.formatText(styleSheet, text.text))
+                        padding: this.styleSheet.codeblockPadding,
+                        child: this._buildRichText(this.builderDelegate.formatText(this.styleSheet, text.text))
                     )
                 );
             }
             else {
-                child = _buildRichText(new TextSpan(
-                    style: _isInBlockquote ? _inlines.Last().style.merge(styleSheet.blockquote) : _inlines.Last().style,
+                child = this._buildRichText(new TextSpan(
+                    style: this._isInBlockquote
+                        ? this._inlines.Last().style.merge(this.styleSheet.blockquote)
+                        : this._inlines.Last().style,
                     text: text.text,
-                    recognizer: _linkHandlers.isNotEmpty() ? _linkHandlers.Last() : null
+                    recognizer: this._linkHandlers.isNotEmpty() ? this._linkHandlers.Last() : null
                 ));
             }
 
-            _inlines.Last().children.Add(child);
+            this._inlines.Last().children.Add(child);
         }
 
         public override void visitElementAfter(Element element) {
             var tag = element.tag;
 
             if (builderUtil._isBlockTag(tag)) {
-                _addAnonymousBlockIfNeeded();
+                this._addAnonymousBlockIfNeeded();
 
-                var current = _blocks.removeLast();
+                var current = this._blocks.removeLast();
                 Widget child;
 
                 if (current.children.isNotEmpty()) {
                     child = new Column(
-                        crossAxisAlignment: fitContent ? CrossAxisAlignment.start : CrossAxisAlignment.stretch,
+                        crossAxisAlignment: this.fitContent ? CrossAxisAlignment.start : CrossAxisAlignment.stretch,
                         children: current.children
                     );
                 }
@@ -221,11 +231,11 @@ namespace markdown {
                 }
 
                 if (builderUtil._isListTag(tag)) {
-                    Debug.Assert(_listIndents.isNotEmpty());
-                    _listIndents.removeLast();
+                    Debug.Assert(this._listIndents.isNotEmpty());
+                    this._listIndents.removeLast();
                 }
                 else if (tag == "li") {
-                    if (_listIndents.isNotEmpty()) {
+                    if (this._listIndents.isNotEmpty()) {
                         if (element.children.Count == 0) {
                             element.children.Add(new Text(""));
                         }
@@ -236,17 +246,17 @@ namespace markdown {
                         if (el is Element && (el as Element).attributes.TryGetValue("type", out elType) &&
                             elType == "checkbox") {
                             var val = (el as Element).attributes["checked"] != "false";
-                            bullet = _buildCheckBox(val);
+                            bullet = this._buildCheckBox(val);
                         }
                         else {
-                            bullet = _buildBullet(_listIndents.last());
+                            bullet = this._buildBullet(this._listIndents.last());
                         }
 
                         child = new Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: new List<Widget> {
                                 new SizedBox(
-                                    width: styleSheet.listIndent,
+                                    width: this.styleSheet.listIndent,
                                     child: bullet
                                 ),
                                 new Expanded(child: child)
@@ -256,54 +266,54 @@ namespace markdown {
                 }
                 else if (tag == "table") {
                     child = new Table(
-                        defaultColumnWidth: styleSheet.tableColumnWidth,
+                        defaultColumnWidth: this.styleSheet.tableColumnWidth,
                         defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                        border: styleSheet.tableBorder,
-                        children: _tables.removeLast().rows
+                        border: this.styleSheet.tableBorder,
+                        children: this._tables.removeLast().rows
                     );
                 }
                 else if (tag == "blockquote") {
-                    _isInBlockquote = false;
+                    this._isInBlockquote = false;
                     child = new DecoratedBox(
-                        decoration: styleSheet.blockquoteDecoration,
+                        decoration: this.styleSheet.blockquoteDecoration,
                         child: new Padding(
-                            padding: styleSheet.blockquotePadding,
+                            padding: this.styleSheet.blockquotePadding,
                             child: child
                         )
                     );
                 }
                 else if (tag == "pre") {
                     child = new DecoratedBox(
-                        decoration: styleSheet.codeblockDecoration,
+                        decoration: this.styleSheet.codeblockDecoration,
                         child: child
                     );
                 }
                 else if (tag == "hr") {
                     child = new DecoratedBox(
-                        decoration: styleSheet.horizontalRuleDecoration,
+                        decoration: this.styleSheet.horizontalRuleDecoration,
                         child: child
                     );
                 }
 
-                _addBlockChild(child);
+                this._addBlockChild(child);
             }
             else {
-                var current = _inlines.removeLast();
-                var parent = _inlines.last();
+                var current = this._inlines.removeLast();
+                var parent = this._inlines.last();
 
                 if (tag == "img") {
                     // create an image widget for this image
-                    current.children.Add(_buildImage(element.attributes["src"]));
+                    current.children.Add(this._buildImage(element.attributes["src"]));
                 }
                 else if (tag == "br") {
-                    current.children.Add(_buildRichText(new TextSpan(text: "\n")));
+                    current.children.Add(this._buildRichText(new TextSpan(text: "\n")));
                 }
                 else if (tag == "th" || tag == "td") {
                     TextAlign align = TextAlign.left;
-                    String style;
+                    string style;
                     element.attributes.TryGetValue("style", out style);
                     if (style == null || style.isEmpty()) {
-                        align = tag == "th" ? styleSheet.tableHeadAlign : TextAlign.left;
+                        align = tag == "th" ? this.styleSheet.tableHeadAlign : TextAlign.left;
                     }
                     else {
                         var regExp = new Regex(@"text-align: (left|center|right)");
@@ -323,14 +333,13 @@ namespace markdown {
                         }
                     }
 
-                    Widget child = _buildTableCell(
-                        _mergeInlineChildren(current.children),
+                    Widget child = this._buildTableCell(this._mergeInlineChildren(current.children),
                         textAlign: align
                     );
-                    _tables.Single().rows.last().children.Add(child);
+                    this._tables.Single().rows.last().children.Add(child);
                 }
                 else if (tag == "a") {
-                    _linkHandlers.removeLast();
+                    this._linkHandlers.removeLast();
                 }
 
                 if (current.children.isNotEmpty()) {
@@ -342,7 +351,9 @@ namespace markdown {
         // _buildImage, buildcheckbox, build bullet, buildTablecell
         Widget _buildImage(string src) {
             var parts = src.Split('#');
-            if (parts.isEmpty()) return new SizedBox();
+            if (parts.isEmpty()) {
+                return new SizedBox();
+            }
 
             var path = parts.first();
             float width = 0, height = 0;
@@ -361,21 +372,21 @@ namespace markdown {
             }
             else if (uri.Scheme == "data") {
                 // todo
-                child = _handleDataSchemeUri(uri, width, height);
+                child = this._handleDataSchemeUri(uri, width, height);
             }
             else if (uri.Scheme == "resource") {
                 //TODO:
                 child = Image.asset(path.Substring(9), null, null, width, height);
             }
             else {
-                string filePath = imageDirectory == null
+                string filePath = this.imageDirectory == null
                     ? uri.ToString()
-                    : System.IO.Path.Combine(imageDirectory, uri.ToString());
+                    : Path.Combine(this.imageDirectory, uri.ToString());
                 child = Image.file(filePath, null, 1, width, height);
             }
 
-            if (_linkHandlers.isNotEmpty()) {
-                TapGestureRecognizer recognizer = _linkHandlers.last() as TapGestureRecognizer;
+            if (this._linkHandlers.isNotEmpty()) {
+                TapGestureRecognizer recognizer = this._linkHandlers.last() as TapGestureRecognizer;
                 return new GestureDetector(null, child, null, null, recognizer.onTap);
             }
             else {
@@ -389,31 +400,31 @@ namespace markdown {
         }
 
         Widget _buildCheckBox(bool check) {
-            if (checkboxBuilder != null) {
-                return checkboxBuilder(check);
+            if (this.checkboxBuilder != null) {
+                return this.checkboxBuilder(check);
             }
 
             return new Padding(
                 padding: EdgeInsets.only(right: 4),
                 child: new Icon(
                     check ? Icons.check_box : Icons.check_box_outline_blank,
-                    size: styleSheet.checkbox.fontSize,
-                    color: styleSheet.checkbox.color
+                    size: this.styleSheet.checkbox.fontSize,
+                    color: this.styleSheet.checkbox.color
                 )
             );
         }
 
         Widget _buildBullet(string listTag) {
             if (listTag == "ul") {
-                return new Unity.UIWidgets.widgets.Text("•", null, styleSheet.listBullet);
+                return new Unity.UIWidgets.widgets.Text("•", null, this.styleSheet.listBullet);
             }
 
-            var index = _blocks.last().nextListIndex;
+            var index = this._blocks.last().nextListIndex;
             return new Padding(
                 padding: EdgeInsets.only(right: 4),
                 child: new Unity.UIWidgets.widgets.Text(
                     data: (index + 1) + ".",
-                    style: styleSheet.listBullet,
+                    style: this.styleSheet.listBullet,
                     textAlign: TextAlign.right
                 )
             );
@@ -422,9 +433,9 @@ namespace markdown {
         Widget _buildTableCell(List<Widget> children, TextAlign textAlign) {
             return new TableCell(
                 child: new Padding(
-                    padding: styleSheet.tableCellsPadding,
+                    padding: this.styleSheet.tableCellsPadding,
                     child: new DefaultTextStyle(
-                        style: styleSheet.tableBody,
+                        style: this.styleSheet.tableBody,
                         textAlign: textAlign,
                         child: new Wrap(children: children)
                     )
@@ -433,18 +444,18 @@ namespace markdown {
         }
 
         void _addParentInlineIfNeeded(string tag) {
-            if (_inlines.isEmpty()) {
-                _inlines.Add(new _InlineElement(
+            if (this._inlines.isEmpty()) {
+                this._inlines.Add(new _InlineElement(
                     tag,
-                    style: styleSheet.styles[tag]
+                    style: this.styleSheet.styles[tag]
                 ));
             }
         }
 
         void _addBlockChild(Widget child) {
-            var parent = _blocks.Last();
+            var parent = this._blocks.Last();
             if (parent.children.isNotEmpty()) {
-                parent.children.Add(new SizedBox(height: styleSheet.blockSpacing));
+                parent.children.Add(new SizedBox(height: this.styleSheet.blockSpacing));
             }
 
             parent.children.Add(child);
@@ -452,17 +463,19 @@ namespace markdown {
         }
 
         void _addAnonymousBlockIfNeeded() {
-            if (_inlines.isEmpty()) return;
+            if (this._inlines.isEmpty()) {
+                return;
+            }
 
-            var inline = _inlines.Single();
+            var inline = this._inlines.Single();
             if (inline.children.isNotEmpty()) {
-                List<Widget> mergedInlines = _mergeInlineChildren(inline.children);
+                List<Widget> mergedInlines = this._mergeInlineChildren(inline.children);
                 var wrap = new Wrap(
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: mergedInlines
                 );
-                _addBlockChild(wrap);
-                _inlines.Clear();
+                this._addBlockChild(wrap);
+                this._inlines.Clear();
             }
         }
 
@@ -477,7 +490,7 @@ namespace markdown {
                         : new List<TextSpan>() {previousTextSpan};
                     children.Add((child as RichText).text);
                     var mergedSpan = new TextSpan(children: children);
-                    mergedTexts.Add(_buildRichText(mergedSpan));
+                    mergedTexts.Add(this._buildRichText(mergedSpan));
                 }
                 else if (mergedTexts.isNotEmpty() &&
                          mergedTexts.Last() is SelectableText &&
@@ -489,7 +502,7 @@ namespace markdown {
                         : new List<TextSpan>() {previousTextSpan};
                     children.Add((child as SelectableText).textSpan);
                     TextSpan mergedSpan = new TextSpan(children: children);
-                    mergedTexts.Add(_buildRichText(mergedSpan));
+                    mergedTexts.Add(this._buildRichText(mergedSpan));
                 }
                 else {
                     mergedTexts.Add(child);
@@ -501,7 +514,7 @@ namespace markdown {
 
 
         Widget _buildRichText(TextSpan text) {
-            if (selectable) {
+            if (this.selectable) {
                 return SelectableText.rich(
                     text
                     //textScaleFactor: styleSheet.textScaleFactor,
@@ -510,7 +523,7 @@ namespace markdown {
             else {
                 return new RichText(
                     text: text,
-                    textScaleFactor: styleSheet.textScaleFactor
+                    textScaleFactor: this.styleSheet.textScaleFactor
                 );
             }
         }

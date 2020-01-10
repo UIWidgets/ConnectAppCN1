@@ -10,8 +10,13 @@ namespace markdown {
         public List<BlockSyntax> _blockSyntaxes = new List<BlockSyntax>();
         public List<InlineSyntax> _inlineSyntaxes = new List<InlineSyntax>();
 
-        public IEnumerable<BlockSyntax> blockSyntaxes => _blockSyntaxes;
-        public IEnumerable<InlineSyntax> inlineSyntaxes => _inlineSyntaxes;
+        public IEnumerable<BlockSyntax> blockSyntaxes {
+            get { return this._blockSyntaxes; }
+        }
+
+        public IEnumerable<InlineSyntax> inlineSyntaxes {
+            get { return this._inlineSyntaxes; }
+        }
 
         public Document(
             IEnumerable<BlockSyntax> blockSyntaxes = null,
@@ -26,17 +31,17 @@ namespace markdown {
             this.extensionSet = extensionSet ?? ExtensionSet.commanMark;
 //            this.extensionSet = extensionSet ?? ExtensionSet.githubWeb;
             this.encodeHtml = encodeHtml;
-            
+
             this._blockSyntaxes.AddRange(blockSyntaxes ?? new List<BlockSyntax>());
             this._blockSyntaxes.AddRange(this.extensionSet.blockSyntaxes);
-            
+
             this._inlineSyntaxes.AddRange(inlineSyntaxes ?? new List<InlineSyntax>());
             this._inlineSyntaxes.AddRange(this.extensionSet.inlineSyntaxes);
         }
 
         public List<Node> parseLines(List<string> lines) {
             var nodes = new BlockParser(lines, this).parseLines();
-            _parseInlineContent(nodes);
+            this._parseInlineContent(nodes);
             return nodes;
         }
 
@@ -49,12 +54,13 @@ namespace markdown {
             for (int i = 0; i < nodes.Count; i++) {
                 var node = nodes[i];
                 if (node is UnparsedContent) {
-                    var inlineNodes = parseInline(node.textContent);
+                    var inlineNodes = this.parseInline(node.textContent);
                     nodes.RemoveAt(i);
                     nodes.InsertRange(i, inlineNodes);
                     i += inlineNodes.Count - 1;
-                } else if (node is Element && (node as Element).children != null) {
-                    _parseInlineContent((node as Element).children);
+                }
+                else if (node is Element && (node as Element).children != null) {
+                    this._parseInlineContent((node as Element).children);
                 }
             }
         }

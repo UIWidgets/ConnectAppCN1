@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using Unity.UIWidgets.material;
-using Unity.UIWidgets.ui;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.ui;
 
 namespace markdown {
     public class MarkdownStyleSheet {
@@ -71,7 +71,7 @@ namespace markdown {
             this.horizontalRuleDecoration = horizontalRuleDecoration;
             this.textScaleFactor = textScaleFactor;
 
-            _styles = new Dictionary<string, TextStyle>() {
+            this._styles = new Dictionary<string, TextStyle>() {
                 {"a", a},
                 {"p", p},
                 {"li", p},
@@ -126,10 +126,12 @@ namespace markdown {
 
         public Decoration tableCellsDecoration, blockquoteDecoration, codeblockDecoration, horizontalRuleDecoration;
 
-        private Dictionary<string, TextStyle> _styles;
+        Dictionary<string, TextStyle> _styles;
 
-        public Dictionary<string, TextStyle> styles => _styles;
-        
+        public Dictionary<string, TextStyle> styles {
+            get { return this._styles; }
+        }
+
         public static MarkdownStyleSheet fromTheme(ThemeData theme) {
             return new MarkdownStyleSheet(
                 a: new TextStyle(true, Colors.blue),
