@@ -102,7 +102,7 @@ namespace ConnectApp.screens {
                                     new GestureDetector(
                                         child: new Container(
                                             width: MediaQuery.of(context).size.width,
-                                            height: MediaQuery.of(context).size.height - 116,
+                                            height: MediaQuery.of(context).size.height - 116 - CCommonUtils.getSafeAreaBottomPadding(context: context),
                                             child: Image.memory(SplashManager.readImage(), fit: BoxFit.cover)
                                         ),
                                         onTap: this.pushPage
@@ -111,15 +111,14 @@ namespace ConnectApp.screens {
                                         width: 182,
                                         height: 32,
                                         margin: EdgeInsets.only(top: 36),
-                                        child: Image.asset("image/iOS/unityConnectBlack.imageset/unityConnectBlack",
-                                            fit: BoxFit.cover)
+                                        child: Image.asset("image/iOS/unityConnectBlack.imageset/unityConnectBlack")
                                     ),
                                     new Container(
                                         width: 101,
                                         height: 22,
-                                        margin: EdgeInsets.only(bottom: 16, top: 16),
-                                        child: Image.asset("image/iOS/madeWithUnity.imageset/madeWithUnity",
-                                            fit: BoxFit.cover))
+                                        margin: EdgeInsets.only(top: 6, bottom:20),
+                                        child: Image.asset("image/iOS/madeWithUnity.imageset/madeWithUnity")
+                                    )
                                 }
                             ),
                             new Positioned(
