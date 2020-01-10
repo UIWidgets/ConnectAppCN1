@@ -304,7 +304,9 @@ namespace ConnectApp.screens {
                 var contentHead = this._buildContentHead();
                 var relatedArticles = this._buildRelatedArticles();
                 var comments = this._buildComments();
-                contentWidget = new Markdown(data: this._article.markdownPreviewBody,
+                contentWidget = new Markdown(
+                    markdownStyleSheet: MarkdownUtils.defaultStyle(),
+                    data: this._article.markdownPreviewBody,
                     onTapLink: url => this.widget.actionModel.openUrl(url), contentHead: contentHead,
                     relatedArticles: relatedArticles, commentList: comments, refreshController: this._refreshController,
                     enablePullUp: this._article.hasMore, enablePullDown: false,
