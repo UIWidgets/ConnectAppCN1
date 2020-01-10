@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using ConnectApp.Components.pull_to_refresh;
+using ConnectApp.Constants;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
@@ -262,7 +263,8 @@ namespace markdown {
 
             List<Widget> paddingWidgets = new List<Widget>();
             children.ForEach(widget => {
-                paddingWidgets.Add(new Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: widget));
+                paddingWidgets.Add(new Container(color: CColors.White, padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: widget));
             });
             originItems.AddRange(paddingWidgets);
             if (this.relatedArticles != null) {
