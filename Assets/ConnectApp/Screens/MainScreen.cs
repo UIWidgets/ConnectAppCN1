@@ -61,14 +61,12 @@ namespace ConnectApp.screens {
                                 StatusBarManager.statusBarStyle(toIndex == 3 && UserInfoManager.isLogin());
                                 StoreProvider.store.dispatcher.dispatch(new SwitchTabBarIndexAction {index = toIndex});
                                 JPushPlugin.showPushAlert(toIndex != 2);
-                                PreferencesManager.updateTabIndex(toIndex);
                                 return true;
                             }
 
                             Router.navigator.pushNamed(routeName: MainNavigatorRoutes.Login);
                             return false;
-                        },
-                        PreferencesManager.initTabIndex()
+                        }
                     )
                 )
             );
