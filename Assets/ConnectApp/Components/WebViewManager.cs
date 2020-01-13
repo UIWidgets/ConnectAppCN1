@@ -12,11 +12,9 @@ namespace ConnectApp.Components {
         public static readonly WebViewManager instance = new WebViewManager();
 
         public static readonly List<string> localFiles = new List<string> {
-            "TinyRacing.asm.js",
+            "TinyRacing.wasm",
             "TinyRacing.html",
             "TinyRacing.js",
-            "TinyRacing.mem",
-            "TinyRacing.symbols",
             "Data/0d5e50f7eabe6a6502c1030d4ee4718f",
             "Data/10aeba28d4ab63c3305682fc472875c5",
             "Data/280810710d6f05853ec42a19b495f691",
