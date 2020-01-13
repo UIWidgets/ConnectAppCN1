@@ -1721,8 +1721,8 @@ namespace ConnectApp.screens {
                         message: message,
                         () => {
                             var attachment = message.attachments.first();
-                            var filename = attachment.filename;
-                            if (CCommonUtils.isAndroid && !filename.EndsWith(".mp4")) {
+                            var contentType = attachment.contentType;
+                            if (CCommonUtils.isAndroid && contentType != "video/mp4") {
                                 CustomToast.show(new CustomToastItem(
                                     context: this.context,
                                     "暂不支持该文件",
@@ -1731,7 +1731,7 @@ namespace ConnectApp.screens {
                                 return;
                             }
 
-                            if (filename.EndsWith(".mp4")) {
+                            if (contentType == "video/mp4") {
                                 if (!this._showReactionOverlay) {
                                     this.widget.actionModel.playVideo(obj: attachment.url);
                                 }

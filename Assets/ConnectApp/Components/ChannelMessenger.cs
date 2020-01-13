@@ -164,10 +164,10 @@ namespace ConnectApp.Components {
         Widget _buildFileIcon() {
             var attachment = this.message.attachments.first();
             string imageName;
-            if (attachment.filename.EndsWith(".pdf")) {
+            if (attachment.contentType == "application/pdf") {
                 imageName = "image/pdf-file-icon";
             }
-            else if (attachment.filename.EndsWith(".mp4")) {
+            else if (attachment.contentType == "video/mp4") {
                 imageName = "image/video-file-icon";
             }
             else {
