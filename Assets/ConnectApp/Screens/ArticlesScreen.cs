@@ -41,8 +41,8 @@ namespace ConnectApp.screens {
                         },
                         pushToGame = () => {
                             dispatcher.dispatch(new MainNavigatorPushToWebViewAction {
-                                // url = "https://connect-prd-cdn.unity.com/tiny/TinyRacing.html",
-                                url = "TinyRacing.html",
+                                url = "https://connect-prd-cdn.unity.com/tiny/TinyRacing.html",
+                                // url = "TinyRacing.html",
                                 landscape = true,
                                 fullscreen = true,
                                 showOpenInBrowser = false

@@ -23,7 +23,6 @@ namespace ConnectApp.Main {
             LoadFonts();
             VideoPlayerManager.instance.initPlayer(this.gameObject);
             WebViewManager.instance.initWebView(this.gameObject);
-            this.StartCoroutine(WebViewManager.instance.copyFilesToPersistentDataPath());
             InitBugly();
             AnalyticsManager.EnterApp();
         }

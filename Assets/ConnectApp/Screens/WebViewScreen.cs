@@ -69,9 +69,7 @@ namespace ConnectApp.screens {
                     this._webViewObject.AddCustomHeader("Cookie", HttpManager.getCookie());
                 }
 
-                this._webViewObject.LoadURL(this.widget.url.StartsWith("http")
-                    ? this.widget.url
-                    : WebViewManager.instance.getFileURL(this.widget.url));
+                this._webViewObject.LoadURL(this.widget.url);
                 this._webViewObject.SetVisibility(true);
             }
 
