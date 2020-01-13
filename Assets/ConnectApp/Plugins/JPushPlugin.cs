@@ -138,7 +138,7 @@ namespace ConnectApp.Plugins {
                                     SplashManager.hiddenAndroidSpalsh();
                                 }
                                 else {
-                                    if (PreferencesManager.initTabIndex() == 0 && SplashManager.isExistSplash()) {
+                                    if (SplashManager.isExistSplash()) {
                                         SplashManager.hiddenAndroidSpalsh();
                                         StoreProvider.store.dispatcher.dispatch(
                                             new MainNavigatorPushReplaceSplashAction());
