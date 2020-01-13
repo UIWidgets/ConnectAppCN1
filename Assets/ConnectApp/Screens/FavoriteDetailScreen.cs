@@ -160,6 +160,11 @@ namespace ConnectApp.screens {
             });
         }
 
+        public override void dispose() {
+            this._controller.dispose();
+            base.dispose();
+        }
+
         public Ticker createTicker(TickerCallback onTick) {
             return new Ticker(onTick: onTick, () => $"created by {this}");
         }

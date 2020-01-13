@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.Constants;
 using ConnectApp.Utils;
+using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -24,7 +26,7 @@ namespace ConnectApp.Components {
     /// <summary>
     /// 金刚区
     /// </summary>
-    public class KingKongView : StatelessWidget {
+    public class KingKongView : StatefulWidget {
         public KingKongView(
             TypeCallback onPress,
             Key key = null
@@ -32,7 +34,79 @@ namespace ConnectApp.Components {
             this.onPress = onPress;
         }
 
-        readonly TypeCallback onPress;
+        public readonly TypeCallback onPress;
+
+        public override State createState() {
+            return new _KingKongViewState();
+        }
+    }
+
+    public class _KingKongViewState : State<KingKongView> {
+        public override void initState() {
+            base.initState();
+            Promise.Delayed(TimeSpan.FromMilliseconds(1)).Then(() => {
+                var rect = this.context.getContextRect();
+                var kingKongTypes = PreferencesManager.initKingKongType();
+                if (!kingKongTypes.Contains(item: KingKongType.dailyCollection)) {
+                    this._showDailyCollectionDialog(rect: rect, kingKongTypes: kingKongTypes);
+                }
+                else if (!kingKongTypes.Contains(item: KingKongType.leaderBoard)) {
+                    this._showLeaderBoardDialog(rect: rect, kingKongTypes: kingKongTypes);
+                }
+                else if (!kingKongTypes.Contains(item: KingKongType.blogger)) {
+                    this._showBloggerDialog(rect: rect);
+                }
+            });
+        }
+
+        void _showDailyCollectionDialog(Rect rect, List<KingKongType> kingKongTypes) {
+            PreferencesManager.updateKingKongType(type: KingKongType.dailyCollection);
+            CustomDialogUtils.showCustomDialog(
+                child: new Bubble(
+                    "每日精选1篇文章，记得查看哦",
+                    rect.width / 8.0f,
+                    rect.bottom - 16 - CCommonUtils.getSafeAreaTopPadding(context: this.context),
+                    16
+                ),
+                barrierDismissible: true,
+                onPop: () => {
+                    if (!kingKongTypes.Contains(item: KingKongType.leaderBoard)) {
+                        this._showLeaderBoardDialog(rect: rect, kingKongTypes: kingKongTypes);
+                    }
+                }
+            );
+        }
+
+        void _showLeaderBoardDialog(Rect rect, List<KingKongType> kingKongTypes) {
+            PreferencesManager.updateKingKongType(type: KingKongType.leaderBoard);
+            CustomDialogUtils.showCustomDialog(
+                child: new Bubble(
+                    "榜单上线，合辑、专栏、博主在这里哦",
+                    rect.width / 8.0f + rect.width / 4.0f,
+                    rect.bottom - 16 - CCommonUtils.getSafeAreaTopPadding(context: this.context),
+                    contentRight: 16
+                ),
+                barrierDismissible: true,
+                onPop: () => {
+                    if (!kingKongTypes.Contains(item: KingKongType.blogger)) {
+                        this._showBloggerDialog(rect: rect);
+                    }
+                }
+            );
+        }
+
+        void _showBloggerDialog(Rect rect) {
+            PreferencesManager.updateKingKongType(type: KingKongType.blogger);
+            CustomDialogUtils.showCustomDialog(
+                child: new Bubble(
+                    "这里可以发现很多大牛博主哦",
+                    rect.width - rect.width / 8.0f,
+                    rect.bottom - 16 - CCommonUtils.getSafeAreaTopPadding(context: this.context),
+                    contentRight: 16
+                ),
+                barrierDismissible: true
+            );
+        }
 
         public override Widget build(BuildContext context) {
             return new Container(
@@ -42,13 +116,13 @@ namespace ConnectApp.Components {
                         new Row(
                             children: new List<Widget> {
                                 _buildKingKongItem("每日精选", "daily-collection",
-                                    () => this.onPress(type: KingKongType.dailyCollection)),
+                                    () => this.widget.onPress(type: KingKongType.dailyCollection)),
                                 _buildKingKongItem("榜单", "leader-board",
-                                    () => this.onPress(type: KingKongType.leaderBoard)),
+                                    () => this.widget.onPress(type: KingKongType.leaderBoard)),
                                 _buildKingKongItem("活动", "activity",
-                                    () => this.onPress(type: KingKongType.activity)),
+                                    () => this.widget.onPress(type: KingKongType.activity)),
                                 _buildKingKongItem("博主", "blogger",
-                                    () => this.onPress(type: KingKongType.blogger))
+                                    () => this.widget.onPress(type: KingKongType.blogger))
                             }
                         ),
                         new CustomDivider(
@@ -61,6 +135,33 @@ namespace ConnectApp.Components {
         }
 
         static Widget _buildKingKongItem(string title, string imageName, GestureTapCallback onPressItem) {
+            Widget newDot;
+            if (title == "榜单") {
+                newDot = new Positioned(
+                    top: 0,
+                    right: 0,
+                    child: new Container(
+                        width: 18,
+                        height: 18,
+                        decoration: new BoxDecoration(
+                            color: CColors.Error,
+                            borderRadius: BorderRadius.only(9, 9, 9)
+                        ),
+                        alignment: Alignment.center,
+                        child: new Text(
+                            "新",
+                            style: new TextStyle(
+                                fontSize: 10,
+                                fontFamily: "Roboto-Bold",
+                                color: CColors.White
+                            )
+                        )
+                    )
+                );
+            }
+            else {
+                newDot = Positioned.fill(new Container());
+            }
             return new Expanded(
                 child: new GestureDetector(
                     onTap: onPressItem,
@@ -73,11 +174,15 @@ namespace ConnectApp.Components {
                                     margin: EdgeInsets.only(bottom: 8),
                                     child: new Stack(
                                         children: new List<Widget> {
-                                            Image.asset(
-                                                "image/kingkong-bg",
-                                                width: 48,
-                                                height: 48
+                                            new Padding(
+                                                padding: EdgeInsets.symmetric(horizontal: 9),
+                                                child: Image.asset(
+                                                    "image/kingkong-bg",
+                                                    width: 48,
+                                                    height: 48
+                                                )
                                             ),
+                                            newDot,
                                             Positioned.fill(
                                                 new Container(
                                                     padding: EdgeInsets.all(6),

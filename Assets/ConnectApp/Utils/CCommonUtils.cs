@@ -2,8 +2,11 @@ using System.Collections.Generic;
 using System.Text;
 using ConnectApp.Models.Model;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
+using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace ConnectApp.Utils {
     public static class CCommonUtils {
@@ -17,6 +20,11 @@ namespace ConnectApp.Utils {
             return Application.platform == RuntimePlatform.IPhonePlayer 
                 ? MediaQuery.of(context: context).padding.bottom
                 : 0;
+        }
+
+        public static Rect getContextRect(this BuildContext context) {
+            var renderBox = (RenderBox) context.findRenderObject();
+            return renderBox.localToGlobal(point: Offset.zero) & renderBox.size;
         }
 
         public static bool isIPhone {

@@ -50,16 +50,19 @@ namespace ConnectApp.Components {
     
     public class TrianglePainter : AbstractCustomPainter {
         public TrianglePainter(
-            ArrowDirection arrowDirection
+            ArrowDirection arrowDirection,
+            Color color = null
         ) {
             this.arrowDirection = arrowDirection;
+            this.color = color ?? CustomTextSelectionControlsUtils._kToolbarBackgroundColor;
         }
     
         readonly ArrowDirection arrowDirection;
+        readonly Color color;
     
         public override void paint(Canvas canvas, Size size) {
             Paint paint = new Paint {
-                color = CustomTextSelectionControlsUtils._kToolbarBackgroundColor,
+                color = this.color,
                 style = PaintingStyle.fill
             };
             float triangleBottomY = this.arrowDirection == ArrowDirection.down
