@@ -10,18 +10,20 @@ using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
+using markdown;
 using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Avatar = ConnectApp.Components.Avatar;
+using Text = Unity.UIWidgets.widgets.Text;
 
 namespace ConnectApp.screens {
     public class ArticleDetailScreenConnector : StatelessWidget {
@@ -297,50 +299,80 @@ namespace ConnectApp.screens {
                                     ) + 16; // 16 is top padding
             }
 
-            var commentIndex = 0;
-            var originItems = this._article == null ? new List<Widget>() : this._buildItems(context, out commentIndex);
-            commentIndex = this._jumpState == _ArticleJumpToCommentState.active ? commentIndex : 0;
-            this._jumpState = _ArticleJumpToCommentState.Inactive;
-
             Widget contentWidget;
-            //happens at the next frame after user presses the "Comment" button
-            //we rebuild a CenteredRefresher so that we can calculate out the comment section's position
-            if (this._needRebuildWithCachedCommentPosition == false && commentIndex != 0) {
-                contentWidget = new CenteredRefresher(
-                    controller: this._refreshController,
-                    enablePullDown: false,
-                    enablePullUp: this._article.hasMore,
-                    onRefresh: this._onRefresh,
-                    onNotification: this._onNotification,
-                    children: originItems,
-                    centerIndex: commentIndex
-                );
-            }
-            else {
-                //happens when the page is updated or (when _needRebuildWithCachedCommentPosition is true) at the next frame after
-                //a CenteredRefresher is created and the comment section's position is estimated
-                //we use 0 or this estimated position to initiate the SmartRefresher's init scroll offset, respectively
-                D.assert(!this._needRebuildWithCachedCommentPosition || this._cachedCommentPosition != null);
-                contentWidget = new SmartRefresher(
-                    initialOffset: this._needRebuildWithCachedCommentPosition ? this._cachedCommentPosition.Value : 0f,
-                    controller: this._refreshController,
-                    enablePullDown: false,
-                    enablePullUp: this._article.hasMore,
-                    onRefresh: this._onRefresh,
-                    onNotification: this._onNotification,
-                    child: ListView.builder(
-                        physics: new AlwaysScrollableScrollPhysics(),
-                        itemCount: originItems.Count,
-                        itemBuilder: (cxt, index) => originItems[index]
-                    ));
+
+            if (this._article.bodyType == "markdown" && this._article.markdownPreviewBody.isNotEmpty()) {
+                var contentHead = this._buildContentHead();
+                var relatedArticles = this._buildRelatedArticles();
+                var comments = this._buildComments();
+                contentWidget = new CustomMarkdown(
+                    markdownStyleSheet: MarkdownUtils.defaultStyle(),
+                    data: this._article.markdownPreviewBody,
+                    onTapLink: url => this.widget.actionModel.openUrl(url), contentHead: contentHead,
+                    relatedArticles: relatedArticles, commentList: comments, refreshController: this._refreshController,
+                    enablePullUp: this._article.hasMore, enablePullDown: false,
+                    onRefresh: this._onRefresh, onNotification: this._onNotification,
+                    initialOffset: this._needRebuildWithCachedCommentPosition
+                        ? this._cachedCommentPosition.Value
+                        : 0f, needRebuildWithCachedCommentPosition: this._needRebuildWithCachedCommentPosition,
+                    isArticleJumpToCommentStateActive: this._jumpState == _ArticleJumpToCommentState.active);
+                this._jumpState = _ArticleJumpToCommentState.Inactive;
                 if (this._needRebuildWithCachedCommentPosition) {
                     this._needRebuildWithCachedCommentPosition = false;
-                    //assume that when we jump to the comment, the title should always be shown as the header
-                    //this assumption will fail when an article is shorter than 16 pixels in height (as referred to in _onNotification
                     this._controller.forward();
                     this._isHaveTitle = true;
                 }
             }
+            else {
+                var commentIndex = 0;
+                var originItems = this._article == null
+                    ? new List<Widget>()
+                    : this._buildItems(context, out commentIndex);
+                commentIndex = this._jumpState == _ArticleJumpToCommentState.active ? commentIndex : 0;
+                this._jumpState = _ArticleJumpToCommentState.Inactive;
+
+                //happens at the next frame after user presses the "Comment" button
+                //we rebuild a CenteredRefresher so that we can calculate out the comment section's position
+                if (this._needRebuildWithCachedCommentPosition == false && commentIndex != 0) {
+                    contentWidget = new CenteredRefresher(
+                        controller: this._refreshController,
+                        enablePullDown: false,
+                        enablePullUp: this._article.hasMore,
+                        onRefresh: this._onRefresh,
+                        onNotification: this._onNotification,
+                        children: originItems,
+                        centerIndex: commentIndex
+                    );
+                }
+                else {
+                    //happens when the page is updated or (when _needRebuildWithCachedCommentPosition is true) at the next frame after
+                    //a CenteredRefresher is created and the comment section's position is estimated
+                    //we use 0 or this estimated position to initiate the SmartRefresher's init scroll offset, respectively
+                    D.assert(!this._needRebuildWithCachedCommentPosition || this._cachedCommentPosition != null);
+                    contentWidget = new SmartRefresher(
+                        initialOffset: this._needRebuildWithCachedCommentPosition
+                            ? this._cachedCommentPosition.Value
+                            : 0f,
+                        controller: this._refreshController,
+                        enablePullDown: false,
+                        enablePullUp: this._article.hasMore,
+                        onRefresh: this._onRefresh,
+                        onNotification: this._onNotification,
+                        child: ListView.builder(
+                            physics: new AlwaysScrollableScrollPhysics(),
+                            itemCount: originItems.Count,
+                            itemBuilder: (cxt, index) => originItems[index]
+                        ));
+                    if (this._needRebuildWithCachedCommentPosition) {
+                        this._needRebuildWithCachedCommentPosition = false;
+                        //assume that when we jump to the comment, the title should always be shown as the header
+                        //this assumption will fail when an article is shorter than 16 pixels in height (as referred to in _onNotification
+                        this._controller.forward();
+                        this._isHaveTitle = true;
+                    }
+                }
+            }
+
 
             var notificationListener = new NotificationListener<UserScrollNotification>(
                 child: contentWidget,
@@ -364,9 +396,11 @@ namespace ConnectApp.screens {
                                     if (!this.widget.viewModel.isLoggedIn) {
                                         this.widget.actionModel.pushToLogin();
                                     }
+
                                     return this.widget.viewModel.isLoggedIn;
                                 },
-                                likeCount => this.widget.actionModel.likeArticle(arg1: this._article.id, arg2: likeCount)
+                                likeCount =>
+                                    this.widget.actionModel.likeArticle(arg1: this._article.id, arg2: likeCount)
                             )
                         ),
                         this._buildArticleTabBar()
@@ -385,27 +419,35 @@ namespace ConnectApp.screens {
             var originItems = new List<Widget> {
                 this._buildContentHead()
             };
-            originItems.AddRange(
-                ContentDescription.map(
-                    context: context,
-                    cont: this._article.body,
-                    contentMap: this._article.contentMap,
-                    this._article.videoSliceMap,
-                    this._article.videoPosterMap,
-                    openUrl: this.widget.actionModel.openUrl,
-                    playVideo: this.widget.actionModel.playVideo,
-                    this.widget.actionModel.pushToLogin,
-                    UserInfoManager.isLogin()
-                        ? CCommonUtils.GetUserLicense(UserInfoManager.getUserInfo().userId,
-                            this.widget.viewModel.userLicenseDict)
-                        : "",
-                    this.widget.actionModel.browserImage
-                )
-            );
+            if (this._article.bodyType == "markdown" && this._article.markdownBody.isNotEmpty()) {
+                originItems.Add(new Markdown(null, this._article.markdownBody,
+                    onTapLink: url => this.widget.actionModel.openUrl(url)));
+            }
+            else {
+                originItems.AddRange(
+                    ContentDescription.map(
+                        context: context,
+                        cont: this._article.body,
+                        contentMap: this._article.contentMap,
+                        this._article.videoSliceMap,
+                        this._article.videoPosterMap,
+                        openUrl: this.widget.actionModel.openUrl,
+                        playVideo: this.widget.actionModel.playVideo,
+                        this.widget.actionModel.pushToLogin,
+                        UserInfoManager.isLogin()
+                            ? CCommonUtils.GetUserLicense(UserInfoManager.getUserInfo().userId,
+                                this.widget.viewModel.userLicenseDict)
+                            : "",
+                        this.widget.actionModel.browserImage
+                    )
+                );
+            }
+
+
             // originItems.Add(this._buildActionCards(this._article.like));
             originItems.Add(this._buildRelatedArticles());
             commentIndex = originItems.Count;
-            originItems.AddRange(this._buildComments(context: context));
+            originItems.AddRange(this._buildComments());
 
             return originItems;
         }
@@ -592,6 +634,7 @@ namespace ConnectApp.screens {
                     this.setState(() => this._isHaveTitle = false);
                 }
             }
+
             return true;
         }
 
@@ -607,6 +650,7 @@ namespace ConnectApp.screens {
                     this.setState(() => this._isPullUp = false);
                 }
             }
+
             return true;
         }
 
@@ -879,13 +923,13 @@ namespace ConnectApp.screens {
             );
         }
 
-        IEnumerable<Widget> _buildComments(BuildContext context) {
+        List<Widget> _buildComments() {
             List<string> channelComments = new List<string>();
             if (this.widget.viewModel.channelMessageList.ContainsKey(key: this._article.channelId)) {
                 channelComments = this.widget.viewModel.channelMessageList[key: this._article.channelId];
             }
 
-            var mediaQuery = MediaQuery.of(context);
+            var mediaQuery = MediaQuery.of(this.context);
             var comments = new List<Widget> {
                 new Container(
                     color: CColors.White,

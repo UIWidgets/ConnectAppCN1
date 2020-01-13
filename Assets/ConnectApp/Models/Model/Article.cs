@@ -22,7 +22,10 @@ namespace ConnectApp.Models.Model {
         public DateTime publishedTime;
         public DateTime lastPublishedTime;
         public string type;
+        public string bodyType;
         public string body;
+        public string markdownBody;
+        public string markdownPreviewBody;
         public bool? like;
         public int? appCurrentUserLikeCount;
         public List<Favorite> favorites;
