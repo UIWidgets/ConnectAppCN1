@@ -304,7 +304,7 @@ namespace ConnectApp.screens {
                 var contentHead = this._buildContentHead();
                 var relatedArticles = this._buildRelatedArticles();
                 var comments = this._buildComments();
-                contentWidget = new Markdown(
+                contentWidget = new CustomMarkdown(
                     markdownStyleSheet: MarkdownUtils.defaultStyle(),
                     data: this._article.markdownPreviewBody,
                     onTapLink: url => this.widget.actionModel.openUrl(url), contentHead: contentHead,
