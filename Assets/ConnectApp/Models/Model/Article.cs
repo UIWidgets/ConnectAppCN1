@@ -146,4 +146,10 @@ namespace ConnectApp.Models.Model {
         public string id;
         public string itemId;
     }
+
+    [Serializable]
+    public class UserArticle {
+        public int total;
+        public List<Article> list;
+    }
 }

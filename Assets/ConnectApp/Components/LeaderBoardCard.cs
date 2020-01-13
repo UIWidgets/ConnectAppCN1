@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using ConnectApp.Constants;
+using ConnectApp.Models.Model;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -14,21 +15,35 @@ namespace ConnectApp.Components {
     /// </summary>
     public class LeaderBoardCollectionCard : StatelessWidget {
         public LeaderBoardCollectionCard(
-            object data = null,
+            RankList collection,
+            Dictionary<string, FavoriteTag> favoriteTags,
+            Dictionary<string, FavoriteTagArticle> favoriteTagArticles,
             int index = 0,
             GestureTapCallback onPress = null,
             Key key = null
         ) : base(key: key) {
-            this.data = data;
+            this.collection = collection;
+            this.favoriteTags = favoriteTags;
+            this.favoriteTagArticles = favoriteTagArticles;
             this.index = index;
             this.onPress = onPress;
         }
 
-        readonly object data;
+        readonly RankList collection;
+        readonly Dictionary<string, FavoriteTag> favoriteTags;
+        readonly Dictionary<string, FavoriteTagArticle> favoriteTagArticles;
         readonly int index;
         readonly GestureTapCallback onPress;
 
         public override Widget build(BuildContext context) {
+            var favoriteTag = this.favoriteTags[key: this.collection.itemId];
+            var favoriteTagArticle = this.favoriteTagArticles[key: this.collection.itemId];
+
+            var images = new List<string>();
+            favoriteTagArticle.list.ForEach(article => {
+                images.Add(item: article.thumbnail.url);
+            });
+
             Color numColor = this.index + 1 <= 3 ? CColors.Error : CColors.TextBody5;
             return new GestureDetector(
                 onTap: this.onPress,
@@ -55,13 +70,13 @@ namespace ConnectApp.Components {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: new List<Widget> {
                                         new Text(
-                                            "Unity官方博主预备营准备启动",
+                                            this.collection.resetTitle.isNotEmpty() ? this.collection.resetTitle : favoriteTag.name,
                                             maxLines: 2,
                                             overflow: TextOverflow.ellipsis,
                                             style: CTextStyle.PXLargeMediumBody
                                         ),
                                         new Text(
-                                            "作者 10 • 文章 10",
+                                            $"作者 {favoriteTagArticle.authorCount} • 文章 {favoriteTag.stasitics.count}",
                                             style: CTextStyle.PSmallBody4
                                         )
                                     }
@@ -69,6 +84,7 @@ namespace ConnectApp.Components {
                             ),
                             new SizedBox(width: 16),
                             new CoverImages(
+                                images: images,
                                 verticalGap: 0
                             )
                         }
@@ -152,18 +168,34 @@ namespace ConnectApp.Components {
     /// </summary>
     public class LeaderBoardBloggerCard : StatelessWidget {
         public LeaderBoardBloggerCard(
+            User blogger,
             int index = 0,
             GestureTapCallback onPress = null,
             Key key = null
         ) : base(key: key) {
+            this.blogger = blogger;
             this.index = index;
             this.onPress = onPress;
         }
 
+        readonly User blogger;
         readonly int index;
         readonly GestureTapCallback onPress;
 
         public override Widget build(BuildContext context) {
+            Widget titleWidget;
+            if (this.blogger.title.isNotEmpty()) {
+                titleWidget = new Text(
+                    data: this.blogger.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: CTextStyle.PRegularBody4
+                );
+            }
+            else {
+                titleWidget = new Container();
+            }
+
             return new GestureDetector(
                 onTap: this.onPress,
                 child: new Container(
@@ -183,14 +215,7 @@ namespace ConnectApp.Components {
                             ),
                             new Padding(
                                 padding: EdgeInsets.symmetric(horizontal: 16),
-                                child: new Container(
-                                    width: 56,
-                                    height: 56,
-                                    decoration: new BoxDecoration(
-                                        color: CColors.Red,
-                                        borderRadius: BorderRadius.all(28)
-                                    )
-                                )
+                                child: Avatar.User(user: this.blogger, 56)
                             ),
                             new Expanded(
                                 child: new Column(
@@ -198,7 +223,7 @@ namespace ConnectApp.Components {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: new List<Widget> {
                                         new Text(
-                                            "十月",
+                                            data: this.blogger.fullName,
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                             style: new TextStyle(
@@ -208,19 +233,14 @@ namespace ConnectApp.Components {
                                                 color: CColors.TextBody
                                             )
                                         ),
-                                        new Text(
-                                            "社会热心人士社会热心人士社会热心人士社会热心人士",
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: CTextStyle.PRegularBody4
-                                        )
+                                        titleWidget
                                     }
                                 )
                             ),
                             new Padding(
                                 padding: EdgeInsets.only(16),
                                 child: new Text(
-                                    "文章 10 • 赞 98",
+                                    $"文章 {this.blogger.articleCount ?? 0} • 赞 {this.blogger.likeCount ?? 0}",
                                     style: CTextStyle.PSmallBody4
                                 )
                             )
@@ -258,11 +278,48 @@ namespace ConnectApp.Components {
     /// </summary>
     public class LeaderBoardBloggerHeader : StatelessWidget {
         public LeaderBoardBloggerHeader(
+            List<string> bloggerIds,
+            Dictionary<string, User> userDict,
             Key key = null
         ) : base(key: key) {
+            this.bloggerIds = bloggerIds;
+            this.userDict = userDict;
         }
 
+        readonly List<string> bloggerIds;
+        readonly Dictionary<string, User> userDict;
+
         public override Widget build(BuildContext context) {
+            if (this.bloggerIds == null) {
+                return new Container();
+            }
+
+            Widget firstAvatar;
+            if (this.bloggerIds.Count > 0) {
+                var user = this.userDict[this.bloggerIds[0]];
+                firstAvatar = _buildAvatar(user: user);
+            }
+            else {
+                firstAvatar = new Container();
+            }
+
+            Widget secondAvatar;
+            if (this.bloggerIds.Count > 1) {
+                var user = this.userDict[this.bloggerIds[1]];
+                secondAvatar = _buildAvatar(user: user);
+            }
+            else {
+                secondAvatar = new Container();
+            }
+
+            Widget thirdAvatar;
+            if (this.bloggerIds.Count > 2) {
+                var user = this.userDict[this.bloggerIds[2]];
+                thirdAvatar = _buildAvatar(user: user);
+            }
+            else {
+                thirdAvatar = new Container();
+            }
             return new Container(
                 height: 286,
                 child: new Stack(
@@ -274,85 +331,42 @@ namespace ConnectApp.Components {
                             fit: BoxFit.fill
                         ),
                         new Positioned(
-                            left: 24,
+                            left: 8,
                             bottom: 116,
                             width: 96,
-                            child: new Column(
-                                children: new List<Widget> {
-                                    new Container(
-                                        width: 64,
-                                        height: 64,
-                                        decoration: new BoxDecoration(
-                                            color: CColors.Red,
-                                            borderRadius: BorderRadius.all(32)
-                                        )
-                                    ),
-                                    new Padding(
-                                        padding: EdgeInsets.only(top: 8),
-                                        child: new Text(
-                                            "Michael Wang",
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: CTextStyle.PMediumWhite
-                                        )
-                                    )
-                                }
-                            )
+                            child: secondAvatar
                         ),
                         new Positioned(
                             left: (MediaQuery.of(context: context).size.width - 104) / 2 - 6,
                             bottom: 152,
                             width: 104,
-                            child: new Column(
-                                children: new List<Widget> {
-                                    new Container(
-                                        width: 64,
-                                        height: 64,
-                                        decoration: new BoxDecoration(
-                                            color: CColors.Red,
-                                            borderRadius: BorderRadius.all(32)
-                                        )
-                                    ),
-                                    new Padding(
-                                        padding: EdgeInsets.only(top: 8),
-                                        child: new Text(
-                                            "Wu Xiaomu",
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: CTextStyle.PMediumWhite
-                                        )
-                                    )
-                                }
-                            )
+                            child: firstAvatar
                         ),
                         new Positioned(
-                            right: 24,
+                            right: 8,
                             bottom: 96,
                             width: 96,
-                            child: new Column(
-                                children: new List<Widget> {
-                                    new Container(
-                                        width: 64,
-                                        height: 64,
-                                        decoration: new BoxDecoration(
-                                            color: CColors.Red,
-                                            borderRadius: BorderRadius.all(32)
-                                        )
-                                    ),
-                                    new Padding(
-                                        padding: EdgeInsets.only(top: 8),
-                                        child: new Text(
-                                            "樱花兔",
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: CTextStyle.PMediumWhite
-                                        )
-                                    )
-                                }
-                            )
+                            child: thirdAvatar
                         )
                     }
                 )
+            );
+        }
+
+        static Widget _buildAvatar(User user) {
+            return new Column(
+                children: new List<Widget> {
+                    Avatar.User(user: user, 64, true),
+                    new Padding(
+                        padding: EdgeInsets.only(top: 8),
+                        child: new Text(
+                            data: user.fullName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: CTextStyle.PMediumWhite
+                        )
+                    )
+                }
             );
         }
     }

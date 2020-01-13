@@ -28,6 +28,7 @@ namespace ConnectApp.Models.State {
         public NetworkState networkState { get; set; }
         public TabBarState tabBarState { get; set; }
         public FavoriteState favoriteState { get; set; }
+        public LeaderBoardState leaderBoardState { get; set; }
 
         public static AppState initialState() {
             var loginInfo = UserInfoManager.getUserInfo();
@@ -197,7 +198,22 @@ namespace ConnectApp.Models.State {
                     favoriteDetailArticleIdDict = new Dictionary<string, List<string>>(),
                     favoriteTagHasMore = false,
                     favoriteDetailHasMore = false,
-                    favoriteTagDict = new Dictionary<string, FavoriteTag>()
+                    favoriteTagDict = new Dictionary<string, FavoriteTag>(),
+                    favoriteTagArticleDict = new Dictionary<string, FavoriteTagArticle>()
+                },
+                leaderBoardState = new LeaderBoardState {
+                    collectionLoading = false,
+                    columnLoading = false,
+                    bloggerLoading = false,
+                    collectionRankList = new List<RankList>(),
+                    columnRankList = new List<RankList>(),
+                    bloggerIds = new List<string>(),
+                    collectionHasMore = false,
+                    columnHasMore = false,
+                    bloggerHasMore = false,
+                    collectionPageNumber = 1,
+                    columnPageNumber = 1,
+                    bloggerPageNumber = 1
                 },
                 networkState = new NetworkState {
                     networkConnected = true,

@@ -332,4 +332,48 @@ namespace ConnectApp.Models.Api {
     public class UpdateChannelMessagesReactionResponse {
         
     }
+
+    [Serializable]
+    public class FetchLeaderBoardCollectionResponse {
+        public List<RankList> rankList;
+        public Dictionary<string, FavoriteTagArticle> favoriteTagArticleMap;
+        public Dictionary<string, FavoriteTag> favoriteTagMap;
+        public Dictionary<string, bool> collectedTagMap;
+        public bool hasMore;
+        public int currentPage;
+    }
+
+    [Serializable]
+    public class FetchLeaderBoardColumnResponse {
+        public List<RankList> rankList;
+        public Dictionary<string, UserArticle> userArticleMap;
+        public Dictionary<string, User> userSimpleV2Map;
+        public bool hasMore;
+        public int currentPage;
+    }
+
+    [Serializable]
+    public class FetchLeaderBoardBloggerResponse {
+        public List<string> bloggerIds;
+        public Dictionary<string, User> userFullMap;
+        public bool hasMore;
+        public int currentPage;
+    }
+
+    [Serializable]
+    public class FetchLeaderBoardCollectionDetailResponse {
+        public List<Article> projectSimples;
+        public Dictionary<string, User> userSimpleV2Map;
+        public Dictionary<string, Team> teamSimpleMap;
+        public bool hasMore;
+        public int currentPage;
+    }
+
+    [Serializable]
+    public class FetchLeaderBoardColumnDetailResponse {
+        public List<Article> projectSimples;
+        public Dictionary<string, User> userSimpleV2Map;
+        public bool hasMore;
+        public int currentPage;
+    }
 }
