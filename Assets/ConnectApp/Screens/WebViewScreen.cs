@@ -12,7 +12,6 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
-using UnityEngine.Networking;
 
 namespace ConnectApp.screens {
     public class WebViewScreen : StatefulWidget {
