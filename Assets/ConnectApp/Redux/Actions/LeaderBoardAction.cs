@@ -9,7 +9,7 @@ namespace ConnectApp.redux.actions {
     }
 
     public class FetchLeaderBoardCollectionSuccessAction : BaseAction {
-        public List<RankList> rankList;
+        public List<RankData> rankList;
         public Dictionary<string, FavoriteTagArticle> favoriteTagArticleMap;
         public Dictionary<string, FavoriteTag> favoriteTagMap;
         public bool hasMore;
@@ -23,7 +23,7 @@ namespace ConnectApp.redux.actions {
     }
 
     public class FetchLeaderBoardColumnSuccessAction : BaseAction {
-        public List<RankList> rankList;
+        public List<RankData> rankList;
         public Dictionary<string, UserArticle> userArticleMap;
         public bool hasMore;
         public int pageNumber;

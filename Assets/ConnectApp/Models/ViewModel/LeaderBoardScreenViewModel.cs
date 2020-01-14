@@ -6,8 +6,8 @@ namespace ConnectApp.Models.ViewModel {
         public bool collectionLoading;
         public bool columnLoading;
         public bool bloggerLoading;
-        public List<RankList> collectionRankList;
-        public List<RankList> columnRankList;
+        public List<RankData> collectionRankList;
+        public List<RankData> columnRankList;
         public List<string> bloggerIds;
         public bool collectionHasMore;
         public bool columnHasMore;

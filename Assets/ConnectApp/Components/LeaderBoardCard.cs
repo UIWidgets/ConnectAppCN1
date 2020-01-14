@@ -15,7 +15,7 @@ namespace ConnectApp.Components {
     /// </summary>
     public class LeaderBoardCollectionCard : StatelessWidget {
         public LeaderBoardCollectionCard(
-            RankList collection,
+            RankData collection,
             Dictionary<string, FavoriteTag> favoriteTags,
             Dictionary<string, FavoriteTagArticle> favoriteTagArticles,
             int index = 0,
@@ -29,7 +29,7 @@ namespace ConnectApp.Components {
             this.onPress = onPress;
         }
 
-        readonly RankList collection;
+        readonly RankData collection;
         readonly Dictionary<string, FavoriteTag> favoriteTags;
         readonly Dictionary<string, FavoriteTagArticle> favoriteTagArticles;
         readonly int index;

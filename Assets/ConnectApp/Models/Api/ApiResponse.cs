@@ -335,7 +335,7 @@ namespace ConnectApp.Models.Api {
 
     [Serializable]
     public class FetchLeaderBoardCollectionResponse {
-        public List<RankList> rankList;
+        public List<RankData> rankList;
         public Dictionary<string, FavoriteTagArticle> favoriteTagArticleMap;
         public Dictionary<string, FavoriteTag> favoriteTagMap;
         public Dictionary<string, bool> collectedTagMap;
@@ -345,7 +345,7 @@ namespace ConnectApp.Models.Api {
 
     [Serializable]
     public class FetchLeaderBoardColumnResponse {
-        public List<RankList> rankList;
+        public List<RankData> rankList;
         public Dictionary<string, UserArticle> userArticleMap;
         public Dictionary<string, User> userSimpleV2Map;
         public bool hasMore;
