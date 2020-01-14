@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using ConnectApp.Constants;
+using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
@@ -110,24 +111,46 @@ namespace ConnectApp.Components {
 
     public class CoverImages : StatelessWidget {
         public CoverImages(
+            List<string> images = null,
             float size = 48,
             float ratioGap = 16,
             float horizontalGap = 16,
             float verticalGap = 16,
             Key key = null
         ) : base(key: key) {
+            this.images = images;
             this.size = size;
             this.ratioGap = ratioGap;
             this.horizontalGap = horizontalGap;
             this.verticalGap = verticalGap;
         }
 
+        readonly List<string> images;
         readonly float size;
         readonly float ratioGap;
         readonly float horizontalGap;
         readonly float verticalGap;
 
         public override Widget build(BuildContext context) {
+            if (this.images.isNullOrEmpty()) {
+                return new Container();
+            }
+
+            Widget firstImage;
+            if (this.images.Count > 0) {
+                firstImage = new PlaceholderImage(
+                    this.images[0],
+                    width: this.size,
+                    height: this.size,
+                    6,
+                    fit: BoxFit.cover,
+                    true
+                );
+            }
+            else {
+                firstImage = new Container();
+            }
+
             return new Container(
                 width: this.size + this.ratioGap * 2 + this.horizontalGap * 2,
                 height: this.size + this.ratioGap * 2 + this.verticalGap * 2,
@@ -136,14 +159,7 @@ namespace ConnectApp.Components {
                         new Positioned(
                             right: 0,
                             bottom: 0,
-                            child: new Container(
-                                width: this.size,
-                                height: this.size,
-                                decoration: new BoxDecoration(
-                                    color: CColors.Red,
-                                    borderRadius: BorderRadius.all(6)
-                                )
-                            )
+                            child: firstImage
                         ),
                         new Positioned(
                             right: this.horizontalGap,

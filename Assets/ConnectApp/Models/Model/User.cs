@@ -14,6 +14,7 @@ namespace ConnectApp.Models.Model {
         public string avatar;
         public string coverImage;
         public string description;
+        public int? articleCount;
         public int? followCount;
         public int? followingUsersCount;
         public int? followingTeamsCount;
@@ -47,6 +48,7 @@ namespace ConnectApp.Models.Model {
             string avatar = null,
             string coverImage = null,
             string description = null,
+            int? articleCount = null,
             int? followCount = null,
             int? followingUsersCount = null,
             int? followingTeamsCount = null,
@@ -80,6 +82,7 @@ namespace ConnectApp.Models.Model {
                 avatar = avatar ?? this.avatar,
                 coverImage = coverImage ?? this.coverImage,
                 description = description ?? this.description,
+                articleCount = articleCount ?? this.articleCount,
                 followCount = followCount ?? this.followCount,
                 followingUsersCount = followingUsersCount ?? this.followingUsersCount,
                 followingTeamsCount = followingTeamsCount ?? this.followingTeamsCount,
@@ -120,6 +123,7 @@ namespace ConnectApp.Models.Model {
                 avatar: other.avatar,
                 coverImage: other.coverImage,
                 description: other.description,
+                articleCount: other.articleCount,
                 followCount: other.followCount,
                 followingUsersCount: other.followingUsersCount,
                 followingTeamsCount: other.followingTeamsCount,

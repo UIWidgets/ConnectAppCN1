@@ -5,8 +5,11 @@ using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
+using RSG;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
@@ -18,9 +21,17 @@ namespace ConnectApp.screens {
 
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, LeaderBoardScreenViewModel>(
-                converter: state => new LeaderBoardScreenViewModel(),
+                converter: state => new LeaderBoardScreenViewModel {
+                    bloggerLoading = state.leaderBoardState.bloggerLoading,
+                    bloggerIds = state.leaderBoardState.bloggerIds,
+                    bloggerHasMore = state.leaderBoardState.bloggerHasMore,
+                    bloggerPageNumber = state.leaderBoardState.bloggerPageNumber,
+                    userDict = state.userState.userDict
+                },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new LeaderBoardScreenActionModel {
+                        startFetchBlogger = () => dispatcher.dispatch(new StartFetchLeaderBoardBloggerAction()),
+                        fetchBlogger = page => dispatcher.dispatch<IPromise>(Actions.fetchLeaderBoardBlogger(page: page)),
                         pushToUserDetail = userId => dispatcher.dispatch(new MainNavigatorPushToUserDetailAction {
                             userId = userId
                         })
@@ -50,8 +61,15 @@ namespace ConnectApp.screens {
     }
 
     class _LeaderBoardBloggerScreenState : State<LeaderBoardBloggerScreen> {
+        const int firstPageNumber = 1;
+        int _bloggerPageNumber = firstPageNumber;
+
         public override void initState() {
             base.initState();
+            SchedulerBinding.instance.addPostFrameCallback(_ => {
+                this.widget.actionModel.startFetchBlogger();
+                this.widget.actionModel.fetchBlogger(arg: firstPageNumber);
+            });
         }
 
         bool _onNotification(ScrollNotification notification) {
@@ -59,40 +77,94 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
-            return new NotificationListener<ScrollNotification>(
-                onNotification: this._onNotification,
-                child: new CustomScrollbar(
+            var bloggerIds = this.widget.viewModel.bloggerIds;
+            Widget content;
+            if (this.widget.viewModel.bloggerLoading && bloggerIds.isEmpty()) {
+                content = new GlobalLoading(
+                    color: CColors.Transparent,
+                    loadingColor: LoadingColor.white
+                );
+            }
+            else if (bloggerIds.Count <= 0) {
+                content = new CustomScrollbar(
                     new CustomScrollView(
                         new PageStorageKey<string>("博主"),
                         slivers: new List<Widget> {
                             new SliverToBoxAdapter(
-                                child: new Container(
-                                    child: new Column(
-                                        children: new List<Widget> {
-                                            new LeaderBoardBloggerHeader(),
-                                            new LeaderBoardUpdateTip(),
-                                            new CustomDivider(height: 1, color: CColors.Separator2)
-                                        }
+                                child: new Container(height: 16)
+                            ),
+                            new SliverFillRemaining(
+                                child: new BlankView(
+                                    "暂无博主",
+                                    "image/default-following",
+                                    true,
+                                    () => {
+                                        this.widget.actionModel.startFetchBlogger();
+                                        this.widget.actionModel.fetchBlogger(arg: firstPageNumber);
+                                    },
+                                    new BoxDecoration(
+                                        color: CColors.White,
+                                        borderRadius: BorderRadius.only(12, 12)
                                     )
                                 )
-                            ),
-                            new SliverFixedExtentList(
-                                del: new SliverChildBuilderDelegate(
-                                    builder: this._buildBloggerCard,
-                                    20
-                                ),
-                                itemExtent: 88
                             )
                         }
                     )
-                )
+                );
+            }
+            else {
+                var enablePullUp = this.widget.viewModel.bloggerHasMore;
+                content = new NotificationListener<ScrollNotification>(
+                    onNotification: this._onNotification,
+                    child: new CustomScrollbar(
+                        new CustomScrollView(
+                            new PageStorageKey<string>("博主"),
+                            slivers: new List<Widget> {
+                                new SliverToBoxAdapter(
+                                    child: new Container(
+                                        child: new Column(
+                                            children: new List<Widget> {
+                                                new LeaderBoardBloggerHeader(
+                                                    bloggerIds: bloggerIds,
+                                                    userDict: this.widget.viewModel.userDict
+                                                ),
+                                                new LeaderBoardUpdateTip(),
+                                                new CustomDivider(height: 1, color: CColors.Separator2)
+                                            }
+                                        )
+                                    )
+                                ),
+                                new SliverList(
+                                    del: new SliverChildBuilderDelegate(
+                                        builder: this._buildBloggerCard,
+                                        childCount: bloggerIds.Count
+                                    )
+                                )
+                            }
+                        )
+                    )
+                );
+            }
+            return new Container(
+                child: content
             );
         }
 
         Widget _buildBloggerCard(BuildContext context, int index) {
+            if (index < 3) {
+                return new Container();
+            }
+
+            var bloggerId = this.widget.viewModel.bloggerIds[index: index];
+            if (!this.widget.viewModel.userDict.ContainsKey(key: bloggerId)) {
+                return new Container();
+            }
+
+            var blogger = this.widget.viewModel.userDict[key: bloggerId];
             return new LeaderBoardBloggerCard(
+                blogger: blogger,
                 index: index,
-                () => this.widget.actionModel.pushToUserDetail("5a0535f5880c64001886db04")
+                () => this.widget.actionModel.pushToUserDetail(obj: blogger.id)
             );
         }
     }
