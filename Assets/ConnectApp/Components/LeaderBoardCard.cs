@@ -158,9 +158,21 @@ namespace ConnectApp.Components {
                                             overflow: TextOverflow.ellipsis,
                                             style: CTextStyle.PXLargeMediumBody
                                         ),
-                                        new Text(
-                                            $"{this.user.fullName} • 文章 {this.userArticle.total}",
-                                            style: CTextStyle.PSmallBody4
+                                        new Row(
+                                            children: new List<Widget> {
+                                                new Flexible(
+                                                    child: new Text(
+                                                        $"{this.user.fullName}",
+                                                        style: CTextStyle.PSmallBody4,
+                                                        maxLines: 1,
+                                                        overflow: TextOverflow.ellipsis
+                                                    )
+                                                ),
+                                                new Text(
+                                                    $" • 文章 {this.userArticle.total}",
+                                                    style: CTextStyle.PSmallBody4
+                                                )
+                                            }
                                         )
                                     }
                                 )
