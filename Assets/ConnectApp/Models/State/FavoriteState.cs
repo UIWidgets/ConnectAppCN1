@@ -12,5 +12,6 @@ namespace ConnectApp.Models.State {
         public bool favoriteTagHasMore { get; set; }
         public bool favoriteDetailHasMore { get; set; }
         public Dictionary<string, FavoriteTag> favoriteTagDict { get; set; }
+        public Dictionary<string, FavoriteTagArticle> favoriteTagArticleDict { get; set; }
     }
 }

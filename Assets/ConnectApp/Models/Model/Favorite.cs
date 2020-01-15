@@ -1,6 +1,13 @@
 using System;
+using System.Collections.Generic;
 
 namespace ConnectApp.Models.Model {
+    [Serializable]
+    public class FavoriteTagArticle {
+        public int authorCount;
+        public List<Article> list;
+    }
+
     [Serializable]
     public class FavoriteTag {
         public string id;

@@ -566,6 +566,7 @@ namespace ConnectApp.Components {
                                                         new Padding(
                                                             padding: EdgeInsets.only(16, right: 16, bottom: 16),
                                                             child: new CoverImages(
+                                                                null,
                                                                 80,
                                                                 0,
                                                                 8,

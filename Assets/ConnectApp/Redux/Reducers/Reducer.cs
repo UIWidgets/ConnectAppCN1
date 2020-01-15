@@ -1677,6 +1677,138 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case StartFetchLeaderBoardCollectionAction _: {
+                    state.leaderBoardState.collectionLoading = true;
+                    break;
+                }
+
+                case FetchLeaderBoardCollectionSuccessAction action: {
+                    state.leaderBoardState.collectionLoading = false;
+
+                    if (action.favoriteTagArticleMap != null && action.favoriteTagArticleMap.isNotEmpty()) {
+                        var favoriteTagArticleDict = state.favoriteState.favoriteTagArticleDict;
+                        foreach (var keyValuePair in action.favoriteTagArticleMap) {
+                            if (favoriteTagArticleDict.ContainsKey(key: keyValuePair.Key)) {
+                                favoriteTagArticleDict[key: keyValuePair.Key] = keyValuePair.Value;
+                            }
+                            else {
+                                favoriteTagArticleDict.Add(key: keyValuePair.Key, value: keyValuePair.Value);
+                            }
+                        }
+
+                        state.favoriteState.favoriteTagArticleDict = favoriteTagArticleDict;
+                    }
+
+                    if (action.favoriteTagMap != null && action.favoriteTagMap.isNotEmpty()) {
+                        var favoriteTagDict = state.favoriteState.favoriteTagDict;
+                        foreach (var keyValuePair in action.favoriteTagMap) {
+                            if (favoriteTagDict.ContainsKey(key: keyValuePair.Key)) {
+                                favoriteTagDict[key: keyValuePair.Key] = keyValuePair.Value;
+                            }
+                            else {
+                                favoriteTagDict.Add(key: keyValuePair.Key, value: keyValuePair.Value);
+                            }
+                        }
+
+                        state.favoriteState.favoriteTagDict = favoriteTagDict;
+                    }
+
+                    if (action.pageNumber == 1) {
+                        state.leaderBoardState.collectionRankList = action.rankList;
+                    }
+                    else {
+                        var rankList = state.leaderBoardState.collectionRankList;
+                        rankList.AddRange(collection: action.rankList);
+                        state.leaderBoardState.collectionRankList = rankList;
+                    }
+
+                    state.leaderBoardState.collectionHasMore = action.hasMore;
+                    state.leaderBoardState.collectionPageNumber = action.pageNumber;
+                    break;
+                }
+
+                case FetchLeaderBoardCollectionFailureAction _: {
+                    state.leaderBoardState.collectionLoading = false;
+                    break;
+                }
+
+                case StartFetchLeaderBoardColumnAction _: {
+                    state.leaderBoardState.columnLoading = true;
+                    break;
+                }
+
+                case FetchLeaderBoardColumnSuccessAction action: {
+                    state.leaderBoardState.columnLoading = false;
+
+                    if (action.pageNumber == 1) {
+                        state.leaderBoardState.columnRankList = action.rankList;
+                    }
+                    else {
+                        var rankList = state.leaderBoardState.columnRankList;
+                        rankList.AddRange(collection: action.rankList);
+                        state.leaderBoardState.columnRankList = rankList;
+                    }
+
+                    state.leaderBoardState.columnHasMore = action.hasMore;
+                    state.leaderBoardState.columnPageNumber = action.pageNumber;
+                    break;
+                }
+
+                case FetchLeaderBoardColumnFailureAction _: {
+                    state.leaderBoardState.columnLoading = false;
+                    break;
+                }
+
+                case StartFetchLeaderBoardBloggerAction _: {
+                    state.leaderBoardState.bloggerLoading = true;
+                    break;
+                }
+
+                case FetchLeaderBoardBloggerSuccessAction action: {
+                    state.leaderBoardState.bloggerLoading = false;
+                    if (action.pageNumber == 1) {
+                        state.leaderBoardState.bloggerIds = action.bloggerIds;
+                    }
+                    else {
+                        var bloggerIds = state.leaderBoardState.bloggerIds;
+                        bloggerIds.AddRange(collection: action.bloggerIds);
+                        state.leaderBoardState.bloggerIds = bloggerIds;
+                    }
+
+                    state.leaderBoardState.bloggerHasMore = action.hasMore;
+                    state.leaderBoardState.bloggerPageNumber = action.pageNumber;
+                    break;
+                }
+
+                case FetchLeaderBoardBloggerFailureAction _: {
+                    state.leaderBoardState.bloggerLoading = false;
+                    break;
+                }
+
+                case StartFetchLeaderBoardCollectionDetailAction _: {
+                    break;
+                }
+
+                case FetchLeaderBoardCollectionDetailSuccessAction action: {
+                    break;
+                }
+
+                case FetchLeaderBoardCollectionDetailFailureAction _: {
+                    break;
+                }
+
+                case StartFetchLeaderBoardColumnDetailAction _: {
+                    break;
+                }
+
+                case FetchLeaderBoardColumnDetailSuccessAction action: {
+                    break;
+                }
+
+                case FetchLeaderBoardColumnDetailFailureAction _: {
+                    break;
+                }
+
                 case FetchReviewUrlSuccessAction action: {
                     state.settingState.reviewUrl = action.url;
                     state.settingState.hasReviewUrl = action.url.isNotEmpty();

@@ -120,13 +120,11 @@ namespace ConnectApp.screens {
 
         public override Widget build(BuildContext context) {
             List<Color> colors;
-            string patternImage;
             if (this._selectedIndex == 2) {
                 colors = new List<Color> {
                     new Color(0xFFFFB84F),
                     new Color(0xFFFF8024)
                 };
-                patternImage = "image/leaderboard-pattern-curves2";
             }
             else {
                 colors = new List<Color> {
@@ -134,7 +132,6 @@ namespace ConnectApp.screens {
                     CColors.PrimaryBlue,
                     CColors.MessageReactionCount
                 };
-                patternImage = "image/leaderboard-pattern-curves1";
             }
 
             return new Container(
@@ -152,8 +149,9 @@ namespace ConnectApp.screens {
                         ),
                         child: new Stack(
                             alignment: Alignment.topLeft,
+                            fit: StackFit.expand,
                             children: new List<Widget> {
-                                Image.asset(name: patternImage),
+                                Image.asset("image/leaderboard-pattern-curves", fit: BoxFit.fill),
                                 Positioned.fill(
                                     new Column(
                                         children: new List<Widget> {
