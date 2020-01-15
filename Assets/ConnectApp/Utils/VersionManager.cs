@@ -5,10 +5,12 @@ using ConnectApp.Components;
 using ConnectApp.Constants;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
+using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.Utils {
     public enum CheckVersionType {
@@ -38,39 +40,46 @@ namespace ConnectApp.Utils {
                         if (type == CheckVersionType.initialize && !needNoticeNewVersion()||needForceUpdate()) {
                             return;
                         }
-
                         markUpdateNoticeTime();
                         CustomDialogUtils.showCustomDialog(
                             barrierColor: Color.fromRGBO(0, 0, 0, 0.5f),
                             child: new CustomAlertDialog(
-                                "版本更新",
+                                null,
                                 message: versionResponse.changeLog,
                                 new List<Widget> {
                                     new CustomButton(
-                                        child: new Text(
-                                            "稍后再说",
-                                            style: new TextStyle(
-                                                height: 1.33f,
-                                                fontSize: 16,
-                                                fontFamily: "Roboto-Regular",
-                                                color: new Color(0xFF959595)
-                                            ),
-                                            textAlign: TextAlign.center
+                                        child: new Center(
+                                            child: new Text(
+                                                "稍后再说",
+                                                style: CTextStyle.PLargeBody5.defaultHeight(),
+                                                textAlign: TextAlign.center
+                                            )
                                         ),
                                         onPressed: CustomDialogUtils.hiddenCustomDialog
                                     ),
                                     new CustomButton(
-                                        child: new Text(
-                                            "立即更新",
-                                            style: CTextStyle.PLargeBlue,
-                                            textAlign: TextAlign.center
+                                        child: new Center(
+                                            child: new Text(
+                                                "立即更新",
+                                                style: CTextStyle.PLargeBlue.defaultHeight(),
+                                                textAlign: TextAlign.center
+                                            )
                                         ),
                                         onPressed: () => {
                                             CustomDialogUtils.hiddenCustomDialog();
                                             Application.OpenURL(url: versionResponse.url);
                                         }
                                     )
-                                }
+                                },
+                                new Stack(
+                                    children: new List<Widget> {
+                                        Image.asset("image/updaterBg"),
+                                        new Align(
+                                            alignment: Alignment.bottomCenter,
+                                            child: new Container(height: 1, color: CColors.White)
+                                        )
+                                    }
+                                )
                             )
                         );
                     }

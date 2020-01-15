@@ -162,6 +162,13 @@ namespace ConnectApp.Constants {
             fontFamily: "Roboto-Medium",
             color: CColors.TextBody
         );
+        
+        public static readonly TextStyle H5White = new TextStyle(
+            height: 1.27f,
+            fontSize: 20,
+            fontFamily: "Roboto-Medium",
+            color: CColors.White
+        );
 
         public static readonly TextStyle PXLargeMedium = new TextStyle(
             fontSize: 18,
