@@ -5,11 +5,15 @@ using ConnectApp.Models.State;
 using Unity.UIWidgets.Redux;
 
 namespace ConnectApp.redux.actions {
+    public class RankListAction : BaseAction {
+        public List<RankData> rankList;
+    }
+
     public class StartFetchLeaderBoardCollectionAction : RequestAction {
     }
 
     public class FetchLeaderBoardCollectionSuccessAction : BaseAction {
-        public List<RankData> rankList;
+        public List<string> collectionIds;
         public Dictionary<string, FavoriteTagArticle> favoriteTagArticleMap;
         public Dictionary<string, FavoriteTag> favoriteTagMap;
         public bool hasMore;
@@ -23,7 +27,7 @@ namespace ConnectApp.redux.actions {
     }
 
     public class FetchLeaderBoardColumnSuccessAction : BaseAction {
-        public List<RankData> rankList;
+        public List<string> columnIds;
         public Dictionary<string, UserArticle> userArticleMap;
         public bool hasMore;
         public int pageNumber;
@@ -42,6 +46,18 @@ namespace ConnectApp.redux.actions {
     }
 
     public class FetchLeaderBoardBloggerFailureAction : BaseAction {
+    }
+
+    public class StartFetchHomeBloggerAction : RequestAction {
+    }
+
+    public class FetchHomeBloggerSuccessAction : BaseAction {
+        public List<string> bloggerIds;
+        public bool hasMore;
+        public int pageNumber;
+    }
+
+    public class FetchHomeBloggerFailureAction : BaseAction {
     }
 
     public class StartFetchLeaderBoardCollectionDetailAction : RequestAction {
@@ -75,8 +91,13 @@ namespace ConnectApp.redux.actions {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return LeaderBoardApi.FetchLeaderBoardCollection(page: page)
                     .Then(collectionResponse => {
+                        dispatcher.dispatch(new RankListAction {rankList = collectionResponse.rankList});
+                        var collectionIds = new List<string>();
+                        collectionResponse.rankList.ForEach(rankData => {
+                            collectionIds.Add(item: rankData.id);
+                        });
                         dispatcher.dispatch(new FetchLeaderBoardCollectionSuccessAction {
-                            rankList = collectionResponse.rankList,
+                            collectionIds = collectionIds,
                             favoriteTagArticleMap = collectionResponse.favoriteTagArticleMap,
                             favoriteTagMap = collectionResponse.favoriteTagMap,
                             hasMore = collectionResponse.hasMore,
@@ -94,9 +115,14 @@ namespace ConnectApp.redux.actions {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return LeaderBoardApi.FetchLeaderBoardColumn(page: page)
                     .Then(columnResponse => {
+                        dispatcher.dispatch(new RankListAction {rankList = columnResponse.rankList});
                         dispatcher.dispatch(new UserMapAction {userMap = columnResponse.userSimpleV2Map});
+                        var columnIds = new List<string>();
+                        columnResponse.rankList.ForEach(rankData => {
+                            columnIds.Add(item: rankData.id);
+                        });
                         dispatcher.dispatch(new FetchLeaderBoardColumnSuccessAction {
-                            rankList = columnResponse.rankList,
+                            columnIds = columnIds,
                             userArticleMap = columnResponse.userArticleMap,
                             hasMore = columnResponse.hasMore,
                             pageNumber = page
@@ -113,15 +139,46 @@ namespace ConnectApp.redux.actions {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return LeaderBoardApi.FetchLeaderBoardBlogger(page: page)
                     .Then(bloggerResponse => {
+                        dispatcher.dispatch(new RankListAction {rankList = bloggerResponse.rankList});
                         dispatcher.dispatch(new UserMapAction {userMap = bloggerResponse.userFullMap});
+                        dispatcher.dispatch(new FollowMapAction {followMap = bloggerResponse.followMap});
+                        dispatcher.dispatch(new UserLicenseMapAction {userLicenseMap = bloggerResponse.userLicenseMap});
+                        var bloggerIds = new List<string>();
+                        bloggerResponse.rankList.ForEach(rankData => {
+                            bloggerIds.Add(item: rankData.itemId);
+                        });
                         dispatcher.dispatch(new FetchLeaderBoardBloggerSuccessAction {
-                            bloggerIds = bloggerResponse.bloggerIds,
+                            bloggerIds = bloggerIds,
                             hasMore = bloggerResponse.hasMore,
                             pageNumber = page
                         });
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new FetchLeaderBoardBloggerFailureAction());
+                        Debuger.LogError(message: error);
+                    });
+            });
+        }
+
+        public static object fetchHomeBlogger(int page) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return LeaderBoardApi.FetchHomeBlogger(page: page)
+                    .Then(bloggerResponse => {
+                        dispatcher.dispatch(new UserMapAction {userMap = bloggerResponse.userFullMap});
+                        dispatcher.dispatch(new FollowMapAction {followMap = bloggerResponse.followMap});
+                        dispatcher.dispatch(new UserLicenseMapAction {userLicenseMap = bloggerResponse.userLicenseMap});
+                        var bloggerIds = new List<string>();
+                        bloggerResponse.rankList.ForEach(rankData => {
+                            bloggerIds.Add(item: rankData.itemId);
+                        });
+                        dispatcher.dispatch(new FetchHomeBloggerSuccessAction {
+                            bloggerIds = bloggerIds,
+                            hasMore = bloggerResponse.hasMore,
+                            pageNumber = page
+                        });
+                    })
+                    .Catch(error => {
+                        dispatcher.dispatch(new FetchHomeBloggerFailureAction());
                         Debuger.LogError(message: error);
                     });
             });

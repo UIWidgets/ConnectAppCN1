@@ -1139,6 +1139,24 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case RankListAction action: {
+                    if (action.rankList.isNotEmpty()) {
+                        var rankDict = state.leaderBoardState.rankDict;
+                        action.rankList.ForEach(rankData => {
+                            if (rankDict.ContainsKey(key: rankData.id)) {
+                                rankDict[key: rankData.id] = rankData;
+                            }
+                            else {
+                                rankDict.Add(key: rankData.id, value: rankData);
+                            }
+                        });
+
+                        state.leaderBoardState.rankDict = rankDict;
+                    }
+
+                    break;
+                }
+
                 case PopularSearchArticleSuccessAction action: {
                     state.popularSearchState.popularSearchArticles = action.popularSearchArticles;
                     break;
@@ -1714,12 +1732,12 @@ namespace ConnectApp.redux.reducers {
                     }
 
                     if (action.pageNumber == 1) {
-                        state.leaderBoardState.collectionRankList = action.rankList;
+                        state.leaderBoardState.collectionIds = action.collectionIds;
                     }
                     else {
-                        var rankList = state.leaderBoardState.collectionRankList;
-                        rankList.AddRange(collection: action.rankList);
-                        state.leaderBoardState.collectionRankList = rankList;
+                        var collectionIds = state.leaderBoardState.collectionIds;
+                        collectionIds.AddRange(collection: action.collectionIds);
+                        state.leaderBoardState.collectionIds = collectionIds;
                     }
 
                     state.leaderBoardState.collectionHasMore = action.hasMore;
@@ -1741,12 +1759,26 @@ namespace ConnectApp.redux.reducers {
                     state.leaderBoardState.columnLoading = false;
 
                     if (action.pageNumber == 1) {
-                        state.leaderBoardState.columnRankList = action.rankList;
+                        state.leaderBoardState.columnIds = action.columnIds;
                     }
                     else {
-                        var rankList = state.leaderBoardState.columnRankList;
-                        rankList.AddRange(collection: action.rankList);
-                        state.leaderBoardState.columnRankList = rankList;
+                        var columnIds = state.leaderBoardState.columnIds;
+                        columnIds.AddRange(collection: action.columnIds);
+                        state.leaderBoardState.columnIds = columnIds;
+                    }
+
+                    if (action.userArticleMap != null && action.userArticleMap.isNotEmpty()) {
+                        var userArticleDict = state.articleState.userArticleDict;
+                        foreach (var keyValuePair in action.userArticleMap) {
+                            if (userArticleDict.ContainsKey(key: keyValuePair.Key)) {
+                                userArticleDict[key: keyValuePair.Key] = keyValuePair.Value;
+                            }
+                            else {
+                                userArticleDict.Add(key: keyValuePair.Key, value: keyValuePair.Value);
+                            }
+                        }
+
+                        state.articleState.userArticleDict = userArticleDict;
                     }
 
                     state.leaderBoardState.columnHasMore = action.hasMore;
@@ -1782,6 +1814,32 @@ namespace ConnectApp.redux.reducers {
 
                 case FetchLeaderBoardBloggerFailureAction _: {
                     state.leaderBoardState.bloggerLoading = false;
+                    break;
+                }
+
+                case StartFetchHomeBloggerAction _: {
+                    state.leaderBoardState.homeBloggerLoading = true;
+                    break;
+                }
+
+                case FetchHomeBloggerSuccessAction action: {
+                    state.leaderBoardState.homeBloggerLoading = false;
+                    if (action.pageNumber == 1) {
+                        state.leaderBoardState.homeBloggerIds = action.bloggerIds;
+                    }
+                    else {
+                        var bloggerIds = state.leaderBoardState.homeBloggerIds;
+                        bloggerIds.AddRange(collection: action.bloggerIds);
+                        state.leaderBoardState.homeBloggerIds = bloggerIds;
+                    }
+
+                    state.leaderBoardState.homeBloggerHasMore = action.hasMore;
+                    state.leaderBoardState.homeBloggerPageNumber = action.pageNumber;
+                    break;
+                }
+
+                case FetchHomeBloggerFailureAction _: {
+                    state.leaderBoardState.homeBloggerLoading = false;
                     break;
                 }
 
