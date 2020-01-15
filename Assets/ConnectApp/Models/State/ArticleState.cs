@@ -20,6 +20,7 @@ namespace ConnectApp.Models.State {
         public string beforeTime { get; set; }
         public string afterTime { get; set; }
         public Dictionary<string, Article> articleDict { get; set; }
+        public Dictionary<string, UserArticle> userArticleDict { get; set; }
         public List<Article> articleHistory { get; set; }
         public List<string> blockArticleList { get; set; }
     }

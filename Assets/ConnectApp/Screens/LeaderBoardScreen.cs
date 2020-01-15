@@ -65,6 +65,7 @@ namespace ConnectApp.screens {
 
         int _selectedIndex;
         CustomTabController _tabController;
+        ScrollController _scrollController;
         bool _isHaveTitle;
 
         public override void initState() {
@@ -76,6 +77,7 @@ namespace ConnectApp.screens {
                 this,
                 initialIndex: this._selectedIndex
             );
+            this._scrollController = new ScrollController();
             this._isHaveTitle = true;
             this._tabController.addListener(() => {
                 if (this._tabController.index != this._selectedIndex) {
@@ -275,6 +277,7 @@ namespace ConnectApp.screens {
                 tabChildren.Add(item: tabChild);
             });
             return new NestedScrollView(
+                controller: this._scrollController,
                 headerSliverBuilder: (context, innerBoxIsScrolled) => new List<Widget> {
                     new SliverToBoxAdapter(
                         child: this._buildTabBarHeader()
