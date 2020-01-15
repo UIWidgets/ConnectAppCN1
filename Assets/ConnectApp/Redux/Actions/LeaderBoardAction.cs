@@ -94,7 +94,7 @@ namespace ConnectApp.redux.actions {
                         dispatcher.dispatch(new RankListAction {rankList = collectionResponse.rankList});
                         var collectionIds = new List<string>();
                         collectionResponse.rankList.ForEach(rankData => {
-                            collectionIds.Add(item: rankData.itemId);
+                            collectionIds.Add(item: rankData.id);
                         });
                         dispatcher.dispatch(new FetchLeaderBoardCollectionSuccessAction {
                             collectionIds = collectionIds,
@@ -119,7 +119,7 @@ namespace ConnectApp.redux.actions {
                         dispatcher.dispatch(new UserMapAction {userMap = columnResponse.userSimpleV2Map});
                         var columnIds = new List<string>();
                         columnResponse.rankList.ForEach(rankData => {
-                            columnIds.Add(item: rankData.itemId);
+                            columnIds.Add(item: rankData.id);
                         });
                         dispatcher.dispatch(new FetchLeaderBoardColumnSuccessAction {
                             columnIds = columnIds,

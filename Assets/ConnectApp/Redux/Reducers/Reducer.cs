@@ -1143,11 +1143,11 @@ namespace ConnectApp.redux.reducers {
                     if (action.rankList.isNotEmpty()) {
                         var rankDict = state.leaderBoardState.rankDict;
                         action.rankList.ForEach(rankData => {
-                            if (rankDict.ContainsKey(key: rankData.itemId)) {
-                                rankDict[key: rankData.itemId] = rankData;
+                            if (rankDict.ContainsKey(key: rankData.id)) {
+                                rankDict[key: rankData.id] = rankData;
                             }
                             else {
-                                rankDict.Add(key: rankData.itemId, value: rankData);
+                                rankDict.Add(key: rankData.id, value: rankData);
                             }
                         });
 

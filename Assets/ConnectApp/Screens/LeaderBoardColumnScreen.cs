@@ -185,10 +185,11 @@ namespace ConnectApp.screens {
 
         Widget _buildColumnCard(BuildContext context, int index) {
             var columnId = this.widget.viewModel.columnIds[index: index];
+            var rankData = this.widget.viewModel.rankDict[key: columnId];
             return new LeaderBoardColumnCard(
-                this.widget.viewModel.rankDict[key: columnId],
-                this.widget.viewModel.userDict[key: columnId],
-                this.widget.viewModel.userArticleDict[key: columnId],
+                column: rankData,
+                this.widget.viewModel.userDict[key: rankData.itemId],
+                this.widget.viewModel.userArticleDict[key: rankData.itemId],
                 index: index,
                 () => this.widget.actionModel.pushToAlbumAction()
             );
