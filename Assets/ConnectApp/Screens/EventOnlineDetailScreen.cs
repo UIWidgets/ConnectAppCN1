@@ -394,7 +394,7 @@ namespace ConnectApp.screens {
                         CustomDialogUtils.showCustomDialog(
                             barrierColor: Color.fromRGBO(0, 0, 0, 0.5f),
                             child: new CustomAlertDialog(
-                                "即将前往微信小程序\n开始观看",
+                                "即将前往微信小程序开始观看",
                                 null,
                                 new List<Widget> {
                                     new CustomButton(
