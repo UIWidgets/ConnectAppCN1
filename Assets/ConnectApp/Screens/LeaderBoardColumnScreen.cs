@@ -24,9 +24,12 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, LeaderBoardScreenViewModel>(
                 converter: state => new LeaderBoardScreenViewModel {
                     columnLoading = state.leaderBoardState.columnLoading,
-                    columnRankList = state.leaderBoardState.columnRankList,
+                    columnIds = state.leaderBoardState.columnIds,
                     columnHasMore = state.leaderBoardState.columnHasMore,
-                    columnPageNumber = state.leaderBoardState.columnPageNumber
+                    columnPageNumber = state.leaderBoardState.columnPageNumber,
+                    userDict = state.userState.userDict,
+                    userArticleDict = state.articleState.userArticleDict,
+                    rankDict = state.leaderBoardState.rankDict
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new LeaderBoardScreenActionModel {
@@ -61,10 +64,11 @@ namespace ConnectApp.screens {
 
     class _LeaderBoardColumnScreenState : State<LeaderBoardColumnScreen> {
         const int firstPageNumber = 1;
-        int _columnPageNumber = firstPageNumber;
+        bool _isLoading;
 
         public override void initState() {
             base.initState();
+            this._isLoading = false;
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this.widget.actionModel.startFetchColumn();
                 this.widget.actionModel.fetchColumn(arg: firstPageNumber);
@@ -72,19 +76,31 @@ namespace ConnectApp.screens {
         }
 
         bool _onNotification(ScrollNotification notification) {
+            var enablePullUp = this.widget.viewModel.columnHasMore;
+            if (!enablePullUp) {
+                return false;
+            }
+
+            if (notification.metrics.pixels >= notification.metrics.maxScrollExtent && !this._isLoading) {
+                this.setState(() => this._isLoading = true);
+                var pageNumber = this.widget.viewModel.columnPageNumber + 1;
+                this.widget.actionModel.fetchColumn(arg: pageNumber)
+                    .Then(() => this.setState(() => this._isLoading = false))
+                    .Catch(_ => this.setState(() => this._isLoading = false));
+            }
             return false;
         }
 
         public override Widget build(BuildContext context) {
-            var columnRankList = this.widget.viewModel.columnRankList;
+            var columnIds = this.widget.viewModel.columnIds;
             Widget content;
-            if (this.widget.viewModel.columnLoading && columnRankList.isEmpty()) {
+            if (this.widget.viewModel.columnLoading && columnIds.isEmpty()) {
                 content = new GlobalLoading(
                     color: CColors.Transparent,
                     loadingColor: LoadingColor.white
                 );
             }
-            else if (columnRankList.Count <= 0) {
+            else if (columnIds.Count <= 0) {
                 content = new CustomScrollbar(
                     new CustomScrollView(
                         new PageStorageKey<string>("专栏"),
@@ -112,11 +128,29 @@ namespace ConnectApp.screens {
                 );
             }
             else {
+                var enablePullUp = this.widget.viewModel.columnHasMore;
+                Widget endView;
+                if (!enablePullUp) {
+                    endView = new EndView();
+                }
+                else {
+                    endView = new Visibility(
+                        visible: this._isLoading,
+                        child: new Container(
+                            padding: EdgeInsets.symmetric(16),
+                            child: new CustomActivityIndicator(
+                                loadingColor: LoadingColor.white,
+                                animating: this._isLoading ? AnimatingType.repeat : AnimatingType.reset
+                            )
+                        )
+                    );
+                }
                 content = new NotificationListener<ScrollNotification>(
                     onNotification: this._onNotification,
                     child: new CustomScrollbar(
                         new CustomScrollView(
                             new PageStorageKey<string>("专栏"),
+                            physics: new AlwaysScrollableScrollPhysics(),
                             slivers: new List<Widget> {
                                 new SliverToBoxAdapter(
                                     child: new Container(
@@ -132,9 +166,12 @@ namespace ConnectApp.screens {
                                 new SliverFixedExtentList(
                                     del: new SliverChildBuilderDelegate(
                                         builder: this._buildColumnCard,
-                                        childCount: columnRankList.Count
+                                        childCount: columnIds.Count
                                     ),
                                     itemExtent: 112
+                                ),
+                                new SliverToBoxAdapter(
+                                    child: endView
                                 )
                             }
                         )
@@ -147,9 +184,13 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildColumnCard(BuildContext context, int index) {
+            var columnId = this.widget.viewModel.columnIds[index: index];
             return new LeaderBoardColumnCard(
+                this.widget.viewModel.rankDict[key: columnId],
+                this.widget.viewModel.userDict[key: columnId],
+                this.widget.viewModel.userArticleDict[key: columnId],
                 index: index,
-                onPress: () => this.widget.actionModel.pushToAlbumAction()
+                () => this.widget.actionModel.pushToAlbumAction()
             );
         }
     }

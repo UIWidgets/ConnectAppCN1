@@ -13,6 +13,7 @@ namespace ConnectApp.Models.Api {
         public Dictionary<string, bool> likeMap;
         public bool hottestHasMore;
         public bool feedHasNew;
+        public string dailySelectionId;
     }
 
     [Serializable]
@@ -353,9 +354,11 @@ namespace ConnectApp.Models.Api {
     }
 
     [Serializable]
-    public class FetchLeaderBoardBloggerResponse {
-        public List<string> bloggerIds;
+    public class FetchBloggerResponse {
+        public List<RankData> rankList;
         public Dictionary<string, User> userFullMap;
+        public Dictionary<string, bool> followMap;
+        public Dictionary<string, UserLicense> userLicenseMap;
         public bool hasMore;
         public int currentPage;
     }

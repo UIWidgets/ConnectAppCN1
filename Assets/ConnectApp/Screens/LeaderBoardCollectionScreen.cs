@@ -24,11 +24,12 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, LeaderBoardScreenViewModel>(
                 converter: state => new LeaderBoardScreenViewModel {
                     collectionLoading = state.leaderBoardState.collectionLoading,
-                    collectionRankList = state.leaderBoardState.collectionRankList,
+                    collectionIds = state.leaderBoardState.collectionIds,
                     collectionHasMore = state.leaderBoardState.collectionHasMore,
                     collectionPageNumber = state.leaderBoardState.collectionPageNumber,
                     favoriteTagDict = state.favoriteState.favoriteTagDict,
-                    favoriteTagArticleDict = state.favoriteState.favoriteTagArticleDict
+                    favoriteTagArticleDict = state.favoriteState.favoriteTagArticleDict,
+                    rankDict = state.leaderBoardState.rankDict
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new LeaderBoardScreenActionModel {
@@ -63,10 +64,11 @@ namespace ConnectApp.screens {
 
     class _LeaderBoardCollectionScreenState : State<LeaderBoardCollectionScreen> {
         const int firstPageNumber = 1;
-        int _collectionPageNumber = firstPageNumber;
+        bool _isLoading;
 
         public override void initState() {
             base.initState();
+            this._isLoading = false;
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this.widget.actionModel.startFetchCollection();
                 this.widget.actionModel.fetchCollection(arg: firstPageNumber);
@@ -74,19 +76,31 @@ namespace ConnectApp.screens {
         }
 
         bool _onNotification(ScrollNotification notification) {
+            var enablePullUp = this.widget.viewModel.collectionHasMore;
+            if (!enablePullUp) {
+                return false;
+            }
+
+            if (notification.metrics.pixels >= notification.metrics.maxScrollExtent && !this._isLoading) {
+                this.setState(() => this._isLoading = true);
+                var pageNumber = this.widget.viewModel.collectionPageNumber + 1;
+                this.widget.actionModel.fetchCollection(arg: pageNumber)
+                    .Then(() => this.setState(() => this._isLoading = false))
+                    .Catch(_ => this.setState(() => this._isLoading = false));
+            }
             return false;
         }
 
         public override Widget build(BuildContext context) {
-            var collectionRankList = this.widget.viewModel.collectionRankList;
+            var collectionIds = this.widget.viewModel.collectionIds;
             Widget content;
-            if (this.widget.viewModel.collectionLoading && collectionRankList.isEmpty()) {
+            if (this.widget.viewModel.collectionLoading && collectionIds.isEmpty()) {
                 content = new GlobalLoading(
                     color: CColors.Transparent,
                     loadingColor: LoadingColor.white
                 );
             }
-            else if (collectionRankList.Count <= 0) {
+            else if (collectionIds.Count <= 0) {
                 content = new CustomScrollbar(
                     new CustomScrollView(
                         new PageStorageKey<string>("合辑"),
@@ -120,13 +134,23 @@ namespace ConnectApp.screens {
                     endView = new EndView();
                 }
                 else {
-                    endView = new Container();
+                    endView = new Visibility(
+                        visible: this._isLoading,
+                        child: new Container(
+                            padding: EdgeInsets.symmetric(16),
+                            child: new CustomActivityIndicator(
+                                loadingColor: LoadingColor.white,
+                                animating: this._isLoading ? AnimatingType.repeat : AnimatingType.reset
+                            )
+                        )
+                    );
                 }
                 content = new NotificationListener<ScrollNotification>(
                     onNotification: this._onNotification,
                     child: new CustomScrollbar(
                         new CustomScrollView(
                             new PageStorageKey<string>("合辑"),
+                            physics: new AlwaysScrollableScrollPhysics(),
                             slivers: new List<Widget> {
                                 new SliverToBoxAdapter(
                                     child: new Container(
@@ -142,7 +166,7 @@ namespace ConnectApp.screens {
                                 new SliverFixedExtentList(
                                     del: new SliverChildBuilderDelegate(
                                         builder: this._buildCollectionCard,
-                                        childCount: collectionRankList.Count
+                                        childCount: collectionIds.Count
                                     ),
                                     itemExtent: 112
                                 ),
@@ -160,9 +184,9 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildCollectionCard(BuildContext context, int index) {
-            var collection = this.widget.viewModel.collectionRankList[index: index];
+            var collectionId = this.widget.viewModel.collectionIds[index: index];
             return new LeaderBoardCollectionCard(
-                collection: collection,
+                this.widget.viewModel.rankDict[key: collectionId],
                 favoriteTags: this.widget.viewModel.favoriteTagDict,
                 favoriteTagArticles: this.widget.viewModel.favoriteTagArticleDict,
                 index: index,

@@ -34,16 +34,28 @@ namespace ConnectApp.Api {
             return promise;
         }
 
-        public static Promise<FetchLeaderBoardBloggerResponse> FetchLeaderBoardBlogger(int page) {
-            var promise = new Promise<FetchLeaderBoardBloggerResponse>();
+        public static Promise<FetchBloggerResponse> FetchLeaderBoardBlogger(int page) {
+            var promise = new Promise<FetchBloggerResponse>();
             var para = new Dictionary<string, object> {
                 {"page", page}
             };
             var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/rankList/blogger", parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
-                var bloggerResponse =
-                    JsonConvert.DeserializeObject<FetchLeaderBoardBloggerResponse>(value: responseText);
+                var bloggerResponse = JsonConvert.DeserializeObject<FetchBloggerResponse>(value: responseText);
                 promise.Resolve(value: bloggerResponse);
+            }).Catch(exception => promise.Reject(ex: exception));
+            return promise;
+        }
+
+        public static Promise<FetchBloggerResponse> FetchHomeBlogger(int page) {
+            var promise = new Promise<FetchBloggerResponse>();
+            var para = new Dictionary<string, object> {
+                {"page", page}
+            };
+            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/rankList/homeBlogger", parameter: para);
+            HttpManager.resume(request: request).Then(responseText => {
+                var homeBloggerResponse = JsonConvert.DeserializeObject<FetchBloggerResponse>(value: responseText);
+                promise.Resolve(value: homeBloggerResponse);
             }).Catch(exception => promise.Reject(ex: exception));
             return promise;
         }

@@ -140,50 +140,69 @@ namespace ConnectApp.Components {
             if (this.images.Count > 0) {
                 firstImage = new PlaceholderImage(
                     this.images[0],
-                    width: this.size,
-                    height: this.size,
+                    this.size + this.ratioGap * 2,
+                    this.size + this.ratioGap * 2,
                     6,
                     fit: BoxFit.cover,
-                    true
+                    true,
+                    CColorUtils.GetSpecificDarkColorFromId(this.images[0])
                 );
             }
             else {
                 firstImage = new Container();
             }
 
+            Widget secondImage;
+            if (this.images.Count > 1) {
+                secondImage = new PlaceholderImage(
+                    this.images[1],
+                    this.size + this.ratioGap,
+                    this.size + this.ratioGap,
+                    6,
+                    fit: BoxFit.cover,
+                    true,
+                    CColorUtils.GetSpecificDarkColorFromId(this.images[1])
+                );
+            }
+            else {
+                secondImage = new Container();
+            }
+
+            Widget thirdImage;
+            if (this.images.Count > 2) {
+                thirdImage = new PlaceholderImage(
+                    this.images[2],
+                    width: this.size,
+                    height: this.size,
+                    6,
+                    fit: BoxFit.cover,
+                    true,
+                    CColorUtils.GetSpecificDarkColorFromId(this.images[2])
+                );
+            }
+            else {
+                thirdImage = new Container();
+            }
+
             return new Container(
-                width: this.size + this.ratioGap * 2 + this.horizontalGap * 2,
-                height: this.size + this.ratioGap * 2 + this.verticalGap * 2,
+                width: this.size + this.ratioGap * 2 + this.horizontalGap * (this.images.Count - 1),
+                height: this.size + this.ratioGap * 2 + this.verticalGap * (this.images.Count - 1),
                 child: new Stack(
                     children: new List<Widget> {
                         new Positioned(
                             right: 0,
                             bottom: 0,
-                            child: firstImage
+                            child: thirdImage
                         ),
                         new Positioned(
                             right: this.horizontalGap,
                             bottom: this.verticalGap,
-                            child: new Container(
-                                width: this.size + this.ratioGap,
-                                height: this.size + this.ratioGap,
-                                decoration: new BoxDecoration(
-                                    color: CColors.Green,
-                                    borderRadius: BorderRadius.all(6)
-                                )
-                            )
+                            child: secondImage
                         ),
                         new Positioned(
-                            right: this.horizontalGap + this.horizontalGap,
-                            bottom: this.verticalGap + this.verticalGap,
-                            child: new Container(
-                                width: this.size + this.ratioGap * 2,
-                                height: this.size + this.ratioGap * 2,
-                                decoration: new BoxDecoration(
-                                    color: CColors.PrimaryBlue,
-                                    borderRadius: BorderRadius.all(6)
-                                )
-                            )
+                            left: 0,
+                            top: 0,
+                            child: firstImage
                         )
                     }
                 )

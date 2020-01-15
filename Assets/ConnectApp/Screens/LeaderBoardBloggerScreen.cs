@@ -62,10 +62,11 @@ namespace ConnectApp.screens {
 
     class _LeaderBoardBloggerScreenState : State<LeaderBoardBloggerScreen> {
         const int firstPageNumber = 1;
-        int _bloggerPageNumber = firstPageNumber;
+        bool _isLoading;
 
         public override void initState() {
             base.initState();
+            this._isLoading = false;
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this.widget.actionModel.startFetchBlogger();
                 this.widget.actionModel.fetchBlogger(arg: firstPageNumber);
@@ -73,6 +74,18 @@ namespace ConnectApp.screens {
         }
 
         bool _onNotification(ScrollNotification notification) {
+            var enablePullUp = this.widget.viewModel.bloggerHasMore;
+            if (!enablePullUp) {
+                return false;
+            }
+
+            if (notification.metrics.pixels >= notification.metrics.maxScrollExtent && !this._isLoading) {
+                this.setState(() => this._isLoading = true);
+                var pageNumber = this.widget.viewModel.bloggerPageNumber + 1;
+                this.widget.actionModel.fetchBlogger(arg: pageNumber)
+                    .Then(() => this.setState(() => this._isLoading = false))
+                    .Catch(_ => this.setState(() => this._isLoading = false));
+            }
             return false;
         }
 
@@ -89,6 +102,7 @@ namespace ConnectApp.screens {
                 content = new CustomScrollbar(
                     new CustomScrollView(
                         new PageStorageKey<string>("博主"),
+                        physics: new AlwaysScrollableScrollPhysics(),
                         slivers: new List<Widget> {
                             new SliverToBoxAdapter(
                                 child: new Container(height: 16)
@@ -114,11 +128,28 @@ namespace ConnectApp.screens {
             }
             else {
                 var enablePullUp = this.widget.viewModel.bloggerHasMore;
+                Widget endView;
+                if (!enablePullUp) {
+                    endView = new EndView();
+                }
+                else {
+                    endView = new Visibility(
+                        visible: this._isLoading,
+                        child: new Container(
+                            padding: EdgeInsets.symmetric(16),
+                            child: new CustomActivityIndicator(
+                                loadingColor: LoadingColor.white,
+                                animating: this._isLoading ? AnimatingType.repeat : AnimatingType.reset
+                            )
+                        )
+                    );
+                }
                 content = new NotificationListener<ScrollNotification>(
                     onNotification: this._onNotification,
                     child: new CustomScrollbar(
                         new CustomScrollView(
                             new PageStorageKey<string>("博主"),
+                            physics: new AlwaysScrollableScrollPhysics(),
                             slivers: new List<Widget> {
                                 new SliverToBoxAdapter(
                                     child: new Container(
@@ -126,7 +157,8 @@ namespace ConnectApp.screens {
                                             children: new List<Widget> {
                                                 new LeaderBoardBloggerHeader(
                                                     bloggerIds: bloggerIds,
-                                                    userDict: this.widget.viewModel.userDict
+                                                    userDict: this.widget.viewModel.userDict,
+                                                    userId => this.widget.actionModel.pushToUserDetail(obj: userId)
                                                 ),
                                                 new LeaderBoardUpdateTip(),
                                                 new CustomDivider(height: 1, color: CColors.Separator2)
@@ -139,6 +171,9 @@ namespace ConnectApp.screens {
                                         builder: this._buildBloggerCard,
                                         childCount: bloggerIds.Count
                                     )
+                                ),
+                                new SliverToBoxAdapter(
+                                    child: endView
                                 )
                             }
                         )
