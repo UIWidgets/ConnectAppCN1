@@ -134,11 +134,11 @@ namespace markdown {
         }
 
         public bool matches(Regex regex) {
-            if (this.next == null) {
+            if (this.isDone) {
                 return false;
             }
 
-            return regex.Match(this.next).Success;
+            return regex.Match(this.current).Success;
         }
 
         public bool matchesNext(Regex regex) {
@@ -531,7 +531,6 @@ namespace markdown {
             this._pattern = new Regex(patternStr);
             this._endPattern = new Regex(endPatternStr);
         }
-
 
         public override Node parse(BlockParser parser) {
             var childLines = new List<string>();
