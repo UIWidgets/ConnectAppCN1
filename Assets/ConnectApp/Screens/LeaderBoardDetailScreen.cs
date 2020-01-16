@@ -279,7 +279,7 @@ namespace ConnectApp.screens {
                 string buttonText = "收藏";
                 Color textColor = CColors.PrimaryBlue;
                 if (this._fetchButtonState()) {
-                    buttonText = $"已{buttonText}";
+                    buttonText = $"已收藏";
                     buttonColor = CColors.Disable2;
                     textColor = new Color(0xFF959595);
                 }
