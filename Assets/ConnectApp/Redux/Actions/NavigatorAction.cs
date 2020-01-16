@@ -91,7 +91,7 @@ namespace ConnectApp.redux.actions {
         public string reportId;
         public ReportType reportType;
     }
-    
+
     public class MainNavigatorPushToReactionsDetailAction : BaseAction {
         public string messageId;
     }
@@ -145,5 +145,10 @@ namespace ConnectApp.redux.actions {
 
     public class MainNavigatorPushToChannelMentionAction : BaseAction {
         public string channelId;
+    }
+
+    public class MainNavigatorPushToLeaderboardDetailAction : BaseAction {
+        public string id;
+        public LeaderBoardType type = LeaderBoardType.collection;
     }
 }

@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.Constants;
+using ConnectApp.screens;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -7,32 +9,59 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.Components {
-    public class ArticleAlbumHeader : StatelessWidget {
-        public ArticleAlbumHeader(
+    public class LeaderBoardDetailHeader : StatelessWidget {
+        public LeaderBoardDetailHeader(
+            string title,
+            string subTitle,
+            LeaderBoardType type = LeaderBoardType.collection,
+            bool isCollected = false,
+            bool isLoading = false,
+            List<string> images = null,
+            Action ClickButtonCallback = null,
+            Widget followButton = null,
             Key key = null
         ) : base(key) {
+            this.type = type;
+            this.isCollected = isCollected;
+            this.images = images ?? new List<string>();
+            this.isLoading = isLoading;
+            this.title = title;
+            this.subTitle = subTitle;
+            this.ClickButtonCallback = ClickButtonCallback;
+            this.followButton = followButton;
         }
+
+        readonly string title;
+        readonly string subTitle;
+
+        readonly LeaderBoardType type;
+        readonly bool isCollected;
+        readonly bool isLoading;
+        readonly List<string> images;
+        readonly Action ClickButtonCallback;
+        readonly Widget followButton;
+
 
         public override Widget build(BuildContext context) {
             Widget buttonChild;
-            Color followColor = CColors.PrimaryBlue;
-            if (false) {
-                followColor = CColors.Disable2;
+            Color buttonColor = CColors.PrimaryBlue;
+            if (this.isLoading) {
+                buttonColor = CColors.Disable2;
                 buttonChild = new CustomActivityIndicator(
                     size: LoadingSize.xSmall
                 );
             }
             else {
-                string followText = "收藏";
+                string buttonText = "收藏";
                 Color textColor = CColors.PrimaryBlue;
-                if (false) {
-                    followText = "已收藏";
-                    followColor = CColors.Disable2;
+                if (this.isCollected) {
+                    buttonText = $"已收藏";
+                    buttonColor = CColors.Disable2;
                     textColor = new Color(0xFF959595);
                 }
 
                 buttonChild = new Text(
-                    data: followText,
+                    data: buttonText,
                     style: new TextStyle(
                         fontSize: 14,
                         fontFamily: "Roboto-Medium",
@@ -54,6 +83,7 @@ namespace ConnectApp.Components {
                                     new Padding(
                                         padding: EdgeInsets.only(top: 8),
                                         child: new CoverImages(
+                                            images: this.images,
                                             verticalGap: 0
                                         )
                                     ),
@@ -67,27 +97,28 @@ namespace ConnectApp.Components {
                                                 new Container(
                                                     margin: EdgeInsets.only(bottom: 4),
                                                     height: 56,
-                                                    child: new Text(
-                                                        "Unity官方博主预备营准备启动",
+                                                    child: new Text(this.title,
                                                         maxLines: 2,
                                                         overflow: TextOverflow.ellipsis,
                                                         style: CTextStyle.H5
                                                     )),
-                                                new CustomButton(
-                                                    onPressed: () => { },
-                                                    padding: EdgeInsets.zero,
-                                                    child: new Container(
-                                                        width: 60,
-                                                        height: 28,
-                                                        alignment: Alignment.center,
-                                                        decoration: new BoxDecoration(
-                                                            color: CColors.White,
-                                                            borderRadius: BorderRadius.circular(14),
-                                                            border: Border.all(color: followColor)
-                                                        ),
-                                                        child: buttonChild
+                                                this.type == LeaderBoardType.column
+                                                    ? this.followButton
+                                                    : new CustomButton(
+                                                        onPressed: () => this.ClickButtonCallback(),
+                                                        padding: EdgeInsets.zero,
+                                                        child: new Container(
+                                                            width: 60,
+                                                            height: 28,
+                                                            alignment: Alignment.center,
+                                                            decoration: new BoxDecoration(
+                                                                color: CColors.White,
+                                                                borderRadius: BorderRadius.circular(14),
+                                                                border: Border.all(color: buttonColor)
+                                                            ),
+                                                            child: buttonChild
+                                                        )
                                                     )
-                                                )
                                             }
                                         )
                                     ),
@@ -100,15 +131,11 @@ namespace ConnectApp.Components {
                         new Padding(
                             padding: EdgeInsets.only(16, 0, 16),
                             child: new Text(
-                                "作者 10 • 文章 10",
+                                this.subTitle,
                                 style: CTextStyle.PSmallBody4
                             )
                         ),
-                        new SizedBox(height: 16),
-                        new Container(
-                            height: 16,
-                            decoration: new BoxDecoration(color: CColors.White, borderRadius: BorderRadius.only(12, 12))
-                        )
+                        new SizedBox(height: 16)
                     })
             );
         }

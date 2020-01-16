@@ -149,7 +149,7 @@ namespace ConnectApp.screens {
                             )
                         )
                     }
-                    )
+                )
             );
         }
 
@@ -188,7 +188,7 @@ namespace ConnectApp.screens {
                                         new Text(
                                             "Unity   问   题   全   搞   定",
                                             maxLines: 1,
-                                            style: CTextStyle.H5.merge(new TextStyle(color: CColors.White))
+                                            style: CTextStyle.H5.copyWith(color: CColors.White, height: 1)
                                         )
                                     }
                                 )

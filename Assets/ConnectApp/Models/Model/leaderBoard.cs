@@ -6,7 +6,13 @@ namespace ConnectApp.Models.Model {
         public string id;
         public string rankType;
         public string itemId;
+        public int rank;
+        public DateTime? createdTime;
+        public DateTime? updatedTime;
         public string resetTitle;
         public string resetLabel;
+        public string redirectURL;
+        public string image;
+        public string myFavoriteTagId;
     }
 }

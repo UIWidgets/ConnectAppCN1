@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Constants;
-using ConnectApp.Main;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
@@ -33,10 +32,11 @@ namespace ConnectApp.screens {
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new LeaderBoardScreenActionModel {
-                        pushToAlbumAction = () => dispatcher.dispatch(new MainNavigatorPushToAction
-                            {routeName = MainNavigatorRoutes.AlbumScreen}),
+                        pushToDetailAction = id => dispatcher.dispatch(new MainNavigatorPushToLeaderboardDetailAction
+                            {id = id}),
                         startFetchCollection = () => dispatcher.dispatch(new StartFetchLeaderBoardCollectionAction()),
-                        fetchCollection = page => dispatcher.dispatch<IPromise>(Actions.fetchLeaderBoardCollection(page: page))
+                        fetchCollection = page =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchLeaderBoardCollection(page: page))
                     };
                     return new LeaderBoardCollectionScreen(viewModel: viewModel, actionModel: actionModel);
                 }
@@ -88,6 +88,7 @@ namespace ConnectApp.screens {
                     .Then(() => this.setState(() => this._isLoading = false))
                     .Catch(_ => this.setState(() => this._isLoading = false));
             }
+
             return false;
         }
 
@@ -145,6 +146,7 @@ namespace ConnectApp.screens {
                         )
                     );
                 }
+
                 content = new NotificationListener<ScrollNotification>(
                     onNotification: this._onNotification,
                     child: new CustomScrollbar(
@@ -178,6 +180,7 @@ namespace ConnectApp.screens {
                     )
                 );
             }
+
             return new Container(
                 child: content
             );
@@ -185,12 +188,13 @@ namespace ConnectApp.screens {
 
         Widget _buildCollectionCard(BuildContext context, int index) {
             var collectionId = this.widget.viewModel.collectionIds[index: index];
+            var randData = this.widget.viewModel.rankDict[key: collectionId];
             return new LeaderBoardCollectionCard(
-                this.widget.viewModel.rankDict[key: collectionId],
+                collection: randData,
                 favoriteTags: this.widget.viewModel.favoriteTagDict,
                 favoriteTagArticles: this.widget.viewModel.favoriteTagArticleDict,
                 index: index,
-                () => this.widget.actionModel.pushToAlbumAction()
+                () => this.widget.actionModel.pushToDetailAction(obj: randData.id)
             );
         }
     }

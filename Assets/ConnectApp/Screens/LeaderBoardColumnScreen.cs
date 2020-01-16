@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Constants;
-using ConnectApp.Main;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
@@ -33,9 +32,9 @@ namespace ConnectApp.screens {
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new LeaderBoardScreenActionModel {
-                        pushToAlbumAction = () => dispatcher.dispatch(new MainNavigatorPushToAction
-                            {routeName = MainNavigatorRoutes.AlbumScreen}),
-                        startFetchColumn= () => dispatcher.dispatch(new StartFetchLeaderBoardColumnAction()),
+                        pushToDetailAction = id => dispatcher.dispatch(new MainNavigatorPushToLeaderboardDetailAction
+                            {id = id, type = LeaderBoardType.column}),
+                        startFetchColumn = () => dispatcher.dispatch(new StartFetchLeaderBoardColumnAction()),
                         fetchColumn = page => dispatcher.dispatch<IPromise>(Actions.fetchLeaderBoardColumn(page: page))
                     };
                     return new LeaderBoardColumnScreen(viewModel: viewModel, actionModel: actionModel);
@@ -88,6 +87,7 @@ namespace ConnectApp.screens {
                     .Then(() => this.setState(() => this._isLoading = false))
                     .Catch(_ => this.setState(() => this._isLoading = false));
             }
+
             return false;
         }
 
@@ -145,6 +145,7 @@ namespace ConnectApp.screens {
                         )
                     );
                 }
+
                 content = new NotificationListener<ScrollNotification>(
                     onNotification: this._onNotification,
                     child: new CustomScrollbar(
@@ -178,6 +179,7 @@ namespace ConnectApp.screens {
                     )
                 );
             }
+
             return new Container(
                 child: content
             );
@@ -191,7 +193,7 @@ namespace ConnectApp.screens {
                 this.widget.viewModel.userDict[key: rankData.itemId],
                 this.widget.viewModel.userArticleDict[key: rankData.itemId],
                 index: index,
-                () => this.widget.actionModel.pushToAlbumAction()
+                onPress: () => this.widget.actionModel.pushToDetailAction(columnId)
             );
         }
     }

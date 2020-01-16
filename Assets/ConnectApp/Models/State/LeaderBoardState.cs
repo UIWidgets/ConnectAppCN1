@@ -22,5 +22,10 @@ namespace ConnectApp.Models.State {
         public int bloggerPageNumber { get; set; }
         public int homeBloggerPageNumber { get; set; }
         public Dictionary<string, RankData> rankDict { get; set; }
+        public bool detailCollectLoading { get; set; }
+        public bool detailLoading { get; set; }
+        public bool detailHasMore { get; set; }
+        public Dictionary<string, List<string>> columnDict { get; set; }
+        public Dictionary<string, List<string>> collectionDict { get; set; }
     }
 }

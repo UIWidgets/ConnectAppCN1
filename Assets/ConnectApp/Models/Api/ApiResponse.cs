@@ -313,6 +313,11 @@ namespace ConnectApp.Models.Api {
     }
 
     [Serializable]
+    public class CollectFavoriteTagResponse {
+        public FavoriteTag favoriteTag;
+    }
+
+    [Serializable]
     public class FetchChannelMemberQueryResponse {
         public List<ChannelMember> searchMembers;
     }
@@ -331,7 +336,6 @@ namespace ConnectApp.Models.Api {
 
     [Serializable]
     public class UpdateChannelMessagesReactionResponse {
-        
     }
 
     [Serializable]
@@ -364,19 +368,16 @@ namespace ConnectApp.Models.Api {
     }
 
     [Serializable]
-    public class FetchLeaderBoardCollectionDetailResponse {
+    public class FetchLeaderBoardDetailResponse {
         public List<Article> projectSimples;
         public Dictionary<string, User> userSimpleV2Map;
         public Dictionary<string, Team> teamSimpleMap;
+        public Dictionary<string, FavoriteTagArticle> favoriteTagArticleMap;
+        public Dictionary<string, FavoriteTag> favoriteTagMap;
+        public FavoriteTag myFavoriteTag;
+        public Dictionary<string, bool> collectedTagMap;
         public bool hasMore;
         public int currentPage;
-    }
-
-    [Serializable]
-    public class FetchLeaderBoardColumnDetailResponse {
-        public List<Article> projectSimples;
-        public Dictionary<string, User> userSimpleV2Map;
-        public bool hasMore;
-        public int currentPage;
+        public RankData rankData;
     }
 }
