@@ -218,6 +218,7 @@ namespace ConnectApp.screens {
 
         public override void dispose() {
             Router.routeObserve.unsubscribe(this);
+            this._controller.dispose();
             base.dispose();
         }
 
@@ -393,18 +394,15 @@ namespace ConnectApp.screens {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: new List<Widget> {
-                            new GestureDetector(
-                                onTap: () => this.widget.actionModel.mainRouterPop(),
-                                child: new CustomButton(
-                                    padding: EdgeInsets.only(16, 8, 8, 8),
-                                    onPressed: () => this.widget.actionModel.mainRouterPop(),
-                                    child: new Icon(
-                                        icon: Icons.arrow_back,
-                                        size: 24,
-                                        color: hasUser
-                                            ? this._hideNavBar ? CColors.White : CColors.Icon
-                                            : CColors.Icon
-                                    )
+                            new CustomButton(
+                                padding: EdgeInsets.only(16, 8, 8, 8),
+                                onPressed: () => this.widget.actionModel.mainRouterPop(),
+                                child: new Icon(
+                                    icon: Icons.arrow_back,
+                                    size: 24,
+                                    color: hasUser
+                                        ? this._hideNavBar ? CColors.White : CColors.Icon
+                                        : CColors.Icon
                                 )
                             ),
                             new Expanded(

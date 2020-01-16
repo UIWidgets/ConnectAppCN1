@@ -147,7 +147,7 @@ namespace ConnectApp.redux.actions {
         public string channelId;
     }
 
-    public class MainNavigatorPushToLeaderboardDetailAction : BaseAction {
+    public class MainNavigatorPushToLeaderBoardDetailAction : BaseAction {
         public string id;
         public LeaderBoardType type = LeaderBoardType.collection;
     }

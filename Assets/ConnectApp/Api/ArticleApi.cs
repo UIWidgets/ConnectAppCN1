@@ -14,6 +14,7 @@ namespace ConnectApp.Api {
             var para = new Dictionary<string, object> {
                 {"language", "zh_CN"},
                 {"hottestOffset", offset},
+                {"needRank", true},
                 {"afterTime", HistoryManager.homeAfterTime(userId: userId)}
             };
             var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/recommends", parameter: para);
