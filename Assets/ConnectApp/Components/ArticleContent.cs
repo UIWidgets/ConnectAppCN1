@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using ConnectApp.Constants;
+using ConnectApp.Models.Model;
 using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
@@ -162,6 +163,7 @@ namespace ConnectApp.Components {
             else {
                 newDot = Positioned.fill(new Container());
             }
+
             return new Expanded(
                 child: new GestureDetector(
                     onTap: onPressItem,
@@ -206,21 +208,31 @@ namespace ConnectApp.Components {
     /// </summary>
     public class LeaderBoard : StatelessWidget {
         public LeaderBoard(
-            object data = null,
+            List<string> data,
+            Dictionary<string, RankData> rankDict,
+            Dictionary<string, FavoriteTag> favoriteTagDict,
             GestureTapCallback onPressMore = null,
             StringCallback onPressItem = null,
             Key key = null
         ) : base(key: key) {
             this.data = data;
+            this.rankDict = rankDict;
+            this.favoriteTagDict = favoriteTagDict;
             this.onPressMore = onPressMore;
             this.onPressItem = onPressItem;
         }
 
-        readonly object data;
+        readonly List<string> data;
+        readonly Dictionary<string, RankData> rankDict;
+        readonly Dictionary<string, FavoriteTag> favoriteTagDict;
         readonly GestureTapCallback onPressMore;
         readonly StringCallback onPressItem;
 
         public override Widget build(BuildContext context) {
+            if (this.data.isNullOrEmpty()) {
+                return new Container();
+            }
+
             return new Container(
                 color: CColors.White,
                 child: new Column(
@@ -236,7 +248,7 @@ namespace ConnectApp.Components {
                             margin: EdgeInsets.only(top: 16, bottom: 16),
                             child: ListView.builder(
                                 scrollDirection: Axis.horizontal,
-                                itemCount: 10,
+                                itemCount: this.data.Count,
                                 itemBuilder: this._buildLeaderBoardItem
                             )
                         ),
@@ -250,8 +262,16 @@ namespace ConnectApp.Components {
         }
 
         Widget _buildLeaderBoardItem(BuildContext context, int index) {
+            var collectionId = this.data[index: index];
+            var rankData = this.rankDict.ContainsKey(key: collectionId)
+                ? this.rankDict[key: collectionId]
+                : new RankData();
+            var favoriteTag = this.favoriteTagDict.ContainsKey(key: rankData.itemId)
+                ? this.favoriteTagDict[key: rankData.itemId]
+                : new FavoriteTag();
+
             return new GestureDetector(
-                onTap: () => this.onPressItem?.Invoke($"{index}"),
+                onTap: () => this.onPressItem?.Invoke(text: rankData.id),
                 child: new Container(
                     width: 160,
                     height: 80,
@@ -264,14 +284,10 @@ namespace ConnectApp.Components {
                         child: new Stack(
                             children: new List<Widget> {
                                 Positioned.fill(
-                                    new Container(
-                                        // Todo: v2.0.0 change index.ToString() to id 
-                                        color: CColorUtils.GetCardColorFromId(index.ToString())
-                                    )
+                                    new Container(color: CColorUtils.GetCardColorFromId(id: collectionId))
                                 ),
                                 Image.asset(
-                                    // Todo: v2.0.0 change index.ToString() to id
-                                    CImageUtils.GetSpecificPatternImageNameFromId(index.ToString()),
+                                    CImageUtils.GetSpecificPatternImageNameFromId(id: collectionId),
                                     width: 160,
                                     height: 80,
                                     fit: BoxFit.fill
@@ -280,7 +296,7 @@ namespace ConnectApp.Components {
                                     new Padding(
                                         padding: EdgeInsets.all(16),
                                         child: new Text(
-                                            "Editor GUI 编辑器入门",
+                                            rankData.resetTitle.isNotEmpty() ? rankData.resetTitle : favoriteTag.name,
                                             maxLines: 2,
                                             overflow: TextOverflow.ellipsis,
                                             style: CTextStyle.PLargeMediumWhite
@@ -300,21 +316,74 @@ namespace ConnectApp.Components {
     /// </summary>
     public class RecommendBlogger : StatelessWidget {
         public RecommendBlogger(
-            object data = null,
+            List<string> bloggerIds,
+            Dictionary<string, RankData> rankDict,
+            Dictionary<string, User> userDict,
             GestureTapCallback onPressMore = null,
             StringCallback onPressItem = null,
             Key key = null
         ) : base(key: key) {
-            this.data = data;
+            this.bloggerIds = bloggerIds;
+            this.rankDict = rankDict;
+            this.userDict = userDict;
             this.onPressMore = onPressMore;
             this.onPressItem = onPressItem;
         }
 
-        readonly object data;
+        readonly List<string> bloggerIds;
+        readonly Dictionary<string, RankData> rankDict;
+        readonly Dictionary<string, User> userDict;
         readonly GestureTapCallback onPressMore;
         readonly StringCallback onPressItem;
 
         public override Widget build(BuildContext context) {
+            if (this.bloggerIds.isNullOrEmpty()) {
+                return new Container();
+            }
+
+            var children = new List<Widget> {
+                new SizedBox(width: 16)
+            };
+            if (this.bloggerIds.Count <= 3) {
+                this.bloggerIds.ForEach(bloggerId => {
+                    var rankData = this.rankDict.ContainsKey(key: bloggerId)
+                        ? this.rankDict[key: bloggerId]
+                        : new RankData();
+                    if (this.userDict.ContainsKey(key: rankData.itemId)) {
+                        var user = this.userDict[key: rankData.itemId];
+                        children.Add(this._buildBlogger(user: user, resetTitle: rankData.resetTitle));
+                    }
+                });
+            }
+            else if (this.bloggerIds.Count >= 6) {
+                for (int index = 0; index < 3; index++) {
+                    var bloggerId = this.bloggerIds[index: index];
+                    var rankData = this.rankDict.ContainsKey(key: bloggerId)
+                        ? this.rankDict[key: bloggerId]
+                        : new RankData();
+                    if (this.userDict.ContainsKey(key: rankData.itemId)) {
+                        var user = this.userDict[key: rankData.itemId];
+                        children.Add(this._buildBlogger(user: user, resetTitle: rankData.resetTitle));
+                    }
+                }
+
+                children.Add(this._buildMoreBlogger());
+            }
+            else {
+                for (int index = 0; index < this.bloggerIds.Count - 3; index++) {
+                    var bloggerId = this.bloggerIds[index: index];
+                    var rankData = this.rankDict.ContainsKey(key: bloggerId)
+                        ? this.rankDict[key: bloggerId]
+                        : new RankData();
+                    if (this.userDict.ContainsKey(key: rankData.itemId)) {
+                        var user = this.userDict[key: rankData.itemId];
+                        children.Add(this._buildBlogger(user: user, resetTitle: rankData.resetTitle));
+                    }
+                }
+
+                children.Add(this._buildMoreBlogger());
+            }
+
             return new Container(
                 color: CColors.White,
                 height: 302,
@@ -337,15 +406,7 @@ namespace ConnectApp.Components {
                                     height: 230,
                                     child: new ListView(
                                         scrollDirection: Axis.horizontal,
-                                        children: new List<Widget> {
-                                            this._buildBlogger("郭老师"),
-                                            this._buildBlogger("PROS"),
-                                            this._buildBlogger("PROS"),
-                                            this._buildBlogger("PROS"),
-                                            this._buildBlogger("PROS"),
-                                            this._buildMoreBlogger(),
-                                            new Container(width: 16)
-                                        }
+                                        children: children
                                     )
                                 )
                             }
@@ -355,12 +416,11 @@ namespace ConnectApp.Components {
             );
         }
 
-        Widget _buildBlogger(string bloggerName) {
+        Widget _buildBlogger(User user, string resetTitle) {
             return new GestureDetector(
-                onTap: () => this.onPressItem?.Invoke(""),
+                onTap: () => this.onPressItem?.Invoke(text: user.id),
                 child: new Container(
                     width: 160,
-                    margin: EdgeInsets.only(16),
                     decoration: new BoxDecoration(
                         color: CColors.White,
                         borderRadius: BorderRadius.all(6)
@@ -371,8 +431,7 @@ namespace ConnectApp.Components {
                             children: new List<Widget> {
                                 new Container(
                                     height: 88,
-                                    // Todo: v2.0.0 change bloggerName to id
-                                    color: CColorUtils.GetSpecificDarkColorFromId(id: bloggerName),
+                                    color: CColorUtils.GetSpecificDarkColorFromId(id: user.id),
                                     child: new Stack(
                                         fit: StackFit.expand,
                                         children: new List<Widget> {
@@ -382,14 +441,7 @@ namespace ConnectApp.Components {
                                             ),
                                             Positioned.fill(
                                                 new Center(
-                                                    child: new Container(
-                                                        width: 64,
-                                                        height: 64,
-                                                        decoration: new BoxDecoration(
-                                                            color: CColors.White,
-                                                            borderRadius: BorderRadius.all(32)
-                                                        )
-                                                    )
+                                                    child: Avatar.User(user: user, 64, true)
                                                 )
                                             )
                                         }
@@ -397,10 +449,13 @@ namespace ConnectApp.Components {
                                 ),
                                 new Padding(
                                     padding: EdgeInsets.only(16, 16, 16, 4),
-                                    child: new Text(data: bloggerName, style: CTextStyle.PXLargeMedium)
+                                    child: new Text(data: user.fullName, style: CTextStyle.PXLargeMedium, maxLines: 1)
                                 ),
-                                new Text("粉丝234 • 文章2", style: CTextStyle.PSmallBody4),
-                                new Text("C# • Unity Editor", style: CTextStyle.PSmallBody4),
+                                new Text(
+                                    $"粉丝{user.followCount ?? 0} • 文章{user.articleCount ?? 0}",
+                                    style: CTextStyle.PSmallBody4
+                                ),
+                                new Text(resetTitle ?? "", style: CTextStyle.PSmallBody4),
                                 new Padding(
                                     padding: EdgeInsets.only(top: 12),
                                     child: new FollowButton()
@@ -499,21 +554,47 @@ namespace ConnectApp.Components {
     /// </summary>
     public class RecommendLeaderBoard : StatelessWidget {
         public RecommendLeaderBoard(
-            object data = null,
+            List<string> data,
+            Dictionary<string, RankData> rankDict,
+            Dictionary<string, FavoriteTag> favoriteTagDict,
+            Dictionary<string, FavoriteTagArticle> favoriteTagArticleDict,
             GestureTapCallback onPressMore = null,
             StringCallback onPressItem = null,
             Key key = null
         ) : base(key: key) {
             this.data = data;
+            this.rankDict = rankDict;
+            this.favoriteTagDict = favoriteTagDict;
+            this.favoriteTagArticleDict = favoriteTagArticleDict;
             this.onPressMore = onPressMore;
             this.onPressItem = onPressItem;
         }
 
-        readonly object data;
+        readonly List<string> data;
+        readonly Dictionary<string, RankData> rankDict;
+        readonly Dictionary<string, FavoriteTag> favoriteTagDict;
+        readonly Dictionary<string, FavoriteTagArticle> favoriteTagArticleDict;
         readonly GestureTapCallback onPressMore;
         readonly StringCallback onPressItem;
 
         public override Widget build(BuildContext context) {
+            if (this.data.isNullOrEmpty()) {
+                return new Container();
+            }
+
+            var collectionId = this.data[0];
+            var rankData = this.rankDict.ContainsKey(key: collectionId)
+                ? this.rankDict[key: collectionId]
+                : new RankData();
+            var favoriteTagArticle = this.favoriteTagArticleDict.ContainsKey(key: rankData.itemId)
+                ? this.favoriteTagArticleDict[key: rankData.itemId]
+                : new FavoriteTagArticle();
+            var favoriteTag = this.favoriteTagDict.ContainsKey(key: rankData.itemId)
+                ? this.favoriteTagDict[key: rankData.itemId]
+                : new FavoriteTag();
+            var title = rankData.resetTitle.isNotEmpty() ? rankData.resetTitle : favoriteTag.name;
+            var images = new List<string>();
+            favoriteTagArticle.list.ForEach(article => { images.Add(item: article.thumbnail.url); });
             return new Container(
                 color: CColors.White,
                 height: 184,
@@ -532,80 +613,85 @@ namespace ConnectApp.Components {
                                     EdgeInsets.only(16, 16),
                                     onPress: this.onPressMore
                                 ),
-                                new Container(
-                                    padding: EdgeInsets.all(16),
-                                    child: new Stack(
-                                        children: new List<Widget> {
-                                            new Column(
-                                                children: new List<Widget> {
-                                                    new Container(height: 8),
-                                                    new Container(
-                                                        height: 104,
-                                                        decoration: new BoxDecoration(
-                                                            new Color(0xFF3B516A),
-                                                            borderRadius: BorderRadius.all(6)
-                                                        )
-                                                    )
-                                                }
-                                            ),
-                                            new Positioned(
-                                                right: 16,
-                                                bottom: 8,
-                                                child: new Text(
-                                                    "UNITY",
-                                                    style: new TextStyle(
-                                                        fontSize: 40,
-                                                        fontFamily: "Roboto-Bold",
-                                                        color: new Color(0xFF4F6378)
-                                                    )
-                                                )
-                                            ),
-                                            Positioned.fill(
-                                                new Row(
+                                new GestureDetector(
+                                    onTap: () => this.onPressItem?.Invoke(text: rankData.id),
+                                    child: new Container(
+                                        color: CColors.Transparent,
+                                        padding: EdgeInsets.all(16),
+                                        child: new Stack(
+                                            children: new List<Widget> {
+                                                new Column(
                                                     children: new List<Widget> {
-                                                        new Padding(
-                                                            padding: EdgeInsets.only(16, right: 16, bottom: 16),
-                                                            child: new CoverImages(
-                                                                null,
-                                                                80,
-                                                                0,
-                                                                8,
-                                                                8
-                                                            )
-                                                        ),
-                                                        new Expanded(
-                                                            child: new Column(
-                                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                                children: new List<Widget> {
-                                                                    new Container(height: 20),
-                                                                    new Text(
-                                                                        "HDRP高清渲染管线-学习资料汇总",
-                                                                        maxLines: 2,
-                                                                        overflow: TextOverflow.ellipsis,
-                                                                        style: new TextStyle(
-                                                                            height: 1.27f,
-                                                                            fontSize: 20,
-                                                                            fontFamily: "Roboto-Medium",
-                                                                            color: CColors.White
-                                                                        )
-                                                                    ),
-                                                                    new Container(height: 4),
-                                                                    new Text(
-                                                                        "文章 30",
-                                                                        style: new TextStyle(
-                                                                            height: 1.53f,
-                                                                            fontSize: 12,
-                                                                            fontFamily: "Roboto-Regular",
-                                                                            color: new Color(0xFFCCCCCC)
-                                                                        )
-                                                                    )
-                                                                }
+                                                        new Container(height: 8),
+                                                        new Container(
+                                                            height: 104,
+                                                            decoration: new BoxDecoration(
+                                                                new Color(0xFF3B516A),
+                                                                borderRadius: BorderRadius.all(6)
                                                             )
                                                         )
                                                     }
+                                                ),
+                                                new Positioned(
+                                                    right: 16,
+                                                    bottom: 8,
+                                                    child: new Text(
+                                                        "UNITY",
+                                                        style: new TextStyle(
+                                                            fontSize: 40,
+                                                            fontFamily: "Roboto-Bold",
+                                                            color: new Color(0xFF4F6378)
+                                                        )
+                                                    )
+                                                ),
+                                                Positioned.fill(
+                                                    new Row(
+                                                        children: new List<Widget> {
+                                                            new Padding(
+                                                                padding: EdgeInsets.only(16, right: 16, bottom: 16),
+                                                                child: new CoverImages(
+                                                                    images: images,
+                                                                    80,
+                                                                    0,
+                                                                    8,
+                                                                    8
+                                                                )
+                                                            ),
+                                                            new Expanded(
+                                                                child: new Column(
+                                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                                    children: new List<Widget> {
+                                                                        new Container(height: 20),
+                                                                        new Text(
+                                                                            data: title,
+                                                                            maxLines: 2,
+                                                                            overflow: TextOverflow.ellipsis,
+                                                                            style: new TextStyle(
+                                                                                height: 1.27f,
+                                                                                fontSize: 20,
+                                                                                fontFamily: "Roboto-Medium",
+                                                                                color: CColors.White
+                                                                            )
+                                                                        ),
+                                                                        new Container(height: 4),
+                                                                        new Text(
+                                                                            $"文章 {favoriteTag.stasitics.count}",
+                                                                            style: new TextStyle(
+                                                                                height: 1.53f,
+                                                                                fontSize: 12,
+                                                                                fontFamily: "Roboto-Regular",
+                                                                                color: new Color(0xFFCCCCCC)
+                                                                            )
+                                                                        )
+                                                                    }
+                                                                )
+                                                            ),
+                                                            new SizedBox(width: 16)
+                                                        }
+                                                    )
                                                 )
-                                            )
-                                        }
+                                            }
+                                        )
                                     )
                                 )
                             }

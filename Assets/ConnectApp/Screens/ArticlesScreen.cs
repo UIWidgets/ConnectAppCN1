@@ -21,6 +21,7 @@ namespace ConnectApp.screens {
                 converter: state => new ArticlesScreenViewModel {
                     isLoggedIn = state.loginState.isLoggedIn,
                     feedHasNew = state.articleState.feedHasNew,
+                    searchSuggest = state.articleState.searchSuggest,
                     currentTabBarIndex = state.tabBarState.currentTabIndex,
                     nationalDayEnabled = state.serviceConfigState.nationalDayEnabled
                 },
@@ -213,7 +214,9 @@ namespace ConnectApp.screens {
                                                 )
                                             ),
                                             new Text(
-                                                "2020 Unite大会",
+                                                this.widget.viewModel.searchSuggest.isNotEmpty()
+                                                    ? this.widget.viewModel.searchSuggest
+                                                    : "搜索",
                                                 style: new TextStyle(
                                                     fontSize: 14,
                                                     fontFamily: "Roboto-Regular",

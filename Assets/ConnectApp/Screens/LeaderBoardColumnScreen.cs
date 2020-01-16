@@ -32,7 +32,7 @@ namespace ConnectApp.screens {
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new LeaderBoardScreenActionModel {
-                        pushToDetailAction = id => dispatcher.dispatch(new MainNavigatorPushToLeaderboardDetailAction
+                        pushToDetailAction = id => dispatcher.dispatch(new MainNavigatorPushToLeaderBoardDetailAction
                             {id = id, type = LeaderBoardType.column}),
                         startFetchColumn = () => dispatcher.dispatch(new StartFetchLeaderBoardColumnAction()),
                         fetchColumn = page => dispatcher.dispatch<IPromise>(Actions.fetchLeaderBoardColumn(page: page))

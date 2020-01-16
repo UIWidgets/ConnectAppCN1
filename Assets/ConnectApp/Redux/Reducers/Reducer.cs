@@ -131,6 +131,13 @@ namespace ConnectApp.redux.reducers {
 
                 case FetchArticleSuccessAction action: {
                     if (action.offset == 0) {
+                        state.articleState.homeSliderIds = action.homeSliderIds;
+                        state.articleState.homeTopCollectionIds = action.homeTopCollectionIds;
+                        state.articleState.homeCollectionIds = action.homeCollectionIds;
+                        state.articleState.homeBloggerIds = action.homeBloggerIds;
+                        state.articleState.searchSuggest = action.searchSuggest;
+                        state.articleState.dailySelectionId = action.dailySelectionId;
+                        state.articleState.leaderBoardUpdatedTime = action.leaderBoardUpdatedTime;
                         state.articleState.recommendArticleIds.Clear();
                     }
 
@@ -1697,11 +1704,13 @@ namespace ConnectApp.redux.reducers {
                 }
 
 
-                case MainNavigatorPushToLeaderboardDetailAction action: {
-                    Router.navigator.push(new CustomPageRoute(
-                        context => new LeaderBoardDetailScreenConnector(action.id, action.type),
-                        push: true
-                    ));
+                case MainNavigatorPushToLeaderBoardDetailAction action: {
+                    if (action.id.isNotEmpty()) {
+                        Router.navigator.push(new CustomPageRoute(
+                            context => new LeaderBoardDetailScreenConnector(action.id, action.type)
+                        ));
+                    }
+
                     break;
                 }
 

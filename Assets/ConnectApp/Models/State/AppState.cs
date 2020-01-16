@@ -68,7 +68,11 @@ namespace ConnectApp.Models.State {
                     beforeTime = "",
                     afterTime = "",
                     articleHistory = HistoryManager.articleHistoryList(isLogin ? loginInfo.userId : null),
-                    blockArticleList = HistoryManager.blockArticleList(isLogin ? loginInfo.userId : null)
+                    blockArticleList = HistoryManager.blockArticleList(isLogin ? loginInfo.userId : null),
+                    homeSliderIds = new List<string>(),
+                    homeTopCollectionIds = new List<string>(),
+                    homeCollectionIds = new List<string>(),
+                    homeBloggerIds = new List<string>()
                 },
                 eventState = new EventState {
                     ongoingEvents = new List<string>(),

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ConnectApp.Models.Api;
 
 namespace ConnectApp.Models.Model {
     [Serializable]
@@ -154,5 +155,29 @@ namespace ConnectApp.Models.Model {
     public class UserArticle {
         public int total;
         public List<Article> list;
+    }
+
+    [Serializable]
+    public class HomeRankData {
+        public HomeSlider homeSlider;
+        public HomeCollection homeTopCollection;
+        public HomeCollection homeCollection;
+        public FetchBloggerResponse homeBlogger;
+        public string searchSuggest;
+        public string dailySelectionId;
+        public DateTime leaderboardUpdatedTime;
+    }
+
+    [Serializable]
+    public class HomeSlider {
+        public List<RankData> rankList;
+    }
+
+    [Serializable]
+    public class HomeCollection {
+        public List<RankData> rankList;
+        public Dictionary<string, FavoriteTagArticle> favoriteTagArticleMap;
+        public Dictionary<string, FavoriteTag> favoriteTagMap;
+        public Dictionary<string, bool> collectedTagMap;
     }
 }
