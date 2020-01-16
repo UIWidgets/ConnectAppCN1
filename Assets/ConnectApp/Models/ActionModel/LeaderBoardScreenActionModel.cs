@@ -3,7 +3,7 @@ using RSG;
 
 namespace ConnectApp.Models.ActionModel {
     public class LeaderBoardScreenActionModel : BaseActionModel {
-        public Action pushToAlbumAction;
+        public Action<string> pushToDetailAction;
         public Action<string> pushToUserDetail;
         public Action startFetchCollection;
         public Func<int, IPromise> fetchCollection;

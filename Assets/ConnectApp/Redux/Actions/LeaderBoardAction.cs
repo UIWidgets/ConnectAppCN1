@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using ConnectApp.Api;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
+using ConnectApp.screens;
+using ConnectApp.Utils;
 using Unity.UIWidgets.Redux;
 
 namespace ConnectApp.redux.actions {
@@ -14,8 +16,6 @@ namespace ConnectApp.redux.actions {
 
     public class FetchLeaderBoardCollectionSuccessAction : BaseAction {
         public List<string> collectionIds;
-        public Dictionary<string, FavoriteTagArticle> favoriteTagArticleMap;
-        public Dictionary<string, FavoriteTag> favoriteTagMap;
         public bool hasMore;
         public int pageNumber;
     }
@@ -60,30 +60,18 @@ namespace ConnectApp.redux.actions {
     public class FetchHomeBloggerFailureAction : BaseAction {
     }
 
-    public class StartFetchLeaderBoardCollectionDetailAction : RequestAction {
+    public class StartFetchLeaderBoardDetailAction : RequestAction {
     }
 
-    public class FetchLeaderBoardCollectionDetailSuccessAction : BaseAction {
-        public List<string> articleIds;
-        public string collectionId;
+    public class FetchLeaderBoardDetailSuccessAction : BaseAction {
+        public LeaderBoardType type;
+        public string albumId;
+        public List<string> articleList;
         public bool hasMore;
         public int pageNumber;
     }
 
-    public class FetchLeaderBoardCollectionDetailFailureAction : BaseAction {
-    }
-
-    public class StartFetchLeaderBoardColumnDetailAction : RequestAction {
-    }
-
-    public class FetchLeaderBoardColumnDetailSuccessAction : BaseAction {
-        public List<string> articleIds;
-        public string columnId;
-        public bool hasMore;
-        public int pageNumber;
-    }
-
-    public class FetchLeaderBoardColumnDetailFailureAction : BaseAction {
+    public class FetchLeaderBoardDetailFailureAction : BaseAction {
     }
 
     public static partial class Actions {
@@ -93,15 +81,19 @@ namespace ConnectApp.redux.actions {
                     .Then(collectionResponse => {
                         dispatcher.dispatch(new RankListAction {rankList = collectionResponse.rankList});
                         var collectionIds = new List<string>();
-                        collectionResponse.rankList.ForEach(rankData => {
-                            collectionIds.Add(item: rankData.id);
-                        });
+                        collectionResponse.rankList.ForEach(rankData => { collectionIds.Add(item: rankData.id); });
                         dispatcher.dispatch(new FetchLeaderBoardCollectionSuccessAction {
                             collectionIds = collectionIds,
-                            favoriteTagArticleMap = collectionResponse.favoriteTagArticleMap,
-                            favoriteTagMap = collectionResponse.favoriteTagMap,
                             hasMore = collectionResponse.hasMore,
                             pageNumber = page
+                        });
+
+                        dispatcher.dispatch(new UpdateFavoriteTagMapAction {
+                            favoriteTagMap = collectionResponse.favoriteTagMap,
+                            favoriteTagArticleMap = collectionResponse.favoriteTagArticleMap
+                        });
+                        dispatcher.dispatch(new UpdateCollectedTagMapAction {
+                            collectedTagMap = collectionResponse.collectedTagMap
                         });
                     })
                     .Catch(error => {
@@ -118,9 +110,7 @@ namespace ConnectApp.redux.actions {
                         dispatcher.dispatch(new RankListAction {rankList = columnResponse.rankList});
                         dispatcher.dispatch(new UserMapAction {userMap = columnResponse.userSimpleV2Map});
                         var columnIds = new List<string>();
-                        columnResponse.rankList.ForEach(rankData => {
-                            columnIds.Add(item: rankData.id);
-                        });
+                        columnResponse.rankList.ForEach(rankData => { columnIds.Add(item: rankData.id); });
                         dispatcher.dispatch(new FetchLeaderBoardColumnSuccessAction {
                             columnIds = columnIds,
                             userArticleMap = columnResponse.userArticleMap,
@@ -144,9 +134,7 @@ namespace ConnectApp.redux.actions {
                         dispatcher.dispatch(new FollowMapAction {followMap = bloggerResponse.followMap});
                         dispatcher.dispatch(new UserLicenseMapAction {userLicenseMap = bloggerResponse.userLicenseMap});
                         var bloggerIds = new List<string>();
-                        bloggerResponse.rankList.ForEach(rankData => {
-                            bloggerIds.Add(item: rankData.itemId);
-                        });
+                        bloggerResponse.rankList.ForEach(rankData => { bloggerIds.Add(item: rankData.itemId); });
                         dispatcher.dispatch(new FetchLeaderBoardBloggerSuccessAction {
                             bloggerIds = bloggerIds,
                             hasMore = bloggerResponse.hasMore,
@@ -168,9 +156,7 @@ namespace ConnectApp.redux.actions {
                         dispatcher.dispatch(new FollowMapAction {followMap = bloggerResponse.followMap});
                         dispatcher.dispatch(new UserLicenseMapAction {userLicenseMap = bloggerResponse.userLicenseMap});
                         var bloggerIds = new List<string>();
-                        bloggerResponse.rankList.ForEach(rankData => {
-                            bloggerIds.Add(item: rankData.itemId);
-                        });
+                        bloggerResponse.rankList.ForEach(rankData => { bloggerIds.Add(item: rankData.itemId); });
                         dispatcher.dispatch(new FetchHomeBloggerSuccessAction {
                             bloggerIds = bloggerIds,
                             hasMore = bloggerResponse.hasMore,
@@ -184,56 +170,54 @@ namespace ConnectApp.redux.actions {
             });
         }
 
-        public static object fetchLeaderBoardCollectionDetail(string collectionId, int page) {
+        public static object fetchLeaderBoardDetail(string tagId, int page, LeaderBoardType type) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return LeaderBoardApi.FetchLeaderBoardCollectionDetail(collectionId: collectionId, page: page)
-                    .Then(collectionDetailResponse => {
-                        dispatcher.dispatch(new UserMapAction {userMap = collectionDetailResponse.userSimpleV2Map});
-                        dispatcher.dispatch(new TeamMapAction {teamMap = collectionDetailResponse.teamSimpleMap});
+                return LeaderBoardApi.FetchLeaderBoardDetail(tagId, page, type)
+                    .Then(detailResponse => {
+                        dispatcher.dispatch(new UserMapAction {userMap = detailResponse.userSimpleV2Map});
+                        if (detailResponse.teamSimpleMap.isNotNullAndEmpty()) {
+                            dispatcher.dispatch(new TeamMapAction {teamMap = detailResponse.teamSimpleMap});
+                        }
+
                         var articleIds = new List<string>();
                         var articleDict = new Dictionary<string, Article>();
-                        collectionDetailResponse.projectSimples.ForEach(project => {
+                        detailResponse.projectSimples.ForEach(project => {
                             articleIds.Add(item: project.id);
                             articleDict.Add(key: project.id, value: project);
                         });
                         dispatcher.dispatch(new ArticleMapAction {articleMap = articleDict});
 
-                        dispatcher.dispatch(new FetchLeaderBoardCollectionDetailSuccessAction {
-                            articleIds = articleIds,
-                            collectionId = collectionId,
-                            hasMore = collectionDetailResponse.hasMore,
+                        dispatcher.dispatch(new FetchLeaderBoardDetailSuccessAction {
+                            type = type,
+                            albumId = tagId,
+                            articleList = articleIds,
+                            hasMore = detailResponse.hasMore,
                             pageNumber = page
                         });
+
+                        dispatcher.dispatch(new UpdateFavoriteTagMapAction {
+                            favoriteTagMap = detailResponse.favoriteTagMap,
+                            favoriteTagArticleMap = detailResponse.favoriteTagArticleMap
+                        });
+                        dispatcher.dispatch(new UpdateCollectedTagMapAction {
+                            collectedTagMap = detailResponse.collectedTagMap
+                        });
+                        if (type == LeaderBoardType.collection) {
+                            if (detailResponse.myFavoriteTag != null) {
+                                detailResponse.rankData.myFavoriteTagId = detailResponse.myFavoriteTag.id;
+                            }
+
+                            if (detailResponse.rankData != null) {
+                                dispatcher.dispatch(new RankListAction {
+                                    rankList = new List<RankData> {
+                                        detailResponse.rankData
+                                    }
+                                });
+                            }
+                        }
                     })
                     .Catch(error => {
-                        dispatcher.dispatch(new FetchLeaderBoardCollectionDetailFailureAction());
-                        Debuger.LogError(message: error);
-                    });
-            });
-        }
-
-        public static object fetchLeaderBoardColumnDetail(string columnId, int page) {
-            return new ThunkAction<AppState>((dispatcher, getState) => {
-                return LeaderBoardApi.FetchLeaderBoardColumnDetail(columnId: columnId, page: page)
-                    .Then(columnDetailResponse => {
-                        dispatcher.dispatch(new UserMapAction {userMap = columnDetailResponse.userSimpleV2Map});
-                        var articleIds = new List<string>();
-                        var articleDict = new Dictionary<string, Article>();
-                        columnDetailResponse.projectSimples.ForEach(project => {
-                            articleIds.Add(item: project.id);
-                            articleDict.Add(key: project.id, value: project);
-                        });
-                        dispatcher.dispatch(new ArticleMapAction {articleMap = articleDict});
-
-                        dispatcher.dispatch(new FetchLeaderBoardColumnDetailSuccessAction {
-                            articleIds = articleIds,
-                            columnId = columnId,
-                            hasMore = columnDetailResponse.hasMore,
-                            pageNumber = page
-                        });
-                    })
-                    .Catch(error => {
-                        dispatcher.dispatch(new FetchLeaderBoardColumnDetailFailureAction());
+                        dispatcher.dispatch(new FetchLeaderBoardDetailFailureAction());
                         Debuger.LogError(message: error);
                     });
             });

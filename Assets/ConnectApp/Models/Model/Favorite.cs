@@ -14,9 +14,16 @@ namespace ConnectApp.Models.Model {
         public string type;
         public string name;
         public string description;
+        public string userId;
+        public string status;
+        public string quoteTagId;
+        public DateTime? createdTime;
+        public DateTime? updatedTime;
+        public DateTime? deletedTime;
         public IconStyle iconStyle;
         public Statistics stasitics;
     }
+
 
     [Serializable]
     public class Favorite {

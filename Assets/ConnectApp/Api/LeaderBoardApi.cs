@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using ConnectApp.Constants;
 using ConnectApp.Models.Api;
+using ConnectApp.screens;
 using ConnectApp.Utils;
 using Newtonsoft.Json;
 using RSG;
@@ -60,35 +61,20 @@ namespace ConnectApp.Api {
             return promise;
         }
 
-        public static Promise<FetchLeaderBoardCollectionDetailResponse> FetchLeaderBoardCollectionDetail(
-            string collectionId, int page) {
-            var promise = new Promise<FetchLeaderBoardCollectionDetailResponse>();
+        public static Promise<FetchLeaderBoardDetailResponse> FetchLeaderBoardDetail(
+            string tagId, int page, LeaderBoardType leaderBoardType) {
+            var promise = new Promise<FetchLeaderBoardDetailResponse>();
             var para = new Dictionary<string, object> {
                 {"page", page}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/rankList/collection/{collectionId}",
+            var request = HttpManager.GET(
+                $"{Config.apiAddress}{Config.apiPath}/rankList/{leaderBoardType.ToString()}/{tagId}",
                 parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var collectionDetailResponse =
-                    JsonConvert.DeserializeObject<FetchLeaderBoardCollectionDetailResponse>(value: responseText);
+                    JsonConvert.DeserializeObject<FetchLeaderBoardDetailResponse>(value: responseText);
                 promise.Resolve(value: collectionDetailResponse);
-            }).Catch(exception => promise.Reject(ex: exception));
-            return promise;
-        }
-
-        public static Promise<FetchLeaderBoardColumnDetailResponse> FetchLeaderBoardColumnDetail(string columnId,
-            int page) {
-            var promise = new Promise<FetchLeaderBoardColumnDetailResponse>();
-            var para = new Dictionary<string, object> {
-                {"page", page}
-            };
-            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/rankList/column/{columnId}",
-                parameter: para);
-            HttpManager.resume(request: request).Then(responseText => {
-                var columnDetailResponse =
-                    JsonConvert.DeserializeObject<FetchLeaderBoardColumnDetailResponse>(value: responseText);
-                promise.Resolve(value: columnDetailResponse);
-            }).Catch(exception => promise.Reject(ex: exception));
+            }).Catch(exception => { promise.Reject(ex: exception); });
             return promise;
         }
     }

@@ -295,6 +295,7 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+
                 case SaveArticleHistoryAction action: {
                     var article = action.article;
                     var fullName = "";
@@ -1695,6 +1696,15 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+
+                case MainNavigatorPushToLeaderboardDetailAction action: {
+                    Router.navigator.push(new CustomPageRoute(
+                        context => new LeaderBoardDetailScreenConnector(action.id, action.type),
+                        push: true
+                    ));
+                    break;
+                }
+
                 case StartFetchLeaderBoardCollectionAction _: {
                     state.leaderBoardState.collectionLoading = true;
                     break;
@@ -1703,33 +1713,6 @@ namespace ConnectApp.redux.reducers {
                 case FetchLeaderBoardCollectionSuccessAction action: {
                     state.leaderBoardState.collectionLoading = false;
 
-                    if (action.favoriteTagArticleMap != null && action.favoriteTagArticleMap.isNotEmpty()) {
-                        var favoriteTagArticleDict = state.favoriteState.favoriteTagArticleDict;
-                        foreach (var keyValuePair in action.favoriteTagArticleMap) {
-                            if (favoriteTagArticleDict.ContainsKey(key: keyValuePair.Key)) {
-                                favoriteTagArticleDict[key: keyValuePair.Key] = keyValuePair.Value;
-                            }
-                            else {
-                                favoriteTagArticleDict.Add(key: keyValuePair.Key, value: keyValuePair.Value);
-                            }
-                        }
-
-                        state.favoriteState.favoriteTagArticleDict = favoriteTagArticleDict;
-                    }
-
-                    if (action.favoriteTagMap != null && action.favoriteTagMap.isNotEmpty()) {
-                        var favoriteTagDict = state.favoriteState.favoriteTagDict;
-                        foreach (var keyValuePair in action.favoriteTagMap) {
-                            if (favoriteTagDict.ContainsKey(key: keyValuePair.Key)) {
-                                favoriteTagDict[key: keyValuePair.Key] = keyValuePair.Value;
-                            }
-                            else {
-                                favoriteTagDict.Add(key: keyValuePair.Key, value: keyValuePair.Value);
-                            }
-                        }
-
-                        state.favoriteState.favoriteTagDict = favoriteTagDict;
-                    }
 
                     if (action.pageNumber == 1) {
                         state.leaderBoardState.collectionIds = action.collectionIds;
@@ -1842,28 +1825,63 @@ namespace ConnectApp.redux.reducers {
                     state.leaderBoardState.homeBloggerLoading = false;
                     break;
                 }
-
-                case StartFetchLeaderBoardCollectionDetailAction _: {
+                case StartFetchLeaderBoardDetailAction _: {
+                    state.leaderBoardState.detailLoading = true;
                     break;
                 }
 
-                case FetchLeaderBoardCollectionDetailSuccessAction action: {
+                case FetchLeaderBoardDetailSuccessAction action: {
+                    if (action.type == LeaderBoardType.collection) {
+                        if (state.leaderBoardState.collectionDict.ContainsKey(action.albumId)) {
+                            var articles = state.leaderBoardState.collectionDict[action.albumId];
+                            if (action.pageNumber == 1) {
+                                articles.Clear();
+                                articles.AddRange(action.articleList);
+                            }
+                            else {
+                                action.articleList.ForEach(articleId => {
+                                    if (!articles.Contains(articleId)) {
+                                        articles.Add(articleId);
+                                    }
+                                });
+                            }
+
+                            state.leaderBoardState.collectionDict[action.albumId] = articles;
+                        }
+                        else {
+                            state.leaderBoardState.collectionDict.Add(action.albumId, action.articleList);
+                        }
+                    }
+                    else {
+                        if (state.leaderBoardState.columnDict.ContainsKey(action.albumId)) {
+                            var articles = state.leaderBoardState.columnDict[action.albumId];
+                            if (action.pageNumber == 1) {
+                                articles.Clear();
+                                articles.AddRange(action.articleList);
+                            }
+                            else {
+                                action.articleList.ForEach(articleId => {
+                                    if (!articles.Contains(articleId)) {
+                                        articles.Add(articleId);
+                                    }
+                                });
+                            }
+
+                            state.leaderBoardState.columnDict[action.albumId] = articles;
+                        }
+                        else {
+                            state.leaderBoardState.columnDict.Add(action.albumId, action.articleList);
+                        }
+                    }
+
+                    state.leaderBoardState.detailHasMore = action.hasMore;
+                    state.leaderBoardState.detailLoading = false;
                     break;
                 }
 
-                case FetchLeaderBoardCollectionDetailFailureAction _: {
-                    break;
-                }
+                case FetchLeaderBoardDetailFailureAction _: {
+                    state.leaderBoardState.detailLoading = false;
 
-                case StartFetchLeaderBoardColumnDetailAction _: {
-                    break;
-                }
-
-                case FetchLeaderBoardColumnDetailSuccessAction action: {
-                    break;
-                }
-
-                case FetchLeaderBoardColumnDetailFailureAction _: {
                     break;
                 }
 
@@ -2032,6 +2050,7 @@ namespace ConnectApp.redux.reducers {
 
                         state.userState.userDict[key: action.userId] = user;
                     }
+
                     break;
                 }
 
@@ -2732,6 +2751,119 @@ namespace ConnectApp.redux.reducers {
 
                 case FetchFavoriteDetailFailureAction _: {
                     state.favoriteState.favoriteDetailLoading = false;
+                    break;
+                }
+
+                case ChangeFavoriteTagStateAction action: {
+                    state.leaderBoardState.detailCollectLoading = action.isLoading;
+                    break;
+                }
+
+                case CollectFavoriteTagSuccessAction action: {
+                    state.leaderBoardState.detailCollectLoading = false;
+
+                    if (state.leaderBoardState.rankDict.isNotEmpty() &&
+                        state.leaderBoardState.rankDict.ContainsKey(action.rankDataId)) {
+                        var rankData = state.leaderBoardState.rankDict[action.rankDataId];
+                        rankData.myFavoriteTagId = action.myFavoriteTagId;
+                        state.leaderBoardState.rankDict[action.myFavoriteTagId] = rankData;
+                    }
+
+                    if (state.loginState.isLoggedIn && action.itemId != null) {
+                        if (state.favoriteState.collectedTagMap.isNotNullAndEmpty() &&
+                            state.favoriteState.collectedTagMap.ContainsKey(state.loginState.loginInfo.userId)) {
+                            var dict = state.favoriteState.collectedTagMap[state.loginState.loginInfo.userId];
+                            if (dict.ContainsKey(action.itemId)) {
+                                dict[action.itemId] = true;
+                            }
+                            else {
+                                dict.Add(action.itemId, true);
+                            }
+
+                            state.favoriteState.collectedTagMap[state.loginState.loginInfo.userId] = dict;
+                        }
+                        else {
+                            var collectedTagMap = new Dictionary<string, bool> {
+                                {action.rankDataId, true}
+                            };
+                            state.favoriteState.collectedTagMap.Add(state.loginState.loginInfo.userId,
+                                collectedTagMap);
+                        }
+                    }
+
+                    break;
+                }
+
+                case CancelCollectFavoriteTagSuccessAction action: {
+                    state.leaderBoardState.detailCollectLoading = false;
+                    if (state.loginState.isLoggedIn && action.itemId != null) {
+                        if (state.favoriteState.collectedTagMap.isNotNullAndEmpty() &&
+                            state.favoriteState.collectedTagMap.ContainsKey(state.loginState.loginInfo.userId)) {
+                            var dict = state.favoriteState.collectedTagMap[state.loginState.loginInfo.userId];
+                            if (dict.ContainsKey(action.itemId)) {
+                                dict.Remove(action.itemId);
+                            }
+
+                            state.favoriteState.collectedTagMap[state.loginState.loginInfo.userId] = dict;
+                        }
+                    }
+
+                    break;
+                }
+                case UpdateFavoriteTagMapAction action: {
+                    if (action.favoriteTagArticleMap != null && action.favoriteTagArticleMap.isNotEmpty()) {
+                        var favoriteTagArticleDict = state.favoriteState.favoriteTagArticleDict;
+                        foreach (var keyValuePair in action.favoriteTagArticleMap) {
+                            if (favoriteTagArticleDict.ContainsKey(key: keyValuePair.Key)) {
+                                favoriteTagArticleDict[key: keyValuePair.Key] = keyValuePair.Value;
+                            }
+                            else {
+                                favoriteTagArticleDict.Add(key: keyValuePair.Key, value: keyValuePair.Value);
+                            }
+                        }
+
+                        state.favoriteState.favoriteTagArticleDict = favoriteTagArticleDict;
+                    }
+
+                    if (action.favoriteTagMap != null && action.favoriteTagMap.isNotEmpty()) {
+                        var favoriteTagDict = state.favoriteState.favoriteTagDict;
+                        foreach (var keyValuePair in action.favoriteTagMap) {
+                            if (favoriteTagDict.ContainsKey(key: keyValuePair.Key)) {
+                                favoriteTagDict[key: keyValuePair.Key] = keyValuePair.Value;
+                            }
+                            else {
+                                favoriteTagDict.Add(key: keyValuePair.Key, value: keyValuePair.Value);
+                            }
+                        }
+
+                        state.favoriteState.favoriteTagDict = favoriteTagDict;
+                    }
+
+                    break;
+                }
+
+                case UpdateCollectedTagMapAction action: {
+                    if (state.loginState.isLoggedIn && action.collectedTagMap.isNotNullAndEmpty()) {
+                        if (state.favoriteState.collectedTagMap.isNotNullAndEmpty() &&
+                            state.favoriteState.collectedTagMap.ContainsKey(state.loginState.loginInfo.userId)) {
+                            var dict = state.favoriteState.collectedTagMap[state.loginState.loginInfo.userId];
+                            foreach (var keyValuePair in action.collectedTagMap) {
+                                if (dict.ContainsKey(keyValuePair.Key)) {
+                                    dict[keyValuePair.Key] = keyValuePair.Value;
+                                }
+                                else {
+                                    dict.Add(keyValuePair.Key, keyValuePair.Value);
+                                }
+                            }
+
+                            state.favoriteState.collectedTagMap[state.loginState.loginInfo.userId] = dict;
+                        }
+                        else {
+                            state.favoriteState.collectedTagMap.Add(state.loginState.loginInfo.userId,
+                                action.collectedTagMap);
+                        }
+                    }
+
                     break;
                 }
 

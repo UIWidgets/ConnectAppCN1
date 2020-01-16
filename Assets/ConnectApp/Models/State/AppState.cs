@@ -200,7 +200,8 @@ namespace ConnectApp.Models.State {
                     favoriteTagHasMore = false,
                     favoriteDetailHasMore = false,
                     favoriteTagDict = new Dictionary<string, FavoriteTag>(),
-                    favoriteTagArticleDict = new Dictionary<string, FavoriteTagArticle>()
+                    favoriteTagArticleDict = new Dictionary<string, FavoriteTagArticle>(),
+                    collectedTagMap = new Dictionary<string, Dictionary<string, bool>>()
                 },
                 leaderBoardState = new LeaderBoardState {
                     collectionLoading = false,
@@ -219,7 +220,12 @@ namespace ConnectApp.Models.State {
                     columnPageNumber = 1,
                     bloggerPageNumber = 1,
                     homeBloggerPageNumber = 1,
-                    rankDict = new Dictionary<string, RankData>()
+                    rankDict = new Dictionary<string, RankData>(),
+                    detailLoading = false,
+                    detailHasMore = false,
+                    columnDict = new Dictionary<string, List<string>>(),
+                    collectionDict = new Dictionary<string, List<string>>(),
+                    detailCollectLoading = false
                 },
                 networkState = new NetworkState {
                     networkConnected = true,

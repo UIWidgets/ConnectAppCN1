@@ -22,7 +22,8 @@ namespace ConnectApp.Api {
             return promise;
         }
 
-        public static Promise<FetchFavoriteDetailResponse> FetchFavoriteDetail(string userId, string tagId, int offset) {
+        public static Promise<FetchFavoriteDetailResponse>
+            FetchFavoriteDetail(string userId, string tagId, int offset) {
             var promise = new Promise<FetchFavoriteDetailResponse>();
             var para = new Dictionary<string, object> {
                 {"tagId", tagId},
@@ -38,7 +39,8 @@ namespace ConnectApp.Api {
             return promise;
         }
 
-        public static Promise<FavoriteTag> CreateFavoriteTag(IconStyle iconStyle, string name, string description = "") {
+        public static Promise<FavoriteTag>
+            CreateFavoriteTag(IconStyle iconStyle, string name, string description = "") {
             var promise = new Promise<FavoriteTag>();
             var para = new Dictionary<string, object> {
                 {"name", name},
@@ -81,7 +83,22 @@ namespace ConnectApp.Api {
             HttpManager.resume(request: request).Then(responseText => {
                 var deleteFavoriteTagResponse = JsonConvert.DeserializeObject<FavoriteTag>(value: responseText);
                 promise.Resolve(value: deleteFavoriteTagResponse);
-            }).Catch(exception => promise.Reject(ex: exception));
+            }).Catch(exception => { promise.Reject(ex: exception); });
+            return promise;
+        }
+
+        public static Promise<CollectFavoriteTagResponse> CollectFavoriteTag(string tagId) {
+            var promise = new Promise<CollectFavoriteTagResponse>();
+            var para = new Dictionary<string, object> {
+                {"tagId", tagId}
+            };
+            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/favorite-tag/collect",
+                parameter: para);
+            HttpManager.resume(request: request).Then(responseText => {
+                var collectFavoriteTagResponse =
+                    JsonConvert.DeserializeObject<CollectFavoriteTagResponse>(value: responseText);
+                promise.Resolve(value: collectFavoriteTagResponse);
+            }).Catch(exception => { promise.Reject(ex: exception); });
             return promise;
         }
     }

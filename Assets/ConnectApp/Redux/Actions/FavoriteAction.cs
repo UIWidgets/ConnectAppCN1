@@ -25,6 +25,16 @@ namespace ConnectApp.redux.actions {
     public class StartFetchFavoriteDetailAction : RequestAction {
     }
 
+
+    public class UpdateFavoriteTagMapAction : BaseAction {
+        public Dictionary<string, FavoriteTagArticle> favoriteTagArticleMap;
+        public Dictionary<string, FavoriteTag> favoriteTagMap;
+    }
+
+    public class UpdateCollectedTagMapAction : BaseAction {
+        public Dictionary<string, bool> collectedTagMap;
+    }
+
     public class FetchFavoriteDetailSuccessAction : BaseAction {
         public Dictionary<string, FavoriteTag> tagMap;
         public Dictionary<string, Article> projectSimpleMap;
@@ -48,6 +58,20 @@ namespace ConnectApp.redux.actions {
 
     public class DeleteFavoriteTagSuccessAction : BaseAction {
         public FavoriteTag favoriteTag;
+    }
+
+    public class ChangeFavoriteTagStateAction : BaseAction {
+        public bool isLoading;
+    }
+
+    public class CollectFavoriteTagSuccessAction : BaseAction {
+        public string myFavoriteTagId;
+        public string rankDataId;
+        public string itemId;
+    }
+
+    public class CancelCollectFavoriteTagSuccessAction : BaseAction {
+        public string itemId;
     }
 
     public static partial class Actions {
@@ -189,6 +213,52 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         CustomDialogUtils.hiddenCustomDialog();
+                        Debuger.LogError(message: error);
+                    });
+            });
+        }
+
+        public static object collectFavoriteTag(string tagId, string rankDataId) {
+            if (HttpManager.isNetWorkError()) {
+                CustomDialogUtils.showToast("请检查网络", iconData: Icons.sentiment_dissatisfied);
+                return null;
+            }
+
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                dispatcher.dispatch(new ChangeFavoriteTagStateAction {isLoading = true});
+                return FavoriteApi.CollectFavoriteTag(tagId)
+                    .Then(collectFavoriteTagResponse => {
+                        dispatcher.dispatch(new CreateFavoriteTagSuccessAction {
+                            favoriteTag = collectFavoriteTagResponse.favoriteTag
+                        });
+                        dispatcher.dispatch(new CollectFavoriteTagSuccessAction {
+                            myFavoriteTagId = collectFavoriteTagResponse.favoriteTag.id, rankDataId = rankDataId,
+                            itemId = tagId
+                        });
+                        AnalyticsManager.AnalyticsHandleFavoriteTag(type: FavoriteTagType.collect);
+                    })
+                    .Catch(error => { dispatcher.dispatch(new ChangeFavoriteTagStateAction()); });
+            });
+        }
+
+        public static object cancelCollectFavoriteTag(string tagId, string itemId) {
+            if (HttpManager.isNetWorkError()) {
+                CustomDialogUtils.showToast("请检查网络", iconData: Icons.sentiment_dissatisfied);
+                return null;
+            }
+
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                dispatcher.dispatch(new ChangeFavoriteTagStateAction {isLoading = true});
+                return FavoriteApi.DeleteFavoriteTag(tagId: tagId)
+                    .Then(deleteFavoriteTagResponse => {
+                        dispatcher.dispatch(new DeleteFavoriteTagSuccessAction {
+                            favoriteTag = deleteFavoriteTagResponse
+                        });
+                        dispatcher.dispatch(new CancelCollectFavoriteTagSuccessAction {itemId = itemId});
+                        AnalyticsManager.AnalyticsHandleFavoriteTag(type: FavoriteTagType.cancelCollect);
+                    })
+                    .Catch(error => {
+                        dispatcher.dispatch(new ChangeFavoriteTagStateAction());
                         Debuger.LogError(message: error);
                     });
             });
