@@ -13,7 +13,7 @@ namespace ConnectApp.Models.Api {
         public Dictionary<string, bool> likeMap;
         public bool hottestHasMore;
         public bool feedHasNew;
-        public string dailySelectionId;
+        public HomeRankData rankData;
     }
 
     [Serializable]

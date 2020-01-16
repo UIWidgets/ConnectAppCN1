@@ -40,6 +40,14 @@ namespace ConnectApp.screens {
                     hottestHasMore = state.articleState.hottestHasMore,
                     userDict = state.userState.userDict,
                     teamDict = state.teamState.teamDict,
+                    favoriteTagDict = state.favoriteState.favoriteTagDict,
+                    favoriteTagArticleDict = state.favoriteState.favoriteTagArticleDict,
+                    rankDict = state.leaderBoardState.rankDict,
+                    homeSliderIds = state.articleState.homeSliderIds,
+                    homeTopCollectionIds = state.articleState.homeTopCollectionIds,
+                    homeCollectionIds = state.articleState.homeCollectionIds,
+                    homeBloggerIds = state.articleState.homeBloggerIds,
+                    dailySelectionId = state.articleState.dailySelectionId,
                     isLoggedIn = state.loginState.isLoggedIn,
                     hosttestOffset = state.articleState.recommendArticleIds.Count,
                     currentUserId = state.loginState.loginInfo.userId ?? "",
@@ -58,6 +66,9 @@ namespace ConnectApp.screens {
                         pushToLeaderBoard = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.LeaderBoard
                         }),
+                        pushToLeaderBoardDetail = id => 
+                            dispatcher.dispatch(new MainNavigatorPushToLeaderBoardDetailAction{id = id}
+                        ),
                         pushToBlogger = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Blogger
                         }),
@@ -190,27 +201,10 @@ namespace ConnectApp.screens {
                     itemBuilder: this._buildArticleCard,
                     headerWidget: new Column(
                         children: new List<Widget> {
-                            new Container(
-                                height: 116,
-                                padding: EdgeInsets.symmetric(horizontal: 16),
-                                decoration: new BoxDecoration(
-                                    borderRadius: BorderRadius.all(8)
-                                ),
-                                child: new ClipRRect(
-                                    borderRadius: BorderRadius.all(8),
-                                    child: new Swiper(
-                                        (cxt, index) => {
-                                            return Image.network("http://via.placeholder.com/350x150", fit: BoxFit.fill);
-                                        },
-                                        itemCount: 3,
-                                        autoplay: true,
-                                        pagination: new SwiperPagination()
-                                    )
-                                )
-                            ),
+                            this._buildSwiper(),
                             new KingKongView(type => {
                                 if (type == KingKongType.dailyCollection) {
-                                    var articleId = this.widget.viewModel.recommendArticleIds[0];
+                                    var articleId = this.widget.viewModel.dailySelectionId;
                                     this.widget.actionModel.pushToArticleDetail(obj: articleId);
                                 }
                                 if (type == KingKongType.leaderBoard) {
@@ -221,14 +215,26 @@ namespace ConnectApp.screens {
                                 }
                             }),
                             new RecommendBlogger(
-                                onPressMore: () => this.widget.actionModel.pushToBlogger(),
-                                onPressItem: userId => this.widget.actionModel.pushToUserDetail("5a0535f5880c64001886db04")
+                                bloggerIds: this.widget.viewModel.homeBloggerIds,
+                                rankDict: this.widget.viewModel.rankDict,
+                                userDict: this.widget.viewModel.userDict,
+                                () => this.widget.actionModel.pushToBlogger(),
+                                userId => this.widget.actionModel.pushToUserDetail(obj: userId)
                             ),
                             new RecommendLeaderBoard(
-                                onPressMore: () => this.widget.actionModel.pushToLeaderBoard()
+                                data: this.widget.viewModel.homeTopCollectionIds,
+                                rankDict: this.widget.viewModel.rankDict,
+                                favoriteTagDict: this.widget.viewModel.favoriteTagDict,
+                                favoriteTagArticleDict: this.widget.viewModel.favoriteTagArticleDict,
+                                () => this.widget.actionModel.pushToLeaderBoard(),
+                                collectionId => this.widget.actionModel.pushToLeaderBoardDetail(obj: collectionId)
                             ),
                             new LeaderBoard(
-                                onPressMore: () => this.widget.actionModel.pushToLeaderBoard()
+                                data: this.widget.viewModel.homeCollectionIds,
+                                rankDict: this.widget.viewModel.rankDict,
+                                favoriteTagDict: this.widget.viewModel.favoriteTagDict,
+                                () => this.widget.actionModel.pushToLeaderBoard(),
+                                collectionId => this.widget.actionModel.pushToLeaderBoardDetail(obj: collectionId)
                             ),
                             new RefreshDivider(
                                 () => {
@@ -244,6 +250,37 @@ namespace ConnectApp.screens {
             }
 
             return new CustomScrollbar(child: content);
+        }
+
+        Widget _buildSwiper() {
+            var homeSliderIds = this.widget.viewModel.homeSliderIds;
+            if (homeSliderIds.isNullOrEmpty()) {
+                return new Container();
+            }
+
+            return new Container(
+                height: 116,
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                decoration: new BoxDecoration(
+                    borderRadius: BorderRadius.all(8)
+                ),
+                child: new ClipRRect(
+                    borderRadius: BorderRadius.all(8),
+                    child: new Swiper(
+                        (cxt, index) => {
+                            var homeSliderId = homeSliderIds[index: index];
+                            var imageUrl = this.widget.viewModel.rankDict.ContainsKey(key: homeSliderId)
+                                ? this.widget.viewModel.rankDict[key: homeSliderId].image
+                                : "";
+                            return Image.network(src: imageUrl, fit: BoxFit.fill);
+                        },
+                        itemCount: homeSliderIds.Count,
+                        autoplay: true,
+                        onTap: index => { },
+                        pagination: new SwiperPagination()
+                    )
+                )
+            );
         }
 
         Widget _buildArticleCard(BuildContext context, int index) {

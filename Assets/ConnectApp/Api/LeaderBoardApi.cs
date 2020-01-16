@@ -71,10 +71,9 @@ namespace ConnectApp.Api {
                 $"{Config.apiAddress}{Config.apiPath}/rankList/{leaderBoardType.ToString()}/{tagId}",
                 parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
-                var collectionDetailResponse =
-                    JsonConvert.DeserializeObject<FetchLeaderBoardDetailResponse>(value: responseText);
-                promise.Resolve(value: collectionDetailResponse);
-            }).Catch(exception => { promise.Reject(ex: exception); });
+                var detailResponse = JsonConvert.DeserializeObject<FetchLeaderBoardDetailResponse>(value: responseText);
+                promise.Resolve(value: detailResponse);
+            }).Catch(exception => promise.Reject(ex: exception));
             return promise;
         }
     }

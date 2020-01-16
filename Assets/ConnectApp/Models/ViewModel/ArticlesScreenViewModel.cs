@@ -16,7 +16,16 @@ namespace ConnectApp.Models.ViewModel {
         public Dictionary<string, Team> teamDict;
         public Dictionary<string, bool> likeMap;
         public Dictionary<string, bool> followMap;
+        public Dictionary<string, FavoriteTag> favoriteTagDict;
+        public Dictionary<string, FavoriteTagArticle> favoriteTagArticleDict;
+        public Dictionary<string, RankData> rankDict;
         public List<string> blockArticleList;
+        public List<string> homeSliderIds;
+        public List<string> homeTopCollectionIds;
+        public List<string> homeCollectionIds;
+        public List<string> homeBloggerIds;
+        public string dailySelectionId;
+        public string searchSuggest;
         public bool hottestHasMore;
         public bool followArticleHasMore;
         public bool hotArticleHasMore;

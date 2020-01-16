@@ -172,12 +172,10 @@ namespace ConnectApp.redux.actions {
 
         public static object fetchLeaderBoardDetail(string tagId, int page, LeaderBoardType type) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return LeaderBoardApi.FetchLeaderBoardDetail(tagId, page, type)
+                return LeaderBoardApi.FetchLeaderBoardDetail(tagId: tagId, page: page, leaderBoardType: type)
                     .Then(detailResponse => {
                         dispatcher.dispatch(new UserMapAction {userMap = detailResponse.userSimpleV2Map});
-                        if (detailResponse.teamSimpleMap.isNotNullAndEmpty()) {
-                            dispatcher.dispatch(new TeamMapAction {teamMap = detailResponse.teamSimpleMap});
-                        }
+                        dispatcher.dispatch(new TeamMapAction {teamMap = detailResponse.teamSimpleMap});
 
                         var articleIds = new List<string>();
                         var articleDict = new Dictionary<string, Article>();
@@ -207,13 +205,9 @@ namespace ConnectApp.redux.actions {
                                 detailResponse.rankData.myFavoriteTagId = detailResponse.myFavoriteTag.id;
                             }
 
-                            if (detailResponse.rankData != null) {
-                                dispatcher.dispatch(new RankListAction {
-                                    rankList = new List<RankData> {
-                                        detailResponse.rankData
-                                    }
-                                });
-                            }
+                            dispatcher.dispatch(new RankListAction {
+                                rankList = new List<RankData> { detailResponse.rankData }
+                            });
                         }
                     })
                     .Catch(error => {

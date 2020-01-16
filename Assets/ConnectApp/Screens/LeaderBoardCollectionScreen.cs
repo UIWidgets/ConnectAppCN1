@@ -32,7 +32,7 @@ namespace ConnectApp.screens {
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new LeaderBoardScreenActionModel {
-                        pushToDetailAction = id => dispatcher.dispatch(new MainNavigatorPushToLeaderboardDetailAction
+                        pushToDetailAction = id => dispatcher.dispatch(new MainNavigatorPushToLeaderBoardDetailAction
                             {id = id}),
                         startFetchCollection = () => dispatcher.dispatch(new StartFetchLeaderBoardCollectionAction()),
                         fetchCollection = page =>
