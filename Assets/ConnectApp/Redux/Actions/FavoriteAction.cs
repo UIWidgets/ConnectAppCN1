@@ -22,6 +22,19 @@ namespace ConnectApp.redux.actions {
     public class FetchFavoriteTagFailureAction : BaseAction {
     }
 
+    public class StartFetchFollowFavoriteTagAction : RequestAction {
+    }
+
+    public class FetchFollowFavoriteTagSuccessAction : BaseAction {
+        public List<FavoriteTag> favoriteTags;
+        public string userId;
+        public bool hasMore;
+        public int offset;
+    }
+
+    public class FetchFollowFavoriteTagFailureAction : BaseAction {
+    }
+
     public class StartFetchFavoriteDetailAction : RequestAction {
     }
 
@@ -85,7 +98,7 @@ namespace ConnectApp.redux.actions {
                     offset = favoriteTagIdCount;
                 }
 
-                return FavoriteApi.FetchFavoriteTags(userId: userId, offset: offset)
+                return FavoriteApi.FetchMyFavoriteTags(userId: userId, offset: offset)
                     .Then(favoritesResponse => {
                         dispatcher.dispatch(new FetchFavoriteTagSuccessAction {
                             userId = userId,
@@ -96,6 +109,32 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new FetchFavoriteTagFailureAction());
+                        Debuger.LogError(message: error);
+                    });
+            });
+        }
+
+        public static object fetchFollowFavoriteTags(string userId, int offset) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                var favoriteTagIds = getState().favoriteState.favoriteTagIdDict.ContainsKey(key: userId)
+                    ? getState().favoriteState.favoriteTagIdDict[key: userId]
+                    : new List<string>();
+                var favoriteTagIdCount = favoriteTagIds.Count;
+                if (offset != 0 && offset != favoriteTagIdCount) {
+                    offset = favoriteTagIdCount;
+                }
+
+                return FavoriteApi.FetchFollowFavoriteTags(userId: userId, offset: offset)
+                    .Then(favoritesResponse => {
+                        dispatcher.dispatch(new FetchFollowFavoriteTagSuccessAction {
+                            userId = userId,
+                            offset = offset,
+                            hasMore = favoritesResponse.hasMore,
+                            favoriteTags = favoritesResponse.favoriteTags
+                        });
+                    })
+                    .Catch(error => {
+                        dispatcher.dispatch(new FetchFollowFavoriteTagFailureAction());
                         Debuger.LogError(message: error);
                     });
             });

@@ -19,6 +19,8 @@ namespace ConnectApp.Models.ActionModel {
         public Func<string, int, IPromise> fetchUserArticle;
         public Action startFetchUserFavorite;
         public Func<string, int, IPromise> fetchUserFavorite;
+        public Action startFetchUserFollowFavorite;
+        public Func<string, int, IPromise> fetchUserFollowFavorite;
         public Action<string> startFollowUser;
         public Func<string, IPromise> followUser;
         public Action<string> startUnFollowUser;

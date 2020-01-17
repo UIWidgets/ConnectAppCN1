@@ -15,6 +15,7 @@ namespace ConnectApp.Models.ActionModel {
         public Action<string> pushToTeamDetail;
         public Action pushToLeaderBoard;
         public Action<string> pushToLeaderBoardDetail;
+        public Action pushToHomeEvent;
         public Action pushToBlogger;
         public Action pushToReality;
         public Action pushToGame;

@@ -133,6 +133,7 @@ namespace ConnectApp.redux.actions {
     public class MainNavigatorPushToFavoriteDetailAction : BaseAction {
         public string tagId = "";
         public string userId = "";
+        public FavoriteType type;
     }
 
     public class MainNavigatorPushToEditFavoriteAction : BaseAction {

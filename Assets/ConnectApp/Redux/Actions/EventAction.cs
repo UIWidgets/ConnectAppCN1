@@ -1,11 +1,14 @@
 using System.Collections.Generic;
 using ConnectApp.Api;
-using ConnectApp.Models.Api;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using Unity.UIWidgets.Redux;
 
 namespace ConnectApp.redux.actions {
+    public class EventMapAction : BaseAction {
+        public Dictionary<string, IEvent> eventMap;
+    }
+
     public class ClearEventOngoingAction : RequestAction {
     }
 
@@ -19,8 +22,9 @@ namespace ConnectApp.redux.actions {
     }
 
     public class FetchEventsSuccessAction : BaseAction {
-        public FetchEventsResponse eventsResponse;
+        public List<string> eventIds;
         public int pageNumber = 0;
+        public int total;
         public string tab;
     }
 
@@ -96,10 +100,19 @@ namespace ConnectApp.redux.actions {
                     .Then(eventsResponse => {
                         dispatcher.dispatch(new UserMapAction {userMap = eventsResponse.userMap});
                         dispatcher.dispatch(new PlaceMapAction {placeMap = eventsResponse.placeMap});
+                        var eventIds = new List<string>();
+                        var eventMap = new Dictionary<string, IEvent>();
+                        eventsResponse.events.items.ForEach(eventObj => {
+//                        if (eventObj.mode == "online") return;
+                            eventIds.Add(item: eventObj.id);
+                            eventMap.Add(key: eventObj.id, value: eventObj);
+                        });
+                        dispatcher.dispatch(new EventMapAction {eventMap = eventMap});
                         dispatcher.dispatch(new FetchEventsSuccessAction {
-                            eventsResponse = eventsResponse,
+                            eventIds = eventIds,
                             tab = tab,
-                            pageNumber = pageNumber
+                            pageNumber = pageNumber,
+                            total = eventsResponse.events.total
                         });
                     })
                     .Catch(error => {
@@ -147,6 +160,11 @@ namespace ConnectApp.redux.actions {
                         }
 
                         eventObj.isNotFirst = true;
+                        dispatcher.dispatch(new EventMapAction {
+                            eventMap = new Dictionary<string, IEvent> {
+                                {eventObj.id, eventObj}
+                            }
+                        });
                         dispatcher.dispatch(new FetchEventDetailSuccessAction {eventObj = eventObj});
                         dispatcher.dispatch(new SaveEventHistoryAction {eventObj = eventObj, eventType = eventType});
                     })

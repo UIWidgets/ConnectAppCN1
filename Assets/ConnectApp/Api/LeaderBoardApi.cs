@@ -61,6 +61,19 @@ namespace ConnectApp.Api {
             return promise;
         }
 
+        public static IPromise<FetchHomeEventsResponse> FetchHomeEvents(int page) {
+            var promise = new Promise<FetchHomeEventsResponse>();
+            var para = new Dictionary<string, object> {
+                {"page", page}
+            };
+            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/rankList/homeEvent", parameter: para);
+            HttpManager.resume(request: request).Then(responseText => {
+                var eventsResponse = JsonConvert.DeserializeObject<FetchHomeEventsResponse>(value: responseText);
+                promise.Resolve(value: eventsResponse);
+            }).Catch(exception => promise.Reject(ex: exception));
+            return promise;
+        }
+
         public static Promise<FetchLeaderBoardDetailResponse> FetchLeaderBoardDetail(
             string tagId, int page, LeaderBoardType leaderBoardType) {
             var promise = new Promise<FetchLeaderBoardDetailResponse>();

@@ -52,6 +52,16 @@ namespace ConnectApp.Models.Api {
     }
 
     [Serializable]
+    public class FetchHomeEventsResponse {
+        public List<RankData> rankList;
+        public Dictionary<string, User> userSimpleMap;
+        public Dictionary<string, Place> placeMap;
+        public Dictionary<string, IEvent> eventSimpleMap;
+        public bool hasMore;
+        public int currentPage;
+    }
+
+    [Serializable]
     public class FetchNotificationResponse {
         public int page;
         public int pageTotal;
