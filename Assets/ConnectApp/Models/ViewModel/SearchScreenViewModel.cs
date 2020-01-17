@@ -7,6 +7,7 @@ namespace ConnectApp.Models.ViewModel {
         public bool searchUserLoading;
         public bool searchTeamLoading;
         public string searchKeyword;
+        public string searchSuggest;
         public List<string> searchArticleIds;
         public List<string> searchUserIds;
         public List<string> searchTeamIds;
