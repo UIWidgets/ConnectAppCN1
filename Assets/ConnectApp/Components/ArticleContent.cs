@@ -492,12 +492,14 @@ namespace ConnectApp.Components {
             var list = new List<Widget>();
             var items = new List<Widget>();
             bloggerIds.ForEach(bloggerId => {
+                var index = bloggerIds.IndexOf(bloggerId);
                 var rankData = this.rankDict.ContainsKey(key: bloggerId)
                     ? this.rankDict[key: bloggerId]
                     : new RankData();
                 if (this.userDict.ContainsKey(key: rankData.itemId)) {
                     var user = this.userDict[key: rankData.itemId];
-                    items.Add(new Container(margin: EdgeInsets.only(right: -10),
+                    items.Add(new Container(
+                        margin: EdgeInsets.only(right: index == bloggerIds.Count - 1 ? 0 : -10),
                         child: Avatar.User(user: user, 40, true)));
                 }
             });
