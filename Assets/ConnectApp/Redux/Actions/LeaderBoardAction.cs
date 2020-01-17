@@ -60,6 +60,19 @@ namespace ConnectApp.redux.actions {
     public class FetchHomeBloggerFailureAction : BaseAction {
     }
 
+    public class StartFetchHomeEventsAction : RequestAction {
+    }
+
+    public class FetchHomeEventsSuccessAction : BaseAction {
+        public List<string> eventIds;
+        public int pageNumber;
+        public int currentPage;
+        public bool hasMore;
+    }
+
+    public class FetchHomeEventsFailureAction : BaseAction {
+    }
+
     public class StartFetchLeaderBoardDetailAction : RequestAction {
     }
 
@@ -165,6 +178,31 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new FetchHomeBloggerFailureAction());
+                        Debuger.LogError(message: error);
+                    });
+            });
+        }
+
+        public static object fetchHomeEvents(int page) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return LeaderBoardApi.FetchHomeEvents(page: page)
+                    .Then(eventsResponse => {
+                        dispatcher.dispatch(new UserMapAction {userMap = eventsResponse.userSimpleMap});
+                        dispatcher.dispatch(new PlaceMapAction {placeMap = eventsResponse.placeMap});
+                        dispatcher.dispatch(new EventMapAction {eventMap = eventsResponse.eventSimpleMap});
+                        var eventIds = new List<string>();
+                        (eventsResponse.rankList ?? new List<RankData>()).ForEach(rankData => {
+                            eventIds.Add(item: rankData.itemId);
+                        });
+                        dispatcher.dispatch(new FetchHomeEventsSuccessAction {
+                            eventIds = eventIds,
+                            pageNumber = page,
+                            currentPage = eventsResponse.currentPage,
+                            hasMore = eventsResponse.hasMore
+                        });
+                    })
+                    .Catch(error => {
+                        dispatcher.dispatch(new FetchHomeEventsFailureAction ());
                         Debuger.LogError(message: error);
                     });
             });

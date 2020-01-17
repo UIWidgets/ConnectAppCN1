@@ -592,7 +592,7 @@ namespace ConnectApp.redux.reducers {
                     if (action.pageNumber == 1) {
                         if (action.tab == "ongoing") {
                             state.eventState.eventsOngoingLoading = false;
-                            state.eventState.pageNumber = action.pageNumber;
+                            state.eventState.ongoingPageNumber = action.pageNumber;
                         }
                         else {
                             state.eventState.eventsCompletedLoading = false;
@@ -606,45 +606,64 @@ namespace ConnectApp.redux.reducers {
                 case FetchEventsSuccessAction action: {
                     if (action.tab == "ongoing") {
                         state.eventState.eventsOngoingLoading = false;
-                        state.eventState.pageNumber = action.pageNumber;
-                        state.eventState.ongoingEventTotal = action.eventsResponse.events.total;
+                        state.eventState.ongoingPageNumber = action.pageNumber;
+                        state.eventState.ongoingEventTotal = action.total;
                     }
                     else {
                         state.eventState.eventsCompletedLoading = false;
                         state.eventState.completedPageNumber = action.pageNumber;
-                        state.eventState.completedEventTotal = action.eventsResponse.events.total;
+                        state.eventState.completedEventTotal = action.total;
                     }
 
                     if (action.pageNumber == 1) {
                         if (action.tab == "ongoing") {
-                            state.eventState.ongoingEvents.Clear();
+                            state.eventState.ongoingEvents = action.eventIds;
                         }
                         else {
-                            state.eventState.completedEvents.Clear();
+                            state.eventState.completedEvents = action.eventIds;
+                        }
+                    }
+                    else {
+                        if (action.tab == "ongoing") {
+                            var ongoingEvents = state.eventState.ongoingEvents;
+                            ongoingEvents.AddRange(collection: action.eventIds);
+                            state.eventState.ongoingEvents = ongoingEvents;
+                        }
+                        else {
+                            var completedEvents = state.eventState.completedEvents;
+                            completedEvents.AddRange(collection: action.eventIds);
+                            state.eventState.completedEvents = completedEvents;
                         }
                     }
 
-                    action.eventsResponse.events.items.ForEach(eventObj => {
-//                        if (eventObj.mode == "online") return;
-                        if (action.tab == "ongoing") {
-                            if (!state.eventState.ongoingEvents.Contains(item: eventObj.id)) {
-                                state.eventState.ongoingEvents.Add(item: eventObj.id);
-                            }
-                        }
-                        else {
-                            if (!state.eventState.completedEvents.Contains(item: eventObj.id)) {
-                                state.eventState.completedEvents.Add(item: eventObj.id);
-                            }
-                        }
+                    break;
+                }
 
-                        if (state.eventState.eventsDict.ContainsKey(key: eventObj.id)) {
-                            var oldEventObj = state.eventState.eventsDict[key: eventObj.id];
-                            state.eventState.eventsDict[key: eventObj.id] = oldEventObj.Merge(eventObj);
-                        }
-                        else {
-                            state.eventState.eventsDict.Add(key: eventObj.id, value: eventObj);
-                        }
-                    });
+                case StartFetchHomeEventsAction _: {
+                    state.eventState.homeEventsLoading = true;
+                    break;
+                }
+
+                case FetchHomeEventsSuccessAction action: {
+                    state.eventState.homeEventsLoading = false;
+                    state.eventState.homeEventHasMore = action.hasMore;
+                    state.eventState.homeEventPageNumber = action.currentPage;
+
+                    if (action.pageNumber == 1) {
+                        state.eventState.homeEvents = action.eventIds;
+                    }
+                    else {
+                        var homeEvents = state.eventState.homeEvents;
+                        homeEvents.AddRange(collection: action.eventIds);
+                        state.eventState.homeEvents = homeEvents;
+                    }
+
+                    break;
+                }
+
+                case FetchHomeEventsFailureAction _: {
+                    state.eventState.homeEventsLoading = false;
+
                     break;
                 }
 
@@ -656,14 +675,6 @@ namespace ConnectApp.redux.reducers {
                 case FetchEventDetailSuccessAction action: {
                     state.eventState.eventDetailLoading = false;
                     state.eventState.channelId = action.eventObj.channelId;
-                    if (state.eventState.eventsDict.ContainsKey(key: action.eventObj.id)) {
-                        var oldEvent = state.eventState.eventsDict[key: action.eventObj.id];
-                        state.eventState.eventsDict[key: action.eventObj.id] = oldEvent.Merge(action.eventObj);
-                    }
-                    else {
-                        state.eventState.eventsDict.Add(key: action.eventObj.id, value: action.eventObj);
-                    }
-
                     break;
                 }
 
@@ -780,7 +791,7 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case ClearMyFutureEventsAction _: {
-                    state.mineState.futureEventsList.Clear();
+                    state.mineState.futureEventIds.Clear();
                     break;
                 }
 
@@ -791,16 +802,15 @@ namespace ConnectApp.redux.reducers {
 
                 case FetchMyFutureEventsSuccessAction action: {
                     state.mineState.futureListLoading = false;
-                    state.mineState.futureEventTotal = action.eventsResponse.events.total;
-                    var items = action.eventsResponse.events.items;
+                    state.mineState.futureEventTotal = action.total;
                     if (action.pageNumber == 1) {
-                        state.mineState.futureEventsList = items;
+                        state.mineState.futureEventIds = action.eventIds;
                     }
                     else {
-                        if (state.mineState.futureEventsList.Count < action.eventsResponse.events.total) {
-                            var results = state.mineState.futureEventsList;
-                            results.AddRange(collection: items);
-                            state.mineState.futureEventsList = results;
+                        if (state.mineState.futureEventIds.Count < action.total) {
+                            var futureEventIds = state.mineState.futureEventIds;
+                            futureEventIds.AddRange(collection: action.eventIds);
+                            state.mineState.futureEventIds = futureEventIds;
                         }
                     }
 
@@ -813,7 +823,7 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case ClearMyPastEventsAction _: {
-                    state.mineState.pastEventsList.Clear();
+                    state.mineState.pastEventIds.Clear();
                     break;
                 }
 
@@ -824,16 +834,15 @@ namespace ConnectApp.redux.reducers {
 
                 case FetchMyPastEventsSuccessAction action: {
                     state.mineState.pastListLoading = false;
-                    state.mineState.pastEventTotal = action.eventsResponse.events.total;
-                    var offlineItems = action.eventsResponse.events.items;
+                    state.mineState.pastEventTotal = action.total;
                     if (action.pageNumber == 1) {
-                        state.mineState.pastEventsList = offlineItems;
+                        state.mineState.pastEventIds = action.eventIds;
                     }
                     else {
-                        if (state.mineState.pastEventsList.Count < action.eventsResponse.events.total) {
-                            var results = state.mineState.pastEventsList;
-                            results.AddRange(collection: offlineItems);
-                            state.mineState.pastEventsList = results;
+                        if (state.mineState.pastEventIds.Count < action.total) {
+                            var pastEventIds = state.mineState.pastEventIds;
+                            pastEventIds.AddRange(collection: action.eventIds);
+                            state.mineState.pastEventIds = pastEventIds;
                         }
                     }
 
@@ -999,6 +1008,25 @@ namespace ConnectApp.redux.reducers {
                         }
 
                         state.articleState.articleDict = articleDict;
+                    }
+
+                    break;
+                }
+
+                case EventMapAction action: {
+                    if (action.eventMap.isNotNullAndEmpty()) {
+                        var eventsDict = state.eventState.eventsDict;
+                        foreach (var keyValuePair in action.eventMap) {
+                            if (eventsDict.ContainsKey(key: keyValuePair.Key)) {
+                                var oldEventObj = eventsDict[key: keyValuePair.Key];
+                                eventsDict[key: keyValuePair.Key] = oldEventObj.Merge(other: keyValuePair.Value);
+                            }
+                            else {
+                                eventsDict.Add(key: keyValuePair.Key, value: keyValuePair.Value);
+                            }
+                        }
+
+                        state.eventState.eventsDict = eventsDict;
                     }
 
                     break;

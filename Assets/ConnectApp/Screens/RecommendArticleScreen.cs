@@ -69,6 +69,9 @@ namespace ConnectApp.screens {
                         pushToLeaderBoardDetail = id => 
                             dispatcher.dispatch(new MainNavigatorPushToLeaderBoardDetailAction{id = id}
                         ),
+                        pushToHomeEvent = () => dispatcher.dispatch(new MainNavigatorPushToAction {
+                            routeName = MainNavigatorRoutes.HomeEvent
+                        }),
                         pushToBlogger = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Blogger
                         }),
@@ -209,6 +212,9 @@ namespace ConnectApp.screens {
                                 }
                                 if (type == KingKongType.leaderBoard) {
                                     this.widget.actionModel.pushToLeaderBoard();
+                                }
+                                if (type == KingKongType.activity) {
+                                    this.widget.actionModel.pushToHomeEvent();
                                 }
                                 if (type == KingKongType.blogger) {
                                     this.widget.actionModel.pushToBlogger();

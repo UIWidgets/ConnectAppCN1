@@ -28,9 +28,10 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, MyEventsScreenViewModel>(
                 converter: state => new MyEventsScreenViewModel {
-                    pastEventsList = state.mineState.pastEventsList,
+                    pastEventIds = state.mineState.pastEventIds,
                     pastListLoading = state.mineState.pastListLoading,
                     pastEventTotal = state.mineState.pastEventTotal,
+                    eventsDict = state.eventState.eventsDict,
                     placeDict = state.placeState.placeDict
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -106,12 +107,12 @@ namespace ConnectApp.screens {
 
         public override Widget build(BuildContext context) {
             base.build(context: context);
-            var pastEventsList = this.widget.viewModel.pastEventsList;
-            if (this.widget.viewModel.pastListLoading && pastEventsList.isEmpty()) {
+            var pastEventIds = this.widget.viewModel.pastEventIds;
+            if (this.widget.viewModel.pastListLoading && pastEventIds.isEmpty()) {
                 return new GlobalLoading();
             }
 
-            if (pastEventsList.Count <= 0) {
+            if (pastEventIds.Count <= 0) {
                 return new BlankView(
                     "还没有参与过的活动",
                     "image/default-event",
@@ -124,7 +125,7 @@ namespace ConnectApp.screens {
             }
 
             var pastEventTotal = this.widget.viewModel.pastEventTotal;
-            var enablePullUp = pastEventTotal > pastEventsList.Count;
+            var enablePullUp = pastEventTotal > pastEventIds.Count;
 
             return new Container(
                 color: CColors.Background,
@@ -133,7 +134,7 @@ namespace ConnectApp.screens {
                     enablePullDown: true,
                     enablePullUp: enablePullUp,
                     onRefresh: this._onRefresh,
-                    itemCount: pastEventsList.Count,
+                    itemCount: pastEventIds.Count,
                     itemBuilder: this._buildEventCard,
                     headerWidget: CustomListViewConstant.defaultHeaderWidget,
                     footerWidget: enablePullUp ? null : CustomListViewConstant.defaultFooterWidget
@@ -142,9 +143,14 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildEventCard(BuildContext context, int index) {
-            var pastEventsList = this.widget.viewModel.pastEventsList;
+            var pastEventIds = this.widget.viewModel.pastEventIds;
 
-            var model = pastEventsList[index: index];
+            var pastEventId = pastEventIds[index: index];
+            if (!this.widget.viewModel.eventsDict.ContainsKey(key: pastEventId)) {
+                return new Container();
+            }
+
+            var model = this.widget.viewModel.eventsDict[key: pastEventId];
             var eventType = model.mode == "online" ? EventType.online : EventType.offline;
             var placeName = model.placeId.isEmpty()
                 ? null

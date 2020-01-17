@@ -29,8 +29,9 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, MyEventsScreenViewModel>(
                 converter: state => new MyEventsScreenViewModel {
                     futureListLoading = state.mineState.futureListLoading,
-                    futureEventsList = state.mineState.futureEventsList,
+                    futureEventIds = state.mineState.futureEventIds,
                     futureEventTotal = state.mineState.futureEventTotal,
+                    eventsDict = state.eventState.eventsDict,
                     placeDict = state.placeState.placeDict
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -106,12 +107,12 @@ namespace ConnectApp.screens {
 
         public override Widget build(BuildContext context) {
             base.build(context: context);
-            var futureEventsList = this.widget.viewModel.futureEventsList;
-            if (this.widget.viewModel.futureListLoading && futureEventsList.isEmpty()) {
+            var futureEventIds = this.widget.viewModel.futureEventIds;
+            if (this.widget.viewModel.futureListLoading && futureEventIds.isEmpty()) {
                 return new GlobalLoading();
             }
 
-            if (futureEventsList.Count <= 0) {
+            if (futureEventIds.Count <= 0) {
                 return new BlankView(
                     "还没有即将开始的活动",
                     "image/default-event",
@@ -124,7 +125,7 @@ namespace ConnectApp.screens {
             }
 
             var futureEventTotal = this.widget.viewModel.futureEventTotal;
-            var enablePullUp = futureEventTotal > futureEventsList.Count;
+            var enablePullUp = futureEventTotal > futureEventIds.Count;
 
             return new Container(
                 color: CColors.Background,
@@ -133,7 +134,7 @@ namespace ConnectApp.screens {
                     enablePullDown: true,
                     enablePullUp: enablePullUp,
                     onRefresh: this._onRefresh,
-                    itemCount: futureEventsList.Count,
+                    itemCount: futureEventIds.Count,
                     itemBuilder: this._buildEventCard,
                     headerWidget: CustomListViewConstant.defaultHeaderWidget,
                     footerWidget: enablePullUp ? null : CustomListViewConstant.defaultFooterWidget
@@ -142,9 +143,14 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildEventCard(BuildContext context, int index) {
-            var futureEventsList = this.widget.viewModel.futureEventsList;
+            var futureEventIds = this.widget.viewModel.futureEventIds;
 
-            var model = futureEventsList[index: index];
+            var futureEventId = futureEventIds[index: index];
+            if (!this.widget.viewModel.eventsDict.ContainsKey(key: futureEventId)) {
+                return new Container();
+            }
+
+            var model = this.widget.viewModel.eventsDict[key: futureEventId];
             var eventType = model.mode == "online" ? EventType.online : EventType.offline;
             var placeName = model.placeId.isEmpty()
                 ? null
