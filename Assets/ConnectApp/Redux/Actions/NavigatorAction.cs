@@ -118,6 +118,9 @@ namespace ConnectApp.redux.actions {
 
     public class MainNavigatorPushToWebViewAction : BaseAction {
         public string url = "";
+        public bool landscape = false;
+        public bool fullscreen = false;
+        public bool showOpenInBrowser = true;
     }
 
     public class EnterRealityAction : BaseAction {
@@ -130,6 +133,7 @@ namespace ConnectApp.redux.actions {
     public class MainNavigatorPushToFavoriteDetailAction : BaseAction {
         public string tagId = "";
         public string userId = "";
+        public FavoriteType type;
     }
 
     public class MainNavigatorPushToEditFavoriteAction : BaseAction {
