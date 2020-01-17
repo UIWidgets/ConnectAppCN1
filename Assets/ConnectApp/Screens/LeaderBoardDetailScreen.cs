@@ -464,7 +464,7 @@ namespace ConnectApp.screens {
 
         bool _onNotification(ScrollNotification notification) {
             var pixels = notification.metrics.pixels;
-            if (pixels > 44) {
+            if (pixels > 104) {
                 if (!this._isHaveTitle) {
                     this._controller.forward();
                     this.setState(() => this._isHaveTitle = true);
