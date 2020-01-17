@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.Models.Model;
 
@@ -26,6 +27,7 @@ namespace ConnectApp.Models.ViewModel {
         public List<string> homeBloggerIds;
         public string dailySelectionId;
         public string searchSuggest;
+        public DateTime leaderBoardUpdatedTime;
         public bool hottestHasMore;
         public bool followArticleHasMore;
         public bool hotArticleHasMore;

@@ -51,6 +51,7 @@ namespace ConnectApp.screens {
                     isLoggedIn = state.loginState.isLoggedIn,
                     hosttestOffset = state.articleState.recommendArticleIds.Count,
                     currentUserId = state.loginState.loginInfo.userId ?? "",
+                    leaderBoardUpdatedTime = state.articleState.leaderBoardUpdatedTime,
                     selectedIndex = this.selectedIndex
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -202,18 +203,20 @@ namespace ConnectApp.screens {
                     headerWidget: new Column(
                         children: new List<Widget> {
                             this._buildSwiper(),
-                            new KingKongView(type => {
-                                if (type == KingKongType.dailyCollection) {
-                                    var articleId = this.widget.viewModel.dailySelectionId;
-                                    this.widget.actionModel.pushToArticleDetail(obj: articleId);
-                                }
-                                if (type == KingKongType.leaderBoard) {
-                                    this.widget.actionModel.pushToLeaderBoard();
-                                }
-                                if (type == KingKongType.blogger) {
-                                    this.widget.actionModel.pushToBlogger();
-                                }
-                            }),
+                            new KingKongView(
+                                leaderBoardUpdatedTime: this.widget.viewModel.leaderBoardUpdatedTime,
+                                type => {
+                                    if (type == KingKongType.dailyCollection) {
+                                        var articleId = this.widget.viewModel.dailySelectionId;
+                                        this.widget.actionModel.pushToArticleDetail(obj: articleId);
+                                    }
+                                    if (type == KingKongType.leaderBoard) {
+                                        this.widget.actionModel.pushToLeaderBoard();
+                                    }
+                                    if (type == KingKongType.blogger) {
+                                        this.widget.actionModel.pushToBlogger();
+                                    }
+                                }),
                             new RecommendBlogger(
                                 bloggerIds: this.widget.viewModel.homeBloggerIds,
                                 rankDict: this.widget.viewModel.rankDict,
