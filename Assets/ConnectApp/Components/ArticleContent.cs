@@ -29,12 +29,15 @@ namespace ConnectApp.Components {
     /// </summary>
     public class KingKongView : StatefulWidget {
         public KingKongView(
+            DateTime leaderBoardUpdatedTime,
             TypeCallback onPress,
             Key key = null
         ) : base(key: key) {
+            this.leaderBoardUpdatedTime = leaderBoardUpdatedTime;
             this.onPress = onPress;
         }
 
+        public readonly DateTime leaderBoardUpdatedTime;
         public readonly TypeCallback onPress;
 
         public override State createState() {
@@ -116,13 +119,13 @@ namespace ConnectApp.Components {
                     children: new List<Widget> {
                         new Row(
                             children: new List<Widget> {
-                                _buildKingKongItem("每日精选", "daily-collection",
+                                this._buildKingKongItem("每日精选", "daily-collection",
                                     () => this.widget.onPress(type: KingKongType.dailyCollection)),
-                                _buildKingKongItem("榜单", "leader-board",
+                                this._buildKingKongItem("榜单", "leader-board",
                                     () => this.widget.onPress(type: KingKongType.leaderBoard)),
-                                _buildKingKongItem("活动", "activity",
+                                this._buildKingKongItem("活动", "activity",
                                     () => this.widget.onPress(type: KingKongType.activity)),
-                                _buildKingKongItem("博主", "blogger",
+                                this._buildKingKongItem("博主", "blogger",
                                     () => this.widget.onPress(type: KingKongType.blogger))
                             }
                         ),
@@ -135,9 +138,9 @@ namespace ConnectApp.Components {
             );
         }
 
-        static Widget _buildKingKongItem(string title, string imageName, GestureTapCallback onPressItem) {
+        Widget _buildKingKongItem(string title, string imageName, GestureTapCallback onPressItem) {
             Widget newDot;
-            if (title == "榜单") {
+            if (title == "榜单" && LocalDataManager.needNoticeNewLeaderBoard(dateTime: this.widget.leaderBoardUpdatedTime)) {
                 newDot = new Positioned(
                     top: 0,
                     right: 0,
@@ -395,7 +398,8 @@ namespace ConnectApp.Components {
                 });
             }
             else {
-                for (int index = 0; index < 3; index++) {
+                var _showBloggerCount = 3;
+                for (int index = 0; index < _showBloggerCount; index++) {
                     var bloggerId = this.bloggerIds[index: index];
                     var rankData = this.rankDict.ContainsKey(key: bloggerId)
                         ? this.rankDict[key: bloggerId]
@@ -406,7 +410,8 @@ namespace ConnectApp.Components {
                     }
                 }
 
-                children.Add(this._buildMoreBlogger());
+                children.Add(this._buildMoreBlogger(this.bloggerIds.GetRange(_showBloggerCount,
+                    this.bloggerIds.Count - _showBloggerCount > 3 ? 3 : this.bloggerIds.Count - _showBloggerCount)));
             }
 
             return new Container(
@@ -512,7 +517,7 @@ namespace ConnectApp.Components {
             );
         }
 
-        Widget _buildMoreBlogger() {
+        Widget _buildMoreBlogger(List<string> bloggerIds) {
             return new GestureDetector(
                 onTap: () => this.onPressMore?.Invoke(),
                 child: new Container(
@@ -534,56 +539,7 @@ namespace ConnectApp.Components {
                                 Positioned.fill(
                                     new Column(
                                         mainAxisAlignment: MainAxisAlignment.center,
-                                        children: new List<Widget> {
-                                            new Container(
-                                                width: 112,
-                                                height: 40,
-                                                child: new Stack(
-                                                    children: new List<Widget> {
-                                                        new Positioned(
-                                                            right: 0,
-                                                            bottom: 0,
-                                                            child: new Container(
-                                                                width: 40,
-                                                                height: 40,
-                                                                decoration: new BoxDecoration(
-                                                                    color: CColors.Red,
-                                                                    borderRadius: BorderRadius.all(20)
-                                                                )
-                                                            )
-                                                        ),
-                                                        new Positioned(
-                                                            right: 36,
-                                                            bottom: 0,
-                                                            child: new Container(
-                                                                width: 40,
-                                                                height: 40,
-                                                                decoration: new BoxDecoration(
-                                                                    color: CColors.Green,
-                                                                    borderRadius: BorderRadius.all(20)
-                                                                )
-                                                            )
-                                                        ),
-                                                        new Positioned(
-                                                            right: 72,
-                                                            bottom: 0,
-                                                            child: new Container(
-                                                                width: 40,
-                                                                height: 40,
-                                                                decoration: new BoxDecoration(
-                                                                    color: CColors.PrimaryBlue,
-                                                                    borderRadius: BorderRadius.all(20)
-                                                                )
-                                                            )
-                                                        )
-                                                    }
-                                                )
-                                            ),
-                                            new Padding(
-                                                padding: EdgeInsets.only(top: 16),
-                                                child: new Text("查看更多", style: CTextStyle.PRegularBody2)
-                                            )
-                                        }
+                                        children: this._buildAvatars(bloggerIds)
                                     )
                                 )
                             }
@@ -592,7 +548,34 @@ namespace ConnectApp.Components {
                 )
             );
         }
+
+        List<Widget> _buildAvatars(List<string> bloggerIds) {
+            var list = new List<Widget>();
+            var items = new List<Widget>();
+            bloggerIds.ForEach(bloggerId => {
+                var index = bloggerIds.IndexOf(bloggerId);
+                var rankData = this.rankDict.ContainsKey(key: bloggerId)
+                    ? this.rankDict[key: bloggerId]
+                    : new RankData();
+                if (this.userDict.ContainsKey(key: rankData.itemId)) {
+                    var user = this.userDict[key: rankData.itemId];
+                    items.Add(new Container(
+                        margin: EdgeInsets.only(right: index == bloggerIds.Count - 1 ? 0 : -10),
+                        child: Avatar.User(user: user, 40, true)));
+                }
+            });
+            var avatar = new Row(mainAxisAlignment: MainAxisAlignment.center, children: items);
+            list.Add(avatar);
+            list.Add(new Padding(
+                    padding: EdgeInsets.only(top: 16),
+                    child: new Text("查看更多", style: CTextStyle.PRegularBody2)
+                )
+            );
+
+            return list;
+        }
     }
+
 
     /// <summary>
     /// 推荐榜单

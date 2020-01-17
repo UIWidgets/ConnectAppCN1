@@ -84,6 +84,7 @@ namespace ConnectApp.screens {
                     this.setState(() => this._selectedIndex = this._tabController.index);
                 }
             });
+            LocalDataManager.markLeaderBoardUpdatedTime();
         }
 
         public override void didChangeDependencies() {

@@ -19,6 +19,7 @@ namespace ConnectApp.Models.Model {
         public int? followingUsersCount;
         public int? followingTeamsCount;
         public int? likeCount;
+        public int? appArticleLikedCount;
         public List<User> followingUsers;
         public bool? followingUsersHasMore;
         public List<User> followers;
@@ -53,6 +54,7 @@ namespace ConnectApp.Models.Model {
             int? followingUsersCount = null,
             int? followingTeamsCount = null,
             int? likeCount = null,
+            int? appArticleLikedCount = null,
             List<User> followingUsers = null,
             bool? followingUsersHasMore = null,
             List<User> followers = null,
@@ -87,6 +89,7 @@ namespace ConnectApp.Models.Model {
                 followingUsersCount = followingUsersCount ?? this.followingUsersCount,
                 followingTeamsCount = followingTeamsCount ?? this.followingTeamsCount,
                 likeCount = likeCount ?? this.likeCount,
+                appArticleLikedCount = appArticleLikedCount ?? this.appArticleLikedCount,
                 followingUsers = followingUsers ?? this.followingUsers,
                 followingUsersHasMore = followingUsersHasMore ?? this.followingUsersHasMore,
                 followers = followers ?? this.followers,
@@ -128,6 +131,7 @@ namespace ConnectApp.Models.Model {
                 followingUsersCount: other.followingUsersCount,
                 followingTeamsCount: other.followingTeamsCount,
                 likeCount: other.likeCount,
+                appArticleLikedCount: other.appArticleLikedCount,
                 followingUsers: other.followingUsers,
                 followingUsersHasMore: other.followingUsersHasMore,
                 followers: other.followers,
