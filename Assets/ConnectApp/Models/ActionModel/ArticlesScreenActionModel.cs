@@ -5,6 +5,7 @@ using RSG;
 
 namespace ConnectApp.Models.ActionModel {
     public class ArticlesScreenActionModel : BaseActionModel {
+        public Action<string> openUrl;
         public Action pushToSearch;
         public Action<string> pushToArticleDetail;
         public Action<string, ReportType> pushToReport;
@@ -17,6 +18,7 @@ namespace ConnectApp.Models.ActionModel {
         public Action pushToHomeEvent;
         public Action pushToBlogger;
         public Action pushToReality;
+        public Action pushToGame;
         public Func<ShareType, string, string, string, string, IPromise> shareToWechat;
         public Action<string> startFollowUser;
         public Func<string, IPromise> followUser;

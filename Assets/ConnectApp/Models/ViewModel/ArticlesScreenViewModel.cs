@@ -40,5 +40,6 @@ namespace ConnectApp.Models.ViewModel {
         public int currentTabBarIndex;
         public bool nationalDayEnabled;
         public int selectedIndex;
+        public bool hasNewArticle;
     }
 }
