@@ -67,11 +67,17 @@ namespace ConnectApp.screens {
                             : null;
                     var isCollected = false;
                     var isFollowed = false;
+                    var isHost = false;
                     if (rankData != null) {
                         isCollected = state.loginState.isLoggedIn && collectedMap.ContainsKey(rankData.itemId) &&
                                       collectedMap[rankData.itemId];
                         isFollowed = state.loginState.isLoggedIn && followedMap.ContainsKey(rankData.itemId) &&
                                      followedMap[rankData.itemId];
+                        isHost = state.loginState.isLoggedIn &&
+                                 state.favoriteState.favoriteTagDict.isNotEmpty() &&
+                                 state.favoriteState.favoriteTagDict.ContainsKey(rankData.itemId) &&
+                                 state.favoriteState.favoriteTagDict[rankData.itemId].userId ==
+                                 state.loginState.loginInfo.userId;
                     }
 
                     return new LeaderBoardDetailScreenViewModel {
@@ -85,6 +91,7 @@ namespace ConnectApp.screens {
                         userArticleDict = state.articleState.userArticleDict,
                         isCollected = isCollected,
                         isFollowed = isFollowed,
+                        isHost = isHost,
                         currentUserId = currentUserId,
                         isLoggedIn = state.loginState.isLoggedIn,
                         hasMore = state.leaderBoardState.detailHasMore,
@@ -296,21 +303,23 @@ namespace ConnectApp.screens {
 
             var child = this.widget.viewModel.type == LeaderBoardType.column
                 ? this._buildFollowButton()
-                : new CustomButton(
-                    onPressed: this._onPressed,
-                    padding: EdgeInsets.zero,
-                    child: new Container(
-                        width: 60,
-                        height: 28,
-                        alignment: Alignment.center,
-                        decoration: new BoxDecoration(
-                            color: CColors.White,
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(color: buttonColor)
-                        ),
-                        child: buttonChild
-                    )
-                );
+                : this.widget.viewModel.isHost
+                    ? (Widget) new Container()
+                    : new CustomButton(
+                        onPressed: this._onPressed,
+                        padding: EdgeInsets.zero,
+                        child: new Container(
+                            width: 60,
+                            height: 28,
+                            alignment: Alignment.center,
+                            decoration: new BoxDecoration(
+                                color: CColors.White,
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(color: buttonColor)
+                            ),
+                            child: buttonChild
+                        )
+                    );
             Widget rightWidget = new Container();
             if (this._isHaveTitle) {
                 rightWidget = new Padding(
@@ -515,6 +524,7 @@ namespace ConnectApp.screens {
                 , subTitle, images: images,
                 type: this.widget.viewModel.type,
                 isLoading: this.widget.viewModel.collectLoading,
+                isHost: this.widget.viewModel.isHost,
                 isCollected: this._fetchButtonState(),
                 ClickButtonCallback: this._onPressed,
                 followButton: this._buildFollowButton());

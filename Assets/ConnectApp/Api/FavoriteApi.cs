@@ -8,10 +8,26 @@ using RSG;
 
 namespace ConnectApp.Api {
     public static class FavoriteApi {
-        public static Promise<FetchFavoriteTagsResponse> FetchFavoriteTags(string userId, int offset) {
+        public static Promise<FetchFavoriteTagsResponse> FetchMyFavoriteTags(string userId, int offset) {
             var promise = new Promise<FetchFavoriteTagsResponse>();
             var para = new Dictionary<string, object> {
-                {"offset", offset}
+                {"offset", offset},
+                {"list", "my"}
+            };
+            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/favorite-tag/{userId}/list",
+                parameter: para);
+            HttpManager.resume(request: request).Then(responseText => {
+                var favoritesResponse = JsonConvert.DeserializeObject<FetchFavoriteTagsResponse>(value: responseText);
+                promise.Resolve(value: favoritesResponse);
+            }).Catch(exception => promise.Reject(ex: exception));
+            return promise;
+        }
+
+        public static Promise<FetchFavoriteTagsResponse> FetchFollowFavoriteTags(string userId, int offset) {
+            var promise = new Promise<FetchFavoriteTagsResponse>();
+            var para = new Dictionary<string, object> {
+                {"offset", offset},
+                {"list", "other"}
             };
             var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/favorite-tag/{userId}/list",
                 parameter: para);

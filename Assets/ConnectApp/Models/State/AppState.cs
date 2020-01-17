@@ -72,7 +72,9 @@ namespace ConnectApp.Models.State {
                     homeSliderIds = new List<string>(),
                     homeTopCollectionIds = new List<string>(),
                     homeCollectionIds = new List<string>(),
-                    homeBloggerIds = new List<string>()
+                    homeBloggerIds = new List<string>(),
+                    recommendLastRefreshArticleId = "",
+                    recommendHasNewArticle = true
                 },
                 eventState = new EventState {
                     ongoingEvents = new List<string>(),
@@ -80,10 +82,14 @@ namespace ConnectApp.Models.State {
                     ongoingEventTotal = 0,
                     completedEvents = new List<string>(),
                     completedEventTotal = 0,
-                    pageNumber = 1,
+                    homeEvents = new List<string>(),
+                    ongoingPageNumber = 1,
                     completedPageNumber = 1,
+                    homeEventPageNumber = 1,
+                    homeEventHasMore = false,
                     eventsOngoingLoading = false,
                     eventsCompletedLoading = false,
+                    homeEventsLoading = false,
                     eventHistory = HistoryManager.eventHistoryList(isLogin ? loginInfo.userId : null),
                     channelId = ""
                 },
@@ -151,8 +157,8 @@ namespace ConnectApp.Models.State {
                     likeDict = new Dictionary<string, Dictionary<string, bool>>()
                 },
                 mineState = new MineState {
-                    futureEventsList = new List<IEvent>(),
-                    pastEventsList = new List<IEvent>(),
+                    futureEventIds = new List<string>(),
+                    pastEventIds = new List<string>(),
                     futureListLoading = false,
                     pastListLoading = false,
                     futureEventTotal = 0,
@@ -198,10 +204,13 @@ namespace ConnectApp.Models.State {
                 },
                 favoriteState = new FavoriteState {
                     favoriteTagLoading = false,
+                    followFavoriteTagLoading = false,
                     favoriteDetailLoading = false,
                     favoriteTagIdDict = new Dictionary<string, List<string>>(),
+                    followFavoriteTagIdDict = new Dictionary<string, List<string>>(),
                     favoriteDetailArticleIdDict = new Dictionary<string, List<string>>(),
                     favoriteTagHasMore = false,
+                    followFavoriteTagHasMore = false,
                     favoriteDetailHasMore = false,
                     favoriteTagDict = new Dictionary<string, FavoriteTag>(),
                     favoriteTagArticleDict = new Dictionary<string, FavoriteTagArticle>(),

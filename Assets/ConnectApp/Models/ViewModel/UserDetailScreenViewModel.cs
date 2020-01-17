@@ -6,8 +6,11 @@ namespace ConnectApp.Models.ViewModel {
         public bool userLoading;
         public bool userArticleLoading;
         public bool userFavoriteLoading;
+        public bool userFollowFavoriteLoading;
         public Dictionary<string, List<string>> favoriteTagIdDict;
+        public Dictionary<string, List<string>> followFavoriteTagIdDict;
         public bool userFavoriteHasMore;
+        public bool userFollowFavoriteHasMore;
         public User user;
         public string userId;
         public Dictionary<string, UserLicense> userLicenseDict;
