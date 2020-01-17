@@ -427,7 +427,7 @@ namespace ConnectApp.screens {
                         articleTitle: article.title);
                 },
                 () => ShareManager.showArticleShareView(
-                    this.widget.viewModel.currentUserId != userId,
+                    false,
                     isLoggedIn: this.widget.viewModel.isLoggedIn,
                     () => {
                         Clipboard.setData(new ClipboardData(text: linkUrl));

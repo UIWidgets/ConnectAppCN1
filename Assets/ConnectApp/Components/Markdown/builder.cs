@@ -394,7 +394,7 @@ namespace markdown {
             }
         }
 
-        Widget _handleDataSchemeUri(Uri uri, float widht, float height) {
+        Widget _handleDataSchemeUri(Uri uri, float width, float height) {
             //TODO:
             return SizedBox.expand();
         }
