@@ -214,8 +214,8 @@ namespace ConnectApp.screens {
                                 leaderBoardUpdatedTime: this.widget.viewModel.leaderBoardUpdatedTime,
                                 type => {
                                     if (type == KingKongType.dailyCollection) {
-                                    var articleId = this.widget.viewModel.dailySelectionId;
-                                    this.widget.actionModel.pushToArticleDetail(obj: articleId);
+                                        var articleId = this.widget.viewModel.dailySelectionId;
+                                        this.widget.actionModel.pushToArticleDetail(obj: articleId);
                                     }
                                     if (type == KingKongType.leaderBoard) {
                                         this.widget.actionModel.pushToLeaderBoard();
@@ -226,33 +226,6 @@ namespace ConnectApp.screens {
                                     if (type == KingKongType.blogger) {
                                         this.widget.actionModel.pushToBlogger();
                                     }
-                                }),
-                            new RecommendBlogger(
-                                bloggerIds: this.widget.viewModel.homeBloggerIds,
-                                rankDict: this.widget.viewModel.rankDict,
-                                userDict: this.widget.viewModel.userDict,
-                                () => this.widget.actionModel.pushToBlogger(),
-                                userId => this.widget.actionModel.pushToUserDetail(obj: userId)
-                            ),
-                            new RecommendLeaderBoard(
-                                data: this.widget.viewModel.homeTopCollectionIds,
-                                rankDict: this.widget.viewModel.rankDict,
-                                favoriteTagDict: this.widget.viewModel.favoriteTagDict,
-                                favoriteTagArticleDict: this.widget.viewModel.favoriteTagArticleDict,
-                                () => this.widget.actionModel.pushToLeaderBoard(),
-                                collectionId => this.widget.actionModel.pushToLeaderBoardDetail(obj: collectionId)
-                            ),
-                            new LeaderBoard(
-                                data: this.widget.viewModel.homeCollectionIds,
-                                rankDict: this.widget.viewModel.rankDict,
-                                favoriteTagDict: this.widget.viewModel.favoriteTagDict,
-                                () => this.widget.actionModel.pushToLeaderBoard(),
-                                collectionId => this.widget.actionModel.pushToLeaderBoardDetail(obj: collectionId)
-                            ),
-                            new RefreshDivider(
-                                () => {
-                                    this._refreshController.sendBack(true, mode: RefreshStatus.refreshing);
-                                    this._refreshController.animateTo(0.0f, TimeSpan.FromMilliseconds(300), curve: Curves.linear);
                                 }
                             )
                         }
