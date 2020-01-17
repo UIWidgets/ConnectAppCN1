@@ -7,6 +7,8 @@ namespace ConnectApp.Models.ViewModel {
         public RankData rankData;
         public LeaderBoardType type;
         public string tagId;
+        public string currentUserId;
+
         public List<string> articleList;
         public Dictionary<string, Article> articleDict;
         public Dictionary<string, FavoriteTag> favoriteTagDict;
@@ -16,10 +18,10 @@ namespace ConnectApp.Models.ViewModel {
         public Dictionary<string, UserArticle> userArticleDict;
         public bool isCollected;
         public bool isFollowed;
-        public string currentUserId;
         public bool isLoggedIn;
         public bool hasMore;
         public bool loading;
         public bool collectLoading;
+        public bool isHost;
     }
 }
