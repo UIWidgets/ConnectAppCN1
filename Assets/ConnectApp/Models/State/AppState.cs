@@ -72,7 +72,9 @@ namespace ConnectApp.Models.State {
                     homeSliderIds = new List<string>(),
                     homeTopCollectionIds = new List<string>(),
                     homeCollectionIds = new List<string>(),
-                    homeBloggerIds = new List<string>()
+                    homeBloggerIds = new List<string>(),
+                    recommendLastRefreshArticleId = "",
+                    recommendHasNewArticle = true
                 },
                 eventState = new EventState {
                     ongoingEvents = new List<string>(),
