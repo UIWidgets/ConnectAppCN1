@@ -524,7 +524,7 @@ namespace ConnectApp.screens {
                 , subTitle, images: images,
                 type: this.widget.viewModel.type,
                 isLoading: this.widget.viewModel.collectLoading,
-                isHost:this.widget.viewModel.isHost,
+                isHost: this.widget.viewModel.isHost,
                 isCollected: this._fetchButtonState(),
                 ClickButtonCallback: this._onPressed,
                 followButton: this._buildFollowButton());

@@ -8,7 +8,6 @@ namespace ConnectApp.Models.ViewModel {
         public LeaderBoardType type;
         public string tagId;
         public string currentUserId;
-
         public List<string> articleList;
         public Dictionary<string, Article> articleDict;
         public Dictionary<string, FavoriteTag> favoriteTagDict;
