@@ -16,6 +16,7 @@ namespace ConnectApp.Models.ActionModel {
         public Action<string> pushToLeaderBoardDetail;
         public Action pushToBlogger;
         public Action pushToReality;
+        public Action pushToGame;
         public Func<ShareType, string, string, string, string, IPromise> shareToWechat;
         public Action<string> startFollowUser;
         public Func<string, IPromise> followUser;
