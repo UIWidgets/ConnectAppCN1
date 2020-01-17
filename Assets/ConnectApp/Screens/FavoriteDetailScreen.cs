@@ -22,18 +22,26 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
+    public enum FavoriteType {
+        my,
+        follow
+    }
+
     public class FavoriteDetailScreenConnector : StatelessWidget {
         public FavoriteDetailScreenConnector(
             string tagId,
             string userId,
+            FavoriteType type = FavoriteType.my,
             Key key = null
         ) : base(key: key) {
             this.tagId = tagId;
             this.userId = userId;
+            this.type = type;
         }
 
         readonly string tagId;
         readonly string userId;
+        readonly FavoriteType type;
 
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, FavoriteDetailScreenViewModel>(
@@ -49,6 +57,7 @@ namespace ConnectApp.screens {
                     return new FavoriteDetailScreenViewModel {
                         userId = this.userId,
                         tagId = this.tagId,
+                        type = this.type,
                         favoriteDetailLoading = state.favoriteState.favoriteDetailLoading,
                         favoriteDetailArticleIds = favoriteDetailArticleIds,
                         favoriteArticleOffset = favoriteDetailArticleIds?.Count ?? 0,
@@ -261,6 +270,8 @@ namespace ConnectApp.screens {
                     if (!this.widget.viewModel.isLoggedIn) {
                         rightWidget = new Container(width: 56);
                     } else if (!this.widget.viewModel.userId.Equals(value: this.widget.viewModel.currentUserId)) {
+                        rightWidget = new Container(width: 56);
+                    } else if (this.widget.viewModel.type == FavoriteType.follow) {
                         rightWidget = new Container(width: 56);
                     }
                     else {

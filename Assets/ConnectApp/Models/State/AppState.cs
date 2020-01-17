@@ -202,10 +202,13 @@ namespace ConnectApp.Models.State {
                 },
                 favoriteState = new FavoriteState {
                     favoriteTagLoading = false,
+                    followFavoriteTagLoading = false,
                     favoriteDetailLoading = false,
                     favoriteTagIdDict = new Dictionary<string, List<string>>(),
+                    followFavoriteTagIdDict = new Dictionary<string, List<string>>(),
                     favoriteDetailArticleIdDict = new Dictionary<string, List<string>>(),
                     favoriteTagHasMore = false,
+                    followFavoriteTagHasMore = false,
                     favoriteDetailHasMore = false,
                     favoriteTagDict = new Dictionary<string, FavoriteTag>(),
                     favoriteTagArticleDict = new Dictionary<string, FavoriteTagArticle>(),

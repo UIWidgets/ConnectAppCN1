@@ -1694,7 +1694,8 @@ namespace ConnectApp.redux.reducers {
                 case MainNavigatorPushToFavoriteDetailAction action: {
                     if (action.tagId.isNotEmpty()) {
                         Router.navigator.push(new CustomPageRoute(
-                            context => new FavoriteDetailScreenConnector(tagId: action.tagId, userId: action.userId)
+                            context => new FavoriteDetailScreenConnector(
+                                tagId: action.tagId, userId: action.userId, type: action.type)
                         ));
                     }
 
@@ -2706,6 +2707,44 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case StartFetchFollowFavoriteTagAction _: {
+                    state.favoriteState.followFavoriteTagLoading = true;
+                    break;
+                }
+
+                case FetchFollowFavoriteTagSuccessAction action: {
+                    var favoriteTagIds = new List<string>();
+                    action.favoriteTags.ForEach(favoriteTag => {
+                        favoriteTagIds.Add(item: favoriteTag.id);
+                        if (state.favoriteState.favoriteTagDict.ContainsKey(key: favoriteTag.id)) {
+                            state.favoriteState.favoriteTagDict[key: favoriteTag.id] = favoriteTag;
+                        }
+                        else {
+                            state.favoriteState.favoriteTagDict.Add(key: favoriteTag.id, value: favoriteTag);
+                        }
+                    });
+
+                    if (action.offset == 0) {
+                        state.favoriteState.followFavoriteTagIdDict = new Dictionary<string, List<string>> {
+                            {action.userId, favoriteTagIds}
+                        };
+                    }
+                    else {
+                        var oldFavoriteTagIds = state.favoriteState.followFavoriteTagIdDict[key: action.userId];
+                        oldFavoriteTagIds.AddRange(collection: favoriteTagIds);
+                        state.favoriteState.followFavoriteTagIdDict[key: action.userId] = oldFavoriteTagIds;
+                    }
+
+                    state.favoriteState.followFavoriteTagHasMore = action.hasMore;
+                    state.favoriteState.followFavoriteTagLoading = false;
+                    break;
+                }
+
+                case FetchFollowFavoriteTagFailureAction _: {
+                    state.favoriteState.followFavoriteTagLoading = false;
+                    break;
+                }
+
                 case StartFetchFavoriteDetailAction _: {
                     state.favoriteState.favoriteDetailLoading = true;
                     break;
@@ -2943,11 +2982,18 @@ namespace ConnectApp.redux.reducers {
                     var favoriteTagIds = state.favoriteState.favoriteTagIdDict.ContainsKey(key: currentUserId)
                         ? state.favoriteState.favoriteTagIdDict[key: currentUserId]
                         : new List<string>();
+                    var followFavoriteIds = state.favoriteState.followFavoriteTagIdDict.ContainsKey(key: currentUserId)
+                        ? state.favoriteState.followFavoriteTagIdDict[key: currentUserId]
+                        : new List<string>();
                     if (favoriteTagIds.Contains(item: action.favoriteTag.id)) {
                         favoriteTagIds.Remove(item: action.favoriteTag.id);
                     }
+                    if (followFavoriteIds.Contains(item: action.favoriteTag.id)) {
+                        followFavoriteIds.Remove(item: action.favoriteTag.id);
+                    }
 
                     state.favoriteState.favoriteTagIdDict[key: currentUserId] = favoriteTagIds;
+                    state.favoriteState.followFavoriteTagIdDict[key: currentUserId] = followFavoriteIds;
 
                     if (state.favoriteState.favoriteTagDict.ContainsKey(key: action.favoriteTag.id)) {
                         state.favoriteState.favoriteTagDict.Remove(key: action.favoriteTag.id);

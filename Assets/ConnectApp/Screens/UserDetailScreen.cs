@@ -47,9 +47,12 @@ namespace ConnectApp.screens {
                     return new UserDetailScreenViewModel {
                         userLoading = state.userState.userLoading,
                         userArticleLoading = state.userState.userArticleLoading,
-                        userFavoriteLoading = state.favoriteState.favoriteDetailLoading,
+                        userFavoriteLoading = state.favoriteState.favoriteTagLoading,
+                        userFollowFavoriteLoading = state.favoriteState.followFavoriteTagLoading,
                         favoriteTagIdDict = state.favoriteState.favoriteTagIdDict,
-                        userFavoriteHasMore = state.favoriteState.favoriteDetailHasMore,
+                        followFavoriteTagIdDict = state.favoriteState.followFavoriteTagIdDict,
+                        userFavoriteHasMore = state.favoriteState.favoriteTagHasMore,
+                        userFollowFavoriteHasMore = state.favoriteState.followFavoriteTagHasMore,
                         user = user,
                         userId = this.userId,
                         userLicenseDict = state.userState.userLicenseDict,
@@ -65,14 +68,17 @@ namespace ConnectApp.screens {
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new UserDetailScreenActionModel {
                         startFetchUserProfile = () => dispatcher.dispatch(new StartFetchUserProfileAction()),
-                        fetchUserProfile = () => dispatcher.dispatch<IPromise>(Actions.fetchUserProfile(this.userId)),
+                        fetchUserProfile = () => dispatcher.dispatch<IPromise>(Actions.fetchUserProfile(userId: this.userId)),
                         startFetchUserArticle = () => dispatcher.dispatch(new StartFetchUserArticleAction()),
                         fetchUserArticle = (userId, pageNumber) =>
                             dispatcher.dispatch<IPromise>(Actions.fetchUserArticle(userId: userId,
                                 pageNumber: pageNumber)),
-                        startFetchUserFavorite = () => dispatcher.dispatch(new StartFetchFavoriteDetailAction()),
+                        startFetchUserFavorite = () => dispatcher.dispatch(new StartFetchFavoriteTagAction()),
                         fetchUserFavorite = (userId, offset) =>
                             dispatcher.dispatch<IPromise>(Actions.fetchFavoriteTags(userId: userId, offset: offset)),
+                        startFetchUserFollowFavorite = () => dispatcher.dispatch(new StartFetchFollowFavoriteTagAction()),
+                        fetchUserFollowFavorite = (userId, offset) =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchFollowFavoriteTags(userId: userId, offset: offset)),
                         startFollowUser = userId =>
                             dispatcher.dispatch(new StartFollowUserAction {followUserId = userId}),
                         followUser = userId =>
@@ -95,7 +101,8 @@ namespace ConnectApp.screens {
                         pushToFavoriteDetail = (userId, tagId) => dispatcher.dispatch(
                             new MainNavigatorPushToFavoriteDetailAction {
                                 userId = userId,
-                                tagId = tagId
+                                tagId = tagId,
+                                type = FavoriteType.my
                             }
                         ),
                         pushToCreateFavorite = tagId => dispatcher.dispatch(
@@ -173,7 +180,6 @@ namespace ConnectApp.screens {
         const float navBarHeight = 44;
         const float _transformSpeed = 0.005f;
         int _articlePageNumber;
-        int _favoriteArticleOffset;
         RefreshController _refreshController;
         float _factor = 1;
         bool _isHaveTitle;
@@ -183,12 +189,12 @@ namespace ConnectApp.screens {
         Animation<RelativeRect> _animation;
         AnimationController _controller;
         readonly CustomDismissibleController _dismissibleController = new CustomDismissibleController();
+        CustomTabController _tabController;
 
         public override void initState() {
             base.initState();
             StatusBarManager.statusBarStyle(true);
             this._articlePageNumber = 1;
-            this._favoriteArticleOffset = 0;
             this._refreshController = new RefreshController();
             this._isHaveTitle = false;
             this._hideNavBar = true;
@@ -203,11 +209,18 @@ namespace ConnectApp.screens {
                 RelativeRect.fromLTRB(0, 0, 0, 0)
             );
             this._animation = rectTween.animate(parent: this._controller);
+            this._tabController = new CustomTabController(3, this);
+            this._tabController.addListener(() => {
+                if (this._selectedIndex != this._tabController.index) {
+                    this.setState(() => this._selectedIndex = this._tabController.index);
+                }
+            });
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this.widget.actionModel.startFetchUserProfile();
                 this.widget.actionModel.fetchUserProfile();
                 this.widget.actionModel.startFetchUserArticle();
                 this.widget.actionModel.startFetchUserFavorite();
+                this.widget.actionModel.startFetchUserFollowFavorite();
             });
         }
 
@@ -219,6 +232,7 @@ namespace ConnectApp.screens {
         public override void dispose() {
             Router.routeObserve.unsubscribe(this);
             this._controller.dispose();
+            this._tabController.dispose();
             base.dispose();
         }
 
@@ -284,20 +298,39 @@ namespace ConnectApp.screens {
         }
 
         void _onRefresh(bool up) {
+            var userId = this.widget.viewModel.user.id;
             if (this._selectedIndex == 1) {
+                int offset;
                 if (up) {
-                    this._favoriteArticleOffset = 0;
+                    offset = 0;
                 }
                 else {
-                    var favoriteDetailArticleIds =
-                        this.widget.viewModel.favoriteTagIdDict.ContainsKey(key: this.widget.viewModel.user.id)
-                            ? this.widget.viewModel.favoriteTagIdDict[key: this.widget.viewModel.user.id]
-                            : new List<string>();
-                    this._favoriteArticleOffset = favoriteDetailArticleIds.Count;
+                    var favoriteTagIds = this.widget.viewModel.favoriteTagIdDict.ContainsKey(key: userId)
+                        ? this.widget.viewModel.favoriteTagIdDict[key: userId]
+                        : new List<string>();
+                    offset = favoriteTagIds.Count;
                 }
 
-                this.widget.actionModel
-                    .fetchUserFavorite(arg1: this.widget.viewModel.user.id, arg2: this._favoriteArticleOffset)
+                this.widget.actionModel.fetchUserFavorite(arg1: userId, arg2: offset)
+                    .Then(() => this._refreshController.sendBack(up: up,
+                        up ? RefreshStatus.completed : RefreshStatus.idle))
+                    .Catch(_ => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed));
+                return;
+            }
+
+            if (this._selectedIndex == 2) {
+                int offset;
+                if (up) {
+                    offset = 0;
+                }
+                else {
+                    var favoriteTagIds = this.widget.viewModel.followFavoriteTagIdDict.ContainsKey(key: userId)
+                            ? this.widget.viewModel.followFavoriteTagIdDict[key: userId]
+                            : new List<string>();
+                    offset = favoriteTagIds.Count;
+                }
+
+                this.widget.actionModel.fetchUserFollowFavorite(arg1: userId, arg2: offset)
                     .Then(() => this._refreshController.sendBack(up: up,
                         up ? RefreshStatus.completed : RefreshStatus.idle))
                     .Catch(_ => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed));
@@ -427,15 +460,23 @@ namespace ConnectApp.screens {
             var favoriteIds = this.widget.viewModel.favoriteTagIdDict.ContainsKey(key: this.widget.viewModel.user.id)
                 ? this.widget.viewModel.favoriteTagIdDict[key: this.widget.viewModel.user.id]
                 : null;
+            var followFavoriteIds = this.widget.viewModel.followFavoriteTagIdDict.ContainsKey(key: this.widget.viewModel.user.id)
+                ? this.widget.viewModel.followFavoriteTagIdDict[key: this.widget.viewModel.user.id]
+                : null;
             var articlesHasMore = this.widget.viewModel.user.articlesHasMore ?? false;
             var userFavoriteHasMore = this.widget.viewModel.userFavoriteHasMore;
+            var userFollowFavoriteHasMore = this.widget.viewModel.userFollowFavoriteHasMore;
             var userArticleLoading = this.widget.viewModel.userArticleLoading && articleIds == null;
             var userFavoriteLoading = this.widget.viewModel.userFavoriteLoading && favoriteIds == null;
+            var userFollowFavoriteLoading = this.widget.viewModel.userFollowFavoriteLoading && followFavoriteIds == null;
             int itemCount;
             if (userArticleLoading && this._selectedIndex == 0) {
                 itemCount = 3;
             }
             else if (userFavoriteLoading && this._selectedIndex == 1) {
+                itemCount = 3;
+            }
+            else if (userFollowFavoriteLoading && this._selectedIndex == 2) {
                 itemCount = 3;
             }
             else {
@@ -445,18 +486,35 @@ namespace ConnectApp.screens {
                 else if (favoriteIds == null && this._selectedIndex == 1) {
                     itemCount = 3;
                 }
+                else if (followFavoriteIds == null && this._selectedIndex == 2) {
+                    itemCount = 3;
+                }
                 else {
                     if (this._selectedIndex == 0) {
                         var articleCount = articlesHasMore ? articleIds.Count : articleIds.Count + 1;
                         itemCount = 2 + (articleIds.Count == 0 ? 1 : articleCount);
                     }
-                    else {
+                    else if (this._selectedIndex == 1) {
                         var favoriteCount = userFavoriteHasMore ? favoriteIds.Count : favoriteIds.Count + 1;
                         itemCount = 2 + (favoriteIds.Count == 0 ? 1 : favoriteCount);
+                    }
+                    else {
+                        var favoriteCount = userFollowFavoriteHasMore ? followFavoriteIds.Count : followFavoriteIds.Count + 1;
+                        itemCount = 2 + (followFavoriteIds.Count == 0 ? 1 : favoriteCount);
                     }
                 }
             }
 
+            bool enablePullUp;
+            if (this._selectedIndex == 0) {
+                enablePullUp = articlesHasMore;
+            }
+            else if (this._selectedIndex == 1) {
+                enablePullUp = userFavoriteHasMore;
+            }
+            else {
+                enablePullUp = userFollowFavoriteHasMore;
+            }
             var headerHeight = imageBaseHeight + 44 + CCommonUtils.getSafeAreaTopPadding(context: context);
 
             return new Container(
@@ -465,7 +523,7 @@ namespace ConnectApp.screens {
                     new SmartRefresher(
                         controller: this._refreshController,
                         enablePullDown: false,
-                        enablePullUp: this._selectedIndex == 0 ? articlesHasMore : userFavoriteHasMore,
+                        enablePullUp: enablePullUp,
                         onRefresh: this._onRefresh,
                         onNotification: this._onNotification,
                         child: ListView.builder(
@@ -499,8 +557,15 @@ namespace ConnectApp.screens {
                                     );
                                 }
 
-                                if ((articleIds == null || articleIds.Count == 0) && index == 2 &&
-                                    this._selectedIndex == 0) {
+                                if (userFollowFavoriteLoading && index == 2 && this._selectedIndex == 2) {
+                                    var height = MediaQuery.of(context: context).size.height - headerHeight;
+                                    return new Container(
+                                        height: height,
+                                        child: new GlobalLoading()
+                                    );
+                                }
+
+                                if (articleIds.isNullOrEmpty() && index == 2 && this._selectedIndex == 0) {
                                     var height = MediaQuery.of(context: context).size.height - headerHeight;
                                     return new Container(
                                         height: height,
@@ -511,14 +576,24 @@ namespace ConnectApp.screens {
                                     );
                                 }
 
-                                if ((favoriteIds == null || favoriteIds.Count == 0) && index == 2 &&
-                                    this._selectedIndex == 1) {
+                                if (favoriteIds.isNullOrEmpty() && index == 2 && this._selectedIndex == 1) {
                                     var height = MediaQuery.of(context: context).size.height - headerHeight;
                                     return new Container(
                                         height: height,
                                         child: new BlankView(
-                                            "哎呀，暂无已收藏的文章",
-                                            "image/default-article"
+                                            "暂无我的收藏列表",
+                                            "image/default-following"
+                                        )
+                                    );
+                                }
+
+                                if (followFavoriteIds.isNullOrEmpty() && index == 2 && this._selectedIndex == 2) {
+                                    var height = MediaQuery.of(context: context).size.height - headerHeight;
+                                    return new Container(
+                                        height: height,
+                                        child: new BlankView(
+                                            "暂无我关注的收藏",
+                                            "image/default-following"
                                         )
                                     );
                                 }
@@ -531,8 +606,17 @@ namespace ConnectApp.screens {
                                     return new EndView();
                                 }
 
+                                if (index == itemCount - 1 && !userFollowFavoriteHasMore && this._selectedIndex == 2) {
+                                    return new EndView();
+                                }
+
                                 if (this._selectedIndex == 1) {
                                     var favoriteId = favoriteIds[index - 2];
+                                    return this._buildFavoriteCard(favoriteId: favoriteId);
+                                }
+
+                                if (this._selectedIndex == 2) {
+                                    var favoriteId = followFavoriteIds[index - 2];
                                     return this._buildFavoriteCard(favoriteId: favoriteId);
                                 }
 
@@ -699,6 +783,7 @@ namespace ConnectApp.screens {
         Widget _buildUserArticleTitle() {
             return new Container(
                 height: 44,
+                padding: EdgeInsets.only(bottom: 10),
                 decoration: new BoxDecoration(
                     color: CColors.White,
                     border: new Border(
@@ -707,13 +792,39 @@ namespace ConnectApp.screens {
                         )
                     )
                 ),
-                alignment: Alignment.centerLeft,
-                child: new Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: new List<Widget> {
-                        this._buildSelectItem("文章", 0),
-                        this._buildSelectItem("收藏", 1)
-                    }
+                child: new CustomTabBarHeader(
+                    tabs: new List<Widget> {
+                        new Text("文章"),
+                        new Text("收藏"),
+                        new Text("关注")
+                    },
+                    controller: this._tabController,
+                    indicatorSize: CustomTabBarIndicatorSize.fixedOrLabel,
+                    indicator: new CustomGradientsTabIndicator(
+                        height: 8,
+                        gradient: new LinearGradient(
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                            new List<Color> {
+                                new Color(0xFFB1E0FF),
+                                new Color(0xFF6EC6FF)
+                            }
+                        )
+                    ),
+                    indicatorPadding: EdgeInsets.zero,
+                    indicatorChangeStyle: CustomTabBarIndicatorChangeStyle.enlarge,
+                    labelPadding: EdgeInsets.symmetric(horizontal: 16),
+                    unselectedLabelColor: CColors.TextBody4,
+                    labelColor : CColors.TextTitle,
+                    unselectedLabelStyle: new TextStyle(
+                        fontSize: 16,
+                        fontFamily: "Roboto-Regular"
+                    ),
+                    labelStyle: new TextStyle(
+                        fontSize: 16,
+                        fontFamily: "Roboto-Medium"
+                    ),
+                    isScrollable: true
                 )
             );
         }
@@ -898,64 +1009,6 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildSelectItem(string title, int index) {
-            Color textColor;
-            string fontFamily;
-            Widget lineView;
-            if (index == this._selectedIndex) {
-                textColor = CColors.PrimaryBlue;
-                fontFamily = "Roboto-Medium";
-                lineView = new Positioned(
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    child: new Container(
-                        height: 2,
-                        color: CColors.PrimaryBlue
-                    )
-                );
-            }
-            else {
-                textColor = CColors.TextTitle;
-                fontFamily = "Roboto-Regular";
-                lineView = new Positioned(
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    child: new Container(height: 2)
-                );
-            }
-
-            return new CustomButton(
-                onPressed: () => {
-                    if (this._selectedIndex != index) {
-                        this.setState(() => this._selectedIndex = index);
-                    }
-                },
-                padding: EdgeInsets.zero,
-                child: new Container(
-                    height: 44,
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: new Stack(
-                        children: new List<Widget> {
-                            new Container(
-                                padding: EdgeInsets.symmetric(10),
-                                child: new Text(
-                                    data: title,
-                                    style: new TextStyle(
-                                        fontSize: 16,
-                                        fontFamily: fontFamily,
-                                        color: textColor
-                                    )
-                                )
-                            ),
-                            lineView
-                        }
-                    )
-                )
-            );
-        }
-
         Widget _buildFavoriteCard(string favoriteId) {
             var favoriteTagDict = this.widget.viewModel.favoriteTagDict;
             if (!favoriteTagDict.ContainsKey(key: favoriteId)) {
@@ -990,7 +1043,7 @@ namespace ConnectApp.screens {
                 return new List<Widget>();
             }
 
-            return new List<Widget> {
+            var secondaryActions = new List<Widget> {
                 new DeleteActionButton(
                     80,
                     EdgeInsets.only(24, right: 12),
@@ -1009,13 +1062,17 @@ namespace ConnectApp.screens {
                             )
                         );
                     }
-                ),
-                new EditActionButton(
+                )
+            };
+            if (this._selectedIndex == 1) {
+                secondaryActions.Add(new EditActionButton(
                     80,
                     EdgeInsets.only(12, right: 24),
                     () => this.widget.actionModel.pushToCreateFavorite(obj: favoriteTag.id)
-                )
-            };
+                ));
+            }
+
+            return secondaryActions;
         }
 
         public void didPopNext() {
