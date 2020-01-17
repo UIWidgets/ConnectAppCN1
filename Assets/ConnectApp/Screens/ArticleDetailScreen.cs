@@ -621,6 +621,10 @@ namespace ConnectApp.screens {
         }
 
         bool _onNotification(ScrollNotification notification) {
+            var axisDirection = notification.metrics.axisDirection;
+            if (axisDirection == AxisDirection.left || axisDirection == AxisDirection.right) {
+                return true;
+            }
             var pixels = notification.metrics.pixels - notification.metrics.minScrollExtent;
             if (pixels > this._titleHeight) {
                 if (this._isHaveTitle == false) {

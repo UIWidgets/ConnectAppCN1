@@ -355,22 +355,8 @@ namespace ConnectApp.Components {
                     }
                 });
             }
-            else if (this.bloggerIds.Count >= 6) {
-                for (int index = 0; index < 3; index++) {
-                    var bloggerId = this.bloggerIds[index: index];
-                    var rankData = this.rankDict.ContainsKey(key: bloggerId)
-                        ? this.rankDict[key: bloggerId]
-                        : new RankData();
-                    if (this.userDict.ContainsKey(key: rankData.itemId)) {
-                        var user = this.userDict[key: rankData.itemId];
-                        children.Add(this._buildBlogger(user: user, resetTitle: rankData.resetTitle));
-                    }
-                }
-
-                children.Add(this._buildMoreBlogger());
-            }
             else {
-                for (int index = 0; index < this.bloggerIds.Count - 3; index++) {
+                for (int index = 0; index < 3; index++) {
                     var bloggerId = this.bloggerIds[index: index];
                     var rankData = this.rankDict.ContainsKey(key: bloggerId)
                         ? this.rankDict[key: bloggerId]
@@ -421,6 +407,7 @@ namespace ConnectApp.Components {
                 onTap: () => this.onPressItem?.Invoke(text: user.id),
                 child: new Container(
                     width: 160,
+                    margin: EdgeInsets.only(right: 16),
                     decoration: new BoxDecoration(
                         color: CColors.White,
                         borderRadius: BorderRadius.all(6)
@@ -472,7 +459,7 @@ namespace ConnectApp.Components {
                 onTap: () => this.onPressMore?.Invoke(),
                 child: new Container(
                     width: 160,
-                    margin: EdgeInsets.only(16),
+                    margin: EdgeInsets.only(right: 16),
                     decoration: new BoxDecoration(
                         color: CColors.White,
                         borderRadius: BorderRadius.all(6)

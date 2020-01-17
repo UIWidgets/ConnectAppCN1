@@ -16,6 +16,7 @@ namespace ConnectApp.Components {
             LeaderBoardType type = LeaderBoardType.collection,
             bool isCollected = false,
             bool isLoading = false,
+            bool isHost = false,
             List<string> images = null,
             Action ClickButtonCallback = null,
             Widget followButton = null,
@@ -26,6 +27,7 @@ namespace ConnectApp.Components {
             this.images = images ?? new List<string>();
             this.isLoading = isLoading;
             this.title = title;
+            this.isHost = isHost;
             this.subTitle = subTitle;
             this.ClickButtonCallback = ClickButtonCallback;
             this.followButton = followButton;
@@ -37,6 +39,7 @@ namespace ConnectApp.Components {
         readonly LeaderBoardType type;
         readonly bool isCollected;
         readonly bool isLoading;
+        readonly bool isHost;
         readonly List<string> images;
         readonly Action ClickButtonCallback;
         readonly Widget followButton;
@@ -104,21 +107,23 @@ namespace ConnectApp.Components {
                                                     )),
                                                 this.type == LeaderBoardType.column
                                                     ? this.followButton
-                                                    : new CustomButton(
-                                                        onPressed: () => this.ClickButtonCallback(),
-                                                        padding: EdgeInsets.zero,
-                                                        child: new Container(
-                                                            width: 60,
-                                                            height: 28,
-                                                            alignment: Alignment.center,
-                                                            decoration: new BoxDecoration(
-                                                                color: CColors.White,
-                                                                borderRadius: BorderRadius.circular(14),
-                                                                border: Border.all(color: buttonColor)
-                                                            ),
-                                                            child: buttonChild
+                                                    : this.isHost
+                                                        ? (Widget) new Container()
+                                                        : new CustomButton(
+                                                            onPressed: () => this.ClickButtonCallback(),
+                                                            padding: EdgeInsets.zero,
+                                                            child: new Container(
+                                                                width: 60,
+                                                                height: 28,
+                                                                alignment: Alignment.center,
+                                                                decoration: new BoxDecoration(
+                                                                    color: CColors.White,
+                                                                    borderRadius: BorderRadius.circular(14),
+                                                                    border: Border.all(color: buttonColor)
+                                                                ),
+                                                                child: buttonChild
+                                                            )
                                                         )
-                                                    )
                                             }
                                         )
                                     ),

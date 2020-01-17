@@ -155,6 +155,16 @@ namespace ConnectApp.redux.reducers {
                         }
                     }
 
+                    if (action.offset == 0) {
+                        state.articleState.recommendHasNewArticle =
+                            state.articleState.recommendLastRefreshArticleId.isEmpty() ||
+                            state.articleState.recommendLastRefreshArticleId.isNotEmpty() &&
+                            state.articleState.recommendLastRefreshArticleId !=
+                            state.articleState.recommendArticleIds.first();
+                        state.articleState.recommendLastRefreshArticleId =
+                            state.articleState.recommendArticleIds.first();
+                    }
+
                     state.articleState.feedHasNew = action.feedHasNew;
                     state.articleState.hottestHasMore = action.hottestHasMore;
                     state.articleState.articlesLoading = false;

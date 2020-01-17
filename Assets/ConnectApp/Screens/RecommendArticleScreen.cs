@@ -51,7 +51,8 @@ namespace ConnectApp.screens {
                     isLoggedIn = state.loginState.isLoggedIn,
                     hosttestOffset = state.articleState.recommendArticleIds.Count,
                     currentUserId = state.loginState.loginInfo.userId ?? "",
-                    selectedIndex = this.selectedIndex
+                    selectedIndex = this.selectedIndex,
+                    hasNewArticle = state.articleState.recommendHasNewArticle
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new ArticlesScreenActionModel {
@@ -63,12 +64,13 @@ namespace ConnectApp.screens {
                                 articleId = id
                             }
                         ),
+                        openUrl = url => { OpenUrlUtil.OpenUrl(url, dispatcher); },
                         pushToLeaderBoard = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.LeaderBoard
                         }),
-                        pushToLeaderBoardDetail = id => 
-                            dispatcher.dispatch(new MainNavigatorPushToLeaderBoardDetailAction{id = id}
-                        ),
+                        pushToLeaderBoardDetail = id =>
+                            dispatcher.dispatch(new MainNavigatorPushToLeaderBoardDetailAction {id = id}
+                            ),
                         pushToBlogger = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Blogger
                         }),
@@ -122,6 +124,7 @@ namespace ConnectApp.screens {
         bool _hasBeenLoadedData;
         string _articleTabSubId;
 
+
         public override void initState() {
             base.initState();
             this._refreshController = new RefreshController();
@@ -173,7 +176,7 @@ namespace ConnectApp.screens {
                     itemBuilder: (cxt, index) => new ArticleLoading()
                 );
             }
-            else if (0 == recommendArticleIds.Count) {
+            else if (recommendArticleIds.isEmpty()) {
                 content = new Container(
                     padding: EdgeInsets.only(bottom: CConstant.TabBarHeight +
                                                      CCommonUtils.getSafeAreaBottomPadding(context: context)),
@@ -190,6 +193,7 @@ namespace ConnectApp.screens {
                 );
             }
             else {
+                var items = this._buildItems(recommendArticleIds);
                 var enablePullUp = this.widget.viewModel.hottestHasMore;
                 content = new CustomListView(
                     controller: this._refreshController,
@@ -197,8 +201,8 @@ namespace ConnectApp.screens {
                     enablePullUp: enablePullUp,
                     onRefresh: this._onRefresh,
                     hasBottomMargin: true,
-                    itemCount: recommendArticleIds.Count,
-                    itemBuilder: this._buildArticleCard,
+                    itemCount: items.Count,
+                    itemBuilder: (cxt, index) => items[index],
                     headerWidget: new Column(
                         children: new List<Widget> {
                             this._buildSwiper(),
@@ -207,41 +211,15 @@ namespace ConnectApp.screens {
                                     var articleId = this.widget.viewModel.dailySelectionId;
                                     this.widget.actionModel.pushToArticleDetail(obj: articleId);
                                 }
+
                                 if (type == KingKongType.leaderBoard) {
                                     this.widget.actionModel.pushToLeaderBoard();
                                 }
+
                                 if (type == KingKongType.blogger) {
                                     this.widget.actionModel.pushToBlogger();
                                 }
-                            }),
-                            new RecommendBlogger(
-                                bloggerIds: this.widget.viewModel.homeBloggerIds,
-                                rankDict: this.widget.viewModel.rankDict,
-                                userDict: this.widget.viewModel.userDict,
-                                () => this.widget.actionModel.pushToBlogger(),
-                                userId => this.widget.actionModel.pushToUserDetail(obj: userId)
-                            ),
-                            new RecommendLeaderBoard(
-                                data: this.widget.viewModel.homeTopCollectionIds,
-                                rankDict: this.widget.viewModel.rankDict,
-                                favoriteTagDict: this.widget.viewModel.favoriteTagDict,
-                                favoriteTagArticleDict: this.widget.viewModel.favoriteTagArticleDict,
-                                () => this.widget.actionModel.pushToLeaderBoard(),
-                                collectionId => this.widget.actionModel.pushToLeaderBoardDetail(obj: collectionId)
-                            ),
-                            new LeaderBoard(
-                                data: this.widget.viewModel.homeCollectionIds,
-                                rankDict: this.widget.viewModel.rankDict,
-                                favoriteTagDict: this.widget.viewModel.favoriteTagDict,
-                                () => this.widget.actionModel.pushToLeaderBoard(),
-                                collectionId => this.widget.actionModel.pushToLeaderBoardDetail(obj: collectionId)
-                            ),
-                            new RefreshDivider(
-                                () => {
-                                    this._refreshController.sendBack(true, mode: RefreshStatus.refreshing);
-                                    this._refreshController.animateTo(0.0f, TimeSpan.FromMilliseconds(300), curve: Curves.linear);
-                                }
-                            )
+                            })
                         }
                     ),
                     footerWidget: enablePullUp ? null : new EndView(hasBottomMargin: true),
@@ -260,9 +238,10 @@ namespace ConnectApp.screens {
 
             return new Container(
                 height: 116,
-                padding: EdgeInsets.symmetric(horizontal: 16),
+                padding: EdgeInsets.only(top: 8, left: 16, right: 16),
                 decoration: new BoxDecoration(
-                    borderRadius: BorderRadius.all(8)
+                    borderRadius: BorderRadius.all(8),
+                    color: CColors.White
                 ),
                 child: new ClipRRect(
                     borderRadius: BorderRadius.all(8),
@@ -276,17 +255,38 @@ namespace ConnectApp.screens {
                         },
                         itemCount: homeSliderIds.Count,
                         autoplay: true,
-                        onTap: index => { },
+                        onTap: index => {
+                            var homeSliderId = homeSliderIds[index: index];
+                            var redirectURL = this.widget.viewModel.rankDict.ContainsKey(key: homeSliderId)
+                                ? this.widget.viewModel.rankDict[key: homeSliderId].redirectURL
+                                : "";
+                            if (redirectURL.isNotEmpty()) {
+                                this.widget.actionModel.openUrl(redirectURL);
+                            }
+                        },
                         pagination: new SwiperPagination()
                     )
                 )
             );
         }
 
-        Widget _buildArticleCard(BuildContext context, int index) {
-            var recommendArticleIds = this.widget.viewModel.recommendArticleIds;
+        List<Widget> _buildItems(List<string> articleIds) {
+            var items = new List<Widget>();
+            articleIds.ForEach(articleId => { items.Add(this._buildArticleCard(articleId)); });
+            if (items.Count >= 6) {
+                items.Insert(6, this._buildRecommendLeaderBoard());
+                items.Insert(3, this._buildRecommendBlogger());
+            }
 
-            var articleId = recommendArticleIds[index: index];
+            if (!this.widget.viewModel.hasNewArticle) {
+                items.Insert(0, this._buildLeaderBoard());
+            }
+
+            return items;
+        }
+
+
+        Widget _buildArticleCard(string articleId) {
             if (this.widget.viewModel.blockArticleList.Contains(item: articleId)) {
                 return new Container();
             }
@@ -345,6 +345,46 @@ namespace ConnectApp.screens {
                 ),
                 fullName: fullName,
                 new ObjectKey(value: article.id)
+            );
+        }
+
+        Widget _buildRecommendBlogger() {
+            return new RecommendBlogger(
+                bloggerIds: this.widget.viewModel.homeBloggerIds,
+                rankDict: this.widget.viewModel.rankDict,
+                userDict: this.widget.viewModel.userDict,
+                () => this.widget.actionModel.pushToBlogger(),
+                userId => this.widget.actionModel.pushToUserDetail(obj: userId)
+            );
+        }
+
+        Widget _buildRecommendLeaderBoard() {
+            return new RecommendLeaderBoard(
+                data: this.widget.viewModel.homeTopCollectionIds,
+                rankDict: this.widget.viewModel.rankDict,
+                favoriteTagDict: this.widget.viewModel.favoriteTagDict,
+                favoriteTagArticleDict: this.widget.viewModel.favoriteTagArticleDict,
+                () => this.widget.actionModel.pushToLeaderBoard(),
+                collectionId => this.widget.actionModel.pushToLeaderBoardDetail(obj: collectionId)
+            );
+        }
+
+        Widget _buildLeaderBoard() {
+            return new LeaderBoard(
+                data: this.widget.viewModel.homeCollectionIds,
+                rankDict: this.widget.viewModel.rankDict,
+                favoriteTagDict: this.widget.viewModel.favoriteTagDict,
+                () => this.widget.actionModel.pushToLeaderBoard(),
+                collectionId => this.widget.actionModel.pushToLeaderBoardDetail(obj: collectionId)
+            );
+        }
+
+        Widget _buildRefreshDivider() {
+            return new RefreshDivider(
+                () => {
+                    this._refreshController.sendBack(true, mode: RefreshStatus.refreshing);
+                    this._refreshController.animateTo(0.0f, TimeSpan.FromMilliseconds(300), curve: Curves.linear);
+                }
             );
         }
 

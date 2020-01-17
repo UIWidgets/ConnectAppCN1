@@ -5,6 +5,7 @@ using RSG;
 
 namespace ConnectApp.Models.ActionModel {
     public class ArticlesScreenActionModel : BaseActionModel {
+        public Action<string> openUrl;
         public Action pushToSearch;
         public Action<string> pushToArticleDetail;
         public Action<string, ReportType> pushToReport;
