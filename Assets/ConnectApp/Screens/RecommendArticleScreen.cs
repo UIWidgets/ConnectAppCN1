@@ -51,6 +51,7 @@ namespace ConnectApp.screens {
                     isLoggedIn = state.loginState.isLoggedIn,
                     hosttestOffset = state.articleState.recommendArticleIds.Count,
                     currentUserId = state.loginState.loginInfo.userId ?? "",
+                    leaderBoardUpdatedTime = state.articleState.leaderBoardUpdatedTime,
                     selectedIndex = this.selectedIndex,
                     hasNewArticle = state.articleState.recommendHasNewArticle
                 },
@@ -209,21 +210,24 @@ namespace ConnectApp.screens {
                     headerWidget: new Column(
                         children: new List<Widget> {
                             this._buildSwiper(),
-                            new KingKongView(type => {
-                                if (type == KingKongType.dailyCollection) {
-                                    var articleId = this.widget.viewModel.dailySelectionId;
-                                    this.widget.actionModel.pushToArticleDetail(obj: articleId);
+                            new KingKongView(
+                                leaderBoardUpdatedTime: this.widget.viewModel.leaderBoardUpdatedTime,
+                                type => {
+                                    if (type == KingKongType.dailyCollection) {
+                                        var articleId = this.widget.viewModel.dailySelectionId;
+                                        this.widget.actionModel.pushToArticleDetail(obj: articleId);
+                                    }
+                                    if (type == KingKongType.leaderBoard) {
+                                        this.widget.actionModel.pushToLeaderBoard();
+                                    }
+                                    if (type == KingKongType.activity) {
+                                        this.widget.actionModel.pushToHomeEvent();
+                                    }
+                                    if (type == KingKongType.blogger) {
+                                        this.widget.actionModel.pushToBlogger();
+                                    }
                                 }
-                                if (type == KingKongType.leaderBoard) {
-                                    this.widget.actionModel.pushToLeaderBoard();
-                                }
-                                if (type == KingKongType.activity) {
-                                    this.widget.actionModel.pushToHomeEvent();
-                                }
-                                if (type == KingKongType.blogger) {
-                                    this.widget.actionModel.pushToBlogger();
-                                }
-                            })
+                            )
                         }
                     ),
                     footerWidget: enablePullUp ? null : new EndView(hasBottomMargin: true),

@@ -29,12 +29,15 @@ namespace ConnectApp.Components {
     /// </summary>
     public class KingKongView : StatefulWidget {
         public KingKongView(
+            DateTime leaderBoardUpdatedTime,
             TypeCallback onPress,
             Key key = null
         ) : base(key: key) {
+            this.leaderBoardUpdatedTime = leaderBoardUpdatedTime;
             this.onPress = onPress;
         }
 
+        public readonly DateTime leaderBoardUpdatedTime;
         public readonly TypeCallback onPress;
 
         public override State createState() {
@@ -116,13 +119,13 @@ namespace ConnectApp.Components {
                     children: new List<Widget> {
                         new Row(
                             children: new List<Widget> {
-                                _buildKingKongItem("每日精选", "daily-collection",
+                                this._buildKingKongItem("每日精选", "daily-collection",
                                     () => this.widget.onPress(type: KingKongType.dailyCollection)),
-                                _buildKingKongItem("榜单", "leader-board",
+                                this._buildKingKongItem("榜单", "leader-board",
                                     () => this.widget.onPress(type: KingKongType.leaderBoard)),
-                                _buildKingKongItem("活动", "activity",
+                                this._buildKingKongItem("活动", "activity",
                                     () => this.widget.onPress(type: KingKongType.activity)),
-                                _buildKingKongItem("博主", "blogger",
+                                this._buildKingKongItem("博主", "blogger",
                                     () => this.widget.onPress(type: KingKongType.blogger))
                             }
                         ),
@@ -135,9 +138,9 @@ namespace ConnectApp.Components {
             );
         }
 
-        static Widget _buildKingKongItem(string title, string imageName, GestureTapCallback onPressItem) {
+        Widget _buildKingKongItem(string title, string imageName, GestureTapCallback onPressItem) {
             Widget newDot;
-            if (title == "榜单") {
+            if (title == "榜单" && LocalDataManager.needNoticeNewLeaderBoard(dateTime: this.widget.leaderBoardUpdatedTime)) {
                 newDot = new Positioned(
                     top: 0,
                     right: 0,
