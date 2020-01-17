@@ -254,6 +254,48 @@ namespace ConnectApp.screens {
                 return new Container();
             }
 
+            Widget swiperContent;
+            if (homeSliderIds.Count == 1) {
+                var homeSliderId = homeSliderIds[0];
+                var imageUrl = this.widget.viewModel.rankDict.ContainsKey(key: homeSliderId)
+                    ? this.widget.viewModel.rankDict[key: homeSliderId].image
+                    : "";
+                swiperContent = new GestureDetector(
+                    onTap: () => {
+                        var redirectURL = this.widget.viewModel.rankDict.ContainsKey(key: homeSliderId)
+                            ? this.widget.viewModel.rankDict[key: homeSliderId].redirectURL
+                            : "";
+                        if (redirectURL.isNotEmpty()) {
+                            this.widget.actionModel.openUrl(obj: redirectURL);
+                        }
+                    },
+                    child: Image.network(src: imageUrl, fit: BoxFit.fill)
+                );
+            }
+            else {
+                swiperContent = new Swiper(
+                    (cxt, index) => {
+                        var homeSliderId = homeSliderIds[index: index];
+                        var imageUrl = this.widget.viewModel.rankDict.ContainsKey(key: homeSliderId)
+                            ? this.widget.viewModel.rankDict[key: homeSliderId].image
+                            : "";
+                        return Image.network(src: imageUrl, fit: BoxFit.fill);
+                    },
+                    itemCount: homeSliderIds.Count,
+                    autoplay: true,
+                    onTap: index => {
+                        var homeSliderId = homeSliderIds[index: index];
+                        var redirectURL = this.widget.viewModel.rankDict.ContainsKey(key: homeSliderId)
+                            ? this.widget.viewModel.rankDict[key: homeSliderId].redirectURL
+                            : "";
+                        if (redirectURL.isNotEmpty()) {
+                            this.widget.actionModel.openUrl(obj: redirectURL);
+                        }
+                    },
+                    pagination: new SwiperPagination()
+                );
+            }
+
             return new Container(
                 padding: EdgeInsets.only(top: 8, left: 16, right: 16),
                 decoration: new BoxDecoration(
@@ -264,27 +306,7 @@ namespace ConnectApp.screens {
                     aspectRatio: 3,
                     child: new ClipRRect(
                         borderRadius: BorderRadius.all(8),
-                        child: new Swiper(
-                            (cxt, index) => {
-                                var homeSliderId = homeSliderIds[index: index];
-                                var imageUrl = this.widget.viewModel.rankDict.ContainsKey(key: homeSliderId)
-                                    ? this.widget.viewModel.rankDict[key: homeSliderId].image
-                                    : "";
-                                return Image.network(src: imageUrl, fit: BoxFit.fill);
-                            },
-                            itemCount: homeSliderIds.Count,
-                            autoplay: true,
-                            onTap: index => {
-                                var homeSliderId = homeSliderIds[index: index];
-                                var redirectURL = this.widget.viewModel.rankDict.ContainsKey(key: homeSliderId)
-                                    ? this.widget.viewModel.rankDict[key: homeSliderId].redirectURL
-                                    : "";
-                                if (redirectURL.isNotEmpty()) {
-                                    this.widget.actionModel.openUrl(redirectURL);
-                                }
-                            },
-                            pagination: new SwiperPagination()
-                        )
+                        child: swiperContent
                     )
                 )
             );
