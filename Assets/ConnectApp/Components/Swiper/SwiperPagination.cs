@@ -210,14 +210,16 @@ namespace ConnectApp.Components.Swiper {
             int activeIndex = config.activeIndex.Value;
             for (int i = 0; i < itemCount; ++i) {
                 bool active = i == activeIndex;
+                float size = active ? this.activeSize : this.size;
                 list.Add(new Container(
                     Key.key($"pagination_{i}"),
                     margin: EdgeInsets.all(value: this.space),
-                    child: new ClipOval(
-                        child: new Container(
-                            color: active ? activeColor : color,
-                            width: active ? this.activeSize : this.size,
-                            height: active ? this.activeSize : this.size
+                    child: new Container(
+                        width: size,
+                        height: size,
+                        decoration: new BoxDecoration(
+                            active ? activeColor : color,
+                            borderRadius: BorderRadius.all(size / 2.0f)
                         )
                     )
                 ));
