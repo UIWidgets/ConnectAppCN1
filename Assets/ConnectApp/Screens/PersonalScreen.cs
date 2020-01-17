@@ -434,7 +434,7 @@ namespace ConnectApp.screens {
                                                 mainAxisAlignment: MainAxisAlignment.center,
                                                 children: new List<Widget> {
                                                     new Text(
-                                                        $"{(user.followingUsersCount ?? 0) + (user.followingTeamsCount ?? 0)}",
+                                                        CStringUtils.CountToString((user.followingUsersCount ?? 0) + (user.followingTeamsCount ?? 0), "0"),
                                                         style: CTextStyle.Bold20
                                                     ),
                                                     new Container(height: 4),
@@ -458,7 +458,7 @@ namespace ConnectApp.screens {
                                                 mainAxisAlignment: MainAxisAlignment.center,
                                                 children: new List<Widget> {
                                                     new Text(
-                                                        $"{user.followCount ?? 0}",
+                                                        CStringUtils.CountToString(user.followCount ?? 0, "0"),
                                                         style: CTextStyle.Bold20
                                                     ),
                                                     new Container(height: 4),
@@ -474,15 +474,15 @@ namespace ConnectApp.screens {
                                     new Expanded(
                                         child: new CustomButton(
                                             onPressed: () => {
-                                                if (this.widget.viewModel.isLoggedIn && user.id.isNotEmpty()) {
-                                                    this.widget.actionModel.pushToUserLike(obj: user.id);
-                                                }
+                                                // if (this.widget.viewModel.isLoggedIn && user.id.isNotEmpty()) {
+                                                //     this.widget.actionModel.pushToUserLike(obj: user.id);
+                                                // }
                                             },
                                             child: new Column(
                                                 mainAxisAlignment: MainAxisAlignment.center,
                                                 children: new List<Widget> {
                                                     new Text(
-                                                        $"{user.likeCount ?? 0}",
+                                                        CStringUtils.CountToString(user.appArticleLikedCount ?? 0, "0"),
                                                         style: CTextStyle.Bold20
                                                     ),
                                                     new Container(height: 4),
