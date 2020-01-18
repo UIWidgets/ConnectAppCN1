@@ -292,7 +292,7 @@ namespace ConnectApp.screens {
                             this.widget.actionModel.openUrl(obj: redirectURL);
                         }
                     },
-                    pagination: new SwiperPagination()
+                    pagination: new SwiperPagination(margin: EdgeInsets.only(bottom: 5))
                 );
             }
 
