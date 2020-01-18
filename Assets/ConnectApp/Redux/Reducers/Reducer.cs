@@ -2819,7 +2819,7 @@ namespace ConnectApp.redux.reducers {
                 case CollectFavoriteTagSuccessAction action: {
                     state.leaderBoardState.detailCollectLoading = false;
 
-                    if (state.leaderBoardState.rankDict.isNotEmpty() &&
+                    if (action.rankDataId.isNotEmpty() && state.leaderBoardState.rankDict.isNotEmpty() &&
                         state.leaderBoardState.rankDict.ContainsKey(action.rankDataId)) {
                         var rankData = state.leaderBoardState.rankDict[action.rankDataId];
                         rankData.myFavoriteTagId = action.myFavoriteTagId;
@@ -2841,7 +2841,7 @@ namespace ConnectApp.redux.reducers {
                         }
                         else {
                             var collectedTagMap = new Dictionary<string, bool> {
-                                {action.rankDataId, true}
+                                {action.itemId, true}
                             };
                             state.favoriteState.collectedTagMap.Add(state.loginState.loginInfo.userId,
                                 collectedTagMap);
@@ -2967,16 +2967,21 @@ namespace ConnectApp.redux.reducers {
                     if (favoriteTagIds.Contains(item: action.favoriteTag.id)) {
                         favoriteTagIds.Remove(item: action.favoriteTag.id);
                     }
+
                     if (followFavoriteIds.Contains(item: action.favoriteTag.id)) {
                         followFavoriteIds.Remove(item: action.favoriteTag.id);
                     }
 
+                    if (currentUserId.isNotEmpty() && state.favoriteState.collectedTagMap.ContainsKey(currentUserId)) {
+                        var collectMap = state.favoriteState.collectedTagMap[currentUserId];
+                        if (collectMap.ContainsKey(action.favoriteTag.quoteTagId)) {
+                            collectMap.Remove(action.favoriteTag.quoteTagId);
+                            state.favoriteState.collectedTagMap[currentUserId] = collectMap;
+                        }
+                    }
+
                     state.favoriteState.favoriteTagIdDict[key: currentUserId] = favoriteTagIds;
                     state.favoriteState.followFavoriteTagIdDict[key: currentUserId] = followFavoriteIds;
-
-                    if (state.favoriteState.favoriteTagDict.ContainsKey(key: action.favoriteTag.id)) {
-                        state.favoriteState.favoriteTagDict.Remove(key: action.favoriteTag.id);
-                    }
 
                     break;
                 }
