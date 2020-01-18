@@ -13,6 +13,7 @@ using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.screens {
     public class ArticlesScreenConnector : StatelessWidget {
@@ -239,12 +240,7 @@ namespace ConnectApp.screens {
                         new CustomButton(
                             padding: EdgeInsets.only(16, 8, 16, 8),
                             onPressed: () => this.widget.actionModel.pushToGame(),
-                            child: new Container(
-                                color: CColors.Transparent,
-                                child: new EggButton(
-                                    isNationalDay: this.widget.viewModel.nationalDayEnabled
-                                )
-                            )
+                            child: Image.asset("image/lantern-egg")
                         )
                     }
                 )
@@ -384,12 +380,7 @@ namespace ConnectApp.screens {
                         new CustomButton(
                             padding: EdgeInsets.only(8, 8, 16, 8),
                             onPressed: () => this.widget.actionModel.pushToGame(),
-                            child: new Container(
-                                color: CColors.Transparent,
-                                child: new EggButton(
-                                    isNationalDay: this.widget.viewModel.nationalDayEnabled
-                                )
-                            )
+                            child: Image.asset("image/lantern-egg")
                         )
                     }
                 )
