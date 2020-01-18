@@ -89,7 +89,8 @@ namespace ConnectApp.Models.Model {
                 followingUsersCount = followingUsersCount ?? this.followingUsersCount,
                 followingTeamsCount = followingTeamsCount ?? this.followingTeamsCount,
                 likeCount = likeCount ?? this.likeCount,
-                appArticleLikedCount = appArticleLikedCount ?? this.appArticleLikedCount,
+                // 0 or null covering the fields is prohibited
+                appArticleLikedCount = appArticleLikedCount != null && appArticleLikedCount > 0 ? appArticleLikedCount : this.appArticleLikedCount,
                 followingUsers = followingUsers ?? this.followingUsers,
                 followingUsersHasMore = followingUsersHasMore ?? this.followingUsersHasMore,
                 followers = followers ?? this.followers,

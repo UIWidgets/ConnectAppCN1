@@ -6,6 +6,7 @@ using ConnectApp.Plugins;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
+using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
@@ -57,7 +58,11 @@ namespace ConnectApp.screens {
                         (fromIndex, toIndex) => {
                             AnalyticsManager.ClickHomeTab(fromIndex: fromIndex, toIndex: toIndex);
 
-                            if (toIndex != 2 || StoreProvider.store.getState().loginState.isLoggedIn) {
+                            if (toIndex != 2 || UserInfoManager.isLogin()) {
+                                var myUserId = UserInfoManager.getUserInfo().userId;
+                                if (toIndex == 3 && myUserId.isNotEmpty()) { // mine page
+                                    StoreProvider.store.dispatcher.dispatch(Actions.fetchUserProfile(userId: myUserId));
+                                }
                                 StatusBarManager.statusBarStyle(toIndex == 3 && UserInfoManager.isLogin());
                                 StoreProvider.store.dispatcher.dispatch(new SwitchTabBarIndexAction {index = toIndex});
                                 JPushPlugin.showPushAlert(toIndex != 2);
