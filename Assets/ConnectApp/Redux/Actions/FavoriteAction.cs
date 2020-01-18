@@ -9,11 +9,15 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.Redux;
 
 namespace ConnectApp.redux.actions {
+    public class FavoriteTagMapAction : BaseAction {
+        public Dictionary<string, FavoriteTag> favoriteTagMap;
+    }
+
     public class StartFetchFavoriteTagAction : RequestAction {
     }
 
     public class FetchFavoriteTagSuccessAction : BaseAction {
-        public List<FavoriteTag> favoriteTags;
+        public List<string> favoriteTagIds;
         public string userId;
         public bool hasMore;
         public int offset;
@@ -26,7 +30,7 @@ namespace ConnectApp.redux.actions {
     }
 
     public class FetchFollowFavoriteTagSuccessAction : BaseAction {
-        public List<FavoriteTag> favoriteTags;
+        public List<string> favoriteTagIds;
         public string userId;
         public bool hasMore;
         public int offset;
@@ -38,10 +42,8 @@ namespace ConnectApp.redux.actions {
     public class StartFetchFavoriteDetailAction : RequestAction {
     }
 
-
-    public class UpdateFavoriteTagMapAction : BaseAction {
+    public class FavoriteTagArticleMapAction : BaseAction {
         public Dictionary<string, FavoriteTagArticle> favoriteTagArticleMap;
-        public Dictionary<string, FavoriteTag> favoriteTagMap;
     }
 
     public class UpdateCollectedTagMapAction : BaseAction {
@@ -49,8 +51,6 @@ namespace ConnectApp.redux.actions {
     }
 
     public class FetchFavoriteDetailSuccessAction : BaseAction {
-        public Dictionary<string, FavoriteTag> tagMap;
-        public Dictionary<string, Article> projectSimpleMap;
         public List<Favorite> favorites;
         public bool hasMore;
         public string tagId;
@@ -63,6 +63,7 @@ namespace ConnectApp.redux.actions {
 
     public class CreateFavoriteTagSuccessAction : BaseAction {
         public FavoriteTag favoriteTag;
+        public bool isCollection;
     }
 
     public class EditFavoriteTagSuccessAction : BaseAction {
@@ -100,11 +101,18 @@ namespace ConnectApp.redux.actions {
 
                 return FavoriteApi.FetchMyFavoriteTags(userId: userId, offset: offset)
                     .Then(favoritesResponse => {
+                        var newFavoriteTagIds = new List<string>();
+                        var favoriteTagMap = new Dictionary<string, FavoriteTag>();
+                        favoritesResponse.favoriteTags.ForEach(favoriteTag => {
+                            newFavoriteTagIds.Add(item: favoriteTag.id);
+                            favoriteTagMap.Add(key: favoriteTag.id, value: favoriteTag);
+                        });
+                        dispatcher.dispatch(new FavoriteTagMapAction {favoriteTagMap = favoriteTagMap});
                         dispatcher.dispatch(new FetchFavoriteTagSuccessAction {
                             userId = userId,
                             offset = offset,
                             hasMore = favoritesResponse.hasMore,
-                            favoriteTags = favoritesResponse.favoriteTags
+                            favoriteTagIds = newFavoriteTagIds
                         });
                     })
                     .Catch(error => {
@@ -116,8 +124,8 @@ namespace ConnectApp.redux.actions {
 
         public static object fetchFollowFavoriteTags(string userId, int offset) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                var favoriteTagIds = getState().favoriteState.favoriteTagIdDict.ContainsKey(key: userId)
-                    ? getState().favoriteState.favoriteTagIdDict[key: userId]
+                var favoriteTagIds = getState().favoriteState.followFavoriteTagIdDict.ContainsKey(key: userId)
+                    ? getState().favoriteState.followFavoriteTagIdDict[key: userId]
                     : new List<string>();
                 var favoriteTagIdCount = favoriteTagIds.Count;
                 if (offset != 0 && offset != favoriteTagIdCount) {
@@ -126,11 +134,18 @@ namespace ConnectApp.redux.actions {
 
                 return FavoriteApi.FetchFollowFavoriteTags(userId: userId, offset: offset)
                     .Then(favoritesResponse => {
+                        var newFavoriteTagIds = new List<string>();
+                        var favoriteTagMap = new Dictionary<string, FavoriteTag>();
+                        favoritesResponse.favoriteTags.ForEach(favoriteTag => {
+                            newFavoriteTagIds.Add(item: favoriteTag.id);
+                            favoriteTagMap.Add(key: favoriteTag.id, value: favoriteTag);
+                        });
+                        dispatcher.dispatch(new FavoriteTagMapAction {favoriteTagMap = favoriteTagMap});
                         dispatcher.dispatch(new FetchFollowFavoriteTagSuccessAction {
                             userId = userId,
                             offset = offset,
                             hasMore = favoritesResponse.hasMore,
-                            favoriteTags = favoritesResponse.favoriteTags
+                            favoriteTagIds = newFavoriteTagIds
                         });
                     })
                     .Catch(error => {
@@ -156,9 +171,9 @@ namespace ConnectApp.redux.actions {
                     .Then(favoriteDetailResponse => {
                         dispatcher.dispatch(new UserMapAction {userMap = favoriteDetailResponse.userMap});
                         dispatcher.dispatch(new TeamMapAction {teamMap = favoriteDetailResponse.teamMap});
+                        dispatcher.dispatch(new FavoriteTagMapAction {favoriteTagMap = favoriteDetailResponse.tagMap});
+                        dispatcher.dispatch(new ArticleMapAction {articleMap = favoriteDetailResponse.projectSimpleMap});
                         dispatcher.dispatch(new FetchFavoriteDetailSuccessAction {
-                            tagMap = favoriteDetailResponse.tagMap,
-                            projectSimpleMap = favoriteDetailResponse.projectSimpleMap,
                             favorites = favoriteDetailResponse.favorites,
                             hasMore = favoriteDetailResponse.hasMore,
                             tagId = tagId,
@@ -189,7 +204,8 @@ namespace ConnectApp.redux.actions {
                     .Then(createFavoriteTagResponse => {
                         CustomDialogUtils.hiddenCustomDialog();
                         dispatcher.dispatch(new CreateFavoriteTagSuccessAction {
-                            favoriteTag = createFavoriteTagResponse
+                            favoriteTag = createFavoriteTagResponse,
+                            isCollection = false
                         });
                         dispatcher.dispatch(new MainNavigatorPopAction());
                         AnalyticsManager.AnalyticsHandleFavoriteTag(type: FavoriteTagType.create);
@@ -265,18 +281,23 @@ namespace ConnectApp.redux.actions {
 
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 dispatcher.dispatch(new ChangeFavoriteTagStateAction {isLoading = true});
-                return FavoriteApi.CollectFavoriteTag(tagId)
+                return FavoriteApi.CollectFavoriteTag(tagId: tagId)
                     .Then(collectFavoriteTagResponse => {
                         dispatcher.dispatch(new CreateFavoriteTagSuccessAction {
-                            favoriteTag = collectFavoriteTagResponse.favoriteTag
+                            favoriteTag = collectFavoriteTagResponse.favoriteTag,
+                            isCollection = true
                         });
                         dispatcher.dispatch(new CollectFavoriteTagSuccessAction {
-                            myFavoriteTagId = collectFavoriteTagResponse.favoriteTag.id, rankDataId = rankDataId,
+                            myFavoriteTagId = collectFavoriteTagResponse.favoriteTag.id,
+                            rankDataId = rankDataId,
                             itemId = tagId
                         });
                         AnalyticsManager.AnalyticsHandleFavoriteTag(type: FavoriteTagType.collect);
                     })
-                    .Catch(error => { dispatcher.dispatch(new ChangeFavoriteTagStateAction()); });
+                    .Catch(error => {
+                        dispatcher.dispatch(new ChangeFavoriteTagStateAction());
+                        Debuger.LogError(message: error);
+                    });
             });
         }
 

@@ -1203,6 +1203,24 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case FavoriteTagMapAction action: {
+                    if (action.favoriteTagMap.isNotNullAndEmpty()) {
+                        var favoriteTagDict = state.favoriteState.favoriteTagDict;
+                        foreach (var keyValuePair in action.favoriteTagMap) {
+                            if (favoriteTagDict.ContainsKey(key: keyValuePair.Key)) {
+                                favoriteTagDict[key: keyValuePair.Key] = keyValuePair.Value;
+                            }
+                            else {
+                                favoriteTagDict.Add(key: keyValuePair.Key, value: keyValuePair.Value);
+                            }
+                        }
+
+                        state.favoriteState.favoriteTagDict = favoriteTagDict;
+                    }
+
+                    break;
+                }
+
                 case PopularSearchArticleSuccessAction action: {
                     state.popularSearchState.popularSearchArticles = action.popularSearchArticles;
                     break;
@@ -2689,25 +2707,14 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case FetchFavoriteTagSuccessAction action: {
-                    var favoriteTagIds = new List<string>();
-                    action.favoriteTags.ForEach(favoriteTag => {
-                        favoriteTagIds.Add(item: favoriteTag.id);
-                        if (state.favoriteState.favoriteTagDict.ContainsKey(key: favoriteTag.id)) {
-                            state.favoriteState.favoriteTagDict[key: favoriteTag.id] = favoriteTag;
-                        }
-                        else {
-                            state.favoriteState.favoriteTagDict.Add(key: favoriteTag.id, value: favoriteTag);
-                        }
-                    });
-
                     if (action.offset == 0) {
                         state.favoriteState.favoriteTagIdDict = new Dictionary<string, List<string>> {
-                            {action.userId, favoriteTagIds}
+                            {action.userId, action.favoriteTagIds}
                         };
                     }
                     else {
                         var oldFavoriteTagIds = state.favoriteState.favoriteTagIdDict[key: action.userId];
-                        oldFavoriteTagIds.AddRange(collection: favoriteTagIds);
+                        oldFavoriteTagIds.AddRange(collection: action.favoriteTagIds);
                         state.favoriteState.favoriteTagIdDict[key: action.userId] = oldFavoriteTagIds;
                     }
 
@@ -2727,25 +2734,14 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case FetchFollowFavoriteTagSuccessAction action: {
-                    var favoriteTagIds = new List<string>();
-                    action.favoriteTags.ForEach(favoriteTag => {
-                        favoriteTagIds.Add(item: favoriteTag.id);
-                        if (state.favoriteState.favoriteTagDict.ContainsKey(key: favoriteTag.id)) {
-                            state.favoriteState.favoriteTagDict[key: favoriteTag.id] = favoriteTag;
-                        }
-                        else {
-                            state.favoriteState.favoriteTagDict.Add(key: favoriteTag.id, value: favoriteTag);
-                        }
-                    });
-
                     if (action.offset == 0) {
                         state.favoriteState.followFavoriteTagIdDict = new Dictionary<string, List<string>> {
-                            {action.userId, favoriteTagIds}
+                            {action.userId, action.favoriteTagIds}
                         };
                     }
                     else {
                         var oldFavoriteTagIds = state.favoriteState.followFavoriteTagIdDict[key: action.userId];
-                        oldFavoriteTagIds.AddRange(collection: favoriteTagIds);
+                        oldFavoriteTagIds.AddRange(collection: action.favoriteTagIds);
                         state.favoriteState.followFavoriteTagIdDict[key: action.userId] = oldFavoriteTagIds;
                     }
 
@@ -2765,35 +2761,6 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case FetchFavoriteDetailSuccessAction action: {
-                    if (action.tagMap != null && action.tagMap.isNotEmpty()) {
-                        var favoriteTagDict = state.favoriteState.favoriteTagDict;
-                        foreach (var keyValuePair in action.tagMap) {
-                            if (favoriteTagDict.ContainsKey(key: keyValuePair.Key)) {
-                                favoriteTagDict[key: keyValuePair.Key] = keyValuePair.Value;
-                            }
-                            else {
-                                favoriteTagDict.Add(key: keyValuePair.Key, value: keyValuePair.Value);
-                            }
-                        }
-
-                        state.favoriteState.favoriteTagDict = favoriteTagDict;
-                    }
-
-                    if (action.projectSimpleMap != null && action.projectSimpleMap.isNotEmpty()) {
-                        var articleDict = state.articleState.articleDict;
-                        foreach (var keyValuePair in action.projectSimpleMap) {
-                            if (articleDict.ContainsKey(key: keyValuePair.Key)) {
-                                var oldArticle = articleDict[key: keyValuePair.Key];
-                                articleDict[key: keyValuePair.Key] = oldArticle.Merge(other: keyValuePair.Value);
-                            }
-                            else {
-                                articleDict.Add(key: keyValuePair.Key, value: keyValuePair.Value);
-                            }
-                        }
-
-                        state.articleState.articleDict = articleDict;
-                    }
-
                     var favoriteDetailArticleIdDict = state.favoriteState.favoriteDetailArticleIdDict;
                     var tagId = action.tagId.isNotEmpty() ? action.tagId : $"{action.userId}all";
                     var favoriteDetailArticleIds = favoriteDetailArticleIdDict.ContainsKey(key: tagId)
@@ -2900,8 +2867,8 @@ namespace ConnectApp.redux.reducers {
 
                     break;
                 }
-                case UpdateFavoriteTagMapAction action: {
-                    if (action.favoriteTagArticleMap != null && action.favoriteTagArticleMap.isNotEmpty()) {
+                case FavoriteTagArticleMapAction action: {
+                    if (action.favoriteTagArticleMap.isNotNullAndEmpty()) {
                         var favoriteTagArticleDict = state.favoriteState.favoriteTagArticleDict;
                         foreach (var keyValuePair in action.favoriteTagArticleMap) {
                             if (favoriteTagArticleDict.ContainsKey(key: keyValuePair.Key)) {
@@ -2913,20 +2880,6 @@ namespace ConnectApp.redux.reducers {
                         }
 
                         state.favoriteState.favoriteTagArticleDict = favoriteTagArticleDict;
-                    }
-
-                    if (action.favoriteTagMap != null && action.favoriteTagMap.isNotEmpty()) {
-                        var favoriteTagDict = state.favoriteState.favoriteTagDict;
-                        foreach (var keyValuePair in action.favoriteTagMap) {
-                            if (favoriteTagDict.ContainsKey(key: keyValuePair.Key)) {
-                                favoriteTagDict[key: keyValuePair.Key] = keyValuePair.Value;
-                            }
-                            else {
-                                favoriteTagDict.Add(key: keyValuePair.Key, value: keyValuePair.Value);
-                            }
-                        }
-
-                        state.favoriteState.favoriteTagDict = favoriteTagDict;
                     }
 
                     break;
@@ -2959,19 +2912,31 @@ namespace ConnectApp.redux.reducers {
 
                 case CreateFavoriteTagSuccessAction action: {
                     var currentUserId = state.loginState.loginInfo.userId ?? "";
-                    var favoriteTagIds = state.favoriteState.favoriteTagIdDict.ContainsKey(key: currentUserId)
-                        ? state.favoriteState.favoriteTagIdDict[key: currentUserId]
-                        : new List<string>();
-                    if (!favoriteTagIds.Contains(item: action.favoriteTag.id)) {
-                        if (favoriteTagIds.Count <= 1) {
+                    if (action.isCollection) {
+                        var favoriteTagIds = state.favoriteState.followFavoriteTagIdDict.ContainsKey(key: currentUserId)
+                            ? state.favoriteState.followFavoriteTagIdDict[key: currentUserId]
+                            : new List<string>();
+                        if (!favoriteTagIds.Contains(item: action.favoriteTag.id)) {
                             favoriteTagIds.Add(item: action.favoriteTag.id);
                         }
-                        else {
-                            favoriteTagIds.Insert(1, item: action.favoriteTag.id);
-                        }
-                    }
 
-                    state.favoriteState.favoriteTagIdDict[key: currentUserId] = favoriteTagIds;
+                        state.favoriteState.followFavoriteTagIdDict[key: currentUserId] = favoriteTagIds;
+                    }
+                    else {
+                        var favoriteTagIds = state.favoriteState.favoriteTagIdDict.ContainsKey(key: currentUserId)
+                            ? state.favoriteState.favoriteTagIdDict[key: currentUserId]
+                            : new List<string>();
+                        if (!favoriteTagIds.Contains(item: action.favoriteTag.id)) {
+                            if (favoriteTagIds.Count <= 1) {
+                                favoriteTagIds.Add(item: action.favoriteTag.id);
+                            }
+                            else {
+                                favoriteTagIds.Insert(1, item: action.favoriteTag.id);
+                            }
+                        }
+
+                        state.favoriteState.favoriteTagIdDict[key: currentUserId] = favoriteTagIds;
+                    }
 
                     if (!state.favoriteState.favoriteTagDict.ContainsKey(key: action.favoriteTag.id)) {
                         state.favoriteState.favoriteTagDict.Add(key: action.favoriteTag.id, value: action.favoriteTag);

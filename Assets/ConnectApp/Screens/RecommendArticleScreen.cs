@@ -40,6 +40,9 @@ namespace ConnectApp.screens {
                     hottestHasMore = state.articleState.hottestHasMore,
                     userDict = state.userState.userDict,
                     teamDict = state.teamState.teamDict,
+                    followMap = state.followState.followDict.ContainsKey(state.loginState.loginInfo.userId ?? "")
+                        ? state.followState.followDict[state.loginState.loginInfo.userId ?? ""]
+                        : new Dictionary<string, bool>(),
                     favoriteTagDict = state.favoriteState.favoriteTagDict,
                     favoriteTagArticleDict = state.favoriteState.favoriteTagArticleDict,
                     rankDict = state.leaderBoardState.rankDict,
@@ -65,7 +68,7 @@ namespace ConnectApp.screens {
                                 articleId = id
                             }
                         ),
-                        openUrl = url => { OpenUrlUtil.OpenUrl(url, dispatcher); },
+                        openUrl = url => OpenUrlUtil.OpenUrl(url: url, dispatcher: dispatcher),
                         pushToLeaderBoard = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.LeaderBoard
                         }),
@@ -94,6 +97,13 @@ namespace ConnectApp.screens {
                         startFetchArticles = () => dispatcher.dispatch(new StartFetchArticlesAction()),
                         fetchArticles = (userId, offset) =>
                             dispatcher.dispatch<IPromise>(Actions.fetchArticles(userId: userId, offset: offset)),
+                        startFollowUser = userId =>
+                            dispatcher.dispatch(new StartFollowUserAction {followUserId = userId}),
+                        followUser = userId =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(followUserId: userId)),
+                        startUnFollowUser = userId =>
+                            dispatcher.dispatch(new StartUnFollowUserAction {unFollowUserId = userId}),
+                        unFollowUser = userId => dispatcher.dispatch<IPromise>(Actions.fetchUnFollowUser(userId)),
                         shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch<IPromise>(
                             Actions.shareToWechat(type, title, description, linkUrl, imageUrl))
                     };
@@ -244,35 +254,59 @@ namespace ConnectApp.screens {
                 return new Container();
             }
 
+            Widget swiperContent;
+            if (homeSliderIds.Count == 1) {
+                var homeSliderId = homeSliderIds[0];
+                var imageUrl = this.widget.viewModel.rankDict.ContainsKey(key: homeSliderId)
+                    ? this.widget.viewModel.rankDict[key: homeSliderId].image
+                    : "";
+                swiperContent = new GestureDetector(
+                    onTap: () => {
+                        var redirectURL = this.widget.viewModel.rankDict.ContainsKey(key: homeSliderId)
+                            ? this.widget.viewModel.rankDict[key: homeSliderId].redirectURL
+                            : "";
+                        if (redirectURL.isNotEmpty()) {
+                            this.widget.actionModel.openUrl(obj: redirectURL);
+                        }
+                    },
+                    child: Image.network(src: imageUrl, fit: BoxFit.fill)
+                );
+            }
+            else {
+                swiperContent = new Swiper(
+                    (cxt, index) => {
+                        var homeSliderId = homeSliderIds[index: index];
+                        var imageUrl = this.widget.viewModel.rankDict.ContainsKey(key: homeSliderId)
+                            ? this.widget.viewModel.rankDict[key: homeSliderId].image
+                            : "";
+                        return Image.network(src: imageUrl, fit: BoxFit.fill);
+                    },
+                    itemCount: homeSliderIds.Count,
+                    autoplay: true,
+                    onTap: index => {
+                        var homeSliderId = homeSliderIds[index: index];
+                        var redirectURL = this.widget.viewModel.rankDict.ContainsKey(key: homeSliderId)
+                            ? this.widget.viewModel.rankDict[key: homeSliderId].redirectURL
+                            : "";
+                        if (redirectURL.isNotEmpty()) {
+                            this.widget.actionModel.openUrl(obj: redirectURL);
+                        }
+                    },
+                    pagination: new SwiperPagination()
+                );
+            }
+
             return new Container(
-                height: 116,
                 padding: EdgeInsets.only(top: 8, left: 16, right: 16),
                 decoration: new BoxDecoration(
                     borderRadius: BorderRadius.all(8),
                     color: CColors.White
                 ),
-                child: new ClipRRect(
-                    borderRadius: BorderRadius.all(8),
-                    child: new Swiper(
-                        (cxt, index) => {
-                            var homeSliderId = homeSliderIds[index: index];
-                            var imageUrl = this.widget.viewModel.rankDict.ContainsKey(key: homeSliderId)
-                                ? this.widget.viewModel.rankDict[key: homeSliderId].image
-                                : "";
-                            return Image.network(src: imageUrl, fit: BoxFit.fill);
-                        },
-                        itemCount: homeSliderIds.Count,
-                        autoplay: true,
-                        onTap: index => {
-                            var homeSliderId = homeSliderIds[index: index];
-                            var redirectURL = this.widget.viewModel.rankDict.ContainsKey(key: homeSliderId)
-                                ? this.widget.viewModel.rankDict[key: homeSliderId].redirectURL
-                                : "";
-                            if (redirectURL.isNotEmpty()) {
-                                this.widget.actionModel.openUrl(redirectURL);
-                            }
-                        },
-                        pagination: new SwiperPagination()
+                child: new AspectRatio(
+                    aspectRatio: 3,
+                    child: new ClipRRect(
+                        borderRadius: BorderRadius.all(8),
+                        child: swiperContent
                     )
                 )
             );
@@ -361,6 +395,17 @@ namespace ConnectApp.screens {
                 bloggerIds: this.widget.viewModel.homeBloggerIds,
                 rankDict: this.widget.viewModel.rankDict,
                 userDict: this.widget.viewModel.userDict,
+                followMap: this.widget.viewModel.followMap,
+                isLoggedIn: this.widget.viewModel.isLoggedIn,
+                userId => {
+                    this.widget.actionModel.startFollowUser(obj: userId);
+                    this.widget.actionModel.followUser(arg: userId);
+                },
+                userId => {
+                    this.widget.actionModel.startUnFollowUser(obj: userId);
+                    this.widget.actionModel.unFollowUser(arg: userId);
+                },
+                () => this.widget.actionModel.pushToLogin(),
                 () => this.widget.actionModel.pushToBlogger(),
                 userId => this.widget.actionModel.pushToUserDetail(obj: userId)
             );

@@ -322,6 +322,11 @@ namespace ConnectApp.Components {
             List<string> bloggerIds,
             Dictionary<string, RankData> rankDict,
             Dictionary<string, User> userDict,
+            Dictionary<string, bool> followMap,
+            bool isLoggedIn,
+            StringCallback followUser = null,
+            StringCallback unFollowUser = null,
+            VoidCallback pushToLogin = null,
             GestureTapCallback onPressMore = null,
             StringCallback onPressItem = null,
             Key key = null
@@ -329,6 +334,11 @@ namespace ConnectApp.Components {
             this.bloggerIds = bloggerIds;
             this.rankDict = rankDict;
             this.userDict = userDict;
+            this.followMap = followMap;
+            this.isLoggedIn = isLoggedIn;
+            this.followUser = followUser;
+            this.unFollowUser = unFollowUser;
+            this.pushToLogin = pushToLogin;
             this.onPressMore = onPressMore;
             this.onPressItem = onPressItem;
         }
@@ -336,8 +346,37 @@ namespace ConnectApp.Components {
         readonly List<string> bloggerIds;
         readonly Dictionary<string, RankData> rankDict;
         readonly Dictionary<string, User> userDict;
+        readonly Dictionary<string, bool> followMap;
+        readonly bool isLoggedIn;
+        readonly StringCallback followUser;
+        readonly StringCallback unFollowUser;
+        readonly VoidCallback pushToLogin;
         readonly GestureTapCallback onPressMore;
         readonly StringCallback onPressItem;
+
+        void _onFollow(UserType userType, string userId) {
+            if (this.isLoggedIn) {
+                if (userType == UserType.follow) {
+                    ActionSheetUtils.showModalActionSheet(
+                        new ActionSheet(
+                            title: "确定不再关注？",
+                            items: new List<ActionSheetItem> {
+                                new ActionSheetItem("确定", type: ActionType.normal,
+                                    () => this.unFollowUser?.Invoke(text: userId)),
+                                new ActionSheetItem("取消", type: ActionType.cancel)
+                            }
+                        )
+                    );
+                }
+
+                if (userType == UserType.unFollow) {
+                    this.followUser?.Invoke(text: userId);
+                }
+            }
+            else {
+                this.pushToLogin?.Invoke();
+            }
+        }
 
         public override Widget build(BuildContext context) {
             if (this.bloggerIds.isNullOrEmpty()) {
@@ -408,6 +447,22 @@ namespace ConnectApp.Components {
         }
 
         Widget _buildBlogger(User user, string resetTitle) {
+            UserType userType = UserType.unFollow;
+            if (!this.isLoggedIn) {
+                userType = UserType.unFollow;
+            }
+            else {
+                if (UserInfoManager.getUserInfo().userId == user.id) {
+                    userType = UserType.me;
+                }
+                else if (user.followUserLoading ?? false) {
+                    userType = UserType.loading;
+                }
+                else if (this.followMap.ContainsKey(key: user.id)) {
+                    userType = UserType.follow;
+                }
+            }
+
             return new GestureDetector(
                 onTap: () => this.onPressItem?.Invoke(text: user.id),
                 child: new Container(
@@ -450,7 +505,10 @@ namespace ConnectApp.Components {
                                 new Text(resetTitle ?? "", style: CTextStyle.PSmallBody4),
                                 new Padding(
                                     padding: EdgeInsets.only(top: 12),
-                                    child: new FollowButton()
+                                    child: new FollowButton(
+                                        userType: userType,
+                                        () => this._onFollow(userType: userType, userId: user.id)
+                                    )
                                 )
                             }
                         )
