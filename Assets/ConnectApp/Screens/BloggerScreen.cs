@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
+using ConnectApp.Main;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
@@ -81,7 +82,7 @@ namespace ConnectApp.screens {
         }
     }
 
-    class _BloggerScreenState : State<BloggerScreen> {
+    class _BloggerScreenState : State<BloggerScreen>, RouteAware {
         const int firstPageNumber = 1;
         RefreshController _refreshController;
 
@@ -92,6 +93,16 @@ namespace ConnectApp.screens {
                 this.widget.actionModel.startFetchBlogger();
                 this.widget.actionModel.fetchBlogger(arg: firstPageNumber);
             });
+        }
+
+        public override void didChangeDependencies() {
+            base.didChangeDependencies();
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(context: this.context));
+        }
+
+        public override void dispose() {
+            Router.routeObserve.unsubscribe(this);
+            base.dispose();
         }
 
         void _onRefresh(bool up) {
@@ -219,6 +230,19 @@ namespace ConnectApp.screens {
                 () => this._onFollow(userType: userType, userId: user.id),
                 key: new ObjectKey(value: user.id)
             );
+        }
+
+        public void didPopNext() {
+            StatusBarManager.statusBarStyle(false);
+        }
+
+        public void didPush() {
+        }
+
+        public void didPop() {
+        }
+
+        public void didPushNext() {
         }
     }
 }

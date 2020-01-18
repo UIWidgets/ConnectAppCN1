@@ -101,8 +101,10 @@ namespace ConnectApp.redux.actions {
                             pageNumber = page
                         });
 
-                        dispatcher.dispatch(new UpdateFavoriteTagMapAction {
-                            favoriteTagMap = collectionResponse.favoriteTagMap,
+                        dispatcher.dispatch(new FavoriteTagMapAction {
+                            favoriteTagMap = collectionResponse.favoriteTagMap
+                        });
+                        dispatcher.dispatch(new FavoriteTagArticleMapAction {
                             favoriteTagArticleMap = collectionResponse.favoriteTagArticleMap
                         });
                         dispatcher.dispatch(new UpdateCollectedTagMapAction {
@@ -231,8 +233,10 @@ namespace ConnectApp.redux.actions {
                             pageNumber = page
                         });
 
-                        dispatcher.dispatch(new UpdateFavoriteTagMapAction {
-                            favoriteTagMap = detailResponse.favoriteTagMap,
+                        dispatcher.dispatch(new FavoriteTagMapAction {
+                            favoriteTagMap = detailResponse.favoriteTagMap
+                        });
+                        dispatcher.dispatch(new FavoriteTagArticleMapAction {
                             favoriteTagArticleMap = detailResponse.favoriteTagArticleMap
                         });
                         dispatcher.dispatch(new UpdateCollectedTagMapAction {

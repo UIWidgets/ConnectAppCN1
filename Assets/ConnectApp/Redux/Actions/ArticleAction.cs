@@ -153,8 +153,10 @@ namespace ConnectApp.redux.actions {
                             // 推荐榜单
                             var homeTopCollection = articlesResponse.rankData.homeTopCollection ?? new HomeCollection();
                             dispatcher.dispatch(new RankListAction {rankList = homeTopCollection.rankList});
-                            dispatcher.dispatch(new UpdateFavoriteTagMapAction {
-                                favoriteTagMap = homeTopCollection.favoriteTagMap,
+                            dispatcher.dispatch(new FavoriteTagMapAction {
+                                favoriteTagMap = homeTopCollection.favoriteTagMap
+                            });
+                            dispatcher.dispatch(new FavoriteTagArticleMapAction {
                                 favoriteTagArticleMap = homeTopCollection.favoriteTagArticleMap
                             });
                             dispatcher.dispatch(new UpdateCollectedTagMapAction {
@@ -167,8 +169,10 @@ namespace ConnectApp.redux.actions {
                             // 榜单
                             var homeCollection = articlesResponse.rankData.homeCollection ?? new HomeCollection();
                             dispatcher.dispatch(new RankListAction {rankList = homeCollection.rankList});
-                            dispatcher.dispatch(new UpdateFavoriteTagMapAction {
-                                favoriteTagMap = homeCollection.favoriteTagMap,
+                            dispatcher.dispatch(new FavoriteTagMapAction {
+                                favoriteTagMap = homeCollection.favoriteTagMap
+                            });
+                            dispatcher.dispatch(new FavoriteTagArticleMapAction {
                                 favoriteTagArticleMap = homeCollection.favoriteTagArticleMap
                             });
                             dispatcher.dispatch(new UpdateCollectedTagMapAction {
