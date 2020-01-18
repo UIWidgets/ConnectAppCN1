@@ -273,7 +273,7 @@ namespace ConnectApp.redux.actions {
             });
         }
 
-        public static object collectFavoriteTag(string tagId, string rankDataId) {
+        public static object collectFavoriteTag(string tagId, string rankDataId = "") {
             if (HttpManager.isNetWorkError()) {
                 CustomDialogUtils.showToast("请检查网络", iconData: Icons.sentiment_dissatisfied);
                 return null;
