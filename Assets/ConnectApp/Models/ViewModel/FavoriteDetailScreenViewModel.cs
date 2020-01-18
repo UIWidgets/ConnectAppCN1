@@ -17,5 +17,7 @@ namespace ConnectApp.Models.ViewModel {
         public Dictionary<string, User> userDict;
         public Dictionary<string, Team> teamDict;
         public string currentUserId;
+        public bool isCollect;
+        public bool collectLoading;
     }
 }
