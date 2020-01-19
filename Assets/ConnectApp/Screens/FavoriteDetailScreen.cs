@@ -562,7 +562,8 @@ namespace ConnectApp.screens {
                     new ObjectKey(value: article.id)
                 ),
                 new CustomDismissibleDrawerDelegate(),
-                secondaryActions: this._buildSecondaryActions(article: article),
+                secondaryActions: this.widget.viewModel.type == FavoriteType.my 
+                    ? this._buildSecondaryActions(article: article) : null,
                 controller: this._dismissibleController
             );
         }

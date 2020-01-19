@@ -34,8 +34,6 @@ namespace ConnectApp.Constants {
 
         public const string unityLearnPremiumUrl = "https://unity.com/learn-premium";
         
-        public const string tinyRacingUrl = "https://connect-prd-cdn.unity.com/tinyv1/TinyRacing.html";
-
         public const int miniProgramType = 0; // 0 -> 正式版  1 -> 开发版  2 -> 体验版
         
         public const string store = "dev";

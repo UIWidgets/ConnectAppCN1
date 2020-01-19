@@ -4,6 +4,16 @@ using UnityEngine;
 namespace ConnectApp.Utils {
     public static class LocalDataManager {
         const string _leaderBoardUpdatedTimeKey = "leaderBoardUpdatedTimeKey";
+        const string _tinyGameUrlKey = "tinyGameUrlKey";
+
+        public static void saveTinyGameUrl(string url) {
+            PlayerPrefs.SetString(key: _tinyGameUrlKey, value: url);
+            PlayerPrefs.Save();
+        }
+        
+        public static string getTinyGameUrl() {
+            return PlayerPrefs.GetString(key: _tinyGameUrlKey) ?? "";
+        }
         
         public static void markLeaderBoardUpdatedTime() {
             PlayerPrefs.SetString(key: _leaderBoardUpdatedTimeKey, DateTime.UtcNow.ToString("yyyy/MM/dd HH:mm:ss"));

@@ -165,6 +165,7 @@ namespace ConnectApp.screens {
             return new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(
+                    top: !this.widget.fullScreen,
                     bottom: false,
                     child: new Container(
                         color: CColors.Background,
