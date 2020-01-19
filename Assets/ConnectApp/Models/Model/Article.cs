@@ -165,7 +165,7 @@ namespace ConnectApp.Models.Model {
         public FetchBloggerResponse homeBlogger;
         public string searchSuggest;
         public string dailySelectionId;
-        public DateTime leaderboardUpdatedTime;
+        public DateTime? leaderboardUpdatedTime;
     }
 
     [Serializable]
