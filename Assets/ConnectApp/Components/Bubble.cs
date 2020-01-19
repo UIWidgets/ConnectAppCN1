@@ -49,10 +49,20 @@ namespace ConnectApp.Components {
 
         public override Widget build(BuildContext context) {
             if (!this._isUp) {
-                Promise.Delayed(duration: duration).Then(() => this.setState(() => this._isUp = true));
+                Promise.Delayed(duration: duration).Then(() => {
+                    if (this.mounted) {
+                        this._isUp = true;
+                        this.setState(() => {});
+                    }
+                });
             }
             else {
-                Promise.Delayed(duration: duration).Then(() => this.setState(() => this._isUp = false));
+                Promise.Delayed(duration: duration).Then(() => {
+                    if (this.mounted) {
+                        this._isUp = false;
+                        this.setState(() => {});
+                    }
+                });
             }
 
             var triangleTop = this._isUp ? this.widget.triangleTop - 4 : this.widget.triangleTop;

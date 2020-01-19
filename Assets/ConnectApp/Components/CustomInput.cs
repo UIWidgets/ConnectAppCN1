@@ -167,7 +167,11 @@ namespace ConnectApp.Components {
                     if (this.showEmojiBoard) {
                         TextInputPlugin.TextInputShow();
                         Promise.Delayed(TimeSpan.FromMilliseconds(200)).Then(
-                            () => this.setState(() => this._showEmojiBoard = false));
+                            () => {
+                                if (this.mounted) {
+                                    this.setState(() => this._showEmojiBoard = false);
+                                }
+                            });
                     }
                     else {
                         this.setState(() => this._showEmojiBoard = true);
