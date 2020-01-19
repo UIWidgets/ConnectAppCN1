@@ -44,7 +44,6 @@ namespace ConnectApp.Main {
         public const string ChannelMembers = "/channel-members";
         public const string ChannelIntroduction = "/channel-introduction";
         public const string ReactionsDetail = "/reactions-detail";
-        public const string LeaderBoard = "/leader-board";
         public const string HomeEvent = "/home-event";
         public const string Blogger = "/blogger";
         public const string ForceUpdate = "/force-update";
@@ -98,7 +97,6 @@ namespace ConnectApp.Main {
                     {MainNavigatorRoutes.ChannelMembers, context => new ChannelMembersScreenConnector("")},
                     {MainNavigatorRoutes.ChannelIntroduction, context => new ChannelIntroductionScreenConnector("")},
                     {MainNavigatorRoutes.ReactionsDetail, context => new ReactionsDetailScreenConnector("")},
-                    {MainNavigatorRoutes.LeaderBoard, context => new LeaderBoardScreenConnector()},
                     {MainNavigatorRoutes.HomeEvent, context => new HomeEventsScreenConnector()},
                     {MainNavigatorRoutes.Blogger, context => new BloggerScreenConnector()},
                     {MainNavigatorRoutes.ForceUpdate, context => new ForceUpdateScreen()}
