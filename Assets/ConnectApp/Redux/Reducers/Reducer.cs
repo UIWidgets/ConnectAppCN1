@@ -1785,6 +1785,14 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case MainNavigatorPushToLeaderBoardAction action: {
+                    Router.navigator.push(new CustomPageRoute(
+                        context => new LeaderBoardScreenConnector(action.initIndex)
+                    ));
+
+                    break;
+                }
+
 
                 case MainNavigatorPushToLeaderBoardDetailAction action: {
                     if (action.id.isNotEmpty()) {

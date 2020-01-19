@@ -102,7 +102,8 @@ namespace ConnectApp.screens {
                                     new GestureDetector(
                                         child: new Container(
                                             width: MediaQuery.of(context).size.width,
-                                            height: MediaQuery.of(context).size.height - 116 - CCommonUtils.getSafeAreaBottomPadding(context: context),
+                                            height: MediaQuery.of(context).size.height - 116 -
+                                                    CCommonUtils.getSafeAreaBottomPadding(context: context),
                                             child: Image.memory(SplashManager.readImage(), fit: BoxFit.cover)
                                         ),
                                         onTap: this.pushPage
@@ -116,7 +117,7 @@ namespace ConnectApp.screens {
                                     new Container(
                                         width: 101,
                                         height: 22,
-                                        margin: EdgeInsets.only(top: 6, bottom:20),
+                                        margin: EdgeInsets.only(top: 6, bottom: 20),
                                         child: Image.asset("image/iOS/madeWithUnity.imageset/madeWithUnity")
                                     )
                                 }
@@ -153,7 +154,7 @@ namespace ConnectApp.screens {
             var splash = SplashManager.getSplash();
             AnalyticsManager.ClickSplashPage(splash.id, splash.name, splash.url);
             Router.navigator.pushReplacementNamed(MainNavigatorRoutes.Main);
-            JPushPlugin.openUrl(splash.url);
+            JPushPlugin.openUrlScheme(splash.url);
         }
 
         void pushCallback() {

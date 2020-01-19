@@ -14,7 +14,6 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using EventType = ConnectApp.Models.State.EventType;
-
 #if UNITY_IOS
 using System.Runtime.InteropServices;
 
@@ -107,7 +106,7 @@ namespace ConnectApp.Plugins {
                             }
 
                             AnalyticsManager.AnalyticsWakeApp("OnOpenUrl", args.first());
-                            openUrl(args.first());
+                            openUrlScheme(args.first());
                             break;
                         }
                         case "OnOpenUniversalLinks": {
@@ -209,7 +208,7 @@ namespace ConnectApp.Plugins {
             }
         }
 
-        public static void openUrl(string schemeUrl) {
+        public static void openUrlScheme(string schemeUrl) {
             if (schemeUrl.isEmpty()) {
                 return;
             }
@@ -228,6 +227,9 @@ namespace ConnectApp.Plugins {
                     else if (uri.AbsolutePath.Equals("/messenger")) {
                         type = "messenger";
                     }
+                    else if (uri.AbsolutePath.Equals("/rank")) {
+                        type = "rank";
+                    }
                     else {
                         return;
                     }
@@ -243,7 +245,7 @@ namespace ConnectApp.Plugins {
         }
 
         static void pushPage(string type, string subType, string id, bool isPush = false) {
-            if (id.isEmpty()) {
+            if (type != "rank" && id.isEmpty()) {
                 return;
             }
 
@@ -316,6 +318,25 @@ namespace ConnectApp.Plugins {
                 else {
                     StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToChannelShareAction {channelId = id});
                 }
+            }
+            else if (type == "rank") {
+                if (CTemporaryValue.currentPageModelId.isNotEmpty() && id == CTemporaryValue.currentPageModelId) {
+                    return;
+                }
+                var initIndex = 0;
+                switch (subType) {
+                    case "column": {
+                        initIndex = 1;
+                        break;
+                    }
+                    case "blogger": {
+                        initIndex = 2;
+                        break;
+                    }
+                }
+                StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToLeaderBoardAction {
+                    initIndex = initIndex
+                });
             }
         }
 
