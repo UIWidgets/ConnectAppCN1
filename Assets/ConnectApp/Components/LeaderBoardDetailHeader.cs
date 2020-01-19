@@ -20,6 +20,8 @@ namespace ConnectApp.Components {
             List<string> images = null,
             Action ClickButtonCallback = null,
             Widget followButton = null,
+            Widget leftWidget = null,
+            float leftWidgetTopPadding = 8,
             Key key = null
         ) : base(key) {
             this.type = type;
@@ -31,11 +33,12 @@ namespace ConnectApp.Components {
             this.subTitle = subTitle;
             this.ClickButtonCallback = ClickButtonCallback;
             this.followButton = followButton;
+            this.leftWidget = leftWidget;
+            this.leftWidgetTopPadding = leftWidgetTopPadding;
         }
 
         readonly string title;
         readonly string subTitle;
-
         readonly LeaderBoardType type;
         readonly bool isCollected;
         readonly bool isLoading;
@@ -43,6 +46,8 @@ namespace ConnectApp.Components {
         readonly List<string> images;
         readonly Action ClickButtonCallback;
         readonly Widget followButton;
+        readonly Widget leftWidget;
+        readonly float leftWidgetTopPadding;
 
 
         public override Widget build(BuildContext context) {
@@ -84,11 +89,11 @@ namespace ConnectApp.Components {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: new List<Widget> {
                                     new Padding(
-                                        padding: EdgeInsets.only(top: 8),
-                                        child: new CoverImages(
-                                            images: this.images,
-                                            verticalGap: 0
-                                        )
+                                        padding: EdgeInsets.only(top: this.leftWidgetTopPadding),
+                                        child: this.leftWidget ?? new CoverImages(
+                                                   images: this.images,
+                                                   verticalGap: 0
+                                               )
                                     ),
 
                                     new SizedBox(width: 16),
