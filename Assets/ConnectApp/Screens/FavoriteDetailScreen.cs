@@ -348,12 +348,12 @@ namespace ConnectApp.screens {
                     child: child);
             }
 
-            if (this.widget.viewModel.isLoggedIn &&
-                this.widget.viewModel.currentUserId == this.widget.viewModel.userId &&
+            if (this.widget.viewModel.favoriteTag.type != "default" && this.widget.viewModel.isLoggedIn &&
+                this.widget.viewModel.currentUserId.Equals(this.widget.viewModel.userId) &&
                 this.widget.viewModel.type == FavoriteType.my) {
                 rightWidget = new CustomButton(
                     padding: EdgeInsets.symmetric(8, 16),
-                    onPressed: () => this.widget.actionModel.pushToEditFavorite(obj: tagId),
+                    onPressed: () => this.widget.actionModel.pushToEditFavorite(this.widget.viewModel.favoriteTag.id),
                     child: new Text(
                         "编辑",
                         style: CTextStyle.PLargeMediumBlue.merge(new TextStyle(height: 1))
@@ -439,103 +439,47 @@ namespace ConnectApp.screens {
 
         Widget _buildFavoriteInfo() {
             var title = "";
-            if (this.widget.viewModel.type == FavoriteType.follow) {
-                var subTitle = "";
-                var images = new List<string>();
-                if (this.widget.viewModel.favoriteTag != null &&
-                    this.widget.viewModel.favoriteDetailArticleIds.isNotNullAndEmpty()) {
-                    this.widget.viewModel.favoriteDetailArticleIds.ForEach(articleId => {
-                        var article = this.widget.viewModel.articleDict[articleId];
-                        images.Add(item: article.thumbnail.url);
-                    });
-
-                    this.widget.viewModel.favoriteDetailArticleIds.ForEach(articleId => {
-                        var article = this.widget.viewModel.articleDict[articleId];
-                        images.Add(item: article.thumbnail.url);
-                    });
+            title = "默认";
+            var subTitle = "0个内容";
+            var images = new List<string>();
+            Widget iconWidget = new Container();
+            if (this.widget.viewModel.favoriteTag != null) {
+                title = this.widget.viewModel.favoriteTag.name;
+                subTitle =
+                    $"{this.widget.viewModel.favoriteTag.stasitics.count}个内容";
+                string iconName;
+                Color iconColor;
+                if (this.widget.viewModel.favoriteTag.type == "default") {
+                    title = "默认";
+                    iconName = $"{CImageUtils.FavoriteCoverImagePath}/{CImageUtils.FavoriteCoverImages[0]}";
+                    iconColor = CColorUtils.FavoriteCoverColors[0];
+                }
+                else {
                     title = this.widget.viewModel.favoriteTag.name;
-                    subTitle =
-                        $"{this.widget.viewModel.favoriteTag?.stasitics.count}个内容";
+                    iconName =
+                        $"{CImageUtils.FavoriteCoverImagePath}/{this.widget.viewModel.favoriteTag.iconStyle.name}";
+                    iconColor = new Color(long.Parse(s: this.widget.viewModel.favoriteTag.iconStyle.bgColor));
                 }
 
-                return new LeaderBoardDetailHeader(
-                    title
-                    , subTitle,
-                    images: images.Count > 3 ? images.Take(3).ToList() : images,
-                    isCollected: this.widget.viewModel.isCollect,
-                    isLoading: this.widget.viewModel.collectLoading,
-                    isHost: this.widget.viewModel.type == FavoriteType.my,
-                    ClickButtonCallback: this._onPressed,
-                    key: this._favoriteInfoKey
+                iconWidget = new FavoriteTagCoverImage(
+                    coverImage: iconName,
+                    coverColor: iconColor,
+                    size: 84
                 );
             }
 
-            var favoriteTag = this.widget.viewModel.favoriteTag;
-            if (favoriteTag == null) {
-                return new Container();
-            }
-
-            string imageName;
-            Color color;
-            if (favoriteTag.type == "default") {
-                title = "默认";
-                imageName = $"{CImageUtils.FavoriteCoverImagePath}/{CImageUtils.FavoriteCoverImages[0]}";
-                color = CColorUtils.FavoriteCoverColors[0];
-            }
-            else {
-                title = favoriteTag.name;
-                imageName = $"{CImageUtils.FavoriteCoverImagePath}/{favoriteTag.iconStyle.name}";
-                color = new Color(long.Parse(s: favoriteTag.iconStyle.bgColor));
-            }
-
-            return new Column(
-                key: this._favoriteInfoKey,
-                children: new List<Widget> {
-                    new Container(
-                        color: CColors.White,
-                        padding: EdgeInsets.all(16),
-                        child: new Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: new List<Widget> {
-                                new Row(
-                                    children: new List<Widget> {
-                                        new FavoriteTagCoverImage(
-                                            coverImage: imageName,
-                                            coverColor: color,
-                                            64,
-                                            margin: EdgeInsets.only(right: 16)
-                                        ),
-                                        new Expanded(
-                                            child: new Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: new List<Widget> {
-                                                    new Text(
-                                                        data: title,
-                                                        style: CTextStyle.H5,
-                                                        maxLines: 1,
-                                                        overflow: TextOverflow.ellipsis
-                                                    ),
-                                                    new SizedBox(height: 4),
-                                                    new Text(
-                                                        $"{favoriteTag.stasitics?.count ?? 0}个内容",
-                                                        style: CTextStyle.PSmallBody4
-                                                    )
-                                                }
-                                            )
-                                        )
-                                    }
-                                ),
-                                favoriteTag.description.isNotEmpty()
-                                    ? new Container(
-                                        margin: EdgeInsets.only(top: 16),
-                                        child: new Text(
-                                            data: favoriteTag.description,
-                                            style: CTextStyle.PRegularBody3.merge(new TextStyle(height: 1))
-                                        )
-                                    )
-                                    : new Container()
-                            }))
-                });
+            return new LeaderBoardDetailHeader(
+                title
+                , subTitle,
+                images: images.Count > 3 ? images.Take(3).ToList() : images,
+                isCollected: this.widget.viewModel.isCollect,
+                isLoading: this.widget.viewModel.collectLoading,
+                isHost: this.widget.viewModel.type == FavoriteType.my,
+                ClickButtonCallback: this._onPressed,
+                leftWidget: iconWidget,
+                leftWidgetTopPadding: 4,
+                key: this._favoriteInfoKey
+            );
         }
 
         void _onPressed() {

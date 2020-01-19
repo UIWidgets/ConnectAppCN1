@@ -1206,12 +1206,33 @@ namespace ConnectApp.redux.reducers {
                 case FavoriteTagMapAction action: {
                     if (action.favoriteTagMap.isNotNullAndEmpty()) {
                         var favoriteTagDict = state.favoriteState.favoriteTagDict;
+                        var collectedTagDict = state.favoriteState.collectedTagMap;
+                        var collectMap = state.loginState.isLoggedIn &&
+                                         collectedTagDict.ContainsKey(state.loginState.loginInfo.userId)
+                            ? collectedTagDict[state.loginState.loginInfo.userId]
+                            : new Dictionary<string, bool>();
+
                         foreach (var keyValuePair in action.favoriteTagMap) {
                             if (favoriteTagDict.ContainsKey(key: keyValuePair.Key)) {
                                 favoriteTagDict[key: keyValuePair.Key] = keyValuePair.Value;
                             }
                             else {
                                 favoriteTagDict.Add(key: keyValuePair.Key, value: keyValuePair.Value);
+                            }
+
+                            if (keyValuePair.Value.quoteTagId != null &&
+                                !collectMap.ContainsKey(keyValuePair.Value.quoteTagId)) {
+                                collectMap.Add(keyValuePair.Value.quoteTagId, true);
+                            }
+                        }
+
+                        if (state.loginState.isLoggedIn) {
+                            if (collectedTagDict.ContainsKey(state.loginState.loginInfo.userId)) {
+                                state.favoriteState.collectedTagMap[state.loginState.loginInfo.userId] = collectMap;
+                            }
+                            else {
+                                state.favoriteState.collectedTagMap.Add(state.loginState.loginInfo.userId,
+                                    collectMap);
                             }
                         }
 
@@ -2744,6 +2765,7 @@ namespace ConnectApp.redux.reducers {
                         oldFavoriteTagIds.AddRange(collection: action.favoriteTagIds);
                         state.favoriteState.followFavoriteTagIdDict[key: action.userId] = oldFavoriteTagIds;
                     }
+
 
                     state.favoriteState.followFavoriteTagHasMore = action.hasMore;
                     state.favoriteState.followFavoriteTagLoading = false;
