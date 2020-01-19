@@ -6,7 +6,7 @@ namespace ConnectApp.Utils {
         const string _leaderBoardUpdatedTimeKey = "leaderBoardUpdatedTimeKey";
         
         public static void markLeaderBoardUpdatedTime() {
-            PlayerPrefs.SetString(key: _leaderBoardUpdatedTimeKey, DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"));
+            PlayerPrefs.SetString(key: _leaderBoardUpdatedTimeKey, DateTime.UtcNow.ToString("yyyy/MM/dd HH:mm:ss"));
             PlayerPrefs.Save();
         }
 

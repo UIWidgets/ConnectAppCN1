@@ -134,7 +134,7 @@ namespace ConnectApp.screens {
         Widget _buildNavigationBar() {
             return new CustomNavigationBar(
                 new Text(
-                    "活动",
+                    "热门活动",
                     style: CTextStyle.H2
                 ),
                 onBack: () => this.widget.actionModel.mainRouterPop()

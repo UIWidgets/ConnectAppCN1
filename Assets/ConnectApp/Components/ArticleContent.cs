@@ -560,12 +560,35 @@ namespace ConnectApp.Components {
                     : new RankData();
                 if (this.userDict.ContainsKey(key: rankData.itemId)) {
                     var user = this.userDict[key: rankData.itemId];
-                    items.Add(new Container(
-                        margin: EdgeInsets.only(right: index == bloggerIds.Count - 1 ? 0 : -10),
-                        child: Avatar.User(user: user, 40, true)));
+                    var left = 0;
+                    if (index == 1) {
+                        left = 36;
+                    } else if (index == 2) {
+                        left = 72;
+                    }
+                    items.Add(new Positioned(
+                            Avatar.User(user: user, 44, true),
+                            left: left
+                        )
+                    );
                 }
             });
-            var avatar = new Row(mainAxisAlignment: MainAxisAlignment.center, children: items);
+            items.Reverse();
+            var width = 0;
+            if (bloggerIds.Count == 1) {
+                width = 44;
+            }
+            else if (bloggerIds.Count == 2) {
+                width = 84;
+            }
+            else if (bloggerIds.Count == 3) {
+                width = 124;
+            }
+            var avatar = new Container(
+                height: 44,
+                width: width,
+                child: new Stack(children: items)
+            );
             list.Add(avatar);
             list.Add(new Padding(
                     padding: EdgeInsets.only(top: 16),
