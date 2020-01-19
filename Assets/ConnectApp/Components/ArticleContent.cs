@@ -29,7 +29,7 @@ namespace ConnectApp.Components {
     /// </summary>
     public class KingKongView : StatefulWidget {
         public KingKongView(
-            DateTime leaderBoardUpdatedTime,
+            DateTime? leaderBoardUpdatedTime,
             TypeCallback onPress,
             Key key = null
         ) : base(key: key) {
@@ -37,7 +37,7 @@ namespace ConnectApp.Components {
             this.onPress = onPress;
         }
 
-        public readonly DateTime leaderBoardUpdatedTime;
+        public readonly DateTime? leaderBoardUpdatedTime;
         public readonly TypeCallback onPress;
 
         public override State createState() {
@@ -140,7 +140,8 @@ namespace ConnectApp.Components {
 
         Widget _buildKingKongItem(string title, string imageName, GestureTapCallback onPressItem) {
             Widget newDot;
-            if (title == "榜单" && LocalDataManager.needNoticeNewLeaderBoard(dateTime: this.widget.leaderBoardUpdatedTime)) {
+            if (title == "榜单" && this.widget.leaderBoardUpdatedTime.HasValue &&
+                LocalDataManager.needNoticeNewLeaderBoard(dateTime: this.widget.leaderBoardUpdatedTime.Value)) {
                 newDot = new Positioned(
                     top: 0,
                     right: 0,
