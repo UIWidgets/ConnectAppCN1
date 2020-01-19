@@ -175,7 +175,7 @@ namespace ConnectApp.screens {
                     () => {
                         ActionSheetUtils.showModalActionSheet(
                             new ActionSheet(
-                                title: "确定删除收藏夹及收藏夹中的内容？",
+                                title: "确定要取消关注吗？",
                                 items: new List<ActionSheetItem> {
                                     new ActionSheetItem(
                                         "确定",
