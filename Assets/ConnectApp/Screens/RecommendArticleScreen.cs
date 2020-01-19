@@ -8,6 +8,7 @@ using ConnectApp.Main;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
+using ConnectApp.Plugins;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using RSG;
@@ -68,13 +69,11 @@ namespace ConnectApp.screens {
                                 articleId = id
                             }
                         ),
-                        openUrl = url => OpenUrlUtil.OpenUrl(url: url, dispatcher: dispatcher),
-                        pushToLeaderBoard = () => dispatcher.dispatch(new MainNavigatorPushToAction {
-                            routeName = MainNavigatorRoutes.LeaderBoard
-                        }),
-                        pushToLeaderBoardDetail = id => 
-                            dispatcher.dispatch(new MainNavigatorPushToLeaderBoardDetailAction{id = id}
-                        ),
+                        openUrl = JPushPlugin.openUrlScheme,
+                        pushToLeaderBoard = () => dispatcher.dispatch(new MainNavigatorPushToLeaderBoardAction()),
+                        pushToLeaderBoardDetail = id =>
+                            dispatcher.dispatch(new MainNavigatorPushToLeaderBoardDetailAction {id = id}
+                            ),
                         pushToHomeEvent = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.HomeEvent
                         }),
@@ -227,12 +226,15 @@ namespace ConnectApp.screens {
                                         var articleId = this.widget.viewModel.dailySelectionId;
                                         this.widget.actionModel.pushToArticleDetail(obj: articleId);
                                     }
+
                                     if (type == KingKongType.leaderBoard) {
                                         this.widget.actionModel.pushToLeaderBoard();
                                     }
+
                                     if (type == KingKongType.activity) {
                                         this.widget.actionModel.pushToHomeEvent();
                                     }
+
                                     if (type == KingKongType.blogger) {
                                         this.widget.actionModel.pushToBlogger();
                                     }

@@ -19,13 +19,19 @@ using Image = Unity.UIWidgets.widgets.Image;
 namespace ConnectApp.screens {
     public class LeaderBoardScreenConnector : StatelessWidget {
         public LeaderBoardScreenConnector(
+            int initIndex = 0,
             Key key = null
         ) : base(key: key) {
+            this.initIndex = initIndex;
         }
+
+        readonly int initIndex;
 
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, LeaderBoardScreenViewModel>(
-                converter: state => new LeaderBoardScreenViewModel(),
+                converter: state => new LeaderBoardScreenViewModel {
+                    initIndex = this.initIndex
+                },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new LeaderBoardScreenActionModel {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction())
@@ -71,7 +77,7 @@ namespace ConnectApp.screens {
         public override void initState() {
             base.initState();
             StatusBarManager.statusBarStyle(true);
-            this._selectedIndex = 0;
+            this._selectedIndex = this.widget.viewModel.initIndex;
             this._tabController = new CustomTabController(
                 length: this.tabTitles.Count,
                 this,

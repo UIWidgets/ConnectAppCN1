@@ -155,4 +155,8 @@ namespace ConnectApp.redux.actions {
         public string id;
         public LeaderBoardType type = LeaderBoardType.collection;
     }
+
+    public class MainNavigatorPushToLeaderBoardAction : BaseAction {
+        public int initIndex = 0;
+    }
 }

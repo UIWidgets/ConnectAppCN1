@@ -3,6 +3,7 @@ using ConnectApp.Models.Model;
 
 namespace ConnectApp.Models.ViewModel {
     public class LeaderBoardScreenViewModel {
+        public int initIndex;
         public bool collectionLoading;
         public bool columnLoading;
         public bool bloggerLoading;
