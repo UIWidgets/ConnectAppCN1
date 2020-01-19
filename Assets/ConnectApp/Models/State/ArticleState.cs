@@ -29,7 +29,7 @@ namespace ConnectApp.Models.State {
         public List<string> homeBloggerIds { get; set; }
         public string searchSuggest { get; set; }
         public string dailySelectionId { get; set; }
-        public DateTime leaderBoardUpdatedTime { get; set; }
+        public DateTime? leaderBoardUpdatedTime { get; set; }
         public string recommendLastRefreshArticleId { get; set; }
         public bool recommendHasNewArticle { get; set; }
     }

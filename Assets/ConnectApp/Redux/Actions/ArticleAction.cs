@@ -29,7 +29,7 @@ namespace ConnectApp.redux.actions {
         public List<string> homeBloggerIds;
         public string searchSuggest;
         public string dailySelectionId;
-        public DateTime leaderBoardUpdatedTime;
+        public DateTime? leaderBoardUpdatedTime;
     }
 
     public class FetchArticleFailureAction : BaseAction {
@@ -125,6 +125,7 @@ namespace ConnectApp.redux.actions {
                 if (offset != 0 && offset != articleOffset) {
                     offset = articleOffset;
                 }
+
                 return ArticleApi.FetchArticles(userId: userId, offset: offset)
                     .Then(articlesResponse => {
                         var articleList = new List<Article>();

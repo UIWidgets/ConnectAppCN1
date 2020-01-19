@@ -319,7 +319,7 @@ namespace ConnectApp.Components {
         readonly StringCallback onPress;
 
         public override Widget build(BuildContext context) {
-            if (this.bloggerIds == null) {
+            if (this.bloggerIds == null||this.userDict.isEmpty()||!this.userDict.ContainsKey(this.bloggerIds[0])) {
                 return new Container();
             }
 
