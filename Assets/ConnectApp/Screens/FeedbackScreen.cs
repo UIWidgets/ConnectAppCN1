@@ -101,7 +101,6 @@ namespace ConnectApp.screens {
             Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(this.context));
         }
 
-
         public override void dispose() {
             Router.routeObserve.unsubscribe(this);
             this._contentController.dispose();
@@ -110,10 +109,9 @@ namespace ConnectApp.screens {
             base.dispose();
         }
 
-
         float _getPosition(GlobalKey key) {
-            var renderBoxRed = (RenderBox) key.currentContext.findRenderObject();
-            var position = renderBoxRed.localToGlobal(Offset.zero);
+            var renderBox = (RenderBox) key.currentContext.findRenderObject();
+            var position = renderBox.localToGlobal(Offset.zero);
             return position.dy;
         }
 

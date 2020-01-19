@@ -16,24 +16,27 @@ namespace ConnectApp.Components {
             string imageName = null,
             bool canRefresh = false,
             GestureTapCallback tapCallback = null,
+            Decoration decoration = null,
             Key key = null
         ) : base(key: key) {
             this.title = title;
             this.imageName = imageName;
             this.canRefresh = canRefresh;
             this.tapCallback = tapCallback;
+            this.decoration = decoration ?? new BoxDecoration(color: CColors.White);
         }
 
         readonly string title;
         readonly string imageName;
         readonly bool canRefresh;
         readonly GestureTapCallback tapCallback;
+        readonly Decoration decoration;
 
         public override Widget build(BuildContext context) {
             var imageName = HttpManager.isNetWorkError() ? "image/default-network" : this.imageName;
             var message = HttpManager.isNetWorkError() ? "数据不见了，快检查下网络吧" : $"{this.title}";
             return new Container(
-                color: CColors.White,
+                decoration: this.decoration,
                 width: MediaQuery.of(context).size.width,
                 child: new Column(
                     mainAxisAlignment: MainAxisAlignment.center,

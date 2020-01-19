@@ -1,10 +1,15 @@
 using System;
+using System.Collections.Generic;
+using ConnectApp.Components;
+using Newtonsoft.Json;
+using Unity.UIWidgets.foundation;
 using UnityEngine;
 
 namespace ConnectApp.Utils {
     public static class PreferencesManager {
         const string _initTabBarIndex = "InitTabBarIndex";
         const string _initVibrate = "InitVibrate";
+        const string _initKingKong = "InitKingKong";
         static int _tabIndex = 0;
         static bool _isVibrate = false;
 
@@ -43,6 +48,25 @@ namespace ConnectApp.Utils {
 
             _isVibrate = true;
             return true;
+        }
+
+        public static void updateKingKongType(KingKongType type) {
+            var kingKongTypes = initKingKongType();
+            if (kingKongTypes.Contains(item: type)) {
+                return;
+            }
+
+            kingKongTypes.Add(item: type);
+            var newKingKongType = JsonConvert.SerializeObject(value: kingKongTypes);
+            PlayerPrefs.SetString(key: _initKingKong, value: newKingKongType);
+            PlayerPrefs.Save();
+        }
+
+        public static List<KingKongType> initKingKongType() {
+            var kingKongType = PlayerPrefs.GetString(key: _initKingKong);
+            return kingKongType.isNotEmpty()
+                ? JsonConvert.DeserializeObject<List<KingKongType>>(value: kingKongType)
+                : new List<KingKongType>();
         }
     }
 }

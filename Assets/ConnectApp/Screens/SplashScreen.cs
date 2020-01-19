@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ConnectApp.Components;
 using ConnectApp.Constants;
 using ConnectApp.Main;
 using ConnectApp.Plugins;
@@ -9,6 +10,7 @@ using ConnectApp.Utils;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
@@ -90,44 +92,60 @@ namespace ConnectApp.screens {
 
             return new Container(
                 color: CColors.White,
-                child: new Stack(
-                    children: new List<Widget> {
-                        new Column(
-                            children: new List<Widget> {
-                                new GestureDetector(
+                child: new CustomSafeArea(
+                    top: false,
+                    child: new Stack(
+                        children: new List<Widget> {
+                            new Column(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: new List<Widget> {
+                                    new GestureDetector(
+                                        child: new Container(
+                                            width: MediaQuery.of(context).size.width,
+                                            height: MediaQuery.of(context).size.height - 116 -
+                                                    CCommonUtils.getSafeAreaBottomPadding(context: context),
+                                            child: Image.memory(SplashManager.readImage(), fit: BoxFit.cover)
+                                        ),
+                                        onTap: this.pushPage
+                                    ),
+                                    new Container(
+                                        width: 182,
+                                        height: 32,
+                                        margin: EdgeInsets.only(top: 36),
+                                        child: Image.asset("image/iOS/unityConnectBlack.imageset/unityConnectBlack")
+                                    ),
+                                    new Container(
+                                        width: 101,
+                                        height: 22,
+                                        margin: EdgeInsets.only(top: 6, bottom: 20),
+                                        child: Image.asset("image/iOS/madeWithUnity.imageset/madeWithUnity")
+                                    )
+                                }
+                            ),
+                            new Positioned(
+                                top: topPadding + 24,
+                                right: 16,
+                                child: new GestureDetector(
                                     child: new Container(
-                                        width: MediaQuery.of(context).size.width,
-                                        height: MediaQuery.of(context).size.height,
-                                        child: Image.memory(SplashManager.readImage(), fit: BoxFit.cover)
+                                        decoration: new BoxDecoration(
+                                            Color.fromRGBO(0, 0, 0, 0.5f),
+                                            borderRadius: BorderRadius.all(16)
+                                        ),
+                                        width: 65,
+                                        height: 32,
+                                        alignment: Alignment.center,
+                                        child: new Text($"跳过 {this._lastSecond}", style: new TextStyle(
+                                            fontSize: 14,
+                                            fontFamily: "Roboto-Regular",
+                                            color: CColors.White
+                                        ))
                                     ),
-                                    onTap: this.pushPage
+                                    onTap: this.pushCallback
                                 )
-                            }
-                        ),
-                        new Positioned(
-                            top: topPadding + 24,
-                            right: 16,
-                            child: new GestureDetector(
-                                child: new Container(
-                                    decoration: new BoxDecoration(
-                                        Color.fromRGBO(0, 0, 0, 0.5f),
-                                        borderRadius: BorderRadius.all(16)
-                                    ),
-                                    width: 65,
-                                    height: 32,
-                                    alignment: Alignment.center,
-                                    child: new Text($"跳过 {this._lastSecond}", style: new TextStyle(
-                                        fontSize: 14,
-                                        fontFamily: "Roboto-Regular",
-                                        color: CColors.White
-                                    ))
-                                ),
-                                onTap: this.pushCallback
-                            )
-                        ),
-                        logoWidget
-                    }
-                )
+                            ),
+                            logoWidget
+                        }
+                    ))
             );
         }
 
@@ -136,7 +154,7 @@ namespace ConnectApp.screens {
             var splash = SplashManager.getSplash();
             AnalyticsManager.ClickSplashPage(splash.id, splash.name, splash.url);
             Router.navigator.pushReplacementNamed(MainNavigatorRoutes.Main);
-            JPushPlugin.openUrl(splash.url);
+            JPushPlugin.openUrlScheme(splash.url);
         }
 
         void pushCallback() {

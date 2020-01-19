@@ -393,7 +393,7 @@ namespace ConnectApp.screens {
                     prefix: new Container(
                         padding: EdgeInsets.only(8, right: 4),
                         child: new Icon(
-                            icon: Icons.search,
+                            icon: Icons.outline_search,
                             size: 24,
                             color: CColors.BrownGrey
                         )

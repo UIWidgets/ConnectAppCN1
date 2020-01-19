@@ -4,9 +4,7 @@ using ConnectApp.Components;
 using ConnectApp.screens;
 using ConnectApp.Utils;
 using RSG;
-using Unity.UIWidgets.animation;
 using Unity.UIWidgets.async;
-using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
@@ -31,6 +29,7 @@ namespace ConnectApp.Main {
         public const string UserDetail = "/user-detail";
         public const string UserFollowing = "/user-following";
         public const string UserFollower = "/user-follower";
+        public const string UserLike = "/user-like";
         public const string EditPersonalInfo = "/edit-personalInfo";
         public const string PersonalRole = "/personal-role";
         public const string TeamDetail = "/team-detail";
@@ -45,8 +44,9 @@ namespace ConnectApp.Main {
         public const string ChannelMembers = "/channel-members";
         public const string ChannelIntroduction = "/channel-introduction";
         public const string ReactionsDetail = "/reactions-detail";
+        public const string HomeEvent = "/home-event";
+        public const string Blogger = "/blogger";
         public const string ForceUpdate = "/force-update";
-
     }
 
     class Router : StatelessWidget {
@@ -82,6 +82,7 @@ namespace ConnectApp.Main {
                     {MainNavigatorRoutes.UserDetail, context => new UserDetailScreenConnector("")},
                     {MainNavigatorRoutes.UserFollowing, context => new UserFollowingScreenConnector("")},
                     {MainNavigatorRoutes.UserFollower, context => new UserFollowerScreenConnector("")},
+                    {MainNavigatorRoutes.UserLike, context => new UserLikeArticleScreenConnector("")},
                     {MainNavigatorRoutes.EditPersonalInfo, context => new EditPersonalInfoScreenConnector("")},
                     {MainNavigatorRoutes.PersonalRole, context => new PersonalJobRoleScreenConnector()},
                     {MainNavigatorRoutes.TeamDetail, context => new TeamDetailScreenConnector("")},
@@ -96,8 +97,9 @@ namespace ConnectApp.Main {
                     {MainNavigatorRoutes.ChannelMembers, context => new ChannelMembersScreenConnector("")},
                     {MainNavigatorRoutes.ChannelIntroduction, context => new ChannelIntroductionScreenConnector("")},
                     {MainNavigatorRoutes.ReactionsDetail, context => new ReactionsDetailScreenConnector("")},
-                    {MainNavigatorRoutes.ForceUpdate, context => new ForceUpdateScreenConnector()}
-
+                    {MainNavigatorRoutes.HomeEvent, context => new HomeEventsScreenConnector()},
+                    {MainNavigatorRoutes.Blogger, context => new BloggerScreenConnector()},
+                    {MainNavigatorRoutes.ForceUpdate, context => new ForceUpdateScreen()}
                 };
 
                 if (Application.isEditor) {
@@ -115,11 +117,11 @@ namespace ConnectApp.Main {
                     routes.Add(key: MainNavigatorRoutes.Main, context => new MainScreen());
                     routes.Add(key: MainNavigatorRoutes.Root, context => new RootScreen());
                 }
-                
+
                 if (VersionManager.needForceUpdate()) {
-                    routes[key: MainNavigatorRoutes.Root] = context => new ForceUpdateScreenConnector();
+                    routes[key: MainNavigatorRoutes.Root] = context => new ForceUpdateScreen();
                 }
-                
+
                 return routes;
             }
         }
@@ -142,7 +144,8 @@ namespace ConnectApp.Main {
                     var promise = new Promise<bool>();
                     if (VersionManager.needForceUpdate()) {
                         promise.Resolve(false);
-                    }else if (LoginScreen.navigator?.canPop() ?? false) {
+                    }
+                    else if (LoginScreen.navigator?.canPop() ?? false) {
                         LoginScreen.navigator.pop();
                         promise.Resolve(false);
                     }
@@ -154,7 +157,8 @@ namespace ConnectApp.Main {
                     else if (navigator.canPop()) {
                         navigator.pop();
                         promise.Resolve(false);
-                    }else {
+                    }
+                    else {
                         if (Application.platform == RuntimePlatform.Android) {
                             if (this._exitApp) {
                                 CustomToast.hidden();

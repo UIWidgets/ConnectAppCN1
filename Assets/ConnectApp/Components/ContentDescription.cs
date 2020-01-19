@@ -655,10 +655,8 @@ namespace ConnectApp.Components {
             // 过滤 emoji
             text = Regex.Replace(input: text, @"\p{Cs}", $"{(char) EmojiUtils.emptyEmojiCode}");
 
-            if (entityRanges == null
-                && entityRanges.Count <= 0
-                && inlineStyleRanges == null
-                && inlineStyleRanges.Count <= 0) {
+            if (entityRanges.isNullOrEmpty()
+                && inlineStyleRanges.isNullOrEmpty()) {
                 return null;
             }
 

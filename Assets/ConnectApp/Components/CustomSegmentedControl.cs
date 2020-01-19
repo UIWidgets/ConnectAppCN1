@@ -57,8 +57,8 @@ namespace ConnectApp.Components {
             this.items = items;
             this.children = children;
             this.onValueChanged = onValueChanged;
-            this.unselectedColor = unselectedColor ?? CColors.TextTitle;
-            this.selectedColor = selectedColor ?? CColors.PrimaryBlue;
+            this.unselectedColor = unselectedColor ?? CColors.TextBody4;
+            this.selectedColor = selectedColor ?? CColors.TextTitle;
             this.currentIndex = currentIndex;
             this.headerHeight = headerHeight;
             this.trailing = trailing;
@@ -66,12 +66,20 @@ namespace ConnectApp.Components {
                                         color: CColors.White,
                                         border: new Border(bottom: new BorderSide(color: CColors.Separator2))
                                     );
-            this.indicator = indicator ?? new CustomUnderlineTabIndicator(
+            this.indicator = indicator ?? new CustomGradientsTabIndicator(
                                  insets: EdgeInsets.zero,
-                                 borderSide: new BorderSide(width: 2, color: CColors.PrimaryBlue)
+                                 height: 8,
+                                 gradient: new LinearGradient(
+                                     begin: Alignment.centerLeft,
+                                     end: Alignment.centerRight,
+                                     new List<Color> {
+                                         new Color(0xFFB1E0FF),
+                                         new Color(0xFF6EC6FF)
+                                     }
+                                 )
                              );
-            this.headerPadding = headerPadding ?? EdgeInsets.zero;
-            this.labelPadding = labelPadding ?? EdgeInsets.symmetric(horizontal: 16, vertical: 10);
+            this.headerPadding = headerPadding ?? EdgeInsets.only(bottom: 10);
+            this.labelPadding = labelPadding ?? EdgeInsets.symmetric(horizontal: 16);
             this.indicatorWidth = indicatorWidth;
             this.unselectedTextStyle = unselectedTextStyle ?? new TextStyle(
                                            fontSize: 16,
@@ -100,7 +108,7 @@ namespace ConnectApp.Components {
         public override void initState() {
             base.initState();
             this._currentIndex = this.widget.currentIndex;
-            this._controller = this.widget.controller 
+            this._controller = this.widget.controller
                                ?? new CustomTabController(length: this.widget.children.Count, this);
             this._controller.addListener(() => {
                 if (this._controller.index != this._currentIndex) {
@@ -134,9 +142,11 @@ namespace ConnectApp.Components {
                 if (item is string itemString) {
                     children.Add(new Text(data: itemString));
                 }
+
                 if (item is int itemInt) {
                     children.Add(new Text($"{itemInt}"));
                 }
+
                 if (item is Widget widget) {
                     children.Add(item: widget);
                 }
@@ -156,6 +166,7 @@ namespace ConnectApp.Components {
                                 indicator: this.widget.indicator,
                                 indicatorSize: CustomTabBarIndicatorSize.fixedOrLabel,
                                 indicatorFixedSize: this.widget.indicatorWidth,
+                                indicatorPadding: EdgeInsets.zero,
                                 indicatorChangeStyle: CustomTabBarIndicatorChangeStyle.enlarge,
                                 unselectedLabelStyle: this.widget.unselectedTextStyle,
                                 unselectedLabelColor: this.widget.unselectedColor,

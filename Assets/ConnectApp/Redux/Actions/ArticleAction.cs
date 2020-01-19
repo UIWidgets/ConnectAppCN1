@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.Api;
 using ConnectApp.Components;
 using ConnectApp.Constants;
+using ConnectApp.Models.Api;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Utils;
@@ -21,6 +23,13 @@ namespace ConnectApp.redux.actions {
         public bool hottestHasMore;
         public int offset;
         public bool feedHasNew;
+        public List<string> homeSliderIds;
+        public List<string> homeTopCollectionIds;
+        public List<string> homeCollectionIds;
+        public List<string> homeBloggerIds;
+        public string searchSuggest;
+        public string dailySelectionId;
+        public DateTime? leaderBoardUpdatedTime;
     }
 
     public class FetchArticleFailureAction : BaseAction {
@@ -116,6 +125,7 @@ namespace ConnectApp.redux.actions {
                 if (offset != 0 && offset != articleOffset) {
                     offset = articleOffset;
                 }
+
                 return ArticleApi.FetchArticles(userId: userId, offset: offset)
                     .Then(articlesResponse => {
                         var articleList = new List<Article>();
@@ -129,11 +139,73 @@ namespace ConnectApp.redux.actions {
                         dispatcher.dispatch(new TeamMapAction {teamMap = articlesResponse.teamMap});
                         dispatcher.dispatch(new FollowMapAction {followMap = articlesResponse.followMap});
                         dispatcher.dispatch(new LikeMapAction {likeMap = articlesResponse.likeMap});
+                        var homeSliderIds = new List<string>();
+                        var homeTopCollectionIds = new List<string>();
+                        var homeCollectionIds = new List<string>();
+                        var homeBloggerIds = new List<string>();
+                        if (articlesResponse.rankData != null) {
+                            // 轮播图
+                            var homeSlider = articlesResponse.rankData.homeSlider ?? new HomeSlider();
+                            dispatcher.dispatch(new RankListAction {rankList = homeSlider.rankList});
+                            (homeSlider.rankList ?? new List<RankData>()).ForEach(rankData => {
+                                homeSliderIds.Add(item: rankData.id);
+                            });
+
+                            // 推荐榜单
+                            var homeTopCollection = articlesResponse.rankData.homeTopCollection ?? new HomeCollection();
+                            dispatcher.dispatch(new RankListAction {rankList = homeTopCollection.rankList});
+                            dispatcher.dispatch(new FavoriteTagMapAction {
+                                favoriteTagMap = homeTopCollection.favoriteTagMap
+                            });
+                            dispatcher.dispatch(new FavoriteTagArticleMapAction {
+                                favoriteTagArticleMap = homeTopCollection.favoriteTagArticleMap
+                            });
+                            dispatcher.dispatch(new UpdateCollectedTagMapAction {
+                                collectedTagMap = homeTopCollection.collectedTagMap
+                            });
+                            (homeTopCollection.rankList ?? new List<RankData>()).ForEach(rankData => {
+                                homeTopCollectionIds.Add(item: rankData.id);
+                            });
+
+                            // 榜单
+                            var homeCollection = articlesResponse.rankData.homeCollection ?? new HomeCollection();
+                            dispatcher.dispatch(new RankListAction {rankList = homeCollection.rankList});
+                            dispatcher.dispatch(new FavoriteTagMapAction {
+                                favoriteTagMap = homeCollection.favoriteTagMap
+                            });
+                            dispatcher.dispatch(new FavoriteTagArticleMapAction {
+                                favoriteTagArticleMap = homeCollection.favoriteTagArticleMap
+                            });
+                            dispatcher.dispatch(new UpdateCollectedTagMapAction {
+                                collectedTagMap = homeCollection.collectedTagMap
+                            });
+                            (homeCollection.rankList ?? new List<RankData>()).ForEach(rankData => {
+                                homeCollectionIds.Add(item: rankData.id);
+                            });
+
+                            // 推荐博主
+                            var homeBlogger = articlesResponse.rankData.homeBlogger ?? new FetchBloggerResponse();
+                            dispatcher.dispatch(new RankListAction {rankList = homeBlogger.rankList});
+                            dispatcher.dispatch(new UserMapAction {userMap = homeBlogger.userFullMap});
+                            dispatcher.dispatch(new FollowMapAction {followMap = homeBlogger.followMap});
+                            dispatcher.dispatch(new UserLicenseMapAction {userLicenseMap = homeBlogger.userLicenseMap});
+                            (homeBlogger.rankList ?? new List<RankData>()).ForEach(rankData => {
+                                homeBloggerIds.Add(item: rankData.id);
+                            });
+                        }
+
                         dispatcher.dispatch(new FetchArticleSuccessAction {
                             offset = offset,
                             hottestHasMore = articlesResponse.hottestHasMore,
                             articleList = articleList,
-                            feedHasNew = articlesResponse.feedHasNew
+                            feedHasNew = articlesResponse.feedHasNew,
+                            homeSliderIds = homeSliderIds,
+                            homeTopCollectionIds = homeTopCollectionIds,
+                            homeCollectionIds = homeCollectionIds,
+                            homeBloggerIds = homeBloggerIds,
+                            searchSuggest = articlesResponse.rankData?.searchSuggest,
+                            dailySelectionId = articlesResponse.rankData?.dailySelectionId,
+                            leaderBoardUpdatedTime = articlesResponse.rankData.leaderboardUpdatedTime
                         });
                     })
                     .Catch(error => {

@@ -9,5 +9,6 @@ namespace ConnectApp.Models.State {
         public string password;
         public bool loading;
         public bool isLoggedIn;
+        public string newNotifications;
     }
 }

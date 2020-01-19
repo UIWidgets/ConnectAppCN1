@@ -64,7 +64,8 @@ namespace Plugins.Editor {
 
             proj.SetBuildProperty(targetGuid: targetGuid, name: "LIBRARY_SEARCH_PATHS", value: "$(inherited)");
             proj.AddBuildProperty(targetGuid: targetGuid, name: "LIBRARY_SEARCH_PATHS", value: "$(SRCROOT)");
-            proj.AddBuildProperty(targetGuid: targetGuid, name: "LIBRARY_SEARCH_PATHS", value: "$(PROJECT_DIR)/Libraries");
+            proj.AddBuildProperty(targetGuid: targetGuid, name: "LIBRARY_SEARCH_PATHS",
+                value: "$(PROJECT_DIR)/Libraries");
             proj.AddBuildProperty(targetGuid: targetGuid, name: "LIBRARY_SEARCH_PATHS",
                 value: "$(PROJECT_DIR)/Libraries/Plugins/iOS");
             proj.AddBuildProperty(targetGuid: targetGuid, name: "LIBRARY_SEARCH_PATHS",
@@ -119,6 +120,10 @@ namespace Plugins.Editor {
             var qrScanLineDestDict = path + "/Unity-iPhone/Images.xcassets/qrScanLine.imageset";
             var qrScanLineSourceFile = "image/iOS/qrScanLine.imageset";
             writeFile(qrScanLineSourceFile, qrScanLineDestDict);
+
+            var launchImgDestDict = path + "/Unity-iPhone/Images.xcassets/launch_screen_img.imageset";
+            var launchImgSourceFile = "image/iOS/launch_screen_img.imageset";
+            writeFile(launchImgSourceFile, launchImgDestDict);
 
             var noticeWavDestDict = path + "/Data/noticeMusic.wav";
             var noticeWavSourceFile = "files/noticeMusic.wav";

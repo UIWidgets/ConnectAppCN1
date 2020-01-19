@@ -16,6 +16,7 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.screens {
     static class LoginNavigatorRoutes {
@@ -86,10 +87,9 @@ namespace ConnectApp.screens {
     }
 
     class _LoginSwitchScreen : State<LoginSwitchScreen>, RouteAware {
-        
         public override void initState() {
             base.initState();
-            StatusBarManager.statusBarStyle(false);
+            StatusBarManager.statusBarStyle(true);
         }
 
         public override void didChangeDependencies() {
@@ -98,6 +98,7 @@ namespace ConnectApp.screens {
         }
 
         public override void dispose() {
+            StatusBarManager.statusBarStyle(false);
             Router.routeObserve.unsubscribe(this);
             base.dispose();
         }
@@ -119,6 +120,8 @@ namespace ConnectApp.screens {
             return new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(
+                    top: false,
+                    bottom: false,
                     child: this._buildContent(context: context)
                 )
             );
@@ -127,21 +130,35 @@ namespace ConnectApp.screens {
         Widget _buildContent(BuildContext context) {
             return new Container(
                 color: CColors.White,
-                child: new Column(
+                child: new Stack(
                     children: new List<Widget> {
-                        this._buildTopView(),
-                        this._buildBottomView(context: context)
+                        new Container(
+                            width: MediaQuery.of(context: context).size.width,
+                            height: MediaQuery.of(context: context).size.height,
+                            child: Image.asset(
+                                "image/img-bg-login@4x",
+                                fit: BoxFit.cover
+                            )
+                        ),
+                        new Positioned(
+                            new Column(
+                                children: new List<Widget> {
+                                    this._buildTopView(context: context),
+                                    this._buildBottomView(context: context)
+                                }
+                            )
+                        )
                     }
                 )
             );
         }
 
-        Widget _buildTopView() {
+        Widget _buildTopView(BuildContext context) {
             return new Flexible(
                 child: new Stack(
                     children: new List<Widget> {
                         new Positioned(
-                            top: 0,
+                            top: CCommonUtils.getSafeAreaTopPadding(context: context),
                             left: 0,
                             child: new CustomButton(
                                 padding: EdgeInsets.symmetric(10, 16),
@@ -149,27 +166,29 @@ namespace ConnectApp.screens {
                                 child: new Icon(
                                     icon: Icons.close,
                                     size: 24,
-                                    color: CColors.Icon
+                                    color: CColors.White
                                 )
                             )
                         ),
                         new Align(
                             alignment: Alignment.center,
                             child: new Container(
-                                height: 144,
+                                height: 78,
                                 child: new Column(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: new List<Widget> {
                                         new Container(
-                                            child: new Icon(
-                                                icon: Icons.UnityLogo,
-                                                size: 80
+                                            width: 251,
+                                            height: 53,
+                                            child: Image.asset(
+                                                "image/img-logo-unity-connect-white-with-shadow@4x",
+                                                fit: BoxFit.cover
                                             )
                                         ),
                                         new Text(
-                                            "欢迎来到 Unity Connect",
+                                            "Unity   问   题   全   搞   定",
                                             maxLines: 1,
-                                            style: CTextStyle.H4
+                                            style: CTextStyle.H5.copyWith(color: CColors.White, height: 1)
                                         )
                                     }
                                 )
@@ -193,8 +212,7 @@ namespace ConnectApp.screens {
                             child: new Container(
                                 height: 48,
                                 decoration: new BoxDecoration(
-                                    color: CColors.White,
-                                    border: Border.all(color: CColors.PrimaryBlue),
+                                    border: Border.all(color: CColors.White, 2),
                                     borderRadius: BorderRadius.all(24)
                                 ),
                                 child: new Row(
@@ -203,7 +221,7 @@ namespace ConnectApp.screens {
                                         new Text(
                                             "使用 Unity ID 登录",
                                             maxLines: 1,
-                                            style: CTextStyle.PLargeBlue
+                                            style: CTextStyle.PLargeMediumWhite
                                         )
                                     }
                                 )
@@ -216,22 +234,22 @@ namespace ConnectApp.screens {
                                     children: new List<TextSpan> {
                                         new TextSpan(
                                             "登录代表您已经同意 ",
-                                            style: CTextStyle.PSmallBody4
+                                            style: CTextStyle.PSmallWhite
                                         ),
                                         new TextSpan(
                                             "用户协议",
-                                            CTextStyle.PSmallBody4.copyWith(decoration: TextDecoration.underline),
+                                            CTextStyle.PSmallWhite.copyWith(decoration: TextDecoration.underline),
                                             recognizer: new TapGestureRecognizer {
                                                 onTap = () => this.widget.actionModel.openUrl(Config.termsOfService)
                                             }
                                         ),
                                         new TextSpan(
                                             " 和 ",
-                                            style: CTextStyle.PSmallBody4
+                                            style: CTextStyle.PSmallWhite
                                         ),
                                         new TextSpan(
                                             "隐私政策",
-                                            CTextStyle.PSmallBody4.copyWith(decoration: TextDecoration.underline),
+                                            CTextStyle.PSmallWhite.copyWith(decoration: TextDecoration.underline),
                                             recognizer: new TapGestureRecognizer {
                                                 onTap = () => this.widget.actionModel.openUrl(Config.privacyPolicy)
                                             }
@@ -266,7 +284,7 @@ namespace ConnectApp.screens {
                 child: new Container(
                     height: 48,
                     decoration: new BoxDecoration(
-                        color: CColors.PrimaryBlue,
+                        color: CColors.White,
                         borderRadius: BorderRadius.all(24)
                     ),
                     child: new Row(
@@ -275,13 +293,13 @@ namespace ConnectApp.screens {
                             new Icon(
                                 icon: Icons.WechatIcon,
                                 size: 24,
-                                color: CColors.White
+                                color: CColors.PrimaryBlue
                             ),
                             new Container(width: 8),
                             new Text(
                                 "使用微信账号登录",
                                 maxLines: 1,
-                                style: CTextStyle.PLargeWhite
+                                style: CTextStyle.PLargeMediumBlue
                             )
                         }
                     )

@@ -61,6 +61,10 @@ namespace ConnectApp.redux.actions {
         public string userId;
     }
 
+    public class MainNavigatorPushToUserLikeAction : BaseAction {
+        public string userId;
+    }
+
     public class MainNavigatorPushToEditPersonalInfoAction : BaseAction {
         public string userId;
     }
@@ -87,7 +91,7 @@ namespace ConnectApp.redux.actions {
         public string reportId;
         public ReportType reportType;
     }
-    
+
     public class MainNavigatorPushToReactionsDetailAction : BaseAction {
         public string messageId;
     }
@@ -114,6 +118,9 @@ namespace ConnectApp.redux.actions {
 
     public class MainNavigatorPushToWebViewAction : BaseAction {
         public string url = "";
+        public bool landscape = false;
+        public bool fullscreen = false;
+        public bool showOpenInBrowser = true;
     }
 
     public class EnterRealityAction : BaseAction {
@@ -126,6 +133,7 @@ namespace ConnectApp.redux.actions {
     public class MainNavigatorPushToFavoriteDetailAction : BaseAction {
         public string tagId = "";
         public string userId = "";
+        public FavoriteType type;
     }
 
     public class MainNavigatorPushToEditFavoriteAction : BaseAction {
@@ -141,5 +149,14 @@ namespace ConnectApp.redux.actions {
 
     public class MainNavigatorPushToChannelMentionAction : BaseAction {
         public string channelId;
+    }
+
+    public class MainNavigatorPushToLeaderBoardDetailAction : BaseAction {
+        public string id;
+        public LeaderBoardType type = LeaderBoardType.collection;
+    }
+
+    public class MainNavigatorPushToLeaderBoardAction : BaseAction {
+        public int initIndex = 0;
     }
 }

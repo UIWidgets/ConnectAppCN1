@@ -13,6 +13,7 @@ namespace ConnectApp.Models.Api {
         public Dictionary<string, bool> likeMap;
         public bool hottestHasMore;
         public bool feedHasNew;
+        public HomeRankData rankData;
     }
 
     [Serializable]
@@ -48,6 +49,16 @@ namespace ConnectApp.Models.Api {
     public class FetchEventListResponse {
         public List<IEvent> items;
         public int total;
+    }
+
+    [Serializable]
+    public class FetchHomeEventsResponse {
+        public List<RankData> rankList;
+        public Dictionary<string, User> userSimpleMap;
+        public Dictionary<string, Place> placeMap;
+        public Dictionary<string, IEvent> eventSimpleMap;
+        public bool hasMore;
+        public int currentPage;
     }
 
     [Serializable]
@@ -134,6 +145,14 @@ namespace ConnectApp.Models.Api {
         public Dictionary<string, bool> followMap;
         public Dictionary<string, Article> projectMap;
         public bool hasMore;
+    }
+
+    [Serializable]
+    public class FetchUserLikeArticleResponse {
+        public List<Article> projectSimpleList;
+        public Dictionary<string, User> userSimpleV2Map;
+        public Dictionary<string, Team> teamSimpleMap;
+        public int currentPage;
     }
 
     [Serializable]
@@ -304,6 +323,11 @@ namespace ConnectApp.Models.Api {
     }
 
     [Serializable]
+    public class CollectFavoriteTagResponse {
+        public FavoriteTag favoriteTag;
+    }
+
+    [Serializable]
     public class FetchChannelMemberQueryResponse {
         public List<ChannelMember> searchMembers;
     }
@@ -322,6 +346,48 @@ namespace ConnectApp.Models.Api {
 
     [Serializable]
     public class UpdateChannelMessagesReactionResponse {
-        
+    }
+
+    [Serializable]
+    public class FetchLeaderBoardCollectionResponse {
+        public List<RankData> rankList;
+        public Dictionary<string, FavoriteTagArticle> favoriteTagArticleMap;
+        public Dictionary<string, FavoriteTag> favoriteTagMap;
+        public Dictionary<string, bool> collectedTagMap;
+        public bool hasMore;
+        public int currentPage;
+    }
+
+    [Serializable]
+    public class FetchLeaderBoardColumnResponse {
+        public List<RankData> rankList;
+        public Dictionary<string, UserArticle> userArticleMap;
+        public Dictionary<string, User> userSimpleV2Map;
+        public bool hasMore;
+        public int currentPage;
+    }
+
+    [Serializable]
+    public class FetchBloggerResponse {
+        public List<RankData> rankList;
+        public Dictionary<string, User> userFullMap;
+        public Dictionary<string, bool> followMap;
+        public Dictionary<string, UserLicense> userLicenseMap;
+        public bool hasMore;
+        public int currentPage;
+    }
+
+    [Serializable]
+    public class FetchLeaderBoardDetailResponse {
+        public List<Article> projectSimples;
+        public Dictionary<string, User> userSimpleV2Map;
+        public Dictionary<string, Team> teamSimpleMap;
+        public Dictionary<string, FavoriteTagArticle> favoriteTagArticleMap;
+        public Dictionary<string, FavoriteTag> favoriteTagMap;
+        public FavoriteTag myFavoriteTag;
+        public Dictionary<string, bool> collectedTagMap;
+        public bool hasMore;
+        public int currentPage;
+        public RankData rankData;
     }
 }

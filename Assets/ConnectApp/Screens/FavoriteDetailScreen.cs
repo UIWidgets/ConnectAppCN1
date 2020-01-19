@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
@@ -14,26 +15,34 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
+    public enum FavoriteType {
+        my,
+        follow
+    }
+
     public class FavoriteDetailScreenConnector : StatelessWidget {
         public FavoriteDetailScreenConnector(
             string tagId,
             string userId,
+            FavoriteType type = FavoriteType.my,
             Key key = null
         ) : base(key: key) {
             this.tagId = tagId;
             this.userId = userId;
+            this.type = type;
         }
 
         readonly string tagId;
         readonly string userId;
+        readonly FavoriteType type;
 
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, FavoriteDetailScreenViewModel>(
@@ -46,9 +55,21 @@ namespace ConnectApp.screens {
                     var favoriteDetailArticleIds = favoriteDetailArticleIdDict.ContainsKey(key: this.tagId)
                         ? favoriteDetailArticleIdDict[key: this.tagId]
                         : null;
+                    var collectedMap = state.loginState.isLoggedIn
+                        ? state.favoriteState.collectedTagMap.ContainsKey(state.loginState.loginInfo.userId)
+                            ? state.favoriteState.collectedTagMap[state.loginState.loginInfo.userId]
+                            : new Dictionary<string, bool>()
+                        : new Dictionary<string, bool>();
+                    var isCollected = false;
+                    if (favoriteTag != null) {
+                        isCollected = state.loginState.isLoggedIn && collectedMap.ContainsKey(favoriteTag.quoteTagId) &&
+                                      collectedMap[favoriteTag.quoteTagId];
+                    }
+
                     return new FavoriteDetailScreenViewModel {
                         userId = this.userId,
                         tagId = this.tagId,
+                        type = this.type,
                         favoriteDetailLoading = state.favoriteState.favoriteDetailLoading,
                         favoriteDetailArticleIds = favoriteDetailArticleIds,
                         favoriteArticleOffset = favoriteDetailArticleIds?.Count ?? 0,
@@ -58,7 +79,9 @@ namespace ConnectApp.screens {
                         articleDict = state.articleState.articleDict,
                         userDict = state.userState.userDict,
                         teamDict = state.teamState.teamDict,
-                        currentUserId = state.loginState.loginInfo.userId ?? ""
+                        currentUserId = state.loginState.loginInfo.userId ?? "",
+                        isCollect = isCollected,
+                        collectLoading = state.leaderBoardState.detailCollectLoading
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -96,7 +119,12 @@ namespace ConnectApp.screens {
                         ),
                         shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch<IPromise>(
                             Actions.shareToWechat(type: type, title: title, description: description, linkUrl: linkUrl,
-                                imageUrl: imageUrl))
+                                imageUrl: imageUrl)),
+                        collectFavoriteTag =
+                            itemId =>
+                                dispatcher.dispatch<IPromise>(Actions.collectFavoriteTag(itemId)),
+                        cancelCollectFavoriteTag = (tagId, itemId) =>
+                            dispatcher.dispatch<IPromise>(Actions.cancelCollectFavoriteTag(tagId, itemId))
                     };
                     return new FavoriteDetailScreen(viewModel: viewModel, actionModel: actionModel);
                 }
@@ -158,6 +186,11 @@ namespace ConnectApp.screens {
                     this.setState(() => this._favoriteInfoHeight = favoriteInfoSize.height);
                 }
             });
+        }
+
+        public override void dispose() {
+            this._controller.dispose();
+            base.dispose();
         }
 
         public Ticker createTicker(TickerCallback onTick) {
@@ -241,37 +274,67 @@ namespace ConnectApp.screens {
             var favoriteTag = this.widget.viewModel.favoriteTag;
 
             string title;
-            Widget rightWidget;
+            var rightWidget = (Widget) new Container(width: 56);
             if (favoriteTag == null) {
                 title = "";
-                rightWidget = new Container(width: 56);
             }
             else {
                 if (favoriteTag.type == "default") {
                     title = "默认";
-                    rightWidget = new Container(width: 56);
                 }
                 else {
                     title = favoriteTag.name;
-                    if (!this.widget.viewModel.isLoggedIn) {
-                        rightWidget = new Container(width: 56);
-                    } else if (!this.widget.viewModel.userId.Equals(value: this.widget.viewModel.currentUserId)) {
-                        rightWidget = new Container(width: 56);
-                    }
-                    else {
-                        rightWidget = new CustomButton(
-                            padding: EdgeInsets.symmetric(8, 16),
-                            onPressed: () => this.widget.actionModel.pushToEditFavorite(obj: tagId),
-                            child: new Text(
-                                "编辑",
-                                style: CTextStyle.PLargeMediumBlue.merge(new TextStyle(height: 1))
-                            )
-                        );
-                    }
                 }
             }
 
-            Widget titleWidget;
+            Widget titleWidget = new Container();
+
+            Widget buttonChild;
+
+
+            Color buttonColor = CColors.PrimaryBlue;
+
+            if (this.widget.viewModel.collectLoading) {
+                buttonColor = CColors.Disable2;
+                buttonChild = new CustomActivityIndicator(
+                    size: LoadingSize.xSmall
+                );
+            }
+            else {
+                string buttonText = "收藏";
+                Color textColor = CColors.PrimaryBlue;
+                if (this.widget.viewModel.isCollect) {
+                    buttonText = $"已收藏";
+                    buttonColor = CColors.Disable2;
+                    textColor = new Color(0xFF959595);
+                }
+
+                buttonChild = new Text(
+                    data: buttonText,
+                    style: new TextStyle(
+                        fontSize: 14,
+                        fontFamily: "Roboto-Medium",
+                        color: textColor
+                    )
+                );
+            }
+
+            var child = new CustomButton(
+                onPressed: this._onPressed,
+                padding: EdgeInsets.zero,
+                child: new Container(
+                    width: 60,
+                    height: 28,
+                    alignment: Alignment.center,
+                    decoration: new BoxDecoration(
+                        color: CColors.White,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: buttonColor)
+                    ),
+                    child: buttonChild
+                )
+            );
+
             if (this._isHaveTitle) {
                 titleWidget = new Text(
                     data: title,
@@ -280,10 +343,24 @@ namespace ConnectApp.screens {
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center
                 );
+                rightWidget = new Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: child);
             }
-            else {
-                titleWidget = new Container();
+
+            if (this.widget.viewModel.favoriteTag.type != "default" && this.widget.viewModel.isLoggedIn &&
+                this.widget.viewModel.currentUserId.Equals(this.widget.viewModel.userId) &&
+                this.widget.viewModel.type == FavoriteType.my) {
+                rightWidget = new CustomButton(
+                    padding: EdgeInsets.symmetric(8, 16),
+                    onPressed: () => this.widget.actionModel.pushToEditFavorite(this.widget.viewModel.favoriteTag.id),
+                    child: new Text(
+                        "编辑",
+                        style: CTextStyle.PLargeMediumBlue.merge(new TextStyle(height: 1))
+                    )
+                );
             }
+
 
             return new CustomAppBar(
                 () => this.widget.actionModel.mainRouterPop(),
@@ -298,7 +375,13 @@ namespace ConnectApp.screens {
                         }
                     )
                 ),
-                rightWidget: rightWidget
+                rightWidget: rightWidget,
+                backgroundColor: this._isHaveTitle || this.widget.viewModel.type == FavoriteType.my
+                    ? CColors.White
+                    : CColors.Background,
+                bottomSeparatorColor: this._isHaveTitle || this.widget.viewModel.type == FavoriteType.my
+                    ? CColors.Separator2
+                    : CColors.Transparent
             );
         }
 
@@ -355,79 +438,75 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildFavoriteInfo() {
-            var favoriteTag = this.widget.viewModel.favoriteTag;
-            if (favoriteTag == null) {
-                return new Container();
+            var title = "";
+            title = "默认";
+            var subTitle = "0个内容";
+            var images = new List<string>();
+            Widget iconWidget = new Container();
+            if (this.widget.viewModel.favoriteTag != null) {
+                title = this.widget.viewModel.favoriteTag.name;
+                subTitle =
+                    $"{this.widget.viewModel.favoriteTag.stasitics.count}个内容";
+                string iconName;
+                Color iconColor;
+                if (this.widget.viewModel.favoriteTag.type == "default") {
+                    title = "默认";
+                    iconName = $"{CImageUtils.FavoriteCoverImagePath}/{CImageUtils.FavoriteCoverImages[0]}";
+                    iconColor = CColorUtils.FavoriteCoverColors[0];
+                }
+                else {
+                    title = this.widget.viewModel.favoriteTag.name;
+                    iconName =
+                        $"{CImageUtils.FavoriteCoverImagePath}/{this.widget.viewModel.favoriteTag.iconStyle.name}";
+                    iconColor = new Color(long.Parse(s: this.widget.viewModel.favoriteTag.iconStyle.bgColor));
+                }
+
+                iconWidget = new FavoriteTagCoverImage(
+                    coverImage: iconName,
+                    coverColor: iconColor,
+                    size: 84
+                );
             }
 
-            string title;
-            string imageName;
-            Color color;
-            if (favoriteTag.type == "default") {
-                title = "默认";
-                imageName = $"{CImageUtils.FavoriteCoverImagePath}/{CImageUtils.FavoriteCoverImages[0]}";
-                color = CColorUtils.FavoriteCoverColors[0];
+            return new LeaderBoardDetailHeader(
+                title
+                , subTitle,
+                images: images.Count > 3 ? images.Take(3).ToList() : images,
+                isCollected: this.widget.viewModel.isCollect,
+                isLoading: this.widget.viewModel.collectLoading,
+                isHost: this.widget.viewModel.type == FavoriteType.my,
+                ClickButtonCallback: this._onPressed,
+                leftWidget: iconWidget,
+                leftWidgetTopPadding: 4,
+                key: this._favoriteInfoKey
+            );
+        }
+
+        void _onPressed() {
+            if (!UserInfoManager.isLogin()) {
+                this.widget.actionModel.pushToLogin();
+                return;
+            }
+
+            if (this.widget.viewModel.isCollect) {
+                ActionSheetUtils.showModalActionSheet(
+                    new ActionSheet(
+                        title: "确定取消收藏？",
+                        items: new List<ActionSheetItem> {
+                            new ActionSheetItem("确定", type: ActionType.normal,
+                                () => {
+                                    this.widget.actionModel.cancelCollectFavoriteTag(
+                                        this.widget.viewModel.favoriteTag.id,
+                                        this.widget.viewModel.favoriteTag.quoteTagId);
+                                }),
+                            new ActionSheetItem("取消", type: ActionType.cancel)
+                        }
+                    )
+                );
             }
             else {
-                title = favoriteTag.name;
-                imageName = $"{CImageUtils.FavoriteCoverImagePath}/{favoriteTag.iconStyle.name}";
-                color = new Color(long.Parse(s: favoriteTag.iconStyle.bgColor));
+                this.widget.actionModel.collectFavoriteTag(this.widget.viewModel.favoriteTag.quoteTagId);
             }
-
-            return new Column(
-                key: this._favoriteInfoKey,
-                children: new List<Widget> {
-                    new Container(
-                        color: CColors.White,
-                        padding: EdgeInsets.all(16),
-                        child: new Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: new List<Widget> {
-                                new Row(
-                                    children: new List<Widget> {
-                                        new FavoriteTagCoverImage(
-                                            coverImage: imageName,
-                                            coverColor: color,
-                                            64,
-                                            margin: EdgeInsets.only(right: 16)
-                                        ),
-                                        new Expanded(
-                                            child: new Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: new List<Widget> {
-                                                    new Text(
-                                                        data: title,
-                                                        style: CTextStyle.H5,
-                                                        maxLines: 1,
-                                                        overflow: TextOverflow.ellipsis
-                                                    ),
-                                                    new SizedBox(height: 4),
-                                                    new Text(
-                                                        $"{favoriteTag.stasitics?.count ?? 0}个内容",
-                                                        style: CTextStyle.PSmallBody4
-                                                    )
-                                                }
-                                            )
-                                        )
-                                    }
-                                ),
-                                favoriteTag.description.isNotEmpty()
-                                    ? new Container(
-                                        margin: EdgeInsets.only(top: 16),
-                                        child: new Text(
-                                            data: favoriteTag.description,
-                                            style: CTextStyle.PRegularBody3.merge(new TextStyle(height: 1))
-                                        )
-                                    )
-                                    : new Container()
-                            }
-                        )
-                    ),
-                    new CustomDivider(
-                        color: CColors.Background
-                    )
-                }
-            );
         }
 
         Widget _buildArticleCard(int index) {

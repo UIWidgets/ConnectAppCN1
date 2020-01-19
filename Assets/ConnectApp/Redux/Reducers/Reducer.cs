@@ -51,6 +51,8 @@ namespace ConnectApp.redux.reducers {
                     state.loginState.loading = false;
                     state.loginState.loginInfo = action.loginInfo;
                     state.loginState.isLoggedIn = true;
+                    state.loginState.newNotifications =
+                        NewNotificationManager.getNewNotification(state.loginState.loginInfo.userId);
                     state.articleState.feedHasNew = true;
                     state.articleState.articleHistory =
                         HistoryManager.articleHistoryList(userId: action.loginInfo.userId);
@@ -59,8 +61,7 @@ namespace ConnectApp.redux.reducers {
                         HistoryManager.searchArticleHistoryList(userId: action.loginInfo.userId);
                     state.articleState.blockArticleList =
                         HistoryManager.blockArticleList(userId: action.loginInfo.userId);
-                    state.channelState.newNotifications =
-                        NewNotificationManager.getNewNotification(state.loginState.loginInfo.userId);
+
                     break;
                 }
 
@@ -73,6 +74,8 @@ namespace ConnectApp.redux.reducers {
                     state.loginState.loading = false;
                     state.loginState.loginInfo = action.loginInfo;
                     state.loginState.isLoggedIn = true;
+                    state.loginState.newNotifications =
+                        NewNotificationManager.getNewNotification(state.loginState.loginInfo.userId);
                     state.articleState.feedHasNew = true;
                     state.articleState.articleHistory =
                         HistoryManager.articleHistoryList(userId: action.loginInfo.userId);
@@ -81,8 +84,6 @@ namespace ConnectApp.redux.reducers {
                         HistoryManager.searchArticleHistoryList(userId: action.loginInfo.userId);
                     state.articleState.blockArticleList =
                         HistoryManager.blockArticleList(userId: action.loginInfo.userId);
-                    state.channelState.newNotifications =
-                        NewNotificationManager.getNewNotification(state.loginState.loginInfo.userId);
                     break;
                 }
 
@@ -130,6 +131,13 @@ namespace ConnectApp.redux.reducers {
 
                 case FetchArticleSuccessAction action: {
                     if (action.offset == 0) {
+                        state.articleState.homeSliderIds = action.homeSliderIds;
+                        state.articleState.homeTopCollectionIds = action.homeTopCollectionIds;
+                        state.articleState.homeCollectionIds = action.homeCollectionIds;
+                        state.articleState.homeBloggerIds = action.homeBloggerIds;
+                        state.articleState.searchSuggest = action.searchSuggest;
+                        state.articleState.dailySelectionId = action.dailySelectionId;
+                        state.articleState.leaderBoardUpdatedTime = action.leaderBoardUpdatedTime;
                         state.articleState.recommendArticleIds.Clear();
                     }
 
@@ -137,6 +145,7 @@ namespace ConnectApp.redux.reducers {
                         if (!state.articleState.recommendArticleIds.Contains(article.id)) {
                             state.articleState.recommendArticleIds.Add(item: article.id);
                         }
+
                         if (!state.articleState.articleDict.ContainsKey(key: article.id)) {
                             state.articleState.articleDict.Add(key: article.id, value: article);
                         }
@@ -144,6 +153,16 @@ namespace ConnectApp.redux.reducers {
                             var oldArticle = state.articleState.articleDict[key: article.id];
                             state.articleState.articleDict[key: article.id] = oldArticle.Merge(other: article);
                         }
+                    }
+
+                    if (action.offset == 0) {
+                        state.articleState.recommendHasNewArticle =
+                            state.articleState.recommendLastRefreshArticleId.isEmpty() ||
+                            state.articleState.recommendLastRefreshArticleId.isNotEmpty() &&
+                            state.articleState.recommendLastRefreshArticleId !=
+                            state.articleState.recommendArticleIds.first();
+                        state.articleState.recommendLastRefreshArticleId =
+                            state.articleState.recommendArticleIds.first();
                     }
 
                     state.articleState.feedHasNew = action.feedHasNew;
@@ -292,6 +311,7 @@ namespace ConnectApp.redux.reducers {
                     state.articleState.articleDetailLoading = false;
                     break;
                 }
+
 
                 case SaveArticleHistoryAction action: {
                     var article = action.article;
@@ -558,6 +578,16 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case ClearEventOngoingAction _: {
+                    state.eventState.ongoingEvents.Clear();
+                    break;
+                }
+
+                case ClearEventCompletedAction _: {
+                    state.eventState.completedEvents.Clear();
+                    break;
+                }
+
                 case StartFetchEventOngoingAction _: {
                     state.eventState.eventsOngoingLoading = true;
                     break;
@@ -572,7 +602,7 @@ namespace ConnectApp.redux.reducers {
                     if (action.pageNumber == 1) {
                         if (action.tab == "ongoing") {
                             state.eventState.eventsOngoingLoading = false;
-                            state.eventState.pageNumber = action.pageNumber;
+                            state.eventState.ongoingPageNumber = action.pageNumber;
                         }
                         else {
                             state.eventState.eventsCompletedLoading = false;
@@ -586,45 +616,64 @@ namespace ConnectApp.redux.reducers {
                 case FetchEventsSuccessAction action: {
                     if (action.tab == "ongoing") {
                         state.eventState.eventsOngoingLoading = false;
-                        state.eventState.pageNumber = action.pageNumber;
-                        state.eventState.ongoingEventTotal = action.eventsResponse.events.total;
+                        state.eventState.ongoingPageNumber = action.pageNumber;
+                        state.eventState.ongoingEventTotal = action.total;
                     }
                     else {
                         state.eventState.eventsCompletedLoading = false;
                         state.eventState.completedPageNumber = action.pageNumber;
-                        state.eventState.completedEventTotal = action.eventsResponse.events.total;
+                        state.eventState.completedEventTotal = action.total;
                     }
 
                     if (action.pageNumber == 1) {
                         if (action.tab == "ongoing") {
-                            state.eventState.ongoingEvents.Clear();
+                            state.eventState.ongoingEvents = action.eventIds;
                         }
                         else {
-                            state.eventState.completedEvents.Clear();
+                            state.eventState.completedEvents = action.eventIds;
+                        }
+                    }
+                    else {
+                        if (action.tab == "ongoing") {
+                            var ongoingEvents = state.eventState.ongoingEvents;
+                            ongoingEvents.AddRange(collection: action.eventIds);
+                            state.eventState.ongoingEvents = ongoingEvents;
+                        }
+                        else {
+                            var completedEvents = state.eventState.completedEvents;
+                            completedEvents.AddRange(collection: action.eventIds);
+                            state.eventState.completedEvents = completedEvents;
                         }
                     }
 
-                    action.eventsResponse.events.items.ForEach(eventObj => {
-//                        if (eventObj.mode == "online") return;
-                        if (action.tab == "ongoing") {
-                            if (!state.eventState.ongoingEvents.Contains(item: eventObj.id)) {
-                                state.eventState.ongoingEvents.Add(item: eventObj.id);
-                            }
-                        }
-                        else {
-                            if (!state.eventState.completedEvents.Contains(item: eventObj.id)) {
-                                state.eventState.completedEvents.Add(item: eventObj.id);
-                            }
-                        }
+                    break;
+                }
 
-                        if (state.eventState.eventsDict.ContainsKey(key: eventObj.id)) {
-                            var oldEventObj = state.eventState.eventsDict[key: eventObj.id];
-                            state.eventState.eventsDict[key: eventObj.id] = oldEventObj.Merge(eventObj);
-                        }
-                        else {
-                            state.eventState.eventsDict.Add(key: eventObj.id, value: eventObj);
-                        }
-                    });
+                case StartFetchHomeEventsAction _: {
+                    state.eventState.homeEventsLoading = true;
+                    break;
+                }
+
+                case FetchHomeEventsSuccessAction action: {
+                    state.eventState.homeEventsLoading = false;
+                    state.eventState.homeEventHasMore = action.hasMore;
+                    state.eventState.homeEventPageNumber = action.currentPage;
+
+                    if (action.pageNumber == 1) {
+                        state.eventState.homeEvents = action.eventIds;
+                    }
+                    else {
+                        var homeEvents = state.eventState.homeEvents;
+                        homeEvents.AddRange(collection: action.eventIds);
+                        state.eventState.homeEvents = homeEvents;
+                    }
+
+                    break;
+                }
+
+                case FetchHomeEventsFailureAction _: {
+                    state.eventState.homeEventsLoading = false;
+
                     break;
                 }
 
@@ -636,14 +685,6 @@ namespace ConnectApp.redux.reducers {
                 case FetchEventDetailSuccessAction action: {
                     state.eventState.eventDetailLoading = false;
                     state.eventState.channelId = action.eventObj.channelId;
-                    if (state.eventState.eventsDict.ContainsKey(key: action.eventObj.id)) {
-                        var oldEvent = state.eventState.eventsDict[key: action.eventObj.id];
-                        state.eventState.eventsDict[key: action.eventObj.id] = oldEvent.Merge(action.eventObj);
-                    }
-                    else {
-                        state.eventState.eventsDict.Add(key: action.eventObj.id, value: action.eventObj);
-                    }
-
                     break;
                 }
 
@@ -735,7 +776,7 @@ namespace ConnectApp.redux.reducers {
                     }
 
                     state.notificationState.loading = false;
-                    state.channelState.newNotifications = null;
+                    state.loginState.newNotifications = null;
                     break;
                 }
 
@@ -759,6 +800,11 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case ClearMyFutureEventsAction _: {
+                    state.mineState.futureEventIds.Clear();
+                    break;
+                }
+
                 case StartFetchMyFutureEventsAction _: {
                     state.mineState.futureListLoading = true;
                     break;
@@ -766,16 +812,15 @@ namespace ConnectApp.redux.reducers {
 
                 case FetchMyFutureEventsSuccessAction action: {
                     state.mineState.futureListLoading = false;
-                    state.mineState.futureEventTotal = action.eventsResponse.events.total;
-                    var items = action.eventsResponse.events.items;
+                    state.mineState.futureEventTotal = action.total;
                     if (action.pageNumber == 1) {
-                        state.mineState.futureEventsList = items;
+                        state.mineState.futureEventIds = action.eventIds;
                     }
                     else {
-                        if (state.mineState.futureEventsList.Count < action.eventsResponse.events.total) {
-                            var results = state.mineState.futureEventsList;
-                            results.AddRange(collection: items);
-                            state.mineState.futureEventsList = results;
+                        if (state.mineState.futureEventIds.Count < action.total) {
+                            var futureEventIds = state.mineState.futureEventIds;
+                            futureEventIds.AddRange(collection: action.eventIds);
+                            state.mineState.futureEventIds = futureEventIds;
                         }
                     }
 
@@ -787,6 +832,11 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case ClearMyPastEventsAction _: {
+                    state.mineState.pastEventIds.Clear();
+                    break;
+                }
+
                 case StartFetchMyPastEventsAction _: {
                     state.mineState.pastListLoading = true;
                     break;
@@ -794,16 +844,15 @@ namespace ConnectApp.redux.reducers {
 
                 case FetchMyPastEventsSuccessAction action: {
                     state.mineState.pastListLoading = false;
-                    state.mineState.pastEventTotal = action.eventsResponse.events.total;
-                    var offlineItems = action.eventsResponse.events.items;
+                    state.mineState.pastEventTotal = action.total;
                     if (action.pageNumber == 1) {
-                        state.mineState.pastEventsList = offlineItems;
+                        state.mineState.pastEventIds = action.eventIds;
                     }
                     else {
-                        if (state.mineState.pastEventsList.Count < action.eventsResponse.events.total) {
-                            var results = state.mineState.pastEventsList;
-                            results.AddRange(collection: offlineItems);
-                            state.mineState.pastEventsList = results;
+                        if (state.mineState.pastEventIds.Count < action.total) {
+                            var pastEventIds = state.mineState.pastEventIds;
+                            pastEventIds.AddRange(collection: action.eventIds);
+                            state.mineState.pastEventIds = pastEventIds;
                         }
                     }
 
@@ -951,6 +1000,7 @@ namespace ConnectApp.redux.reducers {
                     if (state.channelState.messageDict.TryGetValue(action.messageId, out var message)) {
                         message.buildHeight = null;
                     }
+
                     break;
                 }
 
@@ -968,6 +1018,25 @@ namespace ConnectApp.redux.reducers {
                         }
 
                         state.articleState.articleDict = articleDict;
+                    }
+
+                    break;
+                }
+
+                case EventMapAction action: {
+                    if (action.eventMap.isNotNullAndEmpty()) {
+                        var eventsDict = state.eventState.eventsDict;
+                        foreach (var keyValuePair in action.eventMap) {
+                            if (eventsDict.ContainsKey(key: keyValuePair.Key)) {
+                                var oldEventObj = eventsDict[key: keyValuePair.Key];
+                                eventsDict[key: keyValuePair.Key] = oldEventObj.Merge(other: keyValuePair.Value);
+                            }
+                            else {
+                                eventsDict.Add(key: keyValuePair.Key, value: keyValuePair.Value);
+                            }
+                        }
+
+                        state.eventState.eventsDict = eventsDict;
                     }
 
                     break;
@@ -1111,6 +1180,63 @@ namespace ConnectApp.redux.reducers {
 
                             state.likeState.likeDict = likeDict;
                         }
+                    }
+
+                    break;
+                }
+
+                case RankListAction action: {
+                    if (action.rankList.isNotEmpty()) {
+                        var rankDict = state.leaderBoardState.rankDict;
+                        action.rankList.ForEach(rankData => {
+                            if (rankDict.ContainsKey(key: rankData.id)) {
+                                rankDict[key: rankData.id] = rankData;
+                            }
+                            else {
+                                rankDict.Add(key: rankData.id, value: rankData);
+                            }
+                        });
+
+                        state.leaderBoardState.rankDict = rankDict;
+                    }
+
+                    break;
+                }
+
+                case FavoriteTagMapAction action: {
+                    if (action.favoriteTagMap.isNotNullAndEmpty()) {
+                        var favoriteTagDict = state.favoriteState.favoriteTagDict;
+                        var collectedTagDict = state.favoriteState.collectedTagMap;
+                        var collectMap = state.loginState.isLoggedIn &&
+                                         collectedTagDict.ContainsKey(state.loginState.loginInfo.userId)
+                            ? collectedTagDict[state.loginState.loginInfo.userId]
+                            : new Dictionary<string, bool>();
+
+                        foreach (var keyValuePair in action.favoriteTagMap) {
+                            if (favoriteTagDict.ContainsKey(key: keyValuePair.Key)) {
+                                favoriteTagDict[key: keyValuePair.Key] = keyValuePair.Value;
+                            }
+                            else {
+                                favoriteTagDict.Add(key: keyValuePair.Key, value: keyValuePair.Value);
+                            }
+
+                            if (keyValuePair.Value.quoteTagId != null &&
+                                !collectMap.ContainsKey(keyValuePair.Value.quoteTagId)) {
+                                collectMap.Add(keyValuePair.Value.quoteTagId, true);
+                            }
+                        }
+
+                        if (state.loginState.isLoggedIn) {
+                            if (collectedTagDict.ContainsKey(state.loginState.loginInfo.userId)) {
+                                state.favoriteState.collectedTagMap[state.loginState.loginInfo.userId] = collectMap;
+                            }
+                            else {
+                                state.favoriteState.collectedTagMap.Add(state.loginState.loginInfo.userId,
+                                    collectMap);
+                            }
+                        }
+
+                        state.favoriteState.favoriteTagDict = favoriteTagDict;
                     }
 
                     break;
@@ -1441,6 +1567,16 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case MainNavigatorPushToUserLikeAction action: {
+                    if (action.userId.isNotEmpty()) {
+                        Router.navigator.push(new CustomPageRoute(
+                            context => new UserLikeArticleScreenConnector(userId: action.userId)
+                        ));
+                    }
+
+                    break;
+                }
+
                 case MainNavigatorPushToEditPersonalInfoAction action: {
                     if (action.userId.isNotEmpty()) {
                         Router.navigator.push(new CustomPageRoute(
@@ -1573,7 +1709,11 @@ namespace ConnectApp.redux.reducers {
                 case MainNavigatorPushToWebViewAction action: {
                     if (action.url != null) {
                         Router.navigator.push(new CustomPageRoute(
-                            context => new WebViewScreen(url: action.url),
+                            context => new WebViewScreen(
+                                url: action.url,
+                                landscape: action.landscape,
+                                fullScreen: action.fullscreen,
+                                showOpenInBrowser: action.showOpenInBrowser),
                             push: true
                         ));
                     }
@@ -1607,7 +1747,8 @@ namespace ConnectApp.redux.reducers {
                 case MainNavigatorPushToFavoriteDetailAction action: {
                     if (action.tagId.isNotEmpty()) {
                         Router.navigator.push(new CustomPageRoute(
-                            context => new FavoriteDetailScreenConnector(tagId: action.tagId, userId: action.userId)
+                            context => new FavoriteDetailScreenConnector(
+                                tagId: action.tagId, userId: action.userId, type: action.type)
                         ));
                     }
 
@@ -1640,6 +1781,205 @@ namespace ConnectApp.redux.reducers {
                                 )
                         ));
                     }
+
+                    break;
+                }
+
+                case MainNavigatorPushToLeaderBoardAction action: {
+                    Router.navigator.push(new CustomPageRoute(
+                        context => new LeaderBoardScreenConnector(action.initIndex)
+                    ));
+
+                    break;
+                }
+
+
+                case MainNavigatorPushToLeaderBoardDetailAction action: {
+                    if (action.id.isNotEmpty()) {
+                        Router.navigator.push(new CustomPageRoute(
+                            context => new LeaderBoardDetailScreenConnector(action.id, action.type)
+                        ));
+                    }
+
+                    break;
+                }
+
+                case StartFetchLeaderBoardCollectionAction _: {
+                    state.leaderBoardState.collectionLoading = true;
+                    break;
+                }
+
+                case FetchLeaderBoardCollectionSuccessAction action: {
+                    state.leaderBoardState.collectionLoading = false;
+
+
+                    if (action.pageNumber == 1) {
+                        state.leaderBoardState.collectionIds = action.collectionIds;
+                    }
+                    else {
+                        var collectionIds = state.leaderBoardState.collectionIds;
+                        collectionIds.AddRange(collection: action.collectionIds);
+                        state.leaderBoardState.collectionIds = collectionIds;
+                    }
+
+                    state.leaderBoardState.collectionHasMore = action.hasMore;
+                    state.leaderBoardState.collectionPageNumber = action.pageNumber;
+                    break;
+                }
+
+                case FetchLeaderBoardCollectionFailureAction _: {
+                    state.leaderBoardState.collectionLoading = false;
+                    break;
+                }
+
+                case StartFetchLeaderBoardColumnAction _: {
+                    state.leaderBoardState.columnLoading = true;
+                    break;
+                }
+
+                case FetchLeaderBoardColumnSuccessAction action: {
+                    state.leaderBoardState.columnLoading = false;
+
+                    if (action.pageNumber == 1) {
+                        state.leaderBoardState.columnIds = action.columnIds;
+                    }
+                    else {
+                        var columnIds = state.leaderBoardState.columnIds;
+                        columnIds.AddRange(collection: action.columnIds);
+                        state.leaderBoardState.columnIds = columnIds;
+                    }
+
+                    if (action.userArticleMap != null && action.userArticleMap.isNotEmpty()) {
+                        var userArticleDict = state.articleState.userArticleDict;
+                        foreach (var keyValuePair in action.userArticleMap) {
+                            if (userArticleDict.ContainsKey(key: keyValuePair.Key)) {
+                                userArticleDict[key: keyValuePair.Key] = keyValuePair.Value;
+                            }
+                            else {
+                                userArticleDict.Add(key: keyValuePair.Key, value: keyValuePair.Value);
+                            }
+                        }
+
+                        state.articleState.userArticleDict = userArticleDict;
+                    }
+
+                    state.leaderBoardState.columnHasMore = action.hasMore;
+                    state.leaderBoardState.columnPageNumber = action.pageNumber;
+                    break;
+                }
+
+                case FetchLeaderBoardColumnFailureAction _: {
+                    state.leaderBoardState.columnLoading = false;
+                    break;
+                }
+
+                case StartFetchLeaderBoardBloggerAction _: {
+                    state.leaderBoardState.bloggerLoading = true;
+                    break;
+                }
+
+                case FetchLeaderBoardBloggerSuccessAction action: {
+                    state.leaderBoardState.bloggerLoading = false;
+                    if (action.pageNumber == 1) {
+                        state.leaderBoardState.bloggerIds = action.bloggerIds;
+                    }
+                    else {
+                        var bloggerIds = state.leaderBoardState.bloggerIds;
+                        bloggerIds.AddRange(collection: action.bloggerIds);
+                        state.leaderBoardState.bloggerIds = bloggerIds;
+                    }
+
+                    state.leaderBoardState.bloggerHasMore = action.hasMore;
+                    state.leaderBoardState.bloggerPageNumber = action.pageNumber;
+                    break;
+                }
+
+                case FetchLeaderBoardBloggerFailureAction _: {
+                    state.leaderBoardState.bloggerLoading = false;
+                    break;
+                }
+
+                case StartFetchHomeBloggerAction _: {
+                    state.leaderBoardState.homeBloggerLoading = true;
+                    break;
+                }
+
+                case FetchHomeBloggerSuccessAction action: {
+                    state.leaderBoardState.homeBloggerLoading = false;
+                    if (action.pageNumber == 1) {
+                        state.leaderBoardState.homeBloggerIds = action.bloggerIds;
+                    }
+                    else {
+                        var bloggerIds = state.leaderBoardState.homeBloggerIds;
+                        bloggerIds.AddRange(collection: action.bloggerIds);
+                        state.leaderBoardState.homeBloggerIds = bloggerIds;
+                    }
+
+                    state.leaderBoardState.homeBloggerHasMore = action.hasMore;
+                    state.leaderBoardState.homeBloggerPageNumber = action.pageNumber;
+                    break;
+                }
+
+                case FetchHomeBloggerFailureAction _: {
+                    state.leaderBoardState.homeBloggerLoading = false;
+                    break;
+                }
+                case StartFetchLeaderBoardDetailAction _: {
+                    state.leaderBoardState.detailLoading = true;
+                    break;
+                }
+
+                case FetchLeaderBoardDetailSuccessAction action: {
+                    if (action.type == LeaderBoardType.collection) {
+                        if (state.leaderBoardState.collectionDict.ContainsKey(action.albumId)) {
+                            var articles = state.leaderBoardState.collectionDict[action.albumId];
+                            if (action.pageNumber == 1) {
+                                articles.Clear();
+                                articles.AddRange(action.articleList);
+                            }
+                            else {
+                                action.articleList.ForEach(articleId => {
+                                    if (!articles.Contains(articleId)) {
+                                        articles.Add(articleId);
+                                    }
+                                });
+                            }
+
+                            state.leaderBoardState.collectionDict[action.albumId] = articles;
+                        }
+                        else {
+                            state.leaderBoardState.collectionDict.Add(action.albumId, action.articleList);
+                        }
+                    }
+                    else {
+                        if (state.leaderBoardState.columnDict.ContainsKey(action.albumId)) {
+                            var articles = state.leaderBoardState.columnDict[action.albumId];
+                            if (action.pageNumber == 1) {
+                                articles.Clear();
+                                articles.AddRange(action.articleList);
+                            }
+                            else {
+                                action.articleList.ForEach(articleId => {
+                                    if (!articles.Contains(articleId)) {
+                                        articles.Add(articleId);
+                                    }
+                                });
+                            }
+
+                            state.leaderBoardState.columnDict[action.albumId] = articles;
+                        }
+                        else {
+                            state.leaderBoardState.columnDict.Add(action.albumId, action.articleList);
+                        }
+                    }
+
+                    state.leaderBoardState.detailHasMore = action.hasMore;
+                    state.leaderBoardState.detailLoading = false;
+                    break;
+                }
+
+                case FetchLeaderBoardDetailFailureAction _: {
+                    state.leaderBoardState.detailLoading = false;
 
                     break;
                 }
@@ -1773,6 +2113,48 @@ namespace ConnectApp.redux.reducers {
 
                 case FetchUserArticleFailureAction _: {
                     state.userState.userArticleLoading = false;
+                    break;
+                }
+
+                case StartFetchUserLikeArticleAction _: {
+                    state.userState.userLikeArticleLoading = true;
+                    break;
+                }
+
+                case FetchUserLikeArticleSuccessAction action: {
+                    state.userState.userLikeArticleLoading = false;
+                    var articleIds = new List<string>();
+                    action.articles.ForEach(article => {
+                        articleIds.Add(item: article.id);
+                        if (!state.articleState.articleDict.ContainsKey(key: article.id)) {
+                            state.articleState.articleDict.Add(key: article.id, value: article);
+                        }
+                        else {
+                            var oldArticle = state.articleState.articleDict[key: article.id];
+                            state.articleState.articleDict[key: article.id] = oldArticle.Merge(other: article);
+                        }
+                    });
+                    if (state.userState.userDict.ContainsKey(key: action.userId)) {
+                        var user = state.userState.userDict[key: action.userId];
+                        user.likeArticlesHasMore = action.hasMore;
+                        user.likeArticlesPage = action.pageNumber;
+                        if (action.pageNumber == 1) {
+                            user.likeArticleIds = articleIds;
+                        }
+                        else {
+                            var userLikeArticleIds = user.likeArticleIds;
+                            userLikeArticleIds.AddRange(collection: articleIds);
+                            user.likeArticleIds = userLikeArticleIds;
+                        }
+
+                        state.userState.userDict[key: action.userId] = user;
+                    }
+
+                    break;
+                }
+
+                case FetchUserLikeArticleFailureAction _: {
+                    state.userState.userLikeArticleLoading = false;
                     break;
                 }
 
@@ -2354,25 +2736,14 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case FetchFavoriteTagSuccessAction action: {
-                    var favoriteTagIds = new List<string>();
-                    action.favoriteTags.ForEach(favoriteTag => {
-                        favoriteTagIds.Add(item: favoriteTag.id);
-                        if (state.favoriteState.favoriteTagDict.ContainsKey(key: favoriteTag.id)) {
-                            state.favoriteState.favoriteTagDict[key: favoriteTag.id] = favoriteTag;
-                        }
-                        else {
-                            state.favoriteState.favoriteTagDict.Add(key: favoriteTag.id, value: favoriteTag);
-                        }
-                    });
-
                     if (action.offset == 0) {
                         state.favoriteState.favoriteTagIdDict = new Dictionary<string, List<string>> {
-                            {action.userId, favoriteTagIds}
+                            {action.userId, action.favoriteTagIds}
                         };
                     }
                     else {
                         var oldFavoriteTagIds = state.favoriteState.favoriteTagIdDict[key: action.userId];
-                        oldFavoriteTagIds.AddRange(collection: favoriteTagIds);
+                        oldFavoriteTagIds.AddRange(collection: action.favoriteTagIds);
                         state.favoriteState.favoriteTagIdDict[key: action.userId] = oldFavoriteTagIds;
                     }
 
@@ -2386,41 +2757,40 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case StartFetchFollowFavoriteTagAction _: {
+                    state.favoriteState.followFavoriteTagLoading = true;
+                    break;
+                }
+
+                case FetchFollowFavoriteTagSuccessAction action: {
+                    if (action.offset == 0) {
+                        state.favoriteState.followFavoriteTagIdDict = new Dictionary<string, List<string>> {
+                            {action.userId, action.favoriteTagIds}
+                        };
+                    }
+                    else {
+                        var oldFavoriteTagIds = state.favoriteState.followFavoriteTagIdDict[key: action.userId];
+                        oldFavoriteTagIds.AddRange(collection: action.favoriteTagIds);
+                        state.favoriteState.followFavoriteTagIdDict[key: action.userId] = oldFavoriteTagIds;
+                    }
+
+
+                    state.favoriteState.followFavoriteTagHasMore = action.hasMore;
+                    state.favoriteState.followFavoriteTagLoading = false;
+                    break;
+                }
+
+                case FetchFollowFavoriteTagFailureAction _: {
+                    state.favoriteState.followFavoriteTagLoading = false;
+                    break;
+                }
+
                 case StartFetchFavoriteDetailAction _: {
                     state.favoriteState.favoriteDetailLoading = true;
                     break;
                 }
 
                 case FetchFavoriteDetailSuccessAction action: {
-                    if (action.tagMap != null && action.tagMap.isNotEmpty()) {
-                        var favoriteTagDict = state.favoriteState.favoriteTagDict;
-                        foreach (var keyValuePair in action.tagMap) {
-                            if (favoriteTagDict.ContainsKey(key: keyValuePair.Key)) {
-                                favoriteTagDict[key: keyValuePair.Key] = keyValuePair.Value;
-                            }
-                            else {
-                                favoriteTagDict.Add(key: keyValuePair.Key, value: keyValuePair.Value);
-                            }
-                        }
-
-                        state.favoriteState.favoriteTagDict = favoriteTagDict;
-                    }
-
-                    if (action.projectSimpleMap != null && action.projectSimpleMap.isNotEmpty()) {
-                        var articleDict = state.articleState.articleDict;
-                        foreach (var keyValuePair in action.projectSimpleMap) {
-                            if (articleDict.ContainsKey(key: keyValuePair.Key)) {
-                                var oldArticle = articleDict[key: keyValuePair.Key];
-                                articleDict[key: keyValuePair.Key] = oldArticle.Merge(other: keyValuePair.Value);
-                            }
-                            else {
-                                articleDict.Add(key: keyValuePair.Key, value: keyValuePair.Value);
-                            }
-                        }
-
-                        state.articleState.articleDict = articleDict;
-                    }
-
                     var favoriteDetailArticleIdDict = state.favoriteState.favoriteDetailArticleIdDict;
                     var tagId = action.tagId.isNotEmpty() ? action.tagId : $"{action.userId}all";
                     var favoriteDetailArticleIds = favoriteDetailArticleIdDict.ContainsKey(key: tagId)
@@ -2471,21 +2841,132 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
-                case CreateFavoriteTagSuccessAction action: {
-                    var currentUserId = state.loginState.loginInfo.userId ?? "";
-                    var favoriteTagIds = state.favoriteState.favoriteTagIdDict.ContainsKey(key: currentUserId)
-                        ? state.favoriteState.favoriteTagIdDict[key: currentUserId]
-                        : new List<string>();
-                    if (!favoriteTagIds.Contains(item: action.favoriteTag.id)) {
-                        if (favoriteTagIds.Count <= 1) {
-                            favoriteTagIds.Add(item: action.favoriteTag.id);
+                case ChangeFavoriteTagStateAction action: {
+                    state.leaderBoardState.detailCollectLoading = action.isLoading;
+                    break;
+                }
+
+                case CollectFavoriteTagSuccessAction action: {
+                    state.leaderBoardState.detailCollectLoading = false;
+
+                    if (action.rankDataId.isNotEmpty() && state.leaderBoardState.rankDict.isNotEmpty() &&
+                        state.leaderBoardState.rankDict.ContainsKey(action.rankDataId)) {
+                        var rankData = state.leaderBoardState.rankDict[action.rankDataId];
+                        rankData.myFavoriteTagId = action.myFavoriteTagId;
+                        state.leaderBoardState.rankDict[action.myFavoriteTagId] = rankData;
+                    }
+
+                    if (state.loginState.isLoggedIn && action.itemId != null) {
+                        if (state.favoriteState.collectedTagMap.isNotNullAndEmpty() &&
+                            state.favoriteState.collectedTagMap.ContainsKey(state.loginState.loginInfo.userId)) {
+                            var dict = state.favoriteState.collectedTagMap[state.loginState.loginInfo.userId];
+                            if (dict.ContainsKey(action.itemId)) {
+                                dict[action.itemId] = true;
+                            }
+                            else {
+                                dict.Add(action.itemId, true);
+                            }
+
+                            state.favoriteState.collectedTagMap[state.loginState.loginInfo.userId] = dict;
                         }
                         else {
-                            favoriteTagIds.Insert(1, item: action.favoriteTag.id);
+                            var collectedTagMap = new Dictionary<string, bool> {
+                                {action.itemId, true}
+                            };
+                            state.favoriteState.collectedTagMap.Add(state.loginState.loginInfo.userId,
+                                collectedTagMap);
                         }
                     }
 
-                    state.favoriteState.favoriteTagIdDict[key: currentUserId] = favoriteTagIds;
+                    break;
+                }
+
+                case CancelCollectFavoriteTagSuccessAction action: {
+                    state.leaderBoardState.detailCollectLoading = false;
+                    if (state.loginState.isLoggedIn && action.itemId != null) {
+                        if (state.favoriteState.collectedTagMap.isNotNullAndEmpty() &&
+                            state.favoriteState.collectedTagMap.ContainsKey(state.loginState.loginInfo.userId)) {
+                            var dict = state.favoriteState.collectedTagMap[state.loginState.loginInfo.userId];
+                            if (dict.ContainsKey(action.itemId)) {
+                                dict.Remove(action.itemId);
+                            }
+
+                            state.favoriteState.collectedTagMap[state.loginState.loginInfo.userId] = dict;
+                        }
+                    }
+
+                    break;
+                }
+                case FavoriteTagArticleMapAction action: {
+                    if (action.favoriteTagArticleMap.isNotNullAndEmpty()) {
+                        var favoriteTagArticleDict = state.favoriteState.favoriteTagArticleDict;
+                        foreach (var keyValuePair in action.favoriteTagArticleMap) {
+                            if (favoriteTagArticleDict.ContainsKey(key: keyValuePair.Key)) {
+                                favoriteTagArticleDict[key: keyValuePair.Key] = keyValuePair.Value;
+                            }
+                            else {
+                                favoriteTagArticleDict.Add(key: keyValuePair.Key, value: keyValuePair.Value);
+                            }
+                        }
+
+                        state.favoriteState.favoriteTagArticleDict = favoriteTagArticleDict;
+                    }
+
+                    break;
+                }
+
+                case UpdateCollectedTagMapAction action: {
+                    if (state.loginState.isLoggedIn && action.collectedTagMap.isNotNullAndEmpty()) {
+                        if (state.favoriteState.collectedTagMap.isNotNullAndEmpty() &&
+                            state.favoriteState.collectedTagMap.ContainsKey(state.loginState.loginInfo.userId)) {
+                            var dict = state.favoriteState.collectedTagMap[state.loginState.loginInfo.userId];
+                            foreach (var keyValuePair in action.collectedTagMap) {
+                                if (dict.ContainsKey(keyValuePair.Key)) {
+                                    dict[keyValuePair.Key] = keyValuePair.Value;
+                                }
+                                else {
+                                    dict.Add(keyValuePair.Key, keyValuePair.Value);
+                                }
+                            }
+
+                            state.favoriteState.collectedTagMap[state.loginState.loginInfo.userId] = dict;
+                        }
+                        else {
+                            state.favoriteState.collectedTagMap.Add(state.loginState.loginInfo.userId,
+                                action.collectedTagMap);
+                        }
+                    }
+
+                    break;
+                }
+
+                case CreateFavoriteTagSuccessAction action: {
+                    var currentUserId = state.loginState.loginInfo.userId ?? "";
+                    if (action.isCollection) {
+                        var favoriteTagIds = state.favoriteState.followFavoriteTagIdDict.ContainsKey(key: currentUserId)
+                            ? state.favoriteState.followFavoriteTagIdDict[key: currentUserId]
+                            : new List<string>();
+                        if (!favoriteTagIds.Contains(item: action.favoriteTag.id)) {
+                            favoriteTagIds.Add(item: action.favoriteTag.id);
+                        }
+
+                        state.favoriteState.followFavoriteTagIdDict[key: currentUserId] = favoriteTagIds;
+                    }
+                    else {
+                        var favoriteTagIds = state.favoriteState.favoriteTagIdDict.ContainsKey(key: currentUserId)
+                            ? state.favoriteState.favoriteTagIdDict[key: currentUserId]
+                            : new List<string>();
+                        if (!favoriteTagIds.Contains(item: action.favoriteTag.id)) {
+                            if (favoriteTagIds.Count <= 1) {
+                                favoriteTagIds.Add(item: action.favoriteTag.id);
+                            }
+                            else {
+                                favoriteTagIds.Insert(1, item: action.favoriteTag.id);
+                            }
+                        }
+
+                        state.favoriteState.favoriteTagIdDict[key: currentUserId] = favoriteTagIds;
+                    }
 
                     if (!state.favoriteState.favoriteTagDict.ContainsKey(key: action.favoriteTag.id)) {
                         state.favoriteState.favoriteTagDict.Add(key: action.favoriteTag.id, value: action.favoriteTag);
@@ -2510,15 +2991,27 @@ namespace ConnectApp.redux.reducers {
                     var favoriteTagIds = state.favoriteState.favoriteTagIdDict.ContainsKey(key: currentUserId)
                         ? state.favoriteState.favoriteTagIdDict[key: currentUserId]
                         : new List<string>();
+                    var followFavoriteIds = state.favoriteState.followFavoriteTagIdDict.ContainsKey(key: currentUserId)
+                        ? state.favoriteState.followFavoriteTagIdDict[key: currentUserId]
+                        : new List<string>();
                     if (favoriteTagIds.Contains(item: action.favoriteTag.id)) {
                         favoriteTagIds.Remove(item: action.favoriteTag.id);
                     }
 
-                    state.favoriteState.favoriteTagIdDict[key: currentUserId] = favoriteTagIds;
-
-                    if (state.favoriteState.favoriteTagDict.ContainsKey(key: action.favoriteTag.id)) {
-                        state.favoriteState.favoriteTagDict.Remove(key: action.favoriteTag.id);
+                    if (followFavoriteIds.Contains(item: action.favoriteTag.id)) {
+                        followFavoriteIds.Remove(item: action.favoriteTag.id);
                     }
+
+                    if (currentUserId.isNotEmpty() && state.favoriteState.collectedTagMap.ContainsKey(currentUserId)) {
+                        var collectMap = state.favoriteState.collectedTagMap[currentUserId];
+                        if (collectMap.ContainsKey(action.favoriteTag.quoteTagId)) {
+                            collectMap.Remove(action.favoriteTag.quoteTagId);
+                            state.favoriteState.collectedTagMap[currentUserId] = collectMap;
+                        }
+                    }
+
+                    state.favoriteState.favoriteTagIdDict[key: currentUserId] = favoriteTagIds;
+                    state.favoriteState.followFavoriteTagIdDict[key: currentUserId] = followFavoriteIds;
 
                     break;
                 }
@@ -2746,6 +3239,7 @@ namespace ConnectApp.redux.reducers {
                                 channelMessage.imageData = message.imageData;
                             }
                         }
+
                         state.channelState.messageDict[channelMessage.id] = channelMessage;
 
                         if (!channel.newMessageIds.Contains(channelMessage.id) &&
@@ -2991,6 +3485,7 @@ namespace ConnectApp.redux.reducers {
                         messageIds.AddRange(channel.messageIds);
                         channel.messageIds = messageIds;
                     }
+
                     if (state.channelState.channelMessageLoadingDict.ContainsKey(action.channelId)) {
                         state.channelState.channelMessageLoadingDict[action.channelId] = false;
                     }
@@ -3038,7 +3533,7 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case UpdateNewNotificationAction action: {
-                    state.channelState.newNotifications = action.notification;
+                    state.loginState.newNotifications = action.notification;
                     NewNotificationManager.saveNewNotification(state.loginState.loginInfo.userId, action.notification);
                     break;
                 }
@@ -3108,6 +3603,7 @@ namespace ConnectApp.redux.reducers {
                             channelMessage.imageData = original.imageData;
                         }
                     }
+
                     state.channelState.messageDict[channelMessage.id] = channelMessage;
 
                     //insert new if not exists yet

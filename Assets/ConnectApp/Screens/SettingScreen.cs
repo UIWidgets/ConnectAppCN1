@@ -111,7 +111,9 @@ namespace ConnectApp.screens {
                     child: new ListView(
                         physics: new AlwaysScrollableScrollPhysics(),
                         children: new List<Widget> {
-                            _buildGapView(),
+                            this.widget.viewModel.hasReviewUrl || this.widget.viewModel.anonymous 
+                                ? _buildGapView()
+                                : new Container(),
                             this.widget.viewModel.hasReviewUrl
                                 ? _buildCellView("评分",
                                     () => {
@@ -123,13 +125,6 @@ namespace ConnectApp.screens {
                                 ? _buildCellView("绑定 Unity ID",
                                     () => this.widget.actionModel.mainRouterPushTo(MainNavigatorRoutes.BindUnity))
                                 : new Container(),
-                            _buildCellView("意见反馈",
-                                () => { this.widget.actionModel.mainRouterPushTo(MainNavigatorRoutes.Feedback); }),
-                            _buildCellView("关于我们",
-                                () => {
-                                    AnalyticsManager.ClickEnterAboutUs();
-                                    this.widget.actionModel.mainRouterPushTo(MainNavigatorRoutes.AboutUs);
-                                }),
                             _buildGapView(),
                             _buildCellView("检查更新", () => {
                                 AnalyticsManager.ClickCheckUpdate();

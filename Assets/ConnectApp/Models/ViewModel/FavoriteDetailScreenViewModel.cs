@@ -1,10 +1,12 @@
 using System.Collections.Generic;
 using ConnectApp.Models.Model;
+using ConnectApp.screens;
 
 namespace ConnectApp.Models.ViewModel {
     public class FavoriteDetailScreenViewModel {
         public string userId;
         public string tagId;
+        public FavoriteType type;
         public bool favoriteDetailLoading;
         public List<string> favoriteDetailArticleIds;
         public int favoriteArticleOffset;
@@ -15,5 +17,7 @@ namespace ConnectApp.Models.ViewModel {
         public Dictionary<string, User> userDict;
         public Dictionary<string, Team> teamDict;
         public string currentUserId;
+        public bool isCollect;
+        public bool collectLoading;
     }
 }

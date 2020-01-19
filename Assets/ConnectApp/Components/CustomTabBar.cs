@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using ConnectApp.Constants;
 using ConnectApp.Models.State;
+using ConnectApp.Utils;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -13,6 +14,14 @@ using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
 
 namespace ConnectApp.Components {
+    public enum TabBarItemStatus {
+        normalAnimation,
+        normal,
+        toRefresh,
+        toHome,
+        refreshToLeave
+    }
+
     public delegate bool SelectTabCallBack(int fromIndex, int toIndex);
 
     public class CustomTabBarConnector : StatelessWidget {
@@ -44,7 +53,7 @@ namespace ConnectApp.Components {
                     null,
                     null,
                     state.channelState.totalNotification(),
-                    null
+                    state.loginState.newNotifications
                 },
                 builder: (context1, notifications, dispatcher) => new CustomTabBar(
                     controllers: this.controllers,
@@ -95,12 +104,22 @@ namespace ConnectApp.Components {
         PageController _pageController;
         int _selectedIndex;
         float _bottomPadding;
+        string _articleRefreshSubId;
+        TabBarItemStatus _tabBarItemStatus;
 
         public override void initState() {
             base.initState();
             this._selectedIndex = this.widget.initialTabIndex;
             this._bottomPadding = 0;
             this._pageController = new PageController(initialPage: this._selectedIndex);
+            this._articleRefreshSubId = EventBus.subscribe(sName: EventBusConstant.article_refresh, args => {
+                if (args.isNotNullAndEmpty()) {
+                    TabBarItemStatus status = (TabBarItemStatus) args[0];
+                    if (this._tabBarItemStatus != status) {
+                        this.setState(() => this._tabBarItemStatus = status);
+                    }
+                }
+            });
         }
 
         public override Widget build(BuildContext context) {
@@ -141,7 +160,7 @@ namespace ConnectApp.Components {
                     filter: ImageFilter.blur(25, 25),
                     child: new Container(
                         decoration: new BoxDecoration(
-                            border: new Border(new BorderSide(CColors.Separator)),
+                            border: new Border(new BorderSide(color: CColors.Separator)),
                             color: this.widget.backgroundColor
                         ),
                         child: new Column(
@@ -174,35 +193,44 @@ namespace ConnectApp.Components {
                                     if (this._selectedIndex != item.index) {
                                         if (this.widget.tapCallBack != null) {
                                             if (this.widget.tapCallBack(this._selectedIndex, item.index)) {
+                                                TabBarItemStatus status;
+                                                if (this._tabBarItemStatus == TabBarItemStatus.toRefresh) {
+                                                    status = TabBarItemStatus.refreshToLeave;
+                                                }
+                                                else if (this._tabBarItemStatus == TabBarItemStatus.toHome) {
+                                                    status = TabBarItemStatus.normalAnimation;
+                                                }
+                                                else {
+                                                    status = this._tabBarItemStatus;
+                                                }
+
+                                                this._pageController.animateToPage(page: item.index,
+                                                    TimeSpan.FromMilliseconds(1),
+                                                    curve: Curves.ease);
                                                 this.setState(() => {
+                                                    this._tabBarItemStatus = status;
                                                     this._selectedIndex = item.index;
-                                                    this._pageController.animateToPage(item.index,
-                                                        new TimeSpan(0, 0, 0, 0, 1),
-                                                        Curves.ease);
                                                 });
                                             }
                                         }
                                     }
+                                    else {
+                                        if ((this._tabBarItemStatus == TabBarItemStatus.toRefresh ||
+                                             this._tabBarItemStatus == TabBarItemStatus.refreshToLeave) &&
+                                            item.index == 0) {
+                                            EventBus.publish(sName: EventBusConstant.article_tab,
+                                                new List<object> {item.index});
+                                        }
+                                    }
                                 },
                                 child: new Container(
-                                    decoration: new BoxDecoration(
-                                        color: CColors.Transparent
-                                    ),
+                                    color: CColors.Transparent,
                                     child: new Column(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: new List<Widget> {
                                             new Padding(
                                                 padding: EdgeInsets.only(top: 5),
-                                                child: new Stack(
-                                                    children: new List<Widget> {
-                                                        new Icon(this._selectedIndex == item.index
-                                                                ? item.selectedIcon
-                                                                : item.normalIcon, size: item.size,
-                                                            color: this._selectedIndex == item.index
-                                                                ? item.activeColor
-                                                                : item.inActiveColor),
-                                                    }
-                                                )
+                                                child: this._buildItemIcon(item: item)
                                             ),
                                             new Padding(
                                                 padding: EdgeInsets.only(top: 2.5f),
@@ -217,7 +245,7 @@ namespace ConnectApp.Components {
                                 )
                             ),
                             new Positioned(
-                                left: (float) Math.Ceiling(screenWidth / 8) + 2,
+                                left: (float) Math.Ceiling(screenWidth / 8) + 1,
                                 top: 4,
                                 child: new IgnorePointer(
                                     child: new NotificationDot(
@@ -235,12 +263,73 @@ namespace ConnectApp.Components {
             return children;
         }
 
+        Widget _buildItemIcon(CustomTabBarItem item) {
+            if (this._selectedIndex != item.index) {
+                return new Icon(icon: item.normalIcon, size: item.size, color: item.inActiveColor);
+            }
+
+            if (item.index != 0) {
+                return new FrameAnimationImage(
+                    images: item.selectedImages,
+                    size: item.size,
+                    type: AnimatingType.forward,
+                    defaultWidget: new Icon(icon: item.selectedIcon, size: item.size, color: item.activeColor)
+                );
+            }
+
+            if (this._tabBarItemStatus == TabBarItemStatus.toRefresh) {
+                List<string> loadingImages = new List<string>();
+                for (int index = 0; index <= 60; index++) {
+                    loadingImages.Add($"image/tab-loading/home-to-refresh/home-to-refresh{index}");
+                }
+
+                return new FrameAnimationImage(
+                    images: loadingImages,
+                    size: item.size,
+                    type: AnimatingType.forward
+                );
+            }
+
+            if (this._tabBarItemStatus == TabBarItemStatus.toHome) {
+                List<string> loadingImages = new List<string>();
+                for (int index = 0; index <= 60; index++) {
+                    loadingImages.Add($"image/tab-loading/refresh-to-home/refresh-to-home{index}");
+                }
+
+                return new FrameAnimationImage(
+                    images: loadingImages,
+                    size: item.size,
+                    type: AnimatingType.forward,
+                    defaultWidget: new Icon(icon: item.selectedIcon, size: item.size, color: item.activeColor)
+                );
+            }
+
+            if (this._tabBarItemStatus == TabBarItemStatus.refreshToLeave) {
+                return new RotationAnimation(
+                    child: new Icon(icon: Icons.tab_home_refresh_fill, size: item.size, color: item.activeColor),
+                    animating: AnimatingType.forward
+                );
+            }
+
+            if (this._tabBarItemStatus == TabBarItemStatus.normal) {
+                return new Icon(icon: item.selectedIcon, size: item.size, color: item.activeColor);
+            }
+
+            return new FrameAnimationImage(
+                images: item.selectedImages,
+                size: item.size,
+                type: AnimatingType.forward,
+                defaultWidget: new Icon(icon: item.selectedIcon, size: item.size, color: item.activeColor)
+            );
+        }
+
         void _onPageChanged(int page) {
             this._pageController.jumpToPage(page);
         }
 
         public override void dispose() {
             this._pageController.dispose();
+            EventBus.unSubscribe(sName: EventBusConstant.article_refresh, id: this._articleRefreshSubId);
             base.dispose();
         }
     }

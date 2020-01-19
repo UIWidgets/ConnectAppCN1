@@ -113,7 +113,7 @@ namespace ConnectApp.Plugins {
                 }
             }
             else {
-                JPushPlugin.openUrl(schemeUrl: schemeUrl);
+                JPushPlugin.openUrlScheme(schemeUrl: schemeUrl);
             }
         }
 
