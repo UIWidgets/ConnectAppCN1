@@ -1887,8 +1887,20 @@ namespace ConnectApp.redux.reducers {
                         state.leaderBoardState.bloggerIds = action.bloggerIds;
                     }
                     else {
-                        var bloggerIds = state.leaderBoardState.bloggerIds;
-                        bloggerIds.AddRange(collection: action.bloggerIds);
+                        var bloggerIds = new List<string>();
+                        if (state.leaderBoardState.bloggerIds.isNotEmpty()) {
+                            bloggerIds = state.leaderBoardState.bloggerIds;
+                            action.bloggerIds.ForEach(bloggerId => {
+                                if (!bloggerIds.Contains(bloggerId)) {
+                                    bloggerIds.Add(bloggerId);
+                                }
+                            });
+                        }
+                        else {
+                            state.leaderBoardState.bloggerIds = action.bloggerIds;
+
+                        }
+
                         state.leaderBoardState.bloggerIds = bloggerIds;
                     }
 
