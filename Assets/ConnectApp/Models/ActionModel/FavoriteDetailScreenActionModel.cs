@@ -12,7 +12,7 @@ namespace ConnectApp.Models.ActionModel {
         public Action<string> pushToReport;
         public Action<string> pushToBlock;
         public Func<ShareType, string, string, string, string, IPromise> shareToWechat;
-        public Func<string, IPromise> collectFavoriteTag;
+        public Func<string, string, IPromise> collectFavoriteTag;
         public Func<string, string, IPromise> cancelCollectFavoriteTag;
     }
 }

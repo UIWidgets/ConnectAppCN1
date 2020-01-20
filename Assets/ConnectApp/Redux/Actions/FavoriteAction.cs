@@ -13,6 +13,10 @@ namespace ConnectApp.redux.actions {
         public Dictionary<string, FavoriteTag> favoriteTagMap;
     }
 
+    public class MyFavoriteTagMapAction : BaseAction {
+        public Dictionary<string, FavoriteTag> favoriteTagMap;
+    }
+
     public class StartFetchFavoriteTagAction : RequestAction {
     }
 
@@ -46,7 +50,7 @@ namespace ConnectApp.redux.actions {
         public Dictionary<string, FavoriteTagArticle> favoriteTagArticleMap;
     }
 
-    public class UpdateCollectedTagMapAction : BaseAction {
+    public class CollectedTagMapAction : BaseAction {
         public Dictionary<string, bool> collectedTagMap;
     }
 
@@ -82,6 +86,7 @@ namespace ConnectApp.redux.actions {
         public string myFavoriteTagId;
         public string rankDataId;
         public string itemId;
+        public string tagId;
     }
 
     public class CancelCollectFavoriteTagSuccessAction : BaseAction {
@@ -106,6 +111,9 @@ namespace ConnectApp.redux.actions {
                         favoritesResponse.favoriteTags.ForEach(favoriteTag => {
                             newFavoriteTagIds.Add(item: favoriteTag.id);
                             favoriteTagMap.Add(key: favoriteTag.id, value: favoriteTag);
+                        });
+                        dispatcher.dispatch(new CollectedTagMapAction {
+                            collectedTagMap = favoritesResponse.collectedMap
                         });
                         dispatcher.dispatch(new FavoriteTagMapAction {favoriteTagMap = favoriteTagMap});
                         dispatcher.dispatch(new FetchFavoriteTagSuccessAction {
@@ -140,6 +148,14 @@ namespace ConnectApp.redux.actions {
                             newFavoriteTagIds.Add(item: favoriteTag.id);
                             favoriteTagMap.Add(key: favoriteTag.id, value: favoriteTag);
                         });
+                        dispatcher.dispatch(new CollectedTagMapAction {
+                            collectedTagMap = favoritesResponse.collectedMap
+                        });
+                        if (favoritesResponse.myFavoriteTagMap.isNotNullAndEmpty()) {
+                            dispatcher.dispatch(new MyFavoriteTagMapAction
+                                {favoriteTagMap = favoritesResponse.myFavoriteTagMap});
+                        }
+
                         dispatcher.dispatch(new FavoriteTagMapAction {favoriteTagMap = favoriteTagMap});
                         dispatcher.dispatch(new FetchFollowFavoriteTagSuccessAction {
                             userId = userId,
@@ -172,7 +188,8 @@ namespace ConnectApp.redux.actions {
                         dispatcher.dispatch(new UserMapAction {userMap = favoriteDetailResponse.userMap});
                         dispatcher.dispatch(new TeamMapAction {teamMap = favoriteDetailResponse.teamMap});
                         dispatcher.dispatch(new FavoriteTagMapAction {favoriteTagMap = favoriteDetailResponse.tagMap});
-                        dispatcher.dispatch(new ArticleMapAction {articleMap = favoriteDetailResponse.projectSimpleMap});
+                        dispatcher.dispatch(new ArticleMapAction
+                            {articleMap = favoriteDetailResponse.projectSimpleMap});
                         dispatcher.dispatch(new FetchFavoriteDetailSuccessAction {
                             favorites = favoriteDetailResponse.favorites,
                             hasMore = favoriteDetailResponse.hasMore,
@@ -273,7 +290,7 @@ namespace ConnectApp.redux.actions {
             });
         }
 
-        public static object collectFavoriteTag(string tagId, string rankDataId = "") {
+        public static object collectFavoriteTag(string itemId, string rankDataId = "", string tagId = "") {
             if (HttpManager.isNetWorkError()) {
                 CustomDialogUtils.showToast("请检查网络", iconData: Icons.sentiment_dissatisfied);
                 return null;
@@ -281,7 +298,7 @@ namespace ConnectApp.redux.actions {
 
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 dispatcher.dispatch(new ChangeFavoriteTagStateAction {isLoading = true});
-                return FavoriteApi.CollectFavoriteTag(tagId: tagId)
+                return FavoriteApi.CollectFavoriteTag(tagId: itemId)
                     .Then(collectFavoriteTagResponse => {
                         dispatcher.dispatch(new CreateFavoriteTagSuccessAction {
                             favoriteTag = collectFavoriteTagResponse.favoriteTag,
@@ -290,8 +307,11 @@ namespace ConnectApp.redux.actions {
                         dispatcher.dispatch(new CollectFavoriteTagSuccessAction {
                             myFavoriteTagId = collectFavoriteTagResponse.favoriteTag.id,
                             rankDataId = rankDataId,
-                            itemId = tagId
+                            itemId = itemId,
+                            tagId = tagId
                         });
+
+
                         AnalyticsManager.AnalyticsHandleFavoriteTag(type: FavoriteTagType.collect);
                     })
                     .Catch(error => {
@@ -309,12 +329,13 @@ namespace ConnectApp.redux.actions {
 
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 dispatcher.dispatch(new ChangeFavoriteTagStateAction {isLoading = true});
-                return FavoriteApi.DeleteFavoriteTag(tagId: tagId)
+                return FavoriteApi.DeleteFavoriteTag(tagId: tagId, itemId.isNotEmpty() ? "" : tagId)
                     .Then(deleteFavoriteTagResponse => {
                         dispatcher.dispatch(new DeleteFavoriteTagSuccessAction {
                             favoriteTag = deleteFavoriteTagResponse
                         });
-                        dispatcher.dispatch(new CancelCollectFavoriteTagSuccessAction {itemId = itemId});
+                        dispatcher.dispatch(new CancelCollectFavoriteTagSuccessAction
+                            {itemId = itemId.isEmpty() ? tagId : itemId});
                         AnalyticsManager.AnalyticsHandleFavoriteTag(type: FavoriteTagType.cancelCollect);
                     })
                     .Catch(error => {

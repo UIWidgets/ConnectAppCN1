@@ -160,7 +160,7 @@ namespace ConnectApp.redux.actions {
                             dispatcher.dispatch(new FavoriteTagArticleMapAction {
                                 favoriteTagArticleMap = homeTopCollection.favoriteTagArticleMap
                             });
-                            dispatcher.dispatch(new UpdateCollectedTagMapAction {
+                            dispatcher.dispatch(new CollectedTagMapAction {
                                 collectedTagMap = homeTopCollection.collectedTagMap
                             });
                             (homeTopCollection.rankList ?? new List<RankData>()).ForEach(rankData => {
@@ -176,7 +176,7 @@ namespace ConnectApp.redux.actions {
                             dispatcher.dispatch(new FavoriteTagArticleMapAction {
                                 favoriteTagArticleMap = homeCollection.favoriteTagArticleMap
                             });
-                            dispatcher.dispatch(new UpdateCollectedTagMapAction {
+                            dispatcher.dispatch(new CollectedTagMapAction {
                                 collectedTagMap = homeCollection.collectedTagMap
                             });
                             (homeCollection.rankList ?? new List<RankData>()).ForEach(rankData => {

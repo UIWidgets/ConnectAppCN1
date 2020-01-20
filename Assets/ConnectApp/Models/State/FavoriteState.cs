@@ -18,5 +18,6 @@ namespace ConnectApp.Models.State {
         public Dictionary<string, FavoriteTagArticle> favoriteTagArticleDict { get; set; }
 
         public Dictionary<string, Dictionary<string, bool>> collectedTagMap { get; set; }
+        public Dictionary<string, string> collectedTagChangeMap { get; set; }
     }
 }
