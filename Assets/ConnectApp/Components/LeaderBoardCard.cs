@@ -326,7 +326,7 @@ namespace ConnectApp.Components {
             Widget firstAvatar;
             if (this.bloggerIds.Count > 0) {
                 var user = this.userDict[this.bloggerIds[0]];
-                firstAvatar = this._buildAvatar(user: user, "image/blogger-badge1", 88);
+                firstAvatar = this._buildAvatar(user: user, "image/blogger-badge1", 88, true);
             }
             else {
                 firstAvatar = new Container();
@@ -349,40 +349,60 @@ namespace ConnectApp.Components {
             else {
                 thirdAvatar = new Container();
             }
+            
             return new Container(
                 height: 286,
-                child: new Stack(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: new Row(
                     children: new List<Widget> {
-                        Image.asset(
-                            "image/leaderboard-podium",
-                            width: MediaQuery.of(context: context).size.width - 32,
-                            height: 128,
-                            fit: BoxFit.fill
+                        new Expanded(
+                            flex: 11,
+                            child: new Column(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: new List<Widget> {
+                                    new Container(
+                                        margin: EdgeInsets.only(bottom: 24),
+                                        child: secondAvatar
+                                    ),
+                                    Image.asset("image/leaderboard-podium-2")
+                                }
+                            )
                         ),
-                        new Positioned(
-                            left: 8,
-                            bottom: 116,
-                            width: 96,
-                            child: secondAvatar
+                        new Expanded(
+                            flex: 12,
+                            child: new Column(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: new List<Widget> {
+                                    new Container(
+                                        margin: EdgeInsets.only(bottom: 24),
+                                        child: firstAvatar
+                                    ),
+                                    Image.asset("image/leaderboard-podium-1")
+                                }
+                            )
                         ),
-                        new Positioned(
-                            left: (MediaQuery.of(context: context).size.width - 104) / 2 - 6,
-                            bottom: 152,
-                            width: 104,
-                            child: firstAvatar
-                        ),
-                        new Positioned(
-                            right: 8,
-                            bottom: 96,
-                            width: 96,
-                            child: thirdAvatar
+                        new Expanded(
+                            flex: 11,
+                            child: new Column(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: new List<Widget> {
+                                    new Container(
+                                        margin: EdgeInsets.only(bottom: 24),
+                                        child: thirdAvatar
+                                    ),
+                                    Image.asset("image/leaderboard-podium-3")
+                                }
+                            )
                         )
                     }
                 )
             );
         }
 
-        Widget _buildAvatar(User user, string imageName, float avatarSize = 64) {
+        Widget _buildAvatar(User user, string imageName, float avatarSize = 64, bool isFirst = false) {
             return new GestureDetector(
                 onTap: () => this.onPress?.Invoke(text: user.id),
                 child: new Container(
@@ -397,14 +417,14 @@ namespace ConnectApp.Components {
                                         bottom: 0,
                                         child: Image.asset(
                                             name: imageName,
-                                            width: 22,
-                                            height: 27
+                                            width: isFirst ? 22 : 18,
+                                            height: isFirst ?  27 : 22
                                         )
                                     )
                                 }
                             ),
                             new Padding(
-                                padding: EdgeInsets.only(top: 8),
+                                padding: EdgeInsets.only(8, 10, 8),
                                 child: new Text(
                                     data: user.fullName,
                                     maxLines: 1,

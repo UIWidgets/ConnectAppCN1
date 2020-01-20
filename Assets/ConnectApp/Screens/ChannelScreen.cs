@@ -1150,7 +1150,11 @@ namespace ConnectApp.screens {
                             FocusScope.of(context: this.context).requestFocus(node: this._focusNode);
                             TextInputPlugin.TextInputShow();
                             Promise.Delayed(TimeSpan.FromMilliseconds(200)).Then(
-                                () => this.setState(() => this.showEmojiBoard = false));
+                                () => {
+                                    if (this.mounted) {
+                                        this.setState(() => this.showEmojiBoard = false);
+                                    }
+                                });
                         }
                     }
                 ));
@@ -1247,7 +1251,11 @@ namespace ConnectApp.screens {
                             FocusScope.of(context: this.context).requestFocus(node: this._focusNode);
                             TextInputPlugin.TextInputShow();
                             Promise.Delayed(TimeSpan.FromMilliseconds(200)).Then(
-                                () => this.setState(() => this.showEmojiBoard = false));
+                                () => {
+                                    if (this.mounted) {
+                                        this.setState(() => this.showEmojiBoard = false);
+                                    }
+                                });
                         }
                     }
                 ));

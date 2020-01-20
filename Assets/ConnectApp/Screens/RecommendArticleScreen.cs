@@ -271,7 +271,12 @@ namespace ConnectApp.screens {
                             this.widget.actionModel.openUrl(obj: redirectURL);
                         }
                     },
-                    child: Image.network(src: imageUrl, fit: BoxFit.fill)
+                    child: new PlaceholderImage(
+                        imageUrl: imageUrl,
+                        fit: BoxFit.fill,
+                        useCachedNetworkImage: true,
+                        color: CColorUtils.GetSpecificDarkColorFromId(id: homeSliderId)
+                    )
                 );
             }
             else {
@@ -281,7 +286,12 @@ namespace ConnectApp.screens {
                         var imageUrl = this.widget.viewModel.rankDict.ContainsKey(key: homeSliderId)
                             ? this.widget.viewModel.rankDict[key: homeSliderId].image
                             : "";
-                        return Image.network(src: imageUrl, fit: BoxFit.fill);
+                        return new PlaceholderImage(
+                            imageUrl: imageUrl,
+                            fit: BoxFit.fill,
+                            useCachedNetworkImage: true,
+                            color: CColorUtils.GetSpecificDarkColorFromId(id: homeSliderId)
+                        );
                     },
                     itemCount: homeSliderIds.Count,
                     autoplay: true,
@@ -294,7 +304,7 @@ namespace ConnectApp.screens {
                             this.widget.actionModel.openUrl(obj: redirectURL);
                         }
                     },
-                    pagination: new SwiperPagination()
+                    pagination: new SwiperPagination(margin: EdgeInsets.only(bottom: 5))
                 );
             }
 

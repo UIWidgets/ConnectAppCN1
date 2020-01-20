@@ -258,7 +258,7 @@ namespace ConnectApp.Components.Swiper {
     }
 
     public class SwiperPagination : SwiperPlugin {
-        public static readonly SwiperPlugin dots = new DotSwiperPaginationBuilder();
+        public static readonly SwiperPlugin dots = new DotSwiperPaginationBuilder(size: 8, activeSize: 8, color: CColors.DarkGray, activeColor: CColors.White);
         public static readonly SwiperPlugin fraction = new FractionPaginationBuilder();
         public static readonly SwiperPlugin rect = new RectSwiperPaginationBuilder();
         public readonly Alignment alignment;
