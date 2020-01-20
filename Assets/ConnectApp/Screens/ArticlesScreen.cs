@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Constants;
@@ -42,12 +43,22 @@ namespace ConnectApp.screens {
                             AnalyticsManager.AnalyticsClickEgg(1);
                         },
                         pushToGame = () => {
+                            var url = LocalDataManager.getTinyGameUrl();
+                            if (url.isEmpty() || url.Equals("no_game")) {
+                                CustomToast.show(new CustomToastItem(
+                                    context: context,
+                                    "暂无游戏",
+                                    TimeSpan.FromMilliseconds(2000)
+                                ));
+                                return;
+                            }
                             dispatcher.dispatch(new MainNavigatorPushToWebViewAction {
-                                url = Config.tinyRacingUrl,
+                                url = url,
                                 landscape = true,
                                 fullscreen = true,
                                 showOpenInBrowser = false
                             });
+
                         }
                     };
                     return new ArticlesScreen(viewModel: viewModel, actionModel: actionModel);
