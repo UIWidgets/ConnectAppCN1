@@ -3,7 +3,6 @@ using ConnectApp.Api;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.screens;
-using ConnectApp.Utils;
 using Unity.UIWidgets.Redux;
 
 namespace ConnectApp.redux.actions {
@@ -107,7 +106,7 @@ namespace ConnectApp.redux.actions {
                         dispatcher.dispatch(new FavoriteTagArticleMapAction {
                             favoriteTagArticleMap = collectionResponse.favoriteTagArticleMap
                         });
-                        dispatcher.dispatch(new UpdateCollectedTagMapAction {
+                        dispatcher.dispatch(new CollectedTagMapAction {
                             collectedTagMap = collectionResponse.collectedTagMap
                         });
                     })
@@ -204,7 +203,7 @@ namespace ConnectApp.redux.actions {
                         });
                     })
                     .Catch(error => {
-                        dispatcher.dispatch(new FetchHomeEventsFailureAction ());
+                        dispatcher.dispatch(new FetchHomeEventsFailureAction());
                         Debuger.LogError(message: error);
                     });
             });
@@ -239,7 +238,7 @@ namespace ConnectApp.redux.actions {
                         dispatcher.dispatch(new FavoriteTagArticleMapAction {
                             favoriteTagArticleMap = detailResponse.favoriteTagArticleMap
                         });
-                        dispatcher.dispatch(new UpdateCollectedTagMapAction {
+                        dispatcher.dispatch(new CollectedTagMapAction {
                             collectedTagMap = detailResponse.collectedTagMap
                         });
                         if (type == LeaderBoardType.collection) {
@@ -248,7 +247,7 @@ namespace ConnectApp.redux.actions {
                             }
 
                             dispatcher.dispatch(new RankListAction {
-                                rankList = new List<RankData> { detailResponse.rankData }
+                                rankList = new List<RankData> {detailResponse.rankData}
                             });
                         }
                     })

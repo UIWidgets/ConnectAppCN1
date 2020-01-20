@@ -214,7 +214,8 @@ namespace ConnectApp.Models.State {
                     favoriteDetailHasMore = false,
                     favoriteTagDict = new Dictionary<string, FavoriteTag>(),
                     favoriteTagArticleDict = new Dictionary<string, FavoriteTagArticle>(),
-                    collectedTagMap = new Dictionary<string, Dictionary<string, bool>>()
+                    collectedTagMap = new Dictionary<string, Dictionary<string, bool>>(),
+                    collectedTagChangeMap = new Dictionary<string, string>()
                 },
                 leaderBoardState = new LeaderBoardState {
                     collectionLoading = false,

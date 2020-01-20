@@ -15,8 +15,8 @@ using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -68,7 +68,8 @@ namespace ConnectApp.screens {
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new UserDetailScreenActionModel {
                         startFetchUserProfile = () => dispatcher.dispatch(new StartFetchUserProfileAction()),
-                        fetchUserProfile = () => dispatcher.dispatch<IPromise>(Actions.fetchUserProfile(userId: this.userId)),
+                        fetchUserProfile = () =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchUserProfile(userId: this.userId)),
                         startFetchUserArticle = () => dispatcher.dispatch(new StartFetchUserArticleAction()),
                         fetchUserArticle = (userId, pageNumber) =>
                             dispatcher.dispatch<IPromise>(Actions.fetchUserArticle(userId: userId,
@@ -76,9 +77,11 @@ namespace ConnectApp.screens {
                         startFetchUserFavorite = () => dispatcher.dispatch(new StartFetchFavoriteTagAction()),
                         fetchUserFavorite = (userId, offset) =>
                             dispatcher.dispatch<IPromise>(Actions.fetchFavoriteTags(userId: userId, offset: offset)),
-                        startFetchUserFollowFavorite = () => dispatcher.dispatch(new StartFetchFollowFavoriteTagAction()),
+                        startFetchUserFollowFavorite =
+                            () => dispatcher.dispatch(new StartFetchFollowFavoriteTagAction()),
                         fetchUserFollowFavorite = (userId, offset) =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchFollowFavoriteTags(userId: userId, offset: offset)),
+                            dispatcher.dispatch<IPromise>(
+                                Actions.fetchFollowFavoriteTags(userId: userId, offset: offset)),
                         startFollowUser = userId =>
                             dispatcher.dispatch(new StartFollowUserAction {followUserId = userId}),
                         followUser = userId =>
@@ -102,7 +105,7 @@ namespace ConnectApp.screens {
                             new MainNavigatorPushToFavoriteDetailAction {
                                 userId = userId,
                                 tagId = tagId,
-                                type = FavoriteType.my
+                                type = FavoriteType.userDetail
                             }
                         ),
                         pushToCreateFavorite = tagId => dispatcher.dispatch(
@@ -325,8 +328,8 @@ namespace ConnectApp.screens {
                 }
                 else {
                     var favoriteTagIds = this.widget.viewModel.followFavoriteTagIdDict.ContainsKey(key: userId)
-                            ? this.widget.viewModel.followFavoriteTagIdDict[key: userId]
-                            : new List<string>();
+                        ? this.widget.viewModel.followFavoriteTagIdDict[key: userId]
+                        : new List<string>();
                     offset = favoriteTagIds.Count;
                 }
 
@@ -460,15 +463,17 @@ namespace ConnectApp.screens {
             var favoriteIds = this.widget.viewModel.favoriteTagIdDict.ContainsKey(key: this.widget.viewModel.user.id)
                 ? this.widget.viewModel.favoriteTagIdDict[key: this.widget.viewModel.user.id]
                 : null;
-            var followFavoriteIds = this.widget.viewModel.followFavoriteTagIdDict.ContainsKey(key: this.widget.viewModel.user.id)
-                ? this.widget.viewModel.followFavoriteTagIdDict[key: this.widget.viewModel.user.id]
-                : null;
+            var followFavoriteIds =
+                this.widget.viewModel.followFavoriteTagIdDict.ContainsKey(key: this.widget.viewModel.user.id)
+                    ? this.widget.viewModel.followFavoriteTagIdDict[key: this.widget.viewModel.user.id]
+                    : null;
             var articlesHasMore = this.widget.viewModel.user.articlesHasMore ?? false;
             var userFavoriteHasMore = this.widget.viewModel.userFavoriteHasMore;
             var userFollowFavoriteHasMore = this.widget.viewModel.userFollowFavoriteHasMore;
             var userArticleLoading = this.widget.viewModel.userArticleLoading && articleIds == null;
             var userFavoriteLoading = this.widget.viewModel.userFavoriteLoading && favoriteIds == null;
-            var userFollowFavoriteLoading = this.widget.viewModel.userFollowFavoriteLoading && followFavoriteIds == null;
+            var userFollowFavoriteLoading =
+                this.widget.viewModel.userFollowFavoriteLoading && followFavoriteIds == null;
             int itemCount;
             if (userArticleLoading && this._selectedIndex == 0) {
                 itemCount = 3;
@@ -499,7 +504,9 @@ namespace ConnectApp.screens {
                         itemCount = 2 + (favoriteIds.Count == 0 ? 1 : favoriteCount);
                     }
                     else {
-                        var favoriteCount = userFollowFavoriteHasMore ? followFavoriteIds.Count : followFavoriteIds.Count + 1;
+                        var favoriteCount = userFollowFavoriteHasMore
+                            ? followFavoriteIds.Count
+                            : followFavoriteIds.Count + 1;
                         itemCount = 2 + (followFavoriteIds.Count == 0 ? 1 : favoriteCount);
                     }
                 }
@@ -515,6 +522,7 @@ namespace ConnectApp.screens {
             else {
                 enablePullUp = userFollowFavoriteHasMore;
             }
+
             var headerHeight = imageBaseHeight + 44 + CCommonUtils.getSafeAreaTopPadding(context: context);
 
             return new Container(
@@ -815,7 +823,7 @@ namespace ConnectApp.screens {
                     indicatorChangeStyle: CustomTabBarIndicatorChangeStyle.enlarge,
                     labelPadding: EdgeInsets.symmetric(horizontal: 16),
                     unselectedLabelColor: CColors.TextBody4,
-                    labelColor : CColors.TextTitle,
+                    labelColor: CColors.TextTitle,
                     unselectedLabelStyle: new TextStyle(
                         fontSize: 16,
                         fontFamily: "Roboto-Regular"

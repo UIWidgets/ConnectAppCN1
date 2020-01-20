@@ -5,6 +5,7 @@ using ConnectApp.Models.Model;
 using ConnectApp.Utils;
 using Newtonsoft.Json;
 using RSG;
+using Unity.UIWidgets.foundation;
 
 namespace ConnectApp.Api {
     public static class FavoriteApi {
@@ -19,7 +20,7 @@ namespace ConnectApp.Api {
             HttpManager.resume(request: request).Then(responseText => {
                 var favoritesResponse = JsonConvert.DeserializeObject<FetchFavoriteTagsResponse>(value: responseText);
                 promise.Resolve(value: favoritesResponse);
-            }).Catch(exception => promise.Reject(ex: exception));
+            }).Catch(exception => { promise.Reject(ex: exception); });
             return promise;
         }
 
@@ -89,11 +90,16 @@ namespace ConnectApp.Api {
             return promise;
         }
 
-        public static Promise<FavoriteTag> DeleteFavoriteTag(string tagId) {
+        public static Promise<FavoriteTag> DeleteFavoriteTag(string tagId = "", string quoteTagId = "") {
             var promise = new Promise<FavoriteTag>();
-            var para = new Dictionary<string, object> {
-                {"id", tagId}
-            };
+            var para = new Dictionary<string, object>();
+            if (quoteTagId.isNotEmpty()) {
+                para.Add("quoteTagId", quoteTagId);
+            }
+            else {
+                para.Add("id", tagId);
+            }
+
             var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/favorite-tag/delete",
                 parameter: para);
             HttpManager.resume(request: request).Then(responseText => {

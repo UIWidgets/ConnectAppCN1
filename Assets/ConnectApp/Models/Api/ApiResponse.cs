@@ -309,6 +309,8 @@ namespace ConnectApp.Models.Api {
     [Serializable]
     public class FetchFavoriteTagsResponse {
         public List<FavoriteTag> favoriteTags;
+        public Dictionary<string, bool> collectedMap;
+        public Dictionary<string, FavoriteTag> myFavoriteTagMap;
         public bool hasMore;
     }
 

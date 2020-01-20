@@ -25,7 +25,8 @@ using Unity.UIWidgets.widgets;
 namespace ConnectApp.screens {
     public enum FavoriteType {
         my,
-        follow
+        follow,
+        userDetail
     }
 
     public class FavoriteDetailScreenConnector : StatelessWidget {
@@ -62,10 +63,16 @@ namespace ConnectApp.screens {
                         : new Dictionary<string, bool>();
                     var isCollected = false;
                     if (favoriteTag != null) {
-                        isCollected = state.loginState.isLoggedIn && collectedMap.ContainsKey(favoriteTag.quoteTagId) &&
-                                      collectedMap[favoriteTag.quoteTagId];
+                        isCollected = state.loginState.isLoggedIn &&
+                                      collectedMap.ContainsKey(favoriteTag.quoteTagId.isEmpty()
+                                          ? favoriteTag.id
+                                          : favoriteTag.quoteTagId);
                     }
 
+                    var currentUserId = state.loginState.loginInfo.userId ?? "";
+                    var myFavoriteIds = state.favoriteState.favoriteTagIdDict.ContainsKey(key: currentUserId)
+                        ? state.favoriteState.favoriteTagIdDict[key: currentUserId]
+                        : new List<string>();
                     return new FavoriteDetailScreenViewModel {
                         userId = this.userId,
                         tagId = this.tagId,
@@ -81,7 +88,9 @@ namespace ConnectApp.screens {
                         teamDict = state.teamState.teamDict,
                         currentUserId = state.loginState.loginInfo.userId ?? "",
                         isCollect = isCollected,
-                        collectLoading = state.leaderBoardState.detailCollectLoading
+                        collectLoading = state.leaderBoardState.detailCollectLoading,
+                        collectChangeMap = state.favoriteState.collectedTagChangeMap,
+                        myFavoriteIds = myFavoriteIds
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -121,8 +130,8 @@ namespace ConnectApp.screens {
                             Actions.shareToWechat(type: type, title: title, description: description, linkUrl: linkUrl,
                                 imageUrl: imageUrl)),
                         collectFavoriteTag =
-                            itemId =>
-                                dispatcher.dispatch<IPromise>(Actions.collectFavoriteTag(itemId)),
+                            (itemId, tagId) =>
+                                dispatcher.dispatch<IPromise>(Actions.collectFavoriteTag(itemId, tagId: tagId)),
                         cancelCollectFavoriteTag = (tagId, itemId) =>
                             dispatcher.dispatch<IPromise>(Actions.cancelCollectFavoriteTag(tagId, itemId))
                     };
@@ -270,9 +279,7 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildNavigationBar() {
-            var tagId = this.widget.viewModel.tagId;
             var favoriteTag = this.widget.viewModel.favoriteTag;
-
             string title;
             var rightWidget = (Widget) new Container(width: 56);
             if (favoriteTag == null) {
@@ -335,6 +342,7 @@ namespace ConnectApp.screens {
                 )
             );
 
+
             if (this._isHaveTitle) {
                 titleWidget = new Text(
                     data: title,
@@ -348,6 +356,7 @@ namespace ConnectApp.screens {
                     child: child);
             }
 
+
             if (this.widget.viewModel.favoriteTag.type != "default" && this.widget.viewModel.isLoggedIn &&
                 this.widget.viewModel.currentUserId.Equals(this.widget.viewModel.userId) &&
                 this.widget.viewModel.type == FavoriteType.my) {
@@ -359,6 +368,15 @@ namespace ConnectApp.screens {
                         style: CTextStyle.PLargeMediumBlue.merge(new TextStyle(height: 1))
                     )
                 );
+            }
+
+            if (favoriteTag.type == "default" || (this.widget.viewModel.type == FavoriteType.userDetail &&
+                                                  UserInfoManager.isLogin() &&
+                                                  this.widget.viewModel.myFavoriteIds.Contains(this.widget.viewModel
+                                                      .favoriteTag.quoteTagId))) {
+                rightWidget = new Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: new Container());
             }
 
 
@@ -443,6 +461,7 @@ namespace ConnectApp.screens {
             var subTitle = "0个内容";
             var images = new List<string>();
             Widget iconWidget = new Container();
+            var isHost = false;
             if (this.widget.viewModel.favoriteTag != null) {
                 title = this.widget.viewModel.favoriteTag.name;
                 subTitle =
@@ -466,6 +485,10 @@ namespace ConnectApp.screens {
                     coverColor: iconColor,
                     size: 84
                 );
+                isHost = this.widget.viewModel.type == FavoriteType.my ||
+                         this.widget.viewModel.favoriteTag.type == "default" ||
+                         (this.widget.viewModel.type != FavoriteType.my && UserInfoManager.isLogin() &&
+                          this.widget.viewModel.myFavoriteIds.Contains(this.widget.viewModel.favoriteTag.quoteTagId));
             }
 
             return new LeaderBoardDetailHeader(
@@ -474,7 +497,7 @@ namespace ConnectApp.screens {
                 images: images.Count > 3 ? images.Take(3).ToList() : images,
                 isCollected: this.widget.viewModel.isCollect,
                 isLoading: this.widget.viewModel.collectLoading,
-                isHost: this.widget.viewModel.type == FavoriteType.my,
+                isHost: isHost,
                 ClickButtonCallback: this._onPressed,
                 leftWidget: iconWidget,
                 leftWidgetTopPadding: 4,
@@ -495,9 +518,15 @@ namespace ConnectApp.screens {
                         items: new List<ActionSheetItem> {
                             new ActionSheetItem("确定", type: ActionType.normal,
                                 () => {
+                                    var tagId = this.widget.viewModel.favoriteTag.id;
+                                    if (this.widget.viewModel.collectChangeMap.isNotEmpty() &&
+                                        this.widget.viewModel.collectChangeMap.ContainsKey(tagId)) {
+                                        tagId = this.widget.viewModel.collectChangeMap[tagId];
+                                    }
+
                                     this.widget.actionModel.cancelCollectFavoriteTag(
-                                        this.widget.viewModel.favoriteTag.id,
-                                        this.widget.viewModel.favoriteTag.quoteTagId);
+                                        tagId,
+                                        this.widget.viewModel.favoriteTag.quoteTagId ?? "");
                                 }),
                             new ActionSheetItem("取消", type: ActionType.cancel)
                         }
@@ -505,7 +534,10 @@ namespace ConnectApp.screens {
                 );
             }
             else {
-                this.widget.actionModel.collectFavoriteTag(this.widget.viewModel.favoriteTag.quoteTagId);
+                this.widget.actionModel.collectFavoriteTag(
+                    this.widget.viewModel.favoriteTag.quoteTagId.isEmpty()
+                        ? this.widget.viewModel.favoriteTag.id
+                        : this.widget.viewModel.favoriteTag.quoteTagId, this.widget.viewModel.favoriteTag.id);
             }
         }
 
@@ -562,8 +594,9 @@ namespace ConnectApp.screens {
                     new ObjectKey(value: article.id)
                 ),
                 new CustomDismissibleDrawerDelegate(),
-                secondaryActions: this.widget.viewModel.type == FavoriteType.my 
-                    ? this._buildSecondaryActions(article: article) : null,
+                secondaryActions: this.widget.viewModel.type == FavoriteType.my
+                    ? this._buildSecondaryActions(article: article)
+                    : null,
                 controller: this._dismissibleController
             );
         }
