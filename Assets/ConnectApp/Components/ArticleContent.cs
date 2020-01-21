@@ -630,7 +630,7 @@ namespace ConnectApp.Components {
         readonly StringCallback onPressItem;
 
         public override Widget build(BuildContext context) {
-            if (this.data.isNullOrEmpty()) {
+            if (this.data.isNullOrEmpty() || this.favoriteTagDict.isNullOrEmpty()) {
                 return new Container();
             }
 
