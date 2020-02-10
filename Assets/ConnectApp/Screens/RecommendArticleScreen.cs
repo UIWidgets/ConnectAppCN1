@@ -287,7 +287,7 @@ namespace ConnectApp.screens {
                             ? this.widget.viewModel.rankDict[key: homeSliderId].image
                             : "";
                         return new PlaceholderImage(
-                            imageUrl: imageUrl,
+                            CImageUtils.SizeToScreenImageUrl(imageUrl: imageUrl),
                             fit: BoxFit.fill,
                             useCachedNetworkImage: true,
                             color: CColorUtils.GetSpecificDarkColorFromId(id: homeSliderId)

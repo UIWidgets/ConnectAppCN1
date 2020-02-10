@@ -139,7 +139,10 @@ namespace ConnectApp.Components {
             Widget firstImage;
             if (this.images.Count > 0) {
                 firstImage = new PlaceholderImage(
-                    this.images[0],
+                    CImageUtils.SuitableSizeImageUrl(
+                        imageWidth: MediaQuery.of(context: context).size.width, 
+                        this.images[0]
+                    ),
                     this.size + this.ratioGap * 2,
                     this.size + this.ratioGap * 2,
                     6,
@@ -155,7 +158,10 @@ namespace ConnectApp.Components {
             Widget secondImage;
             if (this.images.Count > 1) {
                 secondImage = new PlaceholderImage(
-                    this.images[1],
+                    CImageUtils.SuitableSizeImageUrl(
+                        imageWidth: MediaQuery.of(context: context).size.width, 
+                        this.images[1]
+                    ),
                     this.size + this.ratioGap,
                     this.size + this.ratioGap,
                     6,
@@ -171,7 +177,10 @@ namespace ConnectApp.Components {
             Widget thirdImage;
             if (this.images.Count > 2) {
                 thirdImage = new PlaceholderImage(
-                    this.images[2],
+                    CImageUtils.SuitableSizeImageUrl(
+                        imageWidth: MediaQuery.of(context: context).size.width, 
+                        this.images[2]
+                    ),
                     width: this.size,
                     height: this.size,
                     6,

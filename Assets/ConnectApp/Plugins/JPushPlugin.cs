@@ -360,6 +360,7 @@ namespace ConnectApp.Plugins {
 
 
         public static void registerHmsToken(string userId = "") {
+            // if userid is "" mean unregister token
             if (hmsToken.isNotEmpty()) {
                 UserApi.RegisterToken(hmsToken, userId);
             }

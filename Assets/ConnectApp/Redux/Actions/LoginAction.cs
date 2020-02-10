@@ -66,7 +66,6 @@ namespace ConnectApp.redux.actions {
                         dispatcher.dispatch(fetchChannels(1));
                         dispatcher.dispatch(fetchCreateChannelFilter());
                         dispatcher.dispatch<IPromise>(fetchUserProfile(loginInfo.userId));
-                        dispatcher.dispatch(new MainNavigatorPopAction());
                         dispatcher.dispatch(new CleanEmailAndPasswordAction());
                         UserInfoManager.saveUserInfo(loginInfo);
                         AnalyticsManager.LoginEvent("email");
@@ -74,12 +73,13 @@ namespace ConnectApp.redux.actions {
                         JPushPlugin.setJPushAlias(loginInfo.userId);
                         BuglyAgent.SetUserId(loginInfo.userId);
                         EventBus.publish(sName: EventBusConstant.login_success, new List<object> {loginInfo.userId});
+                        dispatcher.dispatch(new MainNavigatorPopAction());
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new LoginByEmailFailureAction());
                         Debuger.LogError(message: error);
                         var customSnackBar = new CustomSnackBar(
-                            "邮箱或密码不正确，请稍后再试。"
+                            "登录失败，请重试。"
                         );
                         customSnackBar.show();
                     });
