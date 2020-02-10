@@ -69,8 +69,8 @@ android {
         ndk {
             abiFilters 'armeabi-v7a', 'x86'
         }
-        versionCode 101
-        versionName '1.2.8'
+        versionCode 102
+        versionName '2.0.0'
     }
 
     lintOptions {

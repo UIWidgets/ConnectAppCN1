@@ -14,6 +14,7 @@ namespace ConnectApp.Api {
             var para = new Dictionary<string, object> {
                 {"language", "zh_CN"},
                 {"hottestOffset", offset},
+                {"needRank", true},
                 {"afterTime", HistoryManager.homeAfterTime(userId: userId)}
             };
             var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/recommends", parameter: para);
@@ -72,7 +73,8 @@ namespace ConnectApp.Api {
             return promise;
         }
 
-        public static Promise<FetchCommentsResponse>FetchArticleComments(string channelId, string currOldestMessageId) {
+        public static Promise<FetchCommentsResponse>
+            FetchArticleComments(string channelId, string currOldestMessageId) {
             var promise = new Promise<FetchCommentsResponse>();
             var para = new Dictionary<string, object> {
                 {"limit", 5}

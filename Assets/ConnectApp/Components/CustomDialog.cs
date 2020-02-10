@@ -19,13 +19,15 @@ namespace ConnectApp.Components {
             TimeSpan? insetAnimationDuration = null,
             Curve insetAnimationCurve = null,
             float? radius = null,
-            Widget child = null
+            Widget child = null,
+            Widget header = null
         ) : base(key: key) {
             this.backgroundColor = backgroundColor;
             this.insetAnimationDuration = insetAnimationDuration ?? TimeSpan.FromMilliseconds(100);
             this.insetAnimationCurve = insetAnimationCurve ?? Curves.decelerate;
             this.radius = radius ?? 0;
             this.child = child;
+            this.header = header;
         }
 
         readonly Color backgroundColor;
@@ -33,6 +35,7 @@ namespace ConnectApp.Components {
         readonly Curve insetAnimationCurve;
         readonly float? radius;
         readonly Widget child;
+        readonly Widget header;
 
         public override Widget build(BuildContext context) {
             return new AnimatedPadding(
@@ -48,12 +51,23 @@ namespace ConnectApp.Components {
                     child: new Center(
                         child: new ConstrainedBox(
                             constraints: new BoxConstraints(280.0f),
-                            child: new Container(
-                                decoration: new BoxDecoration(
-                                    color: this.backgroundColor,
-                                    borderRadius: BorderRadius.all((float) this.radius)
-                                ),
-                                child: this.child
+                            child: new Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: new List<Widget> {
+                                    this.header ?? new Container(),
+                                    new Container(
+                                        decoration: new BoxDecoration(
+                                            color: this.backgroundColor,
+                                            borderRadius: this.header == null
+                                                ? BorderRadius.all(Radius.circular((float)this.radius)) 
+                                                : BorderRadius.only(
+                                                    bottomRight: Radius.circular((float)this.radius), 
+                                                    bottomLeft: Radius.circular((float)this.radius)
+                                                )
+                                        ),
+                                        child: this.child
+                                    )
+                                }
                             )
                         )
                     )
@@ -130,15 +144,18 @@ namespace ConnectApp.Components {
             string title = null,
             string message = null,
             List<Widget> actions = null,
+            Widget header = null,
             Key key = null
         ) : base(key: key) {
             this.title = title;
             this.message = message;
             this.actions = actions;
+            this.header = header;
         }
 
         readonly string title;
         readonly string message;
+        readonly Widget header;
         readonly List<Widget> actions;
         readonly TextStyle _messageStyle = CTextStyle.PLargeBody;
 
@@ -156,6 +173,9 @@ namespace ConnectApp.Components {
                         )
                     ));
             }
+            else {
+                children.Add(new Container(height: 1, color: CColors.White));
+            }
 
             if (this.message.isNotEmpty()) {
                 var mediaQuery = MediaQuery.of(context: context);
@@ -169,7 +189,7 @@ namespace ConnectApp.Components {
                     maxHeight += 16;
                 }
                 else {
-                    maxHeight += 32;
+                    maxHeight += 48;
                 }
 
                 children.Add(new Container(
@@ -178,7 +198,7 @@ namespace ConnectApp.Components {
                     child: new CustomScrollbar(
                         new SingleChildScrollView(
                             child: new Padding(
-                                padding: EdgeInsets.only(16, 8, 16, 16),
+                                padding: EdgeInsets.all(24),
                                 child: new Text(
                                     data: this.message,
                                     style: this._messageStyle
@@ -233,8 +253,9 @@ namespace ConnectApp.Components {
 
             return new CustomDialog(
                 backgroundColor: CColors.White,
-                radius: 5,
-                child: dialogChild
+                radius: 8,
+                child: dialogChild,
+                header: this.header
             );
         }
     }
@@ -243,7 +264,8 @@ namespace ConnectApp.Components {
         public static void showCustomDialog(
             bool barrierDismissible = false,
             Color barrierColor = null,
-            Widget child = null
+            Widget child = null,
+            VoidCallback onPop = null
         ) {
             var route = new _DialogRoute(
                 (context, animation, secondaryAnimation) => new CustomSafeArea(child: child),
@@ -252,7 +274,7 @@ namespace ConnectApp.Components {
                 new TimeSpan(0, 0, 0, 0, 150),
                 transitionBuilder: _transitionBuilder
             );
-            Router.navigator.push(route: route);
+            Router.navigator.push(route: route).Then(_ => onPop?.Invoke());
         }
 
         public static void hiddenCustomDialog() {

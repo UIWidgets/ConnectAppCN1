@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using ConnectApp.Constants;
 using ConnectApp.Models.Model;
+using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -68,7 +69,8 @@ namespace ConnectApp.Components {
                                 48,
                                 4,
                                 fit: BoxFit.cover,
-                                true
+                                true,
+                                CColorUtils.GetSpecificDarkColorFromId(id: this.channel?.id)
                             ),
                             new Expanded(child: body),
                             this._buildJoinButton()

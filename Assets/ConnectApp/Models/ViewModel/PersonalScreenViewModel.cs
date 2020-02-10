@@ -8,5 +8,6 @@ namespace ConnectApp.Models.ViewModel {
         public Dictionary<string, User> userDict;
         public Dictionary<string, UserLicense> userLicenseDict;
         public int currentTabBarIndex;
+        public bool hasUnreadNotifications;
     }
 }

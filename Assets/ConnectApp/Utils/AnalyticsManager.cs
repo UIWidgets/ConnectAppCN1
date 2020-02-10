@@ -5,6 +5,7 @@ using ConnectApp.Components;
 using ConnectApp.Plugins;
 using Unity.UIWidgets.foundation;
 using UnityEngine;
+
 #if UNITY_IOS
 using System.Runtime.InteropServices;
 
@@ -21,7 +22,9 @@ namespace ConnectApp.Utils {
     public enum FavoriteTagType {
         create,
         edit,
-        delete
+        delete,
+        collect,
+        cancelCollect
     }
 
     public enum EnterMineType {
@@ -576,6 +579,7 @@ namespace ConnectApp.Utils {
         static string getDeviceID() {
             return Plugin().CallStatic<string>("getDeviceID");
         }
+
         static bool isEnableNotification() {
             return Plugin().CallStatic<bool>("isEnableNotification");
         }

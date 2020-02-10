@@ -4,7 +4,7 @@ namespace ConnectApp.Constants {
 
         public const string apiAddress = "https://connect.unity.com";
 
-        public const string apiPath = "/api/connectapp/v2";
+        public const string apiPath = "/api/connectapp/v3";
 
         public const string domain = ".connect.unity.com";
 
@@ -20,9 +20,9 @@ namespace ConnectApp.Constants {
 
         public const string miniId = "gh_f731aec0bdd0";
 
-        public const string versionName = "1.2.8";
+        public const string versionName = "2.0.0";
 
-        public const int versionCode = 101;
+        public const int versionCode = 102;
 
         public const string messengerTag = "messenger";
 
@@ -33,7 +33,7 @@ namespace ConnectApp.Constants {
         public const string unityStoreUrl = "https://store.unity.com/";
 
         public const string unityLearnPremiumUrl = "https://unity.com/learn-premium";
-
+        
         public const int miniProgramType = 0; // 0 -> 正式版  1 -> 开发版  2 -> 体验版
         
         public const string store = "dev";

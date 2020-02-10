@@ -19,11 +19,13 @@ namespace ConnectApp.Components {
             Widget title = null,
             Widget rightWidget = null,
             Color bottomSeparatorColor = null,
+            Color backgroundColor = null,
             float height = CustomAppBarUtil.appBarHeight,
             Key key = null
         ) : base(key: key) {
             this.onBack = onBack;
             this.title = title;
+            this.backgroundColor = backgroundColor ?? CColors.White;
             this.bottomSeparatorColor = bottomSeparatorColor ?? CColors.Separator2;
             this.height = height;
             this.rightWidget = rightWidget ?? new Container(width: 56);
@@ -33,12 +35,13 @@ namespace ConnectApp.Components {
         readonly Widget title;
         readonly Widget rightWidget;
         readonly Color bottomSeparatorColor;
+        readonly Color backgroundColor;
         readonly float height;
 
         public override Widget build(BuildContext context) {
             return new Container(
                 decoration: new BoxDecoration(
-                    color: CColors.White,
+                    color: this.backgroundColor,
                     border: new Border(
                         bottom: new BorderSide(
                             color: this.bottomSeparatorColor

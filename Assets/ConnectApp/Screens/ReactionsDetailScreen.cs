@@ -8,10 +8,9 @@ using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.widgets;
-using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.screens {
     public class ReactionsDetailScreenConnector : StatelessWidget {
@@ -21,16 +20,16 @@ namespace ConnectApp.screens {
         ) : base(key: key) {
             this.messageId = messageId;
         }
-        
+
         readonly string messageId;
-        
+
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ReactionsDetailScreenViewModel>(
                 converter: state => new ReactionsDetailScreenViewModel {
                     reactionsUsernameDict =
                         state.channelState.messageDict[key: this.messageId]?.reactionsUsernameListDict ??
                         new Dictionary<string, List<string>>()
-                }, 
+                },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new BaseActionModel {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction())
@@ -40,8 +39,8 @@ namespace ConnectApp.screens {
             );
         }
     }
+
     public class ReactionsDetailScreen : StatelessWidget {
-        
         public ReactionsDetailScreen(
             ReactionsDetailScreenViewModel viewModel = null,
             BaseActionModel actionModel = null,
@@ -53,6 +52,7 @@ namespace ConnectApp.screens {
 
         readonly ReactionsDetailScreenViewModel viewModel;
         readonly BaseActionModel actionModel;
+
         public override Widget build(BuildContext context) {
             return new Container(
                 color: CColors.White,
@@ -85,7 +85,7 @@ namespace ConnectApp.screens {
                                 ),
                                 new CustomDivider(color: CColors.Separator2, height: 1),
                                 new Expanded(
-                                    child:this._buildContent()
+                                    child: this._buildContent()
                                 )
                             }
                         )
@@ -93,15 +93,16 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
+
         Widget _buildContent() {
             if (this.viewModel.reactionsUsernameDict.isEmpty()) {
                 return new Container();
             }
+
             return new Container(
                 child: new ListView(
                     children: new List<Widget>(
-                        ReactionType.typesList.Select(type => 
+                        ReactionType.typesList.Select(type =>
                             _buildCard(type: type, this.viewModel.reactionsUsernameDict[key: type.value])
                         ).ToArray()
                     )
@@ -113,10 +114,11 @@ namespace ConnectApp.screens {
             if (nameList.isEmpty()) {
                 return new Container();
             }
+
             var content = "";
             var title = "";
             if (nameList != null && nameList.isNotEmpty()) {
-               content = string.Join(", ", nameList.ToArray());
+                content = string.Join(", ", nameList.ToArray());
             }
 
             if (type.value == ReactionType.Thumb.value) {
@@ -134,7 +136,7 @@ namespace ConnectApp.screens {
             else if (type.value == ReactionType.Doubt.value) {
                 title = $"{nameList?.Count ?? 0} 人表示疑惑";
             }
-            
+
             return new Container(
                 padding: EdgeInsets.only(8, 16, 8),
                 child: new Column(

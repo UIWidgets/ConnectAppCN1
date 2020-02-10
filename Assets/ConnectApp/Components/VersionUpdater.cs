@@ -56,6 +56,9 @@ namespace ConnectApp.Components {
                 if (vs.isNotEmpty()) {
                     HttpManager.updateCookie($"VS={vs}");
                 }
+                if (serverConfig.tinyGameUrl.isNotEmpty()) {
+                    LocalDataManager.saveTinyGameUrl(url: serverConfig.tinyGameUrl);
+                }
                 if (serverConfig.minVersionCode.isNotEmpty()) {
                     if (!int.TryParse(serverConfig.minVersionCode, out var minVersionCode)) {
                         return;

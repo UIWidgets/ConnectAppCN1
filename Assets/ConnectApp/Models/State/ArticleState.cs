@@ -20,7 +20,17 @@ namespace ConnectApp.Models.State {
         public string beforeTime { get; set; }
         public string afterTime { get; set; }
         public Dictionary<string, Article> articleDict { get; set; }
+        public Dictionary<string, UserArticle> userArticleDict { get; set; }
         public List<Article> articleHistory { get; set; }
         public List<string> blockArticleList { get; set; }
+        public List<string> homeSliderIds { get; set; }
+        public List<string> homeTopCollectionIds { get; set; }
+        public List<string> homeCollectionIds { get; set; }
+        public List<string> homeBloggerIds { get; set; }
+        public string searchSuggest { get; set; }
+        public string dailySelectionId { get; set; }
+        public DateTime? leaderBoardUpdatedTime { get; set; }
+        public string recommendLastRefreshArticleId { get; set; }
+        public bool recommendHasNewArticle { get; set; }
     }
 }

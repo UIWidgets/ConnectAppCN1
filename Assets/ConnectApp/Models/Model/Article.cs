@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ConnectApp.Models.Api;
 
 namespace ConnectApp.Models.Model {
     [Serializable]
@@ -22,7 +23,10 @@ namespace ConnectApp.Models.Model {
         public DateTime publishedTime;
         public DateTime lastPublishedTime;
         public string type;
+        public string bodyType;
         public string body;
+        public string markdownBody;
+        public string markdownPreviewBody;
         public bool? like;
         public int? appCurrentUserLikeCount;
         public List<Favorite> favorites;
@@ -145,5 +149,35 @@ namespace ConnectApp.Models.Model {
     public class HottestItem {
         public string id;
         public string itemId;
+    }
+
+    [Serializable]
+    public class UserArticle {
+        public int total;
+        public List<Article> list;
+    }
+
+    [Serializable]
+    public class HomeRankData {
+        public HomeSlider homeSlider;
+        public HomeCollection homeTopCollection;
+        public HomeCollection homeCollection;
+        public FetchBloggerResponse homeBlogger;
+        public string searchSuggest;
+        public string dailySelectionId;
+        public DateTime? leaderboardUpdatedTime;
+    }
+
+    [Serializable]
+    public class HomeSlider {
+        public List<RankData> rankList;
+    }
+
+    [Serializable]
+    public class HomeCollection {
+        public List<RankData> rankList;
+        public Dictionary<string, FavoriteTagArticle> favoriteTagArticleMap;
+        public Dictionary<string, FavoriteTag> favoriteTagMap;
+        public Dictionary<string, bool> collectedTagMap;
     }
 }

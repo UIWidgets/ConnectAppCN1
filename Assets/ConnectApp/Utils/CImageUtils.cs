@@ -121,6 +121,17 @@ namespace ConnectApp.Utils {
             return new Container();
         }
 
+        static readonly List<string> PatternImages = new List<string> {
+            "image/pattern1",
+            "image/pattern2",
+            "image/pattern3",
+            "image/pattern4"
+        };
+        
+        public static string GetSpecificPatternImageNameFromId(string id) {
+            return PatternImages[CCommonUtils.GetStableHash(s: id) % PatternImages.Count];
+        }
+
         public const string FavoriteCoverImagePath = "image/favorites";
 
         public static readonly List<string> FavoriteCoverImages = new List<string> {

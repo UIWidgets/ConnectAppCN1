@@ -144,8 +144,9 @@ namespace ConnectApp.screens {
 
         public override void dispose() {
             StatusBarManager.statusBarStyle(false);
-            EventBus.unSubscribe(EventBusConstant.login_success, this._loginSubId);
+            EventBus.unSubscribe(sName: EventBusConstant.login_success, id: this._loginSubId);
             Router.routeObserve.unsubscribe(this);
+            this._controller.dispose();
             base.dispose();
         }
 

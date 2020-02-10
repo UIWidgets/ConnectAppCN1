@@ -1,13 +1,18 @@
+using System;
+using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
+using ConnectApp.Components.Swiper;
 using ConnectApp.Constants;
 using ConnectApp.Main;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
+using ConnectApp.Plugins;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using RSG;
+using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
@@ -18,9 +23,13 @@ using Unity.UIWidgets.widgets;
 namespace ConnectApp.screens {
     public class RecommendArticleScreenConnector : StatelessWidget {
         public RecommendArticleScreenConnector(
+            int selectedIndex,
             Key key = null
         ) : base(key: key) {
+            this.selectedIndex = selectedIndex;
         }
+
+        readonly int selectedIndex;
 
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ArticlesScreenViewModel>(
@@ -32,9 +41,23 @@ namespace ConnectApp.screens {
                     hottestHasMore = state.articleState.hottestHasMore,
                     userDict = state.userState.userDict,
                     teamDict = state.teamState.teamDict,
+                    followMap = state.followState.followDict.ContainsKey(state.loginState.loginInfo.userId ?? "")
+                        ? state.followState.followDict[state.loginState.loginInfo.userId ?? ""]
+                        : new Dictionary<string, bool>(),
+                    favoriteTagDict = state.favoriteState.favoriteTagDict,
+                    favoriteTagArticleDict = state.favoriteState.favoriteTagArticleDict,
+                    rankDict = state.leaderBoardState.rankDict,
+                    homeSliderIds = state.articleState.homeSliderIds,
+                    homeTopCollectionIds = state.articleState.homeTopCollectionIds,
+                    homeCollectionIds = state.articleState.homeCollectionIds,
+                    homeBloggerIds = state.articleState.homeBloggerIds,
+                    dailySelectionId = state.articleState.dailySelectionId,
                     isLoggedIn = state.loginState.isLoggedIn,
                     hosttestOffset = state.articleState.recommendArticleIds.Count,
                     currentUserId = state.loginState.loginInfo.userId ?? "",
+                    leaderBoardUpdatedTime = state.articleState.leaderBoardUpdatedTime,
+                    selectedIndex = this.selectedIndex,
+                    hasNewArticle = state.articleState.recommendHasNewArticle
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new ArticlesScreenActionModel {
@@ -46,6 +69,20 @@ namespace ConnectApp.screens {
                                 articleId = id
                             }
                         ),
+                        openUrl = JPushPlugin.openUrlScheme,
+                        pushToLeaderBoard = () => dispatcher.dispatch(new MainNavigatorPushToLeaderBoardAction()),
+                        pushToLeaderBoardDetail = id =>
+                            dispatcher.dispatch(new MainNavigatorPushToLeaderBoardDetailAction {id = id}
+                            ),
+                        pushToHomeEvent = () => dispatcher.dispatch(new MainNavigatorPushToAction {
+                            routeName = MainNavigatorRoutes.HomeEvent
+                        }),
+                        pushToBlogger = () => dispatcher.dispatch(new MainNavigatorPushToAction {
+                            routeName = MainNavigatorRoutes.Blogger
+                        }),
+                        pushToUserDetail = userId => dispatcher.dispatch(new MainNavigatorPushToUserDetailAction {
+                            userId = userId
+                        }),
                         pushToReport = (reportId, reportType) => dispatcher.dispatch(
                             new MainNavigatorPushToReportAction {
                                 reportId = reportId,
@@ -59,6 +96,13 @@ namespace ConnectApp.screens {
                         startFetchArticles = () => dispatcher.dispatch(new StartFetchArticlesAction()),
                         fetchArticles = (userId, offset) =>
                             dispatcher.dispatch<IPromise>(Actions.fetchArticles(userId: userId, offset: offset)),
+                        startFollowUser = userId =>
+                            dispatcher.dispatch(new StartFollowUserAction {followUserId = userId}),
+                        followUser = userId =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(followUserId: userId)),
+                        startUnFollowUser = userId =>
+                            dispatcher.dispatch(new StartUnFollowUserAction {unFollowUserId = userId}),
+                        unFollowUser = userId => dispatcher.dispatch<IPromise>(Actions.fetchUnFollowUser(userId)),
                         shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch<IPromise>(
                             Actions.shareToWechat(type, title, description, linkUrl, imageUrl))
                     };
@@ -91,6 +135,8 @@ namespace ConnectApp.screens {
         int offset = initOffset;
         RefreshController _refreshController;
         bool _hasBeenLoadedData;
+        string _articleTabSubId;
+
 
         public override void initState() {
             base.initState();
@@ -108,6 +154,17 @@ namespace ConnectApp.screens {
                         this.setState(() => { });
                     });
             });
+            this._articleTabSubId = EventBus.subscribe(sName: EventBusConstant.article_tab, args => {
+                if (this.widget.viewModel.selectedIndex == 1) {
+                    this._refreshController.sendBack(true, mode: RefreshStatus.refreshing);
+                    this._refreshController.animateTo(0.0f, TimeSpan.FromMilliseconds(300), curve: Curves.linear);
+                }
+            });
+        }
+
+        public override void dispose() {
+            EventBus.unSubscribe(sName: EventBusConstant.article_tab, id: this._articleTabSubId);
+            base.dispose();
         }
 
         protected override bool wantKeepAlive {
@@ -132,7 +189,7 @@ namespace ConnectApp.screens {
                     itemBuilder: (cxt, index) => new ArticleLoading()
                 );
             }
-            else if (0 == recommendArticleIds.Count) {
+            else if (recommendArticleIds.isEmpty()) {
                 content = new Container(
                     padding: EdgeInsets.only(bottom: CConstant.TabBarHeight +
                                                      CCommonUtils.getSafeAreaBottomPadding(context: context)),
@@ -149,6 +206,7 @@ namespace ConnectApp.screens {
                 );
             }
             else {
+                var items = this._buildItems(recommendArticleIds);
                 var enablePullUp = this.widget.viewModel.hottestHasMore;
                 content = new CustomListView(
                     controller: this._refreshController,
@@ -156,8 +214,34 @@ namespace ConnectApp.screens {
                     enablePullUp: enablePullUp,
                     onRefresh: this._onRefresh,
                     hasBottomMargin: true,
-                    itemCount: recommendArticleIds.Count,
-                    itemBuilder: this._buildArticleCard,
+                    itemCount: items.Count,
+                    itemBuilder: (cxt, index) => items[index],
+                    headerWidget: new Column(
+                        children: new List<Widget> {
+                            this._buildSwiper(),
+                            new KingKongView(
+                                leaderBoardUpdatedTime: this.widget.viewModel.leaderBoardUpdatedTime,
+                                type => {
+                                    if (type == KingKongType.dailyCollection) {
+                                        var articleId = this.widget.viewModel.dailySelectionId;
+                                        this.widget.actionModel.pushToArticleDetail(obj: articleId);
+                                    }
+
+                                    if (type == KingKongType.leaderBoard) {
+                                        this.widget.actionModel.pushToLeaderBoard();
+                                    }
+
+                                    if (type == KingKongType.activity) {
+                                        this.widget.actionModel.pushToHomeEvent();
+                                    }
+
+                                    if (type == KingKongType.blogger) {
+                                        this.widget.actionModel.pushToBlogger();
+                                    }
+                                }
+                            )
+                        }
+                    ),
                     footerWidget: enablePullUp ? null : new EndView(hasBottomMargin: true),
                     hasScrollBar: false
                 );
@@ -166,10 +250,97 @@ namespace ConnectApp.screens {
             return new CustomScrollbar(child: content);
         }
 
-        Widget _buildArticleCard(BuildContext context, int index) {
-            var recommendArticleIds = this.widget.viewModel.recommendArticleIds;
+        Widget _buildSwiper() {
+            var homeSliderIds = this.widget.viewModel.homeSliderIds;
+            if (homeSliderIds.isNullOrEmpty()) {
+                return new Container();
+            }
 
-            var articleId = recommendArticleIds[index: index];
+            Widget swiperContent;
+            if (homeSliderIds.Count == 1) {
+                var homeSliderId = homeSliderIds[0];
+                var imageUrl = this.widget.viewModel.rankDict.ContainsKey(key: homeSliderId)
+                    ? this.widget.viewModel.rankDict[key: homeSliderId].image
+                    : "";
+                swiperContent = new GestureDetector(
+                    onTap: () => {
+                        var redirectURL = this.widget.viewModel.rankDict.ContainsKey(key: homeSliderId)
+                            ? this.widget.viewModel.rankDict[key: homeSliderId].redirectURL
+                            : "";
+                        if (redirectURL.isNotEmpty()) {
+                            this.widget.actionModel.openUrl(obj: redirectURL);
+                        }
+                    },
+                    child: new PlaceholderImage(
+                        imageUrl: imageUrl,
+                        fit: BoxFit.fill,
+                        useCachedNetworkImage: true,
+                        color: CColorUtils.GetSpecificDarkColorFromId(id: homeSliderId)
+                    )
+                );
+            }
+            else {
+                swiperContent = new Swiper(
+                    (cxt, index) => {
+                        var homeSliderId = homeSliderIds[index: index];
+                        var imageUrl = this.widget.viewModel.rankDict.ContainsKey(key: homeSliderId)
+                            ? this.widget.viewModel.rankDict[key: homeSliderId].image
+                            : "";
+                        return new PlaceholderImage(
+                            CImageUtils.SizeToScreenImageUrl(imageUrl: imageUrl),
+                            fit: BoxFit.fill,
+                            useCachedNetworkImage: true,
+                            color: CColorUtils.GetSpecificDarkColorFromId(id: homeSliderId)
+                        );
+                    },
+                    itemCount: homeSliderIds.Count,
+                    autoplay: true,
+                    onTap: index => {
+                        var homeSliderId = homeSliderIds[index: index];
+                        var redirectURL = this.widget.viewModel.rankDict.ContainsKey(key: homeSliderId)
+                            ? this.widget.viewModel.rankDict[key: homeSliderId].redirectURL
+                            : "";
+                        if (redirectURL.isNotEmpty()) {
+                            this.widget.actionModel.openUrl(obj: redirectURL);
+                        }
+                    },
+                    pagination: new SwiperPagination(margin: EdgeInsets.only(bottom: 5))
+                );
+            }
+
+            return new Container(
+                padding: EdgeInsets.only(top: 8, left: 16, right: 16),
+                decoration: new BoxDecoration(
+                    borderRadius: BorderRadius.all(8),
+                    color: CColors.White
+                ),
+                child: new AspectRatio(
+                    aspectRatio: 3,
+                    child: new ClipRRect(
+                        borderRadius: BorderRadius.all(8),
+                        child: swiperContent
+                    )
+                )
+            );
+        }
+
+        List<Widget> _buildItems(List<string> articleIds) {
+            var items = new List<Widget>();
+            articleIds.ForEach(articleId => { items.Add(this._buildArticleCard(articleId)); });
+            if (items.Count >= 6) {
+                items.Insert(6, this._buildRecommendLeaderBoard());
+                items.Insert(3, this._buildRecommendBlogger());
+            }
+
+            if (!this.widget.viewModel.hasNewArticle) {
+                items.Insert(0, this._buildLeaderBoard());
+            }
+
+            return items;
+        }
+
+
+        Widget _buildArticleCard(string articleId) {
             if (this.widget.viewModel.blockArticleList.Contains(item: articleId)) {
                 return new Container();
             }
@@ -228,6 +399,57 @@ namespace ConnectApp.screens {
                 ),
                 fullName: fullName,
                 new ObjectKey(value: article.id)
+            );
+        }
+
+        Widget _buildRecommendBlogger() {
+            return new RecommendBlogger(
+                bloggerIds: this.widget.viewModel.homeBloggerIds,
+                rankDict: this.widget.viewModel.rankDict,
+                userDict: this.widget.viewModel.userDict,
+                followMap: this.widget.viewModel.followMap,
+                isLoggedIn: this.widget.viewModel.isLoggedIn,
+                userId => {
+                    this.widget.actionModel.startFollowUser(obj: userId);
+                    this.widget.actionModel.followUser(arg: userId);
+                },
+                userId => {
+                    this.widget.actionModel.startUnFollowUser(obj: userId);
+                    this.widget.actionModel.unFollowUser(arg: userId);
+                },
+                () => this.widget.actionModel.pushToLogin(),
+                () => this.widget.actionModel.pushToBlogger(),
+                userId => this.widget.actionModel.pushToUserDetail(obj: userId)
+            );
+        }
+
+        Widget _buildRecommendLeaderBoard() {
+            return new RecommendLeaderBoard(
+                data: this.widget.viewModel.homeTopCollectionIds,
+                rankDict: this.widget.viewModel.rankDict,
+                favoriteTagDict: this.widget.viewModel.favoriteTagDict,
+                favoriteTagArticleDict: this.widget.viewModel.favoriteTagArticleDict,
+                () => this.widget.actionModel.pushToLeaderBoard(),
+                collectionId => this.widget.actionModel.pushToLeaderBoardDetail(obj: collectionId)
+            );
+        }
+
+        Widget _buildLeaderBoard() {
+            return new LeaderBoard(
+                data: this.widget.viewModel.homeCollectionIds,
+                rankDict: this.widget.viewModel.rankDict,
+                favoriteTagDict: this.widget.viewModel.favoriteTagDict,
+                () => this.widget.actionModel.pushToLeaderBoard(),
+                collectionId => this.widget.actionModel.pushToLeaderBoardDetail(obj: collectionId)
+            );
+        }
+
+        Widget _buildRefreshDivider() {
+            return new RefreshDivider(
+                () => {
+                    this._refreshController.sendBack(true, mode: RefreshStatus.refreshing);
+                    this._refreshController.animateTo(0.0f, TimeSpan.FromMilliseconds(300), curve: Curves.linear);
+                }
             );
         }
 

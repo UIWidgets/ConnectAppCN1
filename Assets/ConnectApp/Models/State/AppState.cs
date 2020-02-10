@@ -28,6 +28,7 @@ namespace ConnectApp.Models.State {
         public NetworkState networkState { get; set; }
         public TabBarState tabBarState { get; set; }
         public FavoriteState favoriteState { get; set; }
+        public LeaderBoardState leaderBoardState { get; set; }
 
         public static AppState initialState() {
             var loginInfo = UserInfoManager.getUserInfo();
@@ -39,7 +40,10 @@ namespace ConnectApp.Models.State {
                     password = "",
                     loginInfo = loginInfo,
                     isLoggedIn = isLogin,
-                    loading = false
+                    loading = false,
+                    newNotifications = isLogin
+                        ? NewNotificationManager.getNewNotification(loginInfo.userId)
+                        : null
                 },
                 serviceConfigState = new ServiceConfigState {
                     showFirstEgg = false,
@@ -51,6 +55,7 @@ namespace ConnectApp.Models.State {
                     followArticleIdDict = new Dictionary<string, List<string>>(),
                     hotArticleIdDict = new Dictionary<string, List<string>>(),
                     articleDict = new Dictionary<string, Article>(),
+                    userArticleDict = new Dictionary<string, UserArticle>(),
                     articlesLoading = false,
                     followArticlesLoading = false,
                     articleDetailLoading = false,
@@ -63,7 +68,13 @@ namespace ConnectApp.Models.State {
                     beforeTime = "",
                     afterTime = "",
                     articleHistory = HistoryManager.articleHistoryList(isLogin ? loginInfo.userId : null),
-                    blockArticleList = HistoryManager.blockArticleList(isLogin ? loginInfo.userId : null)
+                    blockArticleList = HistoryManager.blockArticleList(isLogin ? loginInfo.userId : null),
+                    homeSliderIds = new List<string>(),
+                    homeTopCollectionIds = new List<string>(),
+                    homeCollectionIds = new List<string>(),
+                    homeBloggerIds = new List<string>(),
+                    recommendLastRefreshArticleId = "",
+                    recommendHasNewArticle = true
                 },
                 eventState = new EventState {
                     ongoingEvents = new List<string>(),
@@ -71,10 +82,14 @@ namespace ConnectApp.Models.State {
                     ongoingEventTotal = 0,
                     completedEvents = new List<string>(),
                     completedEventTotal = 0,
-                    pageNumber = 1,
+                    homeEvents = new List<string>(),
+                    ongoingPageNumber = 1,
                     completedPageNumber = 1,
+                    homeEventPageNumber = 1,
+                    homeEventHasMore = false,
                     eventsOngoingLoading = false,
                     eventsCompletedLoading = false,
+                    homeEventsLoading = false,
                     eventHistory = HistoryManager.eventHistoryList(isLogin ? loginInfo.userId : null),
                     channelId = ""
                 },
@@ -111,6 +126,7 @@ namespace ConnectApp.Models.State {
                 userState = new UserState {
                     userLoading = false,
                     userArticleLoading = false,
+                    userLikeArticleLoading = false,
                     followingLoading = false,
                     followingUserLoading = false,
                     followingTeamLoading = false,
@@ -141,8 +157,8 @@ namespace ConnectApp.Models.State {
                     likeDict = new Dictionary<string, Dictionary<string, bool>>()
                 },
                 mineState = new MineState {
-                    futureEventsList = new List<IEvent>(),
-                    pastEventsList = new List<IEvent>(),
+                    futureEventIds = new List<string>(),
+                    pastEventIds = new List<string>(),
                     futureListLoading = false,
                     pastListLoading = false,
                     futureEventTotal = 0,
@@ -181,9 +197,6 @@ namespace ConnectApp.Models.State {
                     channelTop = new Dictionary<string, bool>(),
                     socketConnected = true,
                     mentionSuggestions = new Dictionary<string, List<ChannelMember>>(),
-                    newNotifications = isLogin
-                        ? NewNotificationManager.getNewNotification(loginInfo.userId)
-                        : null,
                     lastMentionQuery = null
                 },
                 tabBarState = new TabBarState {
@@ -191,12 +204,42 @@ namespace ConnectApp.Models.State {
                 },
                 favoriteState = new FavoriteState {
                     favoriteTagLoading = false,
+                    followFavoriteTagLoading = false,
                     favoriteDetailLoading = false,
                     favoriteTagIdDict = new Dictionary<string, List<string>>(),
+                    followFavoriteTagIdDict = new Dictionary<string, List<string>>(),
                     favoriteDetailArticleIdDict = new Dictionary<string, List<string>>(),
                     favoriteTagHasMore = false,
+                    followFavoriteTagHasMore = false,
                     favoriteDetailHasMore = false,
-                    favoriteTagDict = new Dictionary<string, FavoriteTag>()
+                    favoriteTagDict = new Dictionary<string, FavoriteTag>(),
+                    favoriteTagArticleDict = new Dictionary<string, FavoriteTagArticle>(),
+                    collectedTagMap = new Dictionary<string, Dictionary<string, bool>>(),
+                    collectedTagChangeMap = new Dictionary<string, string>()
+                },
+                leaderBoardState = new LeaderBoardState {
+                    collectionLoading = false,
+                    columnLoading = false,
+                    bloggerLoading = false,
+                    homeBloggerLoading = false,
+                    collectionIds = new List<string>(),
+                    columnIds = new List<string>(),
+                    bloggerIds = new List<string>(),
+                    homeBloggerIds = new List<string>(),
+                    collectionHasMore = false,
+                    columnHasMore = false,
+                    bloggerHasMore = false,
+                    homeBloggerHasMore = false,
+                    collectionPageNumber = 1,
+                    columnPageNumber = 1,
+                    bloggerPageNumber = 1,
+                    homeBloggerPageNumber = 1,
+                    rankDict = new Dictionary<string, RankData>(),
+                    detailLoading = false,
+                    detailHasMore = false,
+                    columnDict = new Dictionary<string, List<string>>(),
+                    collectionDict = new Dictionary<string, List<string>>(),
+                    detailCollectLoading = false
                 },
                 networkState = new NetworkState {
                     networkConnected = true,

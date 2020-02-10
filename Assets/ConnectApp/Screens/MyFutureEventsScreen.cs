@@ -1,3 +1,4 @@
+using System;
 using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
@@ -6,25 +7,31 @@ using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
 using RSG;
+using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
     public class MyFutureEventsScreenConnector : StatelessWidget {
         public MyFutureEventsScreenConnector(
+            string mode,
             Key key = null
         ) : base(key: key) {
-            
+            this.mode = mode;
         }
+
+        readonly string mode;
 
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, MyEventsScreenViewModel>(
                 converter: state => new MyEventsScreenViewModel {
                     futureListLoading = state.mineState.futureListLoading,
-                    futureEventsList = state.mineState.futureEventsList,
+                    futureEventIds = state.mineState.futureEventIds,
                     futureEventTotal = state.mineState.futureEventTotal,
+                    eventsDict = state.eventState.eventsDict,
                     placeDict = state.placeState.placeDict
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -33,11 +40,12 @@ namespace ConnectApp.screens {
                         pushToEventDetail = (id, type) =>
                             dispatcher.dispatch(new MainNavigatorPushToEventDetailAction
                                 {eventId = id, eventType = type}),
+                        clearMyFutureEvents = () => dispatcher.dispatch(new ClearMyFutureEventsAction()),
                         startFetchMyFutureEvents = () => dispatcher.dispatch(new StartFetchMyFutureEventsAction()),
                         fetchMyFutureEvents = pageNumber =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchMyFutureEvents(pageNumber: pageNumber))
+                            dispatcher.dispatch<IPromise>(Actions.fetchMyFutureEvents(pageNumber: pageNumber, mode: this.mode))
                     };
-                    return new MyFutureEventsScreen(viewModel: viewModel, actionModel: actionModel);
+                    return new MyFutureEventsScreen(viewModel: viewModel, actionModel: actionModel, mode: this.mode);
                 }
             );
         }
@@ -47,14 +55,17 @@ namespace ConnectApp.screens {
         public MyFutureEventsScreen(
             MyEventsScreenViewModel viewModel = null,
             MyEventsScreenActionModel actionModel = null,
+            string mode = null,
             Key key = null
         ) : base(key: key) {
             this.viewModel = viewModel;
             this.actionModel = actionModel;
+            this.mode = mode;
         }
 
         public readonly MyEventsScreenViewModel viewModel;
         public readonly MyEventsScreenActionModel actionModel;
+        public readonly string mode;
 
         public override State createState() {
             return new _MyFutureEventsScreenState();
@@ -80,14 +91,28 @@ namespace ConnectApp.screens {
             });
         }
 
+        public override void didUpdateWidget(StatefulWidget oldWidget) {
+            base.didUpdateWidget(oldWidget: oldWidget);
+            if (oldWidget is MyFutureEventsScreen _oldWidget) {
+                if (this.widget.mode != _oldWidget.mode) {
+                    Window.instance.run(TimeSpan.FromMilliseconds(0.1f), () => {
+                        this._refreshController.animateTo(0, TimeSpan.FromMilliseconds(100), curve: Curves.linear);
+                        this.widget.actionModel.clearMyFutureEvents();
+                        this.widget.actionModel.startFetchMyFutureEvents();
+                        this.widget.actionModel.fetchMyFutureEvents(arg: firstPageNumber);
+                    });
+                }
+            }
+        }
+
         public override Widget build(BuildContext context) {
             base.build(context: context);
-            var futureEventsList = this.widget.viewModel.futureEventsList;
-            if (this.widget.viewModel.futureListLoading && futureEventsList.isEmpty()) {
+            var futureEventIds = this.widget.viewModel.futureEventIds;
+            if (this.widget.viewModel.futureListLoading && futureEventIds.isEmpty()) {
                 return new GlobalLoading();
             }
 
-            if (futureEventsList.Count <= 0) {
+            if (futureEventIds.Count <= 0) {
                 return new BlankView(
                     "还没有即将开始的活动",
                     "image/default-event",
@@ -100,7 +125,7 @@ namespace ConnectApp.screens {
             }
 
             var futureEventTotal = this.widget.viewModel.futureEventTotal;
-            var enablePullUp = futureEventTotal > futureEventsList.Count;
+            var enablePullUp = futureEventTotal > futureEventIds.Count;
 
             return new Container(
                 color: CColors.Background,
@@ -109,7 +134,7 @@ namespace ConnectApp.screens {
                     enablePullDown: true,
                     enablePullUp: enablePullUp,
                     onRefresh: this._onRefresh,
-                    itemCount: futureEventsList.Count,
+                    itemCount: futureEventIds.Count,
                     itemBuilder: this._buildEventCard,
                     headerWidget: CustomListViewConstant.defaultHeaderWidget,
                     footerWidget: enablePullUp ? null : CustomListViewConstant.defaultFooterWidget
@@ -118,9 +143,14 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildEventCard(BuildContext context, int index) {
-            var futureEventsList = this.widget.viewModel.futureEventsList;
+            var futureEventIds = this.widget.viewModel.futureEventIds;
 
-            var model = futureEventsList[index: index];
+            var futureEventId = futureEventIds[index: index];
+            if (!this.widget.viewModel.eventsDict.ContainsKey(key: futureEventId)) {
+                return new Container();
+            }
+
+            var model = this.widget.viewModel.eventsDict[key: futureEventId];
             var eventType = model.mode == "online" ? EventType.online : EventType.offline;
             var placeName = model.placeId.isEmpty()
                 ? null

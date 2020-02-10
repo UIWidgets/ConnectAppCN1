@@ -309,7 +309,11 @@ namespace ConnectApp.Components {
                     }
 
                     if (frameIndex == 0) {
-                        Promise.Delayed(TimeSpan.FromMilliseconds(200)).Then(() => { this.setState(() => { }); });
+                        Promise.Delayed(TimeSpan.FromMilliseconds(200)).Then(() => {
+                            if (this.mounted) {
+                                this.setState(() => {});
+                            }
+                        });
                     }
                     else {
                         this.setState(() => { });
