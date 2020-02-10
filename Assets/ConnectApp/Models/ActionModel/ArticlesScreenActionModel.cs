@@ -13,7 +13,7 @@ namespace ConnectApp.Models.ActionModel {
         public Action<string> pushToUserFollowing;
         public Action<string> pushToUserDetail;
         public Action<string> pushToTeamDetail;
-        public Action pushToLeaderBoard;
+        public Action<int> pushToLeaderBoard;
         public Action<string> pushToLeaderBoardDetail;
         public Action pushToHomeEvent;
         public Action pushToBlogger;

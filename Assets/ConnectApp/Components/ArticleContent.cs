@@ -328,6 +328,7 @@ namespace ConnectApp.Components {
             StringCallback followUser = null,
             StringCallback unFollowUser = null,
             VoidCallback pushToLogin = null,
+            GestureTapCallback onPressBloggerMore = null,
             GestureTapCallback onPressMore = null,
             StringCallback onPressItem = null,
             Key key = null
@@ -340,6 +341,7 @@ namespace ConnectApp.Components {
             this.followUser = followUser;
             this.unFollowUser = unFollowUser;
             this.pushToLogin = pushToLogin;
+            this.onPressBloggerMore = onPressBloggerMore;
             this.onPressMore = onPressMore;
             this.onPressItem = onPressItem;
         }
@@ -352,6 +354,7 @@ namespace ConnectApp.Components {
         readonly StringCallback followUser;
         readonly StringCallback unFollowUser;
         readonly VoidCallback pushToLogin;
+        readonly GestureTapCallback onPressBloggerMore;
         readonly GestureTapCallback onPressMore;
         readonly StringCallback onPressItem;
 
@@ -431,7 +434,7 @@ namespace ConnectApp.Components {
                                     "image/blogger",
                                     "推荐博主",
                                     EdgeInsets.only(16, 16, bottom: 16),
-                                    onPress: this.onPressMore
+                                    onPress: this.onPressBloggerMore
                                 ),
                                 new Container(
                                     height: 230,
