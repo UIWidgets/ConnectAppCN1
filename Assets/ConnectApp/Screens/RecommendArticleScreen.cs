@@ -425,7 +425,7 @@ namespace ConnectApp.screens {
 
         Widget _buildRecommendLeaderBoard() {
             return new RecommendLeaderBoard(
-                data: this.widget.viewModel.homeTopCollectionIds,
+                data: this.widget.viewModel.homeCollectionIds,
                 rankDict: this.widget.viewModel.rankDict,
                 favoriteTagDict: this.widget.viewModel.favoriteTagDict,
                 favoriteTagArticleDict: this.widget.viewModel.favoriteTagArticleDict,
@@ -436,7 +436,7 @@ namespace ConnectApp.screens {
 
         Widget _buildLeaderBoard() {
             return new LeaderBoard(
-                data: this.widget.viewModel.homeCollectionIds,
+                data: this.widget.viewModel.homeTopCollectionIds,
                 rankDict: this.widget.viewModel.rankDict,
                 favoriteTagDict: this.widget.viewModel.favoriteTagDict,
                 () => this.widget.actionModel.pushToLeaderBoard(),
