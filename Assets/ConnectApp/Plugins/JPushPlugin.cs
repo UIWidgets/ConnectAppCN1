@@ -347,41 +347,9 @@ namespace ConnectApp.Plugins {
             else if (type == "weixin") {
                 if (subType == "miniprogram") {
                     if (WechatPlugin.instance().isInstalled()) {
-                        CustomDialogUtils.showCustomDialog(
-                            barrierColor: Color.fromRGBO(0, 0, 0, 0.5f),
-                            child: new CustomAlertDialog(
-                                "即将前往微信小程序开始观看",
-                                null,
-                                new List<Widget> {
-                                    new CustomButton(
-                                        child: new Text(
-                                            "稍后再说",
-                                            style: new TextStyle(
-                                                height: 1.33f,
-                                                fontSize: 16,
-                                                fontFamily: "Roboto-Regular",
-                                                color: new Color(0xFF959595)
-                                            ),
-                                            textAlign: TextAlign.center
-                                        ),
-                                        onPressed: CustomDialogUtils.hiddenCustomDialog
-                                    ),
-                                    new CustomButton(
-                                        child: new Text(
-                                            "立即前往",
-                                            style: CTextStyle.PLargeBlue,
-                                            textAlign: TextAlign.center
-                                        ),
-                                        onPressed: () => {
-                                            CustomDialogUtils.hiddenCustomDialog();
-                                            var path = CStringUtils.CreateMiniPath(id: id,
-                                                title: "");
-                                            WechatPlugin.instance().toOpenMiNi(path);
-                                        }
-                                    )
-                                }
-                            )
-                        );
+                        var path = CStringUtils.CreateMiniPath(id: id,
+                            title: "");
+                        WechatPlugin.instance().toOpenMiNi(path);
                     }  
                 }
             }
