@@ -98,12 +98,12 @@ namespace ConnectApp.screens {
         }
 
         public override void dispose() {
-            StatusBarManager.statusBarStyle(false);
             Router.routeObserve.unsubscribe(this);
             base.dispose();
         }
 
         public void didPop() {
+            // TODO: doesn't work
             QRScanPlugin.qrCodeToken = null;
         }
 
@@ -114,6 +114,8 @@ namespace ConnectApp.screens {
         }
 
         public void didPushNext() {
+            // TODO: doesn't work
+            StatusBarManager.statusBarStyle(true);
         }
 
         public override Widget build(BuildContext context) {
