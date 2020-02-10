@@ -11,8 +11,11 @@ using ConnectApp.Utils;
 using Unity.UIWidgets.engine;
 using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.painting;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 using EventType = ConnectApp.Models.State.EventType;
 #if UNITY_IOS
 using System.Runtime.InteropServices;
@@ -230,6 +233,9 @@ namespace ConnectApp.Plugins {
                     else if (uri.AbsolutePath.Equals("/rank")) {
                         type = "rank";
                     }
+                    else if (uri.AbsolutePath.Equals("/weixin")) {
+                        type = "weixin";
+                    }
                     else {
                         return;
                     }
@@ -337,6 +343,15 @@ namespace ConnectApp.Plugins {
                 StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToLeaderBoardAction {
                     initIndex = initIndex
                 });
+            }
+            else if (type == "weixin") {
+                if (subType == "miniprogram") {
+                    if (WechatPlugin.instance().isInstalled()) {
+                        var path = CStringUtils.CreateMiniPath(id: id,
+                            title: "");
+                        WechatPlugin.instance().toOpenMiNi(path);
+                    }  
+                }
             }
         }
 
