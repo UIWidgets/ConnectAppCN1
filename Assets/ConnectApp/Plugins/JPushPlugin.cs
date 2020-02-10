@@ -230,6 +230,9 @@ namespace ConnectApp.Plugins {
                     else if (uri.AbsolutePath.Equals("/rank")) {
                         type = "rank";
                     }
+                    else if (uri.AbsolutePath.Equals("/weixin")) {
+                        type = "weixin";
+                    }
                     else {
                         return;
                     }
@@ -337,6 +340,13 @@ namespace ConnectApp.Plugins {
                 StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToLeaderBoardAction {
                     initIndex = initIndex
                 });
+            }
+            else if (type == "weixin") {
+                if (subType == "miniprogram") {
+                    var path = CStringUtils.CreateMiniPath(id: id,
+                        title: "");
+                    WechatPlugin.instance().toOpenMiNi(path);
+                }
             }
         }
 
