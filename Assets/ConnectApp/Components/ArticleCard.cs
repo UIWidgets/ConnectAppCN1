@@ -55,7 +55,7 @@ namespace ConnectApp.Components {
                             padding: EdgeInsets.symmetric(horizontal: 16),
                             child: new Text(
                                 data: this.article.title,
-                                style: CTextStyle.H5,
+                                style: CTextStyle.PXLargeMedium.copyWith(height:1.44f),
                                 maxLines: 2,
                                 textAlign: TextAlign.left,
                                 overflow: TextOverflow.ellipsis

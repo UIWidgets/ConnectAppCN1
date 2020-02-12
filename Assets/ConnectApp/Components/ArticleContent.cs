@@ -486,10 +486,12 @@ namespace ConnectApp.Components {
                                     child: new Stack(
                                         fit: StackFit.expand,
                                         children: new List<Widget> {
-                                            Image.asset(
-                                                "image/blogger-avatar-pattern",
-                                                fit: BoxFit.fill
-                                            ),
+                                            user.coverImage.isNotEmpty()
+                                                ? Image.network(user.coverImage, fit: BoxFit.fill)
+                                                : Image.asset(
+                                                    "image/blogger-avatar-pattern",
+                                                    fit: BoxFit.fill
+                                                ),
                                             Positioned.fill(
                                                 new Center(
                                                     child: Avatar.User(user: user, 64, true)
@@ -566,9 +568,11 @@ namespace ConnectApp.Components {
                     var left = 0;
                     if (index == 1) {
                         left = 36;
-                    } else if (index == 2) {
+                    }
+                    else if (index == 2) {
                         left = 72;
                     }
+
                     items.Add(new Positioned(
                             Avatar.User(user: user, 44, true),
                             left: left
@@ -587,6 +591,7 @@ namespace ConnectApp.Components {
             else if (bloggerIds.Count == 3) {
                 width = 124;
             }
+
             var avatar = new Container(
                 height: 44,
                 width: width,
@@ -709,7 +714,8 @@ namespace ConnectApp.Components {
                                                                     80,
                                                                     0,
                                                                     8,
-                                                                    8
+                                                                    8,
+                                                                    true
                                                                 )
                                                             ),
                                                             new Expanded(
