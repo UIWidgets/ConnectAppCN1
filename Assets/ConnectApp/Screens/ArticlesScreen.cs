@@ -310,11 +310,11 @@ namespace ConnectApp.screens {
                     selectedColor: CColors.TextTitle,
                     unselectedColor: CColors.TextBody4,
                     unselectedTextStyle: new TextStyle(
-                        fontSize: 20,
+                        fontSize: 18,
                         fontFamily: "Roboto-Medium"
                     ),
                     selectedTextStyle: new TextStyle(
-                        fontSize: 20,
+                        fontSize: 18,
                         fontFamily: "Roboto-Medium"
                     ),
                     controller: this._tabController,
