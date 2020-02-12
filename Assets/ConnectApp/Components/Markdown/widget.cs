@@ -7,6 +7,7 @@ using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.widgets;
+using SyntaxHighlight;
 using UnityEngine;
 
 namespace markdown {
@@ -22,6 +23,12 @@ namespace markdown {
         public abstract TextSpan format(string source);
     }
 
+    public class CSharpSyntaxHighlighter : SyntaxHighlighter {
+        Highlighter highlighter = new Highlighter();
+        public override TextSpan format(string source) {
+            return highlighter.Highlight("C#", source);
+        }
+    }
 
     public abstract class MarkdownWidget : StatefulWidget {
         protected MarkdownWidget(

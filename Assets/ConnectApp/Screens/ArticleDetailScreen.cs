@@ -421,6 +421,7 @@ namespace ConnectApp.screens {
             };
             if (this._article.bodyType == "markdown" && this._article.markdownBody.isNotEmpty()) {
                 originItems.Add(new Markdown(null, this._article.markdownBody,
+                    syntaxHighlighter: new markdown.CSharpSyntaxHighlighter(),
                     onTapLink: url => this.widget.actionModel.openUrl(url)));
             }
             else {
