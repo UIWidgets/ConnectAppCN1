@@ -171,7 +171,6 @@ namespace ConnectApp.Constants {
         );
 
         public static readonly TextStyle PXLargeMedium = new TextStyle(
-            height: 1.44f,
             fontSize: 18,
             fontFamily: "Roboto-Medium",
             color: CColors.TextTitle
