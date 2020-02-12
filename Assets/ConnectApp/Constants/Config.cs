@@ -20,9 +20,9 @@ namespace ConnectApp.Constants {
 
         public const string miniId = "gh_f731aec0bdd0";
 
-        public const string versionName = "2.0.0";
+        public const string versionName = "2.0.1";
 
-        public const int versionCode = 102;
+        public const int versionCode = 103;
 
         public const string messengerTag = "messenger";
 
