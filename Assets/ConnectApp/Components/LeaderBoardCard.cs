@@ -84,6 +84,7 @@ namespace ConnectApp.Components {
                             new SizedBox(width: 16),
                             new CoverImages(
                                 images: images,
+                                horizontalGap:8,
                                 verticalGap: 0
                             )
                         }
@@ -180,6 +181,7 @@ namespace ConnectApp.Components {
                             new SizedBox(width: 16),
                             new CoverImages(
                                 images: images,
+                                horizontalGap:8,
                                 verticalGap: 0
                             )
                         }
