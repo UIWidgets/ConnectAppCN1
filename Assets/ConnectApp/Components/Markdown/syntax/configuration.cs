@@ -17,7 +17,7 @@ namespace SyntaxHighlight {
     public class XmlConfiguration : IConfiguration {
         private IDictionary<string, Definition> definitions;
         public IDictionary<string, Definition> Definitions {
-            get { return GetDefinitions(); }
+            get { return this.GetDefinitions(); }
         }
 
         public XDocument XmlDocument { get; protected set; }
@@ -27,28 +27,28 @@ namespace SyntaxHighlight {
                 throw new ArgumentNullException("xmlDocument");
             }
 
-            XmlDocument = xmlDocument;
+            this.XmlDocument = xmlDocument;
         }
 
         protected XmlConfiguration() {
         }
 
         private IDictionary<string, Definition> GetDefinitions() {
-            if(definitions == null) {
-                definitions = XmlDocument
+            if(this.definitions == null) {
+                this.definitions = this.XmlDocument
                     .Descendants("definition")
-                    .Select(GetDefinition)
+                    .Select(selector: this.GetDefinition)
                     .ToDictionary(x => x.Name);
             }
 
-            return definitions;
+            return this.definitions;
         }
 
         private Definition GetDefinition(XElement definitionElement) {
             var name = definitionElement.GetAttributeValue("name");
-            var patterns = GetPatterns(definitionElement);
+            var patterns = this.GetPatterns(definitionElement);
             var caseSensitive = Boolean.Parse(definitionElement.GetAttributeValue("caseSensitive"));
-            var style = GetDefinitionStyle(definitionElement);
+            var style = this.GetDefinitionStyle(definitionElement);
 
             return new Definition(name, caseSensitive, style, patterns);
         }
@@ -56,7 +56,7 @@ namespace SyntaxHighlight {
         private IDictionary<string, Pattern> GetPatterns(XContainer definitionElement) {
             var patterns = definitionElement
                 .Descendants("pattern")
-                .Select(GetPattern)
+                .Select(this.GetPattern)
                 .ToDictionary(x => x.Name);
 
             return patterns;
@@ -66,13 +66,13 @@ namespace SyntaxHighlight {
             const StringComparison stringComparison = StringComparison.OrdinalIgnoreCase;
             var patternType = patternElement.GetAttributeValue("type");
             if(patternType.Equals("block", stringComparison)) {
-                return GetBlockPattern(patternElement);
+                return this.GetBlockPattern(patternElement);
             }
             if(patternType.Equals("markup", stringComparison)) {
-                return GetMarkupPattern(patternElement);
+                return this.GetMarkupPattern(patternElement);
             }
             if(patternType.Equals("word", stringComparison)) {
-                return GetWordPattern(patternElement);
+                return this.GetWordPattern(patternElement);
             }
 
             throw new InvalidOperationException(String.Format("Unknown pattern type: {0}", patternType));
@@ -80,7 +80,7 @@ namespace SyntaxHighlight {
 
         private BlockPattern GetBlockPattern(XElement patternElement) {
             var name = patternElement.GetAttributeValue("name");
-            var style = GetPatternStyle(patternElement);
+            var style = this.GetPatternStyle(patternElement);
             var beginsWith = patternElement.GetAttributeValue("beginsWith");
             var endsWith = patternElement.GetAttributeValue("endsWith");
             var escapesWith = patternElement.GetAttributeValue("escapesWith");
@@ -90,19 +90,19 @@ namespace SyntaxHighlight {
 
         private MarkupPattern GetMarkupPattern(XElement patternElement) {
             var name = patternElement.GetAttributeValue("name");
-            var style = GetPatternStyle(patternElement);
+            var style = this.GetPatternStyle(patternElement);
             var highlightAttributes = Boolean.Parse(patternElement.GetAttributeValue("highlightAttributes"));
-            var bracketColors = GetMarkupPatternBracketColors(patternElement);
-            var attributeNameColors = GetMarkupPatternAttributeNameColors(patternElement);
-            var attributeValueColors = GetMarkupPatternAttributeValueColors(patternElement);
+            var bracketColors = this.GetMarkupPatternBracketColors(patternElement);
+            var attributeNameColors = this.GetMarkupPatternAttributeNameColors(patternElement);
+            var attributeValueColors = this.GetMarkupPatternAttributeValueColors(patternElement);
 
             return new MarkupPattern(name, style, highlightAttributes, bracketColors, attributeNameColors, attributeValueColors);
         }
 
         private WordPattern GetWordPattern(XElement patternElement) {
             var name = patternElement.GetAttributeValue("name");
-            var style = GetPatternStyle(patternElement);
-            var words = GetPatternWords(patternElement);
+            var style = this.GetPatternStyle(patternElement);
+            var words = this.GetPatternWords(patternElement);
 
             return new WordPattern(name, style, words);
         }
@@ -119,15 +119,15 @@ namespace SyntaxHighlight {
 
         private Style GetPatternStyle(XContainer patternElement) {
             var fontElement = patternElement.Descendants("font").Single();
-            var colors = GetPatternColors(fontElement);
-            var font = GetPatternFont(fontElement);
+            var colors = this.GetPatternColors(fontElement);
+            var font = this.GetPatternFont(fontElement);
 
             return new Style(colors, font);
         }
 
         private ColorPair GetPatternColors(XElement fontElement) {
-            var foreColor = ColorFromName(fontElement.GetAttributeValue("foreColor"));
-            var backColor = ColorFromName(fontElement.GetAttributeValue("backColor"));
+            var foreColor = this.ColorFromName(fontElement.GetAttributeValue("foreColor"));
+            var backColor = this.ColorFromName(fontElement.GetAttributeValue("backColor"));
 
             return new ColorPair(foreColor, backColor);
         }
@@ -156,24 +156,24 @@ namespace SyntaxHighlight {
 
         private ColorPair GetMarkupPatternBracketColors(XContainer patternElement) {
             const string descendantName = "bracketStyle";
-            return GetMarkupPatternColors(patternElement, descendantName);
+            return this.GetMarkupPatternColors(patternElement, descendantName);
         }
 
         private ColorPair GetMarkupPatternAttributeNameColors(XContainer patternElement) {
             const string descendantName = "attributeNameStyle";
-            return GetMarkupPatternColors(patternElement, descendantName);
+            return this.GetMarkupPatternColors(patternElement, descendantName);
         }
 
         private ColorPair GetMarkupPatternAttributeValueColors(XContainer patternElement) {
             const string descendantName = "attributeValueStyle";
-            return GetMarkupPatternColors(patternElement, descendantName);
+            return this.GetMarkupPatternColors(patternElement, descendantName);
         }
 
         private ColorPair GetMarkupPatternColors(XContainer patternElement, XName descendantName) {
             var fontElement = patternElement.Descendants("font").Single();
             var element = fontElement.Descendants(descendantName).SingleOrDefault();
             if(element != null) {
-                var colors = GetPatternColors(element);
+                var colors = this.GetPatternColors(element);
 
                 return colors;
             }
@@ -184,14 +184,14 @@ namespace SyntaxHighlight {
         private Style GetDefinitionStyle(XNode definitionElement) {
             const string xpath = "default/font";
             var fontElement = definitionElement.XPathSelectElement(xpath);
-            var colors = GetDefinitionColors(fontElement);
-            var font = GetDefinitionFont(fontElement);
+            var colors = this.GetDefinitionColors(fontElement);
+            var font = this.GetDefinitionFont(fontElement);
             return new Style(colors, font);
         }
 
         private ColorPair GetDefinitionColors(XElement fontElement) {
-            var foreColor = ColorFromName(fontElement.GetAttributeValue("foreColor"));
-            var backColor = ColorFromName(fontElement.GetAttributeValue("backColor"));
+            var foreColor = this.ColorFromName(fontElement.GetAttributeValue("foreColor"));
+            var backColor = this.ColorFromName(fontElement.GetAttributeValue("backColor"));
             return new ColorPair(foreColor, backColor);
         }
 

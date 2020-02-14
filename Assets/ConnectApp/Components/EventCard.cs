@@ -63,7 +63,7 @@ namespace ConnectApp.Components {
                                             height: 1.33f,
                                             fontSize: 24,
                                             fontFamily: "Roboto-Bold",
-                                            color: CColors.SecondaryPink
+                                            color: CColors.Error
                                         )
                                     ),
                                     new Text(
@@ -123,7 +123,7 @@ namespace ConnectApp.Components {
                                                         end: Alignment.centerRight,
                                                         this.model.mode == "online"
                                                             ? new List<Color> {
-                                                                Color.fromARGB(255, 250, 69, 198),
+                                                                Color.fromARGB(255, 250, 120, 102),
                                                                 CColors.SecondaryPink
                                                             }
                                                             : new List<Color> {

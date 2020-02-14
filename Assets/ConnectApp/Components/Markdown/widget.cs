@@ -26,7 +26,7 @@ namespace markdown {
     public class CSharpSyntaxHighlighter : SyntaxHighlighter {
         Highlighter highlighter = new Highlighter();
         public override TextSpan format(string source) {
-            return highlighter.Highlight("C#", source);
+            return this.highlighter.Highlight("C#", source);
         }
     }
 

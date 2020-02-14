@@ -5,6 +5,7 @@ using ConnectApp.Constants;
 using ConnectApp.Models.Model;
 using ConnectApp.Utils;
 using Newtonsoft.Json;
+using SyntaxHighlight;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -19,6 +20,7 @@ namespace ConnectApp.Components {
         const int codeBlockNumber = 10;
         static readonly Color codeBlockBackgroundColor = Color.fromRGBO(110, 198, 255, 0.12f);
         public static readonly List<string> imageUrls = new List<string>();
+        static readonly Highlighter highlighter = new Highlighter();
 
         public static List<Widget> map(BuildContext context, string cont, Dictionary<string, ContentMap> contentMap,
             Dictionary<string, VideoSliceMap> videoSliceMap, Dictionary<string, string> videoPosterMap,
@@ -314,7 +316,6 @@ namespace ConnectApp.Components {
                             i++;
                         }
                     }
-
                     var codeWidget = new TipMenu(
                         new List<TipMenuItem> {
                             new TipMenuItem(
@@ -325,9 +326,8 @@ namespace ConnectApp.Components {
                         new Container(
                             color: codeBlockBackgroundColor,
                             padding: EdgeInsets.symmetric(horizontal: 16),
-                            child: new Text(
-                                data: codeBlockGroup,
-                                style: CTextStyle.PCodeStyle
+                            child: new RichText(
+                                text: highlighter.Highlight("C#", input: codeBlockGroup)
                             )
                         )
                     );
