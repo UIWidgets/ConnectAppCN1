@@ -101,6 +101,7 @@ namespace ConnectApp.redux.reducers {
                     MyReactionsManager.clearData();
                     state.loginState.loginInfo = new LoginInfo();
                     state.loginState.isLoggedIn = false;
+                    state.loginState.newNotifications = null;
                     UserInfoManager.clearUserInfo();
                     BuglyAgent.SetUserId("anonymous");
                     state.articleState.articleHistory = HistoryManager.articleHistoryList();
