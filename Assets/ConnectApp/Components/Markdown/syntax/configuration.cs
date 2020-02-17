@@ -142,12 +142,14 @@ namespace SyntaxHighlight {
             var fontFamily = fontElement.GetAttributeValue("name");
             if(fontFamily != null) {
                 var emSize = fontElement.GetAttributeValue("size").ToSingle(11f);
+                var height = fontElement.GetAttributeValue("height").ToSingle(1.46f);
                 var style = Enum<FontStyle>.Parse(fontElement.GetAttributeValue("style"), FontStyle.normal, true);
 
                 return new TextStyle(
                     fontFamily: fontFamily,
                     fontSize: emSize,
-                    fontStyle: style
+                    fontStyle: style,
+                    height: height
                 );
             }
 

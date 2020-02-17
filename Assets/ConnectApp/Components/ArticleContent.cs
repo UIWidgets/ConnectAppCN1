@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using ConnectApp.Constants;
 using ConnectApp.Models.Model;
+using ConnectApp.redux;
 using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
@@ -48,6 +49,11 @@ namespace ConnectApp.Components {
     public class _KingKongViewState : State<KingKongView> {
         public override void initState() {
             base.initState();
+            int currentTabIndex = StoreProvider.store.getState().tabBarState.currentTabIndex;
+            if (currentTabIndex != 0) {
+                return;
+            }
+
             Promise.Delayed(TimeSpan.FromMilliseconds(1)).Then(() => {
                 var rect = this.context.getContextRect();
                 var kingKongTypes = PreferencesManager.initKingKongType();

@@ -1307,6 +1307,7 @@ namespace SyntaxHighlight {
       <word>#region</word>
       <word>#endregion</word>
       <word>#pragma</word>
+      <word>#checksum</word>
     </pattern>
   </definition>
   <definition name=""COBOL"" caseSensitive=""true"">
