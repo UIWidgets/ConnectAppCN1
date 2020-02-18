@@ -206,8 +206,6 @@ namespace ConnectApp.redux.actions {
                             }
                         });
                         dispatcher.dispatch(new PlaceMapAction {placeMap = userArticleResponse.placeMap});
-                        dispatcher.dispatch(new UserMapAction {userMap = userArticleResponse.userMap});
-                        dispatcher.dispatch(new TeamMapAction {teamMap = userArticleResponse.teamMap});
                         dispatcher.dispatch(new FollowMapAction {followMap = userArticleResponse.followMap});
                         dispatcher.dispatch(new LikeMapAction {likeMap = userArticleResponse.likeMap});
                         dispatcher.dispatch(new FetchUserArticleSuccessAction {

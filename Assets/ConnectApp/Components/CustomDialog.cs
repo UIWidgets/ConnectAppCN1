@@ -59,10 +59,10 @@ namespace ConnectApp.Components {
                                         decoration: new BoxDecoration(
                                             color: this.backgroundColor,
                                             borderRadius: this.header == null
-                                                ? BorderRadius.all(Radius.circular((float)this.radius)) 
+                                                ? BorderRadius.all(Radius.circular((float) this.radius))
                                                 : BorderRadius.only(
-                                                    bottomRight: Radius.circular((float)this.radius), 
-                                                    bottomLeft: Radius.circular((float)this.radius)
+                                                    bottomRight: Radius.circular((float) this.radius),
+                                                    bottomLeft: Radius.circular((float) this.radius)
                                                 )
                                         ),
                                         child: this.child
@@ -194,7 +194,6 @@ namespace ConnectApp.Components {
 
                 children.Add(new Container(
                     height: maxHeight,
-                    alignment: Alignment.center,
                     child: new CustomScrollbar(
                         new SingleChildScrollView(
                             child: new Padding(
@@ -248,7 +247,8 @@ namespace ConnectApp.Components {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: children
-                )
+                ),
+                stepWidth: MediaQuery.of(context: context).size.width - 80
             );
 
             return new CustomDialog(
