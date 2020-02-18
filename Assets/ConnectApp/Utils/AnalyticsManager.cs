@@ -493,6 +493,23 @@ namespace ConnectApp.Utils {
             };
             AnalyticsApi.AnalyticsApp(userId: userId, "QRScan", data: data);
         }
+        
+        public static void AnalyticsTinyWasm(string url, string name) {
+            if (Application.isEditor) {
+                return;
+            }
+
+            var userId = UserInfoManager.isLogin() ? UserInfoManager.getUserInfo().userId : null;
+            var data = new List<Dictionary<string, string>> {
+                new Dictionary<string, string> {
+                    {"key", "url"}, {"dataType", "string"}, {"value", url}
+                },
+                new Dictionary<string, string> {
+                    {"key", "name"}, {"dataType", "string"}, {"value", name}
+                }
+            };
+            AnalyticsApi.AnalyticsApp(userId: userId, "TinyWasm", data: data);
+        }
 
         public static void AnalyticsHandleFavoriteTag(FavoriteTagType type) {
             if (Application.isEditor) {
