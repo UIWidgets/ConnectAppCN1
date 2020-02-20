@@ -29,6 +29,7 @@ namespace ConnectApp.Models.State {
         public TabBarState tabBarState { get; set; }
         public FavoriteState favoriteState { get; set; }
         public LeaderBoardState leaderBoardState { get; set; }
+        public GameState gameState { get; set; }
 
         public static AppState initialState() {
             var loginInfo = UserInfoManager.getUserInfo();
@@ -240,6 +241,12 @@ namespace ConnectApp.Models.State {
                     columnDict = new Dictionary<string, List<string>>(),
                     collectionDict = new Dictionary<string, List<string>>(),
                     detailCollectLoading = false
+                },
+                gameState = new GameState {
+                    gameLoading = false,
+                    gameIds = new List<string>(),
+                    gamePage = 1,
+                    gameHasMore = false
                 },
                 networkState = new NetworkState {
                     networkConnected = true,

@@ -3952,6 +3952,32 @@ namespace ConnectApp.redux.reducers {
                     state.channelState.mentionSearching = false;
                     break;
                 }
+
+                case StartFetchGameAction _: {
+                    state.gameState.gameLoading = true;
+                    break;
+                }
+
+                case FetchGameSuccessAction action: {
+                    state.gameState.gameLoading = false;
+                    if (action.pageNumber == 1) {
+                        state.gameState.gameIds = action.gameIds;
+                    }
+                    else {
+                        var gameIds = state.gameState.gameIds;
+                        gameIds.AddRange(collection: action.gameIds);
+                        state.gameState.gameIds = gameIds;
+                    }
+
+                    state.gameState.gameHasMore = action.hasMore;
+                    state.gameState.gamePage = action.pageNumber;
+                    break;
+                }
+
+                case FetchGameFailureAction _: {
+                    state.gameState.gameLoading = false;
+                    break;
+                }
             }
 
             return state;

@@ -6,7 +6,6 @@ using ConnectApp.Main;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
-using ConnectApp.Plugins;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
@@ -45,8 +44,9 @@ namespace ConnectApp.screens {
                         },
                         pushToGame = () => {
                             if (CCommonUtils.isIPhone) {
-                                // TODO: push to gamelist
-                                TinyWasmPlugin.PushToTinyWasmScreen("http://192.168.1.11:8080", "TinyRacing.wasm");
+                                dispatcher.dispatch(new MainNavigatorPushToAction {
+                                    routeName = MainNavigatorRoutes.Game
+                                });
                             }
                             else {
                                 var url = LocalDataManager.getTinyGameUrl();
