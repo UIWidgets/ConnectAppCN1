@@ -3,7 +3,7 @@ using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 
 namespace ConnectApp.Plugins {
-    public class TinyWasmPlugin {
+    public static class TinyWasmPlugin {
         public static void PushToTinyWasmScreen(string url, string name) {
             if (!CCommonUtils.isIPhone || !url.isNotEmpty() || !name.isNotEmpty()) {
                 return;
