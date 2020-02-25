@@ -47,6 +47,7 @@ namespace ConnectApp.Main {
         public const string HomeEvent = "/home-event";
         public const string Blogger = "/blogger";
         public const string ForceUpdate = "/force-update";
+        public const string Game = "/game";
     }
 
     class Router : StatelessWidget {
@@ -99,7 +100,8 @@ namespace ConnectApp.Main {
                     {MainNavigatorRoutes.ReactionsDetail, context => new ReactionsDetailScreenConnector("")},
                     {MainNavigatorRoutes.HomeEvent, context => new HomeEventsScreenConnector()},
                     {MainNavigatorRoutes.Blogger, context => new BloggerScreenConnector()},
-                    {MainNavigatorRoutes.ForceUpdate, context => new ForceUpdateScreen()}
+                    {MainNavigatorRoutes.ForceUpdate, context => new ForceUpdateScreen()},
+                    {MainNavigatorRoutes.Game, context => new GameScreenConnector()}
                 };
 
                 if (Application.isEditor) {
