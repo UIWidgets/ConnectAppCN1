@@ -26,43 +26,40 @@ namespace ConnectApp.Components {
                 return new Container();
             }
 
-            return new GestureDetector(
-                onTap: () => this.onTap?.Invoke(),
-                child: new Container(
-                    padding: EdgeInsets.all(16),
-                    color: CColors.White,
-                    child: new Row(
-                        children: new List<Widget> {
-                            new Container(
-                                margin: EdgeInsets.only(right: 8),
-                                child: new PlaceholderImage(
-                                    imageUrl: this.game.image,
-                                    60,
-                                    60,
-                                    4,
-                                    fit: BoxFit.cover,
-                                    true
-                                )
-                            ),
-                            new Expanded(
-                                child: new Column(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:  CrossAxisAlignment.start,
-                                    children: new List<Widget> {
-                                        new Text(data: this.game.resetTitle, style: CTextStyle.PLargeMedium),
-                                        new Text(data: this.game.resetDesc, style: CTextStyle.PRegularBody)
-                                    }
-                                )
-                            ),
-                            new Container(
-                                margin: EdgeInsets.only(8),
-                                child: new CustomButton(
-                                    child: new Text("Play"),
-                                    onPressed: this.onTap
-                                )
+            return new Container(
+                padding: EdgeInsets.all(16),
+                color: CColors.White,
+                child: new Row(
+                    children: new List<Widget> {
+                        new Container(
+                            margin: EdgeInsets.only(right: 8),
+                            child: new PlaceholderImage(
+                                imageUrl: this.game.image,
+                                60,
+                                60,
+                                4,
+                                fit: BoxFit.cover,
+                                true
                             )
-                        }
-                    )
+                        ),
+                        new Expanded(
+                            child: new Column(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment:  CrossAxisAlignment.start,
+                                children: new List<Widget> {
+                                    new Text(data: this.game.resetTitle, style: CTextStyle.PLargeMedium),
+                                    new Text(data: this.game.resetDesc, style: CTextStyle.PRegularBody)
+                                }
+                            )
+                        ),
+                        new Container(
+                            margin: EdgeInsets.only(8),
+                            child: new CustomButton(
+                                child: new Text("Play"),
+                                onPressed: this.onTap
+                            )
+                        )
+                    }
                 )
             );
         }

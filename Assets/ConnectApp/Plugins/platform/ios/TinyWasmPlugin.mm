@@ -6,7 +6,7 @@
 //
 
 #import "TinyWasmPlugin.h"
-#import "TinyWasmViewController.h"
+#import "TinyWasmViewPlayer.h"
 
 @implementation TinyWasmPlugin
 
@@ -14,11 +14,9 @@
 
 extern "C" {
     void pushToTinyWasmScreen(char* url, char* name) {
-        UIViewController *vc = UnityGetGLViewController();
         NSString *urlStr = [NSString stringWithUTF8String:url ? url : ""];
         NSString *nameStr = [NSString stringWithUTF8String:name ? name : ""];
-        TinyWasmViewController *tinyVc = [[TinyWasmViewController alloc] initWithUrl:urlStr name:nameStr];
-        [tinyVc setModalPresentationStyle:UIModalPresentationFullScreen];
-        [vc presentViewController:tinyVc animated:YES completion:nil];
+        TinyWasmViewPlayer *player = [[TinyWasmViewPlayer alloc] init];
+        [player loadTinyWasmWithUrl:urlStr name:nameStr];
     }
 }
