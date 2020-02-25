@@ -92,6 +92,7 @@ namespace ConnectApp.Components {
                                         padding: EdgeInsets.only(top: this.leftWidgetTopPadding),
                                         child: this.leftWidget ?? new CoverImages(
                                                    images: this.images,
+                                                   horizontalGap:8,
                                                    verticalGap: 0
                                                )
                                     ),
