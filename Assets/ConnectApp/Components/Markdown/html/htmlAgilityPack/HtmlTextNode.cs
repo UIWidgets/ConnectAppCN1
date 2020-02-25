@@ -1,14 +1,13 @@
 // HtmlAgilityPack V1.0 - Simon Mourier <simon underscore mourier at hotmail dot com>
-namespace HtmlAgilityPack
-{
+
+namespace HtmlAgilityPack {
     /// <summary>
     /// Represents an HTML text node.
     /// </summary>
-    public class HtmlTextNode : HtmlNode
-    {
+    public class HtmlTextNode : HtmlNode {
         #region Fields
 
-        private string _text;
+        string _text;
 
         #endregion
 
@@ -16,9 +15,7 @@ namespace HtmlAgilityPack
 
         internal HtmlTextNode(HtmlDocument ownerdocument, int index)
             :
-                base(HtmlNodeType.Text, ownerdocument, index)
-        {
-        }
+            base(HtmlNodeType.Text, ownerdocument, index) { }
 
         #endregion
 
@@ -27,41 +24,36 @@ namespace HtmlAgilityPack
         /// <summary>
         /// Gets or Sets the HTML between the start and end tags of the object. In the case of a text node, it is equals to OuterHtml.
         /// </summary>
-        public override string InnerHtml
-        {
-            get { return OuterHtml; }
-            set { _text = value; }
+        public override string InnerHtml {
+            get { return this.OuterHtml; }
+            set { this._text = value; }
         }
 
         /// <summary>
         /// Gets or Sets the object and its content in HTML.
         /// </summary>
-        public override string OuterHtml
-        {
-            get
-            {
-                if (_text == null)
-                {
+        public override string OuterHtml {
+            get {
+                if (this._text == null) {
                     return base.OuterHtml;
                 }
-                return _text;
+
+                return this._text;
             }
         }
 
         /// <summary>
         /// Gets or Sets the text of the node.
         /// </summary>
-        public string Text
-        {
-            get
-            {
-                if (_text == null)
-                {
+        public string Text {
+            get {
+                if (this._text == null) {
                     return base.OuterHtml;
                 }
-                return _text;
+
+                return this._text;
             }
-            set { _text = value; }
+            set { this._text = value; }
         }
 
         #endregion

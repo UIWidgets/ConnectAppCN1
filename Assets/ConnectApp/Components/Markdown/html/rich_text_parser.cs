@@ -14,7 +14,7 @@ using FontStyle = Unity.UIWidgets.ui.FontStyle;
 using Image = Unity.UIWidgets.widgets.Image;
 
 namespace html {
-    internal static class RichTextParserUtils {
+    static class RichTextParserUtils {
         public static readonly float OFFSET_TAGS_FONT_SIZE_FACTOR = 0.7f;
     }
 
@@ -233,7 +233,7 @@ namespace html {
         // style elements set a default style
         // for all child nodes
         // treat ol, ul, and blockquote like style elements also
-        private static List<string> _supportedStyleElements = new List<string> {
+        static List<string> _supportedStyleElements = new List<string> {
             "b",
             "i",
             "address",
@@ -272,7 +272,7 @@ namespace html {
         // eg. the "a" tag can contain a block of text or an image
         // sometimes "a" will be rendered with a textspan and recognizer
         // sometimes "a" will be rendered with a clickable Block
-        private static List<string> _supportedSpecialtyElements = new List<string> {
+        static List<string> _supportedSpecialtyElements = new List<string> {
             "a",
             "br",
             "table",
@@ -290,7 +290,7 @@ namespace html {
         // block-level widget, if a block level element
         // is found inside another block level element,
         // we simply treat it as a new block level element
-        private static List<string> _supportedBlockElements = new List<string> {
+        static List<string> _supportedBlockElements = new List<string> {
             "article",
             "aside",
             "body",
@@ -321,7 +321,7 @@ namespace html {
             "section"
         };
 
-        private static List<string> _supportedElements {
+        static List<string> _supportedElements {
             get {
                 var tmp = new List<string>();
                 tmp.AddRange(_supportedStyleElements);
@@ -335,7 +335,7 @@ namespace html {
         // however, the first time it is called, we make sure
         // to ignore the node itself, so we only pay attention
         // to the children
-        private bool _hasBlockChild(HtmlNode node, bool ignoreSelf = true) {
+        bool _hasBlockChild(HtmlNode node, bool ignoreSelf = true) {
             bool retval = false;
             if (node.NodeType == HtmlNodeType.Element) {
                 if (_supportedBlockElements.Contains(node.Name) && !ignoreSelf) {
@@ -421,7 +421,7 @@ namespace html {
         // function can add child nodes to the parent if it should
         //
         // each iteration creates a new parseContext as a copy of the previous one if it needs to
-        private void _parseNode(HtmlNode node, ParseContext parseContext, BuildContext buildContext) {
+        void _parseNode(HtmlNode node, ParseContext parseContext, BuildContext buildContext) {
             // TEXT ONLY NODES
             // a text only node is a child of a tag with no inner html
             if (node.NodeType == HtmlNodeType.Text) {
@@ -741,10 +741,19 @@ namespace html {
                                 flex: colspan,
                                 child: new Container(padding: EdgeInsets.all(1.0f), child: _text)
                             );
-                            if(nextContext.parentElement is Column column) column.children.Add(_cell);
-                            else if(nextContext.parentElement is Row row1) row1.children.Add(_cell);
-                            else if(nextContext.parentElement is TextSpan _span) _span.children.Add(span1);
-                            else Debug.LogError("nextContext.parentElement is " + nextContext.parentElement);
+                            if (nextContext.parentElement is Column column) {
+                                column.children.Add(_cell);
+                            }
+                            else if (nextContext.parentElement is Row row1) {
+                                row1.children.Add(_cell);
+                            }
+                            else if (nextContext.parentElement is TextSpan _span) {
+                                _span.children.Add(span1);
+                            }
+                            else {
+                                Debug.LogError("nextContext.parentElement is " + nextContext.parentElement);
+                            }
+
                             nextContext.parentElement = _text.text;
                             break;
 
@@ -825,11 +834,15 @@ namespace html {
                                 if (node.Attributes["src"] != null) {
                                     var width = this.imageProperties?.width ??
                                                 ((node.Attributes["width"] != null)
-                                                    ? float.Parse(node.Attributes["width"].Value.Substring(0, node.Attributes["width"].Value.LastIndexOfAny("01234567890".ToCharArray())+1))
+                                                    ? float.Parse(node.Attributes["width"].Value.Substring(0,
+                                                        node.Attributes["width"].Value
+                                                            .LastIndexOfAny("01234567890".ToCharArray()) + 1))
                                                     : (float?) null);
                                     var height = this.imageProperties?.height ??
                                                  ((node.Attributes["height"] != null)
-                                                     ? float.Parse(node.Attributes["height"].Value.Substring(0, node.Attributes["height"].Value.LastIndexOfAny("01234567890".ToCharArray())+1))
+                                                     ? float.Parse(node.Attributes["height"].Value.Substring(0,
+                                                         node.Attributes["height"].Value
+                                                             .LastIndexOfAny("01234567890".ToCharArray()) + 1))
                                                      : (float?) null);
 
                                     if (node.Attributes["src"].Value.StartsWith("data:image") &&

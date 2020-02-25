@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Diagnostics;
 
-namespace HtmlAgilityPack
-{
-   partial class Trace
-    {
-       partial void WriteLineIntern(string message,string category)
-       {
-           System.Diagnostics.Debug.WriteLine(message,category);
-       }
+namespace HtmlAgilityPack {
+    partial class Trace {
+        partial void WriteLineIntern(string message, string category) {
+            Debug.WriteLine(message, category);
+        }
     }
 }

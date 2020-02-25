@@ -1,19 +1,18 @@
 // HtmlAgilityPack V1.0 - Simon Mourier <simon underscore mourier at hotmail dot com>
-namespace HtmlAgilityPack
-{
+
+namespace HtmlAgilityPack {
     /// <summary>
     /// Represents a parsing error found during document parsing.
     /// </summary>
-    public class HtmlParseError
-    {
+    public class HtmlParseError {
         #region Fields
 
-        private HtmlParseErrorCode _code;
-        private int _line;
-        private int _linePosition;
-        private string _reason;
-        private string _sourceText;
-        private int _streamPosition;
+        HtmlParseErrorCode _code;
+        int _line;
+        int _linePosition;
+        string _reason;
+        string _sourceText;
+        int _streamPosition;
 
         #endregion
 
@@ -25,14 +24,13 @@ namespace HtmlAgilityPack
             int linePosition,
             int streamPosition,
             string sourceText,
-            string reason)
-        {
-            _code = code;
-            _line = line;
-            _linePosition = linePosition;
-            _streamPosition = streamPosition;
-            _sourceText = sourceText;
-            _reason = reason;
+            string reason) {
+            this._code = code;
+            this._line = line;
+            this._linePosition = linePosition;
+            this._streamPosition = streamPosition;
+            this._sourceText = sourceText;
+            this._reason = reason;
         }
 
         #endregion
@@ -42,49 +40,43 @@ namespace HtmlAgilityPack
         /// <summary>
         /// Gets the type of error.
         /// </summary>
-        public HtmlParseErrorCode Code
-        {
-            get { return _code; }
+        public HtmlParseErrorCode Code {
+            get { return this._code; }
         }
 
         /// <summary>
         /// Gets the line number of this error in the document.
         /// </summary>
-        public int Line
-        {
-            get { return _line; }
+        public int Line {
+            get { return this._line; }
         }
 
         /// <summary>
         /// Gets the column number of this error in the document.
         /// </summary>
-        public int LinePosition
-        {
-            get { return _linePosition; }
+        public int LinePosition {
+            get { return this._linePosition; }
         }
 
         /// <summary>
         /// Gets a description for the error.
         /// </summary>
-        public string Reason
-        {
-            get { return _reason; }
+        public string Reason {
+            get { return this._reason; }
         }
 
         /// <summary>
         /// Gets the the full text of the line containing the error.
         /// </summary>
-        public string SourceText
-        {
-            get { return _sourceText; }
+        public string SourceText {
+            get { return this._sourceText; }
         }
 
         /// <summary>
         /// Gets the absolute stream position of this error in the document, relative to the start of the document.
         /// </summary>
-        public int StreamPosition
-        {
-            get { return _streamPosition; }
+        public int StreamPosition {
+            get { return this._streamPosition; }
         }
 
         #endregion

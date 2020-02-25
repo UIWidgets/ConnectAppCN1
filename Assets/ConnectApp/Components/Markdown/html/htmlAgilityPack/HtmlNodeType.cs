@@ -1,11 +1,10 @@
 // HtmlAgilityPack V1.0 - Simon Mourier <simon underscore mourier at hotmail dot com>
-namespace HtmlAgilityPack
-{
+
+namespace HtmlAgilityPack {
     /// <summary>
     /// Represents the type of a node.
     /// </summary>
-    public enum HtmlNodeType
-    {
+    public enum HtmlNodeType {
         /// <summary>
         /// The root of a document.
         /// </summary>

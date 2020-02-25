@@ -1,28 +1,26 @@
 // HtmlAgilityPack V1.0 - Simon Mourier <simon underscore mourier at hotmail dot com>
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace HtmlAgilityPack
-{
+namespace HtmlAgilityPack {
     /// <summary>
     /// Represents a combined list and collection of HTML nodes.
     /// </summary>
-    public class HtmlAttributeCollection : IList<HtmlAttribute>
-    {
+    public class HtmlAttributeCollection : IList<HtmlAttribute> {
         #region Fields
 
         internal Dictionary<string, HtmlAttribute> Hashitems = new Dictionary<string, HtmlAttribute>();
-        private HtmlNode _ownernode;
-        private List<HtmlAttribute> items = new List<HtmlAttribute>();
+        HtmlNode _ownernode;
+        List<HtmlAttribute> items = new List<HtmlAttribute>();
 
         #endregion
 
         #region Constructors
 
-        internal HtmlAttributeCollection(HtmlNode ownernode)
-        {
-            _ownernode = ownernode;
+        internal HtmlAttributeCollection(HtmlNode ownernode) {
+            this._ownernode = ownernode;
         }
 
         #endregion
@@ -32,18 +30,16 @@ namespace HtmlAgilityPack
         /// <summary>
         /// Gets a given attribute from the list using its name.
         /// </summary>
-        public HtmlAttribute this[string name]
-        {
-            get
-            {
-                if (name == null)
-                {
+        public HtmlAttribute this[string name] {
+            get {
+                if (name == null) {
                     throw new ArgumentNullException("name");
                 }
+
                 HtmlAttribute value;
-                return Hashitems.TryGetValue(name.ToLower(), out value) ? value : null;
+                return this.Hashitems.TryGetValue(name.ToLower(), out value) ? value : null;
             }
-            set { Append(value); }
+            set { this.Append(value); }
         }
 
         #endregion
@@ -53,43 +49,38 @@ namespace HtmlAgilityPack
         /// <summary>
         /// Gets the number of elements actually contained in the list.
         /// </summary>
-        public int Count
-        {
-            get { return items.Count; }
+        public int Count {
+            get { return this.items.Count; }
         }
 
         /// <summary>
         /// Gets readonly status of colelction
         /// </summary>
-        public bool IsReadOnly
-        {
+        public bool IsReadOnly {
             get { return false; }
         }
 
         /// <summary>
         /// Gets the attribute at the specified index.
         /// </summary>
-        public HtmlAttribute this[int index]
-        {
-            get { return items[index]; }
-            set { items[index] = value; }
+        public HtmlAttribute this[int index] {
+            get { return this.items[index]; }
+            set { this.items[index] = value; }
         }
 
         /// <summary>
         /// Adds supplied item to collection
         /// </summary>
         /// <param name="item"></param>
-        public void Add(HtmlAttribute item)
-        {
-            Append(item);
+        public void Add(HtmlAttribute item) {
+            this.Append(item);
         }
 
         /// <summary>
         /// Explicit clear
         /// </summary>
-        void ICollection<HtmlAttribute>.Clear()
-        {
-            items.Clear();
+        void ICollection<HtmlAttribute>.Clear() {
+            this.items.Clear();
         }
 
         /// <summary>
@@ -97,9 +88,8 @@ namespace HtmlAgilityPack
         /// </summary>
         /// <param name="item"></param>
         /// <returns></returns>
-        public bool Contains(HtmlAttribute item)
-        {
-            return items.Contains(item);
+        public bool Contains(HtmlAttribute item) {
+            return this.items.Contains(item);
         }
 
         /// <summary>
@@ -107,27 +97,24 @@ namespace HtmlAgilityPack
         /// </summary>
         /// <param name="array"></param>
         /// <param name="arrayIndex"></param>
-        public void CopyTo(HtmlAttribute[] array, int arrayIndex)
-        {
-            items.CopyTo(array, arrayIndex);
+        public void CopyTo(HtmlAttribute[] array, int arrayIndex) {
+            this.items.CopyTo(array, arrayIndex);
         }
 
         /// <summary>
         /// Get Explicit enumerator
         /// </summary>
         /// <returns></returns>
-        IEnumerator<HtmlAttribute> IEnumerable<HtmlAttribute>.GetEnumerator()
-        {
-            return items.GetEnumerator();
+        IEnumerator<HtmlAttribute> IEnumerable<HtmlAttribute>.GetEnumerator() {
+            return this.items.GetEnumerator();
         }
 
         /// <summary>
         /// Explicit non-generic enumerator
         /// </summary>
         /// <returns></returns>
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return items.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() {
+            return this.items.GetEnumerator();
         }
 
         /// <summary>
@@ -135,9 +122,8 @@ namespace HtmlAgilityPack
         /// </summary>
         /// <param name="item"></param>
         /// <returns></returns>
-        public int IndexOf(HtmlAttribute item)
-        {
-            return items.IndexOf(item);
+        public int IndexOf(HtmlAttribute item) {
+            return this.items.IndexOf(item);
         }
 
         /// <summary>
@@ -145,18 +131,16 @@ namespace HtmlAgilityPack
         /// </summary>
         /// <param name="index"></param>
         /// <param name="item"></param>
-        public void Insert(int index, HtmlAttribute item)
-        {
-            if (item == null)
-            {
+        public void Insert(int index, HtmlAttribute item) {
+            if (item == null) {
                 throw new ArgumentNullException("item");
             }
 
-            Hashitems[item.Name] = item;
-            item._ownernode = _ownernode;
-            items.Insert(index, item);
+            this.Hashitems[item.Name] = item;
+            item._ownernode = this._ownernode;
+            this.items.Insert(index, item);
 
-            _ownernode.SetChanged();
+            this._ownernode.SetChanged();
         }
 
         /// <summary>
@@ -164,22 +148,20 @@ namespace HtmlAgilityPack
         /// </summary>
         /// <param name="item"></param>
         /// <returns></returns>
-        bool ICollection<HtmlAttribute>.Remove(HtmlAttribute item)
-        {
-            return items.Remove(item);
+        bool ICollection<HtmlAttribute>.Remove(HtmlAttribute item) {
+            return this.items.Remove(item);
         }
 
         /// <summary>
         /// Removes the attribute at the specified index.
         /// </summary>
         /// <param name="index">The index of the attribute to remove.</param>
-        public void RemoveAt(int index)
-        {
-            HtmlAttribute att = items[index];
-            Hashitems.Remove(att.Name);
-            items.RemoveAt(index);
+        public void RemoveAt(int index) {
+            HtmlAttribute att = this.items[index];
+            this.Hashitems.Remove(att.Name);
+            this.items.RemoveAt(index);
 
-            _ownernode.SetChanged();
+            this._ownernode.SetChanged();
         }
 
         #endregion
@@ -191,9 +173,8 @@ namespace HtmlAgilityPack
         /// </summary>
         /// <param name="name"></param>
         /// <param name="value"></param>
-        public void Add(string name, string value)
-        {
-            Append(name, value);
+        public void Add(string name, string value) {
+            this.Append(name, value);
         }
 
         /// <summary>
@@ -201,18 +182,16 @@ namespace HtmlAgilityPack
         /// </summary>
         /// <param name="newAttribute">The attribute to insert. May not be null.</param>
         /// <returns>The appended attribute.</returns>
-        public HtmlAttribute Append(HtmlAttribute newAttribute)
-        {
-            if (newAttribute == null)
-            {
+        public HtmlAttribute Append(HtmlAttribute newAttribute) {
+            if (newAttribute == null) {
                 throw new ArgumentNullException("newAttribute");
             }
 
-            Hashitems[newAttribute.Name] = newAttribute;
-            newAttribute._ownernode = _ownernode;
-            items.Add(newAttribute);
+            this.Hashitems[newAttribute.Name] = newAttribute;
+            newAttribute._ownernode = this._ownernode;
+            this.items.Add(newAttribute);
 
-            _ownernode.SetChanged();
+            this._ownernode.SetChanged();
             return newAttribute;
         }
 
@@ -221,10 +200,9 @@ namespace HtmlAgilityPack
         /// </summary>
         /// <param name="name">The name of the attribute to insert.</param>
         /// <returns>The appended attribute.</returns>
-        public HtmlAttribute Append(string name)
-        {
-            HtmlAttribute att = _ownernode._ownerdocument.CreateAttribute(name);
-            return Append(att);
+        public HtmlAttribute Append(string name) {
+            HtmlAttribute att = this._ownernode._ownerdocument.CreateAttribute(name);
+            return this.Append(att);
         }
 
         /// <summary>
@@ -233,10 +211,9 @@ namespace HtmlAgilityPack
         /// <param name="name">The name of the attribute to insert.</param>
         /// <param name="value">The value of the attribute to insert.</param>
         /// <returns>The appended attribute.</returns>
-        public HtmlAttribute Append(string name, string value)
-        {
-            HtmlAttribute att = _ownernode._ownerdocument.CreateAttribute(name, value);
-            return Append(att);
+        public HtmlAttribute Append(string name, string value) {
+            HtmlAttribute att = this._ownernode._ownerdocument.CreateAttribute(name, value);
+            return this.Append(att);
         }
 
         /// <summary>
@@ -244,13 +221,13 @@ namespace HtmlAgilityPack
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        public bool Contains(string name)
-        {
-            for (int i = 0; i < items.Count; i++)
-            {
-                if (items[i].Name.Equals(name.ToLower()))
+        public bool Contains(string name) {
+            for (int i = 0; i < this.items.Count; i++) {
+                if (this.items[i].Name.Equals(name.ToLower())) {
                     return true;
+                }
             }
+
             return false;
         }
 
@@ -259,9 +236,8 @@ namespace HtmlAgilityPack
         /// </summary>
         /// <param name="newAttribute">The attribute to insert. May not be null.</param>
         /// <returns>The prepended attribute.</returns>
-        public HtmlAttribute Prepend(HtmlAttribute newAttribute)
-        {
-            Insert(0, newAttribute);
+        public HtmlAttribute Prepend(HtmlAttribute newAttribute) {
+            this.Insert(0, newAttribute);
             return newAttribute;
         }
 
@@ -269,38 +245,33 @@ namespace HtmlAgilityPack
         /// Removes a given attribute from the list.
         /// </summary>
         /// <param name="attribute">The attribute to remove. May not be null.</param>
-        public void Remove(HtmlAttribute attribute)
-        {
-            if (attribute == null)
-            {
+        public void Remove(HtmlAttribute attribute) {
+            if (attribute == null) {
                 throw new ArgumentNullException("attribute");
             }
-            int index = GetAttributeIndex(attribute);
-            if (index == -1)
-            {
+
+            int index = this.GetAttributeIndex(attribute);
+            if (index == -1) {
                 throw new IndexOutOfRangeException();
             }
-            RemoveAt(index);
+
+            this.RemoveAt(index);
         }
 
         /// <summary>
         /// Removes an attribute from the list, using its name. If there are more than one attributes with this name, they will all be removed.
         /// </summary>
         /// <param name="name">The attribute's name. May not be null.</param>
-        public void Remove(string name)
-        {
-            if (name == null)
-            {
+        public void Remove(string name) {
+            if (name == null) {
                 throw new ArgumentNullException("name");
             }
 
             string lname = name.ToLower();
-            for (int i = 0; i < items.Count; i++)
-            {
-                HtmlAttribute att = items[i];
-                if (att.Name == lname)
-                {
-                    RemoveAt(i);
+            for (int i = 0; i < this.items.Count; i++) {
+                HtmlAttribute att = this.items[i];
+                if (att.Name == lname) {
+                    this.RemoveAt(i);
                 }
             }
         }
@@ -308,12 +279,11 @@ namespace HtmlAgilityPack
         /// <summary>
         /// Remove all attributes in the list.
         /// </summary>
-        public void RemoveAll()
-        {
-            Hashitems.Clear();
-            items.Clear();
+        public void RemoveAll() {
+            this.Hashitems.Clear();
+            this.items.Clear();
 
-            _ownernode.SetChanged();
+            this._ownernode.SetChanged();
         }
 
         #endregion
@@ -325,23 +295,22 @@ namespace HtmlAgilityPack
         /// </summary>
         /// <param name="attributeName">Name of the attribute</param>
         /// <returns></returns>
-        public IEnumerable<HtmlAttribute> AttributesWithName(string attributeName)
-        {
+        public IEnumerable<HtmlAttribute> AttributesWithName(string attributeName) {
             attributeName = attributeName.ToLower();
-            for (int i = 0; i < items.Count; i++)
-            {
-                if (items[i].Name.Equals(attributeName))
-                    yield return items[i];
+            for (int i = 0; i < this.items.Count; i++) {
+                if (this.items[i].Name.Equals(attributeName)) {
+                    yield return this.items[i];
+                }
             }
         }
 
         /// <summary>
         /// Removes all attributes from the collection
         /// </summary>
-        public void Remove()
-        {
-            foreach (HtmlAttribute item in items)
+        public void Remove() {
+            foreach (HtmlAttribute item in this.items) {
                 item.Remove();
+            }
         }
 
         #endregion
@@ -351,38 +320,37 @@ namespace HtmlAgilityPack
         /// <summary>
         /// Clears the attribute collection
         /// </summary>
-        internal void Clear()
-        {
-            Hashitems.Clear();
-            items.Clear();
+        internal void Clear() {
+            this.Hashitems.Clear();
+            this.items.Clear();
         }
 
-        internal int GetAttributeIndex(HtmlAttribute attribute)
-        {
-            if (attribute == null)
-            {
+        internal int GetAttributeIndex(HtmlAttribute attribute) {
+            if (attribute == null) {
                 throw new ArgumentNullException("attribute");
             }
-            for (int i = 0; i < items.Count; i++)
-            {
-                if ((items[i]) == attribute)
+
+            for (int i = 0; i < this.items.Count; i++) {
+                if ((this.items[i]) == attribute) {
                     return i;
+                }
             }
+
             return -1;
         }
 
-        internal int GetAttributeIndex(string name)
-        {
-            if (name == null)
-            {
+        internal int GetAttributeIndex(string name) {
+            if (name == null) {
                 throw new ArgumentNullException("name");
             }
+
             string lname = name.ToLower();
-            for (int i = 0; i < items.Count; i++)
-            {
-                if ((items[i]).Name == lname)
+            for (int i = 0; i < this.items.Count; i++) {
+                if ((this.items[i]).Name == lname) {
                     return i;
+                }
             }
+
             return -1;
         }
 

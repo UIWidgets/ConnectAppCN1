@@ -1,36 +1,32 @@
 // HtmlAgilityPack V1.0 - Simon Mourier <simon underscore mourier at hotmail dot com>
+
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
-namespace HtmlAgilityPack
-{
+namespace HtmlAgilityPack {
     /// <summary>
     /// A utility class to replace special characters by entities and vice-versa.
     /// Follows HTML 4.0 specification found at http://www.w3.org/TR/html4/sgml/entities.html
     /// </summary>
-    public class HtmlEntity
-    {
+    public class HtmlEntity {
         #region Static Members
 
-        private static readonly int _maxEntitySize;
-        private static Dictionary<int,string> _entityName;
-        private static Dictionary<string, int> _entityValue;
+        static readonly int _maxEntitySize;
+        static Dictionary<int, string> _entityName;
+        static Dictionary<string, int> _entityValue;
 
         /// <summary>
         /// A collection of entities indexed by name.
         /// </summary>
-        public static Dictionary<int, string> EntityName
-        {
+        public static Dictionary<int, string> EntityName {
             get { return _entityName; }
         }
 
         /// <summary>
         /// A collection of entities indexed by value.
         /// </summary>
-        public static Dictionary<string, int> EntityValue
-        {
+        public static Dictionary<string, int> EntityValue {
             get { return _entityValue; }
         }
 
@@ -38,8 +34,7 @@ namespace HtmlAgilityPack
 
         #region Constructors
 
-        static HtmlEntity()
-        {
+        static HtmlEntity() {
             _entityName = new Dictionary<int, string>();
             _entityValue = new Dictionary<string, int>();
 
@@ -68,7 +63,7 @@ namespace HtmlAgilityPack
             _entityValue.Add("ordf", 170); // feminine ordinal indicator, U+00AA ISOnum 
             _entityName.Add(170, "ordf");
             _entityValue.Add("laquo", 171);
-                // left-pointing double angle quotation mark = left pointing guillemet, U+00AB ISOnum 
+            // left-pointing double angle quotation mark = left pointing guillemet, U+00AB ISOnum 
             _entityName.Add(171, "laquo");
             _entityValue.Add("not", 172); // not sign, U+00AC ISOnum 
             _entityName.Add(172, "not");
@@ -101,7 +96,7 @@ namespace HtmlAgilityPack
             _entityValue.Add("ordm", 186); // masculine ordinal indicator, U+00BA ISOnum 
             _entityName.Add(186, "ordm");
             _entityValue.Add("raquo", 187);
-                // right-pointing double angle quotation mark = right pointing guillemet, U+00BB ISOnum 
+            // right-pointing double angle quotation mark = right pointing guillemet, U+00BB ISOnum 
             _entityName.Add(187, "raquo");
             _entityValue.Add("frac14", 188); // vulgar fraction one quarter = fraction one quarter, U+00BC ISOnum 
             _entityName.Add(188, "frac14");
@@ -112,7 +107,7 @@ namespace HtmlAgilityPack
             _entityValue.Add("iquest", 191); // inverted question mark = turned question mark, U+00BF ISOnum 
             _entityName.Add(191, "iquest");
             _entityValue.Add("Agrave", 192);
-                // latin capital letter A with grave = latin capital letter A grave, U+00C0 ISOlat1 
+            // latin capital letter A with grave = latin capital letter A grave, U+00C0 ISOlat1 
             _entityName.Add(192, "Agrave");
             _entityValue.Add("Aacute", 193); // latin capital letter A with acute, U+00C1 ISOlat1 
             _entityName.Add(193, "Aacute");
@@ -123,7 +118,7 @@ namespace HtmlAgilityPack
             _entityValue.Add("Auml", 196); // latin capital letter A with diaeresis, U+00C4 ISOlat1 
             _entityName.Add(196, "Auml");
             _entityValue.Add("Aring", 197);
-                // latin capital letter A with ring above = latin capital letter A ring, U+00C5 ISOlat1 
+            // latin capital letter A with ring above = latin capital letter A ring, U+00C5 ISOlat1 
             _entityName.Add(197, "Aring");
             _entityValue.Add("AElig", 198); // latin capital letter AE = latin capital ligature AE, U+00C6 ISOlat1 
             _entityName.Add(198, "AElig");
@@ -162,7 +157,7 @@ namespace HtmlAgilityPack
             _entityValue.Add("times", 215); // multiplication sign, U+00D7 ISOnum 
             _entityName.Add(215, "times");
             _entityValue.Add("Oslash", 216);
-                // latin capital letter O with stroke = latin capital letter O slash, U+00D8 ISOlat1 
+            // latin capital letter O with stroke = latin capital letter O slash, U+00D8 ISOlat1 
             _entityName.Add(216, "Oslash");
             _entityValue.Add("Ugrave", 217); // latin capital letter U with grave, U+00D9 ISOlat1 
             _entityName.Add(217, "Ugrave");
@@ -179,7 +174,7 @@ namespace HtmlAgilityPack
             _entityValue.Add("szlig", 223); // latin small letter sharp s = ess-zed, U+00DF ISOlat1 
             _entityName.Add(223, "szlig");
             _entityValue.Add("agrave", 224);
-                // latin small letter a with grave = latin small letter a grave, U+00E0 ISOlat1 
+            // latin small letter a with grave = latin small letter a grave, U+00E0 ISOlat1 
             _entityName.Add(224, "agrave");
             _entityValue.Add("aacute", 225); // latin small letter a with acute, U+00E1 ISOlat1 
             _entityName.Add(225, "aacute");
@@ -190,7 +185,7 @@ namespace HtmlAgilityPack
             _entityValue.Add("auml", 228); // latin small letter a with diaeresis, U+00E4 ISOlat1 
             _entityName.Add(228, "auml");
             _entityValue.Add("aring", 229);
-                // latin small letter a with ring above = latin small letter a ring, U+00E5 ISOlat1 
+            // latin small letter a with ring above = latin small letter a ring, U+00E5 ISOlat1 
             _entityName.Add(229, "aring");
             _entityValue.Add("aelig", 230); // latin small letter ae = latin small ligature ae, U+00E6 ISOlat1 
             _entityName.Add(230, "aelig");
@@ -229,7 +224,7 @@ namespace HtmlAgilityPack
             _entityValue.Add("divide", 247); // division sign, U+00F7 ISOnum 
             _entityName.Add(247, "divide");
             _entityValue.Add("oslash", 248);
-                // latin small letter o with stroke, = latin small letter o slash, U+00F8 ISOlat1 
+            // latin small letter o with stroke, = latin small letter o slash, U+00F8 ISOlat1 
             _entityName.Add(248, "oslash");
             _entityValue.Add("ugrave", 249); // latin small letter u with grave, U+00F9 ISOlat1 
             _entityName.Add(249, "ugrave");
@@ -563,9 +558,7 @@ namespace HtmlAgilityPack
             #endregion
         }
 
-        private HtmlEntity()
-        {
-        }
+        HtmlEntity() { }
 
         #endregion
 
@@ -576,25 +569,23 @@ namespace HtmlAgilityPack
         /// </summary>
         /// <param name="text">The source text.</param>
         /// <returns>The result text.</returns>
-        public static string DeEntitize(string text)
-        {
-            if (text == null)
+        public static string DeEntitize(string text) {
+            if (text == null) {
                 return null;
+            }
 
-            if (text.Length == 0)
+            if (text.Length == 0) {
                 return text;
+            }
 
             StringBuilder sb = new StringBuilder(text.Length);
             ParseState state = ParseState.Text;
             StringBuilder entity = new StringBuilder(10);
 
-            for (int i = 0; i < text.Length; i++)
-            {
-                switch (state)
-                {
+            for (int i = 0; i < text.Length; i++) {
+                switch (state) {
                     case ParseState.Text:
-                        switch (text[i])
-                        {
+                        switch (text[i]) {
                             case '&':
                                 state = ParseState.EntityStart;
                                 break;
@@ -603,61 +594,54 @@ namespace HtmlAgilityPack
                                 sb.Append(text[i]);
                                 break;
                         }
+
                         break;
 
                     case ParseState.EntityStart:
-                        switch (text[i])
-                        {
+                        switch (text[i]) {
                             case ';':
-                                if (entity.Length == 0)
-                                {
+                                if (entity.Length == 0) {
                                     sb.Append("&;");
                                 }
-                                else
-                                {
-                                    if (entity[0] == '#')
-                                    {
+                                else {
+                                    if (entity[0] == '#') {
                                         string e = entity.ToString();
-                                        try
- 										{
-											string codeStr = e.Substring(1).Trim().ToLower();
-											int fromBase;
-											if (codeStr.StartsWith("x"))
-											{
-												fromBase = 16;
-												codeStr = codeStr.Substring(1);
-											}
-											else
-											{
-												fromBase = 10;
-											}
-											int code = Convert.ToInt32(codeStr, fromBase);
- 											sb.Append(Convert.ToChar(code));
- 										}
-                                        catch
-                                        {
+                                        try {
+                                            string codeStr = e.Substring(1).Trim().ToLower();
+                                            int fromBase;
+                                            if (codeStr.StartsWith("x")) {
+                                                fromBase = 16;
+                                                codeStr = codeStr.Substring(1);
+                                            }
+                                            else {
+                                                fromBase = 10;
+                                            }
+
+                                            int code = Convert.ToInt32(codeStr, fromBase);
+                                            sb.Append(Convert.ToChar(code));
+                                        }
+                                        catch {
                                             sb.Append("&#" + e + ";");
                                         }
                                     }
-                                    else
-                                    {
+                                    else {
                                         // named entity?
                                         int code;
                                         object o = _entityValue[entity.ToString()];
-                                        if (o == null)
-                                        {
+                                        if (o == null) {
                                             // nope
                                             sb.Append("&" + entity + ";");
                                         }
-                                        else
-                                        {
+                                        else {
                                             // we found one
                                             code = (int) o;
                                             sb.Append(Convert.ToChar(code));
                                         }
                                     }
+
                                     entity.Remove(0, entity.Length);
                                 }
+
                                 state = ParseState.Text;
                                 break;
 
@@ -669,24 +653,25 @@ namespace HtmlAgilityPack
 
                             default:
                                 entity.Append(text[i]);
-                                if (entity.Length > _maxEntitySize)
-                                {
+                                if (entity.Length > _maxEntitySize) {
                                     // unknown stuff, just don't touch it
                                     state = ParseState.Text;
                                     sb.Append("&" + entity);
                                     entity.Remove(0, entity.Length);
                                 }
+
                                 break;
                         }
+
                         break;
                 }
             }
 
             // finish the work
-            if (state == ParseState.EntityStart)
-            {
+            if (state == ParseState.EntityStart) {
                 sb.Append("&" + entity);
             }
+
             return sb.ToString();
         }
 
@@ -695,27 +680,25 @@ namespace HtmlAgilityPack
         /// </summary>
         /// <param name="node">The node to entitize.</param>
         /// <returns>An entitized cloned node.</returns>
-        public static HtmlNode Entitize(HtmlNode node)
-        {
-            if (node == null)
-            {
+        public static HtmlNode Entitize(HtmlNode node) {
+            if (node == null) {
                 throw new ArgumentNullException("node");
             }
-            HtmlNode result = node.CloneNode(true);
-            if (result.HasAttributes)
-                Entitize(result.Attributes);
 
-            if (result.HasChildNodes)
-            {
+            HtmlNode result = node.CloneNode(true);
+            if (result.HasAttributes) {
+                Entitize(result.Attributes);
+            }
+
+            if (result.HasChildNodes) {
                 Entitize(result.ChildNodes);
             }
-            else
-            {
-                if (result.NodeType == HtmlNodeType.Text)
-                {
+            else {
+                if (result.NodeType == HtmlNodeType.Text) {
                     ((HtmlTextNode) result).Text = Entitize(((HtmlTextNode) result).Text, true, true);
                 }
             }
+
             return result;
         }
 
@@ -725,8 +708,7 @@ namespace HtmlAgilityPack
         /// </summary>
         /// <param name="text">The source text.</param>
         /// <returns>The result text.</returns>
-        public static string Entitize(string text)
-        {
+        public static string Entitize(string text) {
             return Entitize(text, true);
         }
 
@@ -736,8 +718,7 @@ namespace HtmlAgilityPack
         /// <param name="text">The source text.</param>
         /// <param name="useNames">If set to false, the function will not use known entities name. Default is true.</param>
         /// <returns>The result text.</returns>
-        public static string Entitize(string text, bool useNames)
-        {
+        public static string Entitize(string text, bool useNames) {
             return Entitize(text, useNames, false);
         }
 
@@ -758,31 +739,28 @@ namespace HtmlAgilityPack
 //		_entityValue.Add("gt", 62);	// greater-than sign, U+003E ISOnum 
 //		_entityName.Add(62, "gt");
         {
-            if (text == null)
+            if (text == null) {
                 return null;
+            }
 
-            if (text.Length == 0)
+            if (text.Length == 0) {
                 return text;
+            }
 
             StringBuilder sb = new StringBuilder(text.Length);
-            for (int i = 0; i < text.Length; i++)
-            {
+            for (int i = 0; i < text.Length; i++) {
                 int code = text[i];
                 if ((code > 127) ||
-                    (entitizeQuotAmpAndLtGt && ((code == 34) || (code == 38) || (code == 60) || (code == 62))))
-                {
+                    (entitizeQuotAmpAndLtGt && ((code == 34) || (code == 38) || (code == 60) || (code == 62)))) {
                     string entity = _entityName[code] as string;
-                    if ((entity == null) || (!useNames))
-                    {
+                    if ((entity == null) || (!useNames)) {
                         sb.Append("&#" + code + ";");
                     }
-                    else
-                    {
+                    else {
                         sb.Append("&" + entity + ";");
                     }
                 }
-                else
-                {
+                else {
                     sb.Append(text[i]);
                 }
             }
@@ -794,29 +772,23 @@ namespace HtmlAgilityPack
 
         #region Private Methods
 
-        private static void Entitize(HtmlAttributeCollection collection)
-        {
-            foreach (HtmlAttribute at in collection)
-            {
+        static void Entitize(HtmlAttributeCollection collection) {
+            foreach (HtmlAttribute at in collection) {
                 at.Value = Entitize(at.Value);
             }
         }
 
-        private static void Entitize(HtmlNodeCollection collection)
-        {
-            foreach (HtmlNode node in collection)
-            {
-                if (node.HasAttributes)
+        static void Entitize(HtmlNodeCollection collection) {
+            foreach (HtmlNode node in collection) {
+                if (node.HasAttributes) {
                     Entitize(node.Attributes);
+                }
 
-                if (node.HasChildNodes)
-                {
+                if (node.HasChildNodes) {
                     Entitize(node.ChildNodes);
                 }
-                else
-                {
-                    if (node.NodeType == HtmlNodeType.Text)
-                    {
+                else {
+                    if (node.NodeType == HtmlNodeType.Text) {
                         ((HtmlTextNode) node).Text = Entitize(((HtmlTextNode) node).Text, true, true);
                     }
                 }
@@ -827,8 +799,7 @@ namespace HtmlAgilityPack
 
         #region Nested type: ParseState
 
-        private enum ParseState
-        {
+        enum ParseState {
             Text,
             EntityStart
         }

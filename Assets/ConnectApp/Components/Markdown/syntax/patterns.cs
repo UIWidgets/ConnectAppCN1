@@ -1,18 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Linq;
-using Unity.UIWidgets.ui;
 using Unity.UIWidgets.painting;
+using Unity.UIWidgets.ui;
 
 namespace SyntaxHighlight {
     public class Definition {
         public Definition(string name, bool caseSensitive, Style style, IDictionary<string, Pattern> patterns) {
-            Name = name;
-            CaseSensitive = caseSensitive;
-            Style = style;
-            Patterns = patterns;
+            this.Name = name;
+            this.CaseSensitive = caseSensitive;
+            this.Style = style;
+            this.Patterns = patterns;
         }
 
         public string Name { get; private set; }
@@ -26,32 +25,39 @@ namespace SyntaxHighlight {
             var markupPatterns = new StringBuilder();
             var wordPatterns = new StringBuilder();
 
-            foreach(var pattern in Patterns.Values) {
-                if(pattern is BlockPattern) {
-                    if(blockPatterns.Length > 1) {
+            foreach (var pattern in this.Patterns.Values) {
+                if (pattern is BlockPattern) {
+                    if (blockPatterns.Length > 1) {
                         blockPatterns.Append("|");
                     }
+
                     blockPatterns.AppendFormat("(?'{0}'{1})", pattern.Name, pattern.GetRegexPattern());
-                } else if(pattern is MarkupPattern) {
-                    if(markupPatterns.Length > 1) {
+                }
+                else if (pattern is MarkupPattern) {
+                    if (markupPatterns.Length > 1) {
                         markupPatterns.Append("|");
                     }
+
                     markupPatterns.AppendFormat("(?'{0}'{1})", pattern.Name, pattern.GetRegexPattern());
-                } else if(pattern is WordPattern) {
-                    if(wordPatterns.Length > 1) {
+                }
+                else if (pattern is WordPattern) {
+                    if (wordPatterns.Length > 1) {
                         wordPatterns.Append("|");
                     }
+
                     wordPatterns.AppendFormat("(?'{0}'{1})", pattern.Name, pattern.GetRegexPattern());
                 }
             }
 
-            if(blockPatterns.Length > 0) {
+            if (blockPatterns.Length > 0) {
                 allPatterns.AppendFormat("(?'blocks'{0})+?", blockPatterns);
             }
-            if(markupPatterns.Length > 0) {
+
+            if (markupPatterns.Length > 0) {
                 allPatterns.AppendFormat("|(?'markup'{0})+?", markupPatterns);
             }
-            if(wordPatterns.Length > 0) {
+
+            if (wordPatterns.Length > 0) {
                 allPatterns.AppendFormat("|(?'words'{0})+?", wordPatterns);
             }
 
@@ -59,7 +65,7 @@ namespace SyntaxHighlight {
         }
 
         public override string ToString() {
-            return Name;
+            return this.Name;
         }
     }
 
@@ -68,8 +74,8 @@ namespace SyntaxHighlight {
         public Style Style { get; private set; }
 
         internal Pattern(string name, Style style) {
-            Name = name;
-            Style = style;
+            this.Name = name;
+            this.Style = style;
         }
 
         public abstract string GetRegexPattern();
@@ -79,12 +85,11 @@ namespace SyntaxHighlight {
         public Color ForeColor { get; set; }
         public Color BackColor { get; set; }
 
-        public ColorPair() {
-        }
+        public ColorPair() { }
 
         public ColorPair(Color foreColor, Color backColor) {
-            ForeColor = foreColor;
-            BackColor = backColor;
+            this.ForeColor = foreColor;
+            this.BackColor = backColor;
         }
     }
 
@@ -95,25 +100,29 @@ namespace SyntaxHighlight {
 
         public BlockPattern(string name, Style style, string beginsWith, string endsWith, string escapesWith)
             : base(name, style) {
-            BeginsWith = beginsWith;
-            EndsWith = endsWith;
-            EscapesWith = escapesWith;
+            this.BeginsWith = beginsWith;
+            this.EndsWith = endsWith;
+            this.EscapesWith = escapesWith;
         }
 
         public override string GetRegexPattern() {
-            if(String.IsNullOrEmpty(EscapesWith)) {
-                if(EndsWith.CompareTo(@"\n") == 0) {
-                    return String.Format(@"{0}[^\n\r]*", Escape(BeginsWith));
+            if (string.IsNullOrEmpty(this.EscapesWith)) {
+                if (this.EndsWith.CompareTo(@"\n") == 0) {
+                    return string.Format(@"{0}[^\n\r]*", Escape(this.BeginsWith));
                 }
 
-                return String.Format(@"{0}[\w\W\s\S]*?{1}", Escape(BeginsWith), Escape(EndsWith));
+                return string.Format(@"{0}[\w\W\s\S]*?{1}", Escape(this.BeginsWith), Escape(this.EndsWith));
             }
 
-            return String.Format("{0}(?>{1}.|[^{2}]|.)*?{3}", new object[] { Regex.Escape(BeginsWith), Regex.Escape(EscapesWith.Substring(0, 1)), Regex.Escape(EndsWith.Substring(0, 1)), Regex.Escape(EndsWith) });
+            return string.Format("{0}(?>{1}.|[^{2}]|.)*?{3}",
+                new object[] {
+                    Regex.Escape(this.BeginsWith), Regex.Escape(this.EscapesWith.Substring(0, 1)),
+                    Regex.Escape(this.EndsWith.Substring(0, 1)), Regex.Escape(this.EndsWith)
+                });
         }
 
         public static string Escape(string str) {
-            if(str.CompareTo(@"\n") != 0) {
+            if (str.CompareTo(@"\n") != 0) {
                 str = Regex.Escape(str);
             }
 
@@ -127,12 +136,13 @@ namespace SyntaxHighlight {
         public ColorPair AttributeNameColors { get; set; }
         public ColorPair AttributeValueColors { get; set; }
 
-        public MarkupPattern(string name, Style style, bool highlightAttributes, ColorPair bracketColors, ColorPair attributeNameColors, ColorPair attributeValueColors)
+        public MarkupPattern(string name, Style style, bool highlightAttributes, ColorPair bracketColors,
+            ColorPair attributeNameColors, ColorPair attributeValueColors)
             : base(name, style) {
-            HighlightAttributes = highlightAttributes;
-            BracketColors = bracketColors;
-            AttributeNameColors = attributeNameColors;
-            AttributeValueColors = attributeValueColors;
+            this.HighlightAttributes = highlightAttributes;
+            this.BracketColors = bracketColors;
+            this.AttributeNameColors = attributeNameColors;
+            this.AttributeValueColors = attributeValueColors;
         }
 
         public override string GetRegexPattern() {
@@ -161,12 +171,12 @@ namespace SyntaxHighlight {
         public TextStyle Font { get; private set; }
 
         public Style(ColorPair colors, TextStyle font) {
-            Colors = colors;
-            Font = font;
+            this.Colors = colors;
+            this.Font = font;
         }
 
         public TextStyle toTextStyle() {
-            return Font.copyWith(color: Colors.ForeColor, backgroundColor: Colors.BackColor);
+            return this.Font.copyWith(color: this.Colors.ForeColor, backgroundColor: this.Colors.BackColor);
         }
     }
 
@@ -175,27 +185,28 @@ namespace SyntaxHighlight {
 
         public WordPattern(string name, Style style, IEnumerable<string> words)
             : base(name, style) {
-            Words = words;
+            this.Words = words;
         }
 
         public override string GetRegexPattern() {
-            var str = String.Empty;
-            if(Words.Count() > 0) {
-                var nonWords = GetNonWords();
-                str = String.Format(@"(?<![\w{0}])(?=[\w{0}])({1})(?<=[\w{0}])(?![\w{0}])", nonWords, String.Join("|", Words.ToArray()));
+            var str = string.Empty;
+            if (this.Words.Count() > 0) {
+                var nonWords = this.GetNonWords();
+                str = string.Format(@"(?<![\w{0}])(?=[\w{0}])({1})(?<=[\w{0}])(?![\w{0}])", nonWords,
+                    string.Join("|", this.Words.ToArray()));
             }
 
             return str;
         }
 
-        private string GetNonWords() {
-            var input = String.Join("", Words.ToArray());
+        string GetNonWords() {
+            var input = string.Join("", this.Words.ToArray());
             var list = new List<string>();
-            foreach(var match in Regex.Matches(input, @"\W").Cast<Match>().Where(x => !list.Contains(x.Value))) {
+            foreach (var match in Regex.Matches(input, @"\W").Cast<Match>().Where(x => !list.Contains(x.Value))) {
                 list.Add(match.Value);
             }
 
-            return String.Join("", list.ToArray());
+            return string.Join("", list.ToArray());
         }
     }
 }

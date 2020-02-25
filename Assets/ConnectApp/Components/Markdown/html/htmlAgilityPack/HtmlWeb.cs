@@ -5,14 +5,11 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HtmlAgilityPack
-{
-
+namespace HtmlAgilityPack {
     /// <summary>
     /// Used for downloading and parsing html from the internet
     /// </summary>
-    public class HtmlWeb
-    {
+    public class HtmlWeb {
         /// <summary>
         /// Allows for setting document defaults before loading
         /// </summary>
@@ -24,9 +21,8 @@ namespace HtmlAgilityPack
         /// Begins the process of downloading an internet resource
         /// </summary>
         /// <param name="url">Url to the html document</param>
-        public async Task<HtmlDocument> LoadFromWebAsync(string url)
-        {
-            return await LoadFromWebAsync(new Uri(url), null, null);
+        public async Task<HtmlDocument> LoadFromWebAsync(string url) {
+            return await this.LoadFromWebAsync(new Uri(url), null, null);
         }
 
         /// <summary>
@@ -34,9 +30,8 @@ namespace HtmlAgilityPack
         /// </summary>
         /// <param name="url">Url to the html document</param>
         /// <param name="encoding">The encoding to use while downloading the document</param>
-        public async Task<HtmlDocument> LoadFromWebAsync(string url, Encoding encoding)
-        {
-            return await LoadFromWebAsync(new Uri(url), encoding, null);
+        public async Task<HtmlDocument> LoadFromWebAsync(string url, Encoding encoding) {
+            return await this.LoadFromWebAsync(new Uri(url), encoding, null);
         }
 
         /// <summary>
@@ -46,9 +41,9 @@ namespace HtmlAgilityPack
         /// <param name="encoding">The encoding to use while downloading the document</param>
         /// <param name="userName">Username to use for credentials in the web request</param>
         /// <param name="password">Password to use for credentials in the web request</param>
-        public async Task<HtmlDocument> LoadFromWebAsync(string url, Encoding encoding, string userName, string password)
-        {
-            return await LoadFromWebAsync(new Uri(url), encoding, new NetworkCredential(userName, password));
+        public async Task<HtmlDocument> LoadFromWebAsync(string url, Encoding encoding, string userName,
+            string password) {
+            return await this.LoadFromWebAsync(new Uri(url), encoding, new NetworkCredential(userName, password));
         }
 
         /// <summary>
@@ -59,9 +54,10 @@ namespace HtmlAgilityPack
         /// <param name="userName">Username to use for credentials in the web request</param>
         /// <param name="password">Password to use for credentials in the web request</param>
         /// <param name="domain">Domain to use for credentials in the web request</param>
-        public async Task<HtmlDocument> LoadFromWebAsync(string url, Encoding encoding, string userName, string password, string domain)
-        {
-            return await LoadFromWebAsync(new Uri(url), encoding, new NetworkCredential(userName, password, domain));
+        public async Task<HtmlDocument> LoadFromWebAsync(string url, Encoding encoding, string userName,
+            string password, string domain) {
+            return await this.LoadFromWebAsync(new Uri(url), encoding,
+                new NetworkCredential(userName, password, domain));
         }
 
         /// <summary>
@@ -71,9 +67,8 @@ namespace HtmlAgilityPack
         /// <param name="userName">Username to use for credentials in the web request</param>
         /// <param name="password">Password to use for credentials in the web request</param>
         /// <param name="domain">Domain to use for credentials in the web request</param>
-        public async Task<HtmlDocument> LoadFromWebAsync(string url, string userName, string password, string domain)
-        {
-            return await LoadFromWebAsync(new Uri(url), null, new NetworkCredential(userName, password, domain));
+        public async Task<HtmlDocument> LoadFromWebAsync(string url, string userName, string password, string domain) {
+            return await this.LoadFromWebAsync(new Uri(url), null, new NetworkCredential(userName, password, domain));
         }
 
         /// <summary>
@@ -82,9 +77,8 @@ namespace HtmlAgilityPack
         /// <param name="url">Url to the html document</param>
         /// <param name="userName">Username to use for credentials in the web request</param>
         /// <param name="password">Password to use for credentials in the web request</param>
-        public async Task<HtmlDocument> LoadFromWebAsync(string url, string userName, string password)
-        {
-            return await LoadFromWebAsync(new Uri(url), null, new NetworkCredential(userName, password));
+        public async Task<HtmlDocument> LoadFromWebAsync(string url, string userName, string password) {
+            return await this.LoadFromWebAsync(new Uri(url), null, new NetworkCredential(userName, password));
         }
 
         /// <summary>
@@ -92,9 +86,8 @@ namespace HtmlAgilityPack
         /// </summary>
         /// <param name="url">Url to the html document</param>
         /// <param name="credentials">The credentials to use for authenticating the web request</param>
-        public async Task<HtmlDocument> LoadFromWebAsync(string url, NetworkCredential credentials)
-        {
-            return await LoadFromWebAsync(new Uri(url), null, credentials);
+        public async Task<HtmlDocument> LoadFromWebAsync(string url, NetworkCredential credentials) {
+            return await this.LoadFromWebAsync(new Uri(url), null, credentials);
         }
 
         /// <summary>
@@ -103,34 +96,38 @@ namespace HtmlAgilityPack
         /// <param name="uri">Url to the html document</param>
         /// <param name="encoding">The encoding to use while downloading the document</param>
         /// <param name="credentials">The credentials to use for authenticating the web request</param>
-        public async Task<HtmlDocument> LoadFromWebAsync(Uri uri, Encoding encoding, NetworkCredential credentials)
-        {
+        public async Task<HtmlDocument> LoadFromWebAsync(Uri uri, Encoding encoding, NetworkCredential credentials) {
             var clientHandler = new HttpClientHandler();
-            if (credentials == null)
+            if (credentials == null) {
                 clientHandler.UseDefaultCredentials = true;
-            else
+            }
+            else {
                 clientHandler.Credentials = credentials;
+            }
 
             var client = new HttpClient(clientHandler);
 
             var e = await client.GetAsync(uri);
-            if (e.StatusCode == HttpStatusCode.OK)
-            {
+            if (e.StatusCode == HttpStatusCode.OK) {
                 var html = string.Empty;
-                if (encoding != null)
-                {
-                    using (var sr = new StreamReader(await e.Content.ReadAsStreamAsync(), encoding))
-                    {
+                if (encoding != null) {
+                    using (var sr = new StreamReader(await e.Content.ReadAsStreamAsync(), encoding)) {
                         html = sr.ReadToEnd();
                     }
-                } else
+                }
+                else {
                     html = await e.Content.ReadAsStringAsync();
+                }
+
                 var doc = new HtmlDocument();
-                if (PreHandleDocument != null)
-                    PreHandleDocument(doc);
+                if (this.PreHandleDocument != null) {
+                    this.PreHandleDocument(doc);
+                }
+
                 doc.LoadHtml(html);
                 return doc;
             }
+
             throw new Exception("Error downloading html");
         }
 

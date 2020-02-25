@@ -1,11 +1,10 @@
 // HtmlAgilityPack V1.0 - Simon Mourier <simon underscore mourier at hotmail dot com>
-namespace HtmlAgilityPack
-{
+
+namespace HtmlAgilityPack {
     /// <summary>
     /// Represents the type of parsing error.
     /// </summary>
-    public enum HtmlParseErrorCode
-    {
+    public enum HtmlParseErrorCode {
         /// <summary>
         /// A tag was not closed.
         /// </summary>

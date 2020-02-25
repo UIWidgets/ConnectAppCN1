@@ -49,7 +49,7 @@ namespace html {
         public readonly TextStyle linkStyle;
         public readonly bool showImages;
 
-        private static List<string> _supportedElements = new List<string> {
+        static List<string> _supportedElements = new List<string> {
             "a",
             "abbr",
             "acronym",
@@ -149,7 +149,7 @@ namespace html {
             return widgetList;
         }
 
-        private Widget _parseNode(HtmlNode node) {
+        Widget _parseNode(HtmlNode node) {
             if (this.customRender != null) {
                 Widget customWidget = this.customRender(node, this._parseNodeList(node.ChildNodes));
                 if (customWidget != null) {
@@ -919,11 +919,11 @@ namespace html {
             return new Wrap();
         }
 
-        private List<Widget> _parseNodeList(HtmlNodeCollection nodeList) {
+        List<Widget> _parseNodeList(HtmlNodeCollection nodeList) {
             return nodeList.Select((node) => { return this._parseNode(node); }).ToList();
         }
 
-        private Paint _getPaint(Color color) {
+        Paint _getPaint(Color color) {
             Paint paint = new Paint();
             paint.color = color;
             return paint;
@@ -938,7 +938,7 @@ namespace html {
             return stringToTrim;
         }
 
-        private bool _isNotFirstBreakTag(HtmlNode node) {
+        bool _isNotFirstBreakTag(HtmlNode node) {
             int index = node.ParentNode.ChildNodes.IndexOf(node);
             if (index == 0) {
                 if (node.ParentNode == null) {

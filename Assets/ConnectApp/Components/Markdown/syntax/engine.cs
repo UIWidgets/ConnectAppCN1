@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Unity.UIWidgets.painting;
 
@@ -10,74 +10,80 @@ namespace SyntaxHighlight {
     }
 
     public class Engine : IEngine {
-        private const RegexOptions DefaultRegexOptions = RegexOptions.ExplicitCapture | RegexOptions.IgnorePatternWhitespace;
+        const RegexOptions DefaultRegexOptions = RegexOptions.ExplicitCapture | RegexOptions.IgnorePatternWhitespace;
 
         List<TextSpan> textSpans;
         int processedLength;
         string source;
 
         public TextSpan Highlight(Definition definition, string input) {
-            if(definition == null) {
+            if (definition == null) {
                 throw new ArgumentNullException("definition");
             }
-            textSpans = new List<TextSpan>();
-            processedLength = 0;
-            source = input;
-            HighlightUsingRegex(definition, input);
-            if(processedLength < source.Length) {
-                textSpans.Add(new TextSpan(source.Substring(processedLength)));
+
+            this.textSpans = new List<TextSpan>();
+            this.processedLength = 0;
+            this.source = input;
+            this.HighlightUsingRegex(definition, input);
+            if (this.processedLength < this.source.Length) {
+                this.textSpans.Add(new TextSpan(this.source.Substring(this.processedLength)));
             }
+
             return new TextSpan(
-                children: textSpans,
+                children: this.textSpans,
                 style: definition.Style.toTextStyle()
             );
         }
 
-        private void HighlightUsingRegex(Definition definition, string input) {
-            var regexOptions = GetRegexOptions(definition);
-            var evaluator = GetMatchEvaluator(definition);
+        void HighlightUsingRegex(Definition definition, string input) {
+            var regexOptions = this.GetRegexOptions(definition);
+            var evaluator = this.GetMatchEvaluator(definition);
             var regexPattern = definition.GetRegexPattern();
             Regex.Replace(input, regexPattern, evaluator, regexOptions);
         }
 
-        private RegexOptions GetRegexOptions(Definition definition) {
-            if(definition.CaseSensitive) {
+        RegexOptions GetRegexOptions(Definition definition) {
+            if (definition.CaseSensitive) {
                 return DefaultRegexOptions | RegexOptions.IgnoreCase;
             }
 
             return DefaultRegexOptions;
         }
 
-        private string ElementMatchHandler(Definition definition, Match match) {
-            if(definition == null) {
+        string ElementMatchHandler(Definition definition, Match match) {
+            if (definition == null) {
                 throw new ArgumentNullException("definition");
             }
-            if(match == null) {
+
+            if (match == null) {
                 throw new ArgumentNullException("match");
             }
 
             var pattern = definition.Patterns.First(x => match.Groups[x.Key].Success).Value;
-            if(match.Index > processedLength) {
-                textSpans.Add(new TextSpan(source.Substring(processedLength, match.Index - processedLength)));
+            if (match.Index > this.processedLength) {
+                this.textSpans.Add(new TextSpan(this.source.Substring(this.processedLength,
+                    match.Index - this.processedLength)));
             }
-            if(pattern != null) {
-                if(pattern is BlockPattern blockPattern) {
-                    textSpans.Add(ProcessBlockPatternMatch(definition, blockPattern, match));
+
+            if (pattern != null) {
+                if (pattern is BlockPattern blockPattern) {
+                    this.textSpans.Add(this.ProcessBlockPatternMatch(definition, blockPattern, match));
                 }
-                else if(pattern is MarkupPattern markupPattern) {
-                    textSpans.Add(ProcessMarkupPatternMatch(definition, markupPattern, match));
+                else if (pattern is MarkupPattern markupPattern) {
+                    this.textSpans.Add(this.ProcessMarkupPatternMatch(definition, markupPattern, match));
                 }
-                else if(pattern is WordPattern wordPattern) {
-                    textSpans.Add(ProcessWordPatternMatch(definition, wordPattern, match));
+                else if (pattern is WordPattern wordPattern) {
+                    this.textSpans.Add(this.ProcessWordPatternMatch(definition, wordPattern, match));
                 }
             }
-            processedLength = match.Index + match.Length;
+
+            this.processedLength = match.Index + match.Length;
 
             return "";
         }
 
-        private MatchEvaluator GetMatchEvaluator(Definition definition) {
-            return match => ElementMatchHandler(definition, match);
+        MatchEvaluator GetMatchEvaluator(Definition definition) {
+            return match => this.ElementMatchHandler(definition, match);
         }
 
         protected TextSpan ProcessBlockPatternMatch(Definition definition, BlockPattern pattern, Match match) {

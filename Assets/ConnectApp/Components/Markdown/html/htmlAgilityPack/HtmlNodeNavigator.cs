@@ -1,24 +1,24 @@
 // HtmlAgilityPack V1.0 - Simon Mourier <simon underscore mourier at hotmail dot com>
+
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Xml;
 using System.Xml.XPath;
+
 #pragma warning disable 0649
-namespace HtmlAgilityPack
-{
+namespace HtmlAgilityPack {
     /// <summary>
     /// Represents an HTML navigator on an HTML document seen as a data store.
     /// </summary>
-    public class HtmlNodeNavigator : XPathNavigator
-    {
+    public class HtmlNodeNavigator : XPathNavigator {
         #region Fields
 
-        private int _attindex;
-        private HtmlNode _currentnode;
-        private readonly HtmlDocument _doc = new HtmlDocument();
-        private readonly HtmlNameTable _nametable = new HtmlNameTable();
+        int _attindex;
+        HtmlNode _currentnode;
+        readonly HtmlDocument _doc = new HtmlDocument();
+        readonly HtmlNameTable _nametable = new HtmlNameTable();
 
         internal bool Trace;
 
@@ -26,50 +26,46 @@ namespace HtmlAgilityPack
 
         #region Constructors
 
-        internal HtmlNodeNavigator()
-        {
-            Reset();
+        internal HtmlNodeNavigator() {
+            this.Reset();
         }
 
-        internal HtmlNodeNavigator(HtmlDocument doc, HtmlNode currentNode)
-        {
-            if (currentNode == null)
-            {
+        internal HtmlNodeNavigator(HtmlDocument doc, HtmlNode currentNode) {
+            if (currentNode == null) {
                 throw new ArgumentNullException("currentNode");
             }
-            if (currentNode.OwnerDocument != doc)
-            {
+
+            if (currentNode.OwnerDocument != doc) {
                 throw new ArgumentException(HtmlDocument.HtmlExceptionRefNotChild);
             }
-            InternalTrace(null);
 
-            _doc = doc;
-            Reset();
-            _currentnode = currentNode;
+            this.InternalTrace(null);
+
+            this._doc = doc;
+            this.Reset();
+            this._currentnode = currentNode;
         }
 
-        private HtmlNodeNavigator(HtmlNodeNavigator nav)
-        {
-            if (nav == null)
-            {
+        HtmlNodeNavigator(HtmlNodeNavigator nav) {
+            if (nav == null) {
                 throw new ArgumentNullException("nav");
             }
-            InternalTrace(null);
 
-            _doc = nav._doc;
-            _currentnode = nav._currentnode;
-            _attindex = nav._attindex;
-            _nametable = nav._nametable; // REVIEW: should we do this?
+            this.InternalTrace(null);
+
+            this._doc = nav._doc;
+            this._currentnode = nav._currentnode;
+            this._attindex = nav._attindex;
+            this._nametable = nav._nametable; // REVIEW: should we do this?
         }
 
         /// <summary>
         /// Initializes a new instance of the HtmlNavigator and loads an HTML document from a stream.
         /// </summary>
         /// <param name="stream">The input stream.</param>
-        public HtmlNodeNavigator(Stream stream)
-        {
-            _doc.Load(stream);
-            Reset();
+        public HtmlNodeNavigator(Stream stream) {
+            this._doc.Load(stream);
+            this.Reset();
         }
 
         /// <summary>
@@ -77,10 +73,9 @@ namespace HtmlAgilityPack
         /// </summary>
         /// <param name="stream">The input stream.</param>
         /// <param name="detectEncodingFromByteOrderMarks">Indicates whether to look for byte order marks at the beginning of the stream.</param>
-        public HtmlNodeNavigator(Stream stream, bool detectEncodingFromByteOrderMarks)
-        {
-            _doc.Load(stream, detectEncodingFromByteOrderMarks);
-            Reset();
+        public HtmlNodeNavigator(Stream stream, bool detectEncodingFromByteOrderMarks) {
+            this._doc.Load(stream, detectEncodingFromByteOrderMarks);
+            this.Reset();
         }
 
         /// <summary>
@@ -88,10 +83,9 @@ namespace HtmlAgilityPack
         /// </summary>
         /// <param name="stream">The input stream.</param>
         /// <param name="encoding">The character encoding to use.</param>
-        public HtmlNodeNavigator(Stream stream, Encoding encoding)
-        {
-            _doc.Load(stream, encoding);
-            Reset();
+        public HtmlNodeNavigator(Stream stream, Encoding encoding) {
+            this._doc.Load(stream, encoding);
+            this.Reset();
         }
 
         /// <summary>
@@ -100,10 +94,9 @@ namespace HtmlAgilityPack
         /// <param name="stream">The input stream.</param>
         /// <param name="encoding">The character encoding to use.</param>
         /// <param name="detectEncodingFromByteOrderMarks">Indicates whether to look for byte order marks at the beginning of the stream.</param>
-        public HtmlNodeNavigator(Stream stream, Encoding encoding, bool detectEncodingFromByteOrderMarks)
-        {
-            _doc.Load(stream, encoding, detectEncodingFromByteOrderMarks);
-            Reset();
+        public HtmlNodeNavigator(Stream stream, Encoding encoding, bool detectEncodingFromByteOrderMarks) {
+            this._doc.Load(stream, encoding, detectEncodingFromByteOrderMarks);
+            this.Reset();
         }
 
         /// <summary>
@@ -113,21 +106,21 @@ namespace HtmlAgilityPack
         /// <param name="encoding">The character encoding to use.</param>
         /// <param name="detectEncodingFromByteOrderMarks">Indicates whether to look for byte order marks at the beginning of the stream.</param>
         /// <param name="buffersize">The minimum buffer size.</param>
-        public HtmlNodeNavigator(Stream stream, Encoding encoding, bool detectEncodingFromByteOrderMarks, int buffersize)
-        {
-            _doc.Load(stream, encoding, detectEncodingFromByteOrderMarks, buffersize);
-            Reset();
+        public HtmlNodeNavigator(Stream stream, Encoding encoding, bool detectEncodingFromByteOrderMarks,
+            int buffersize) {
+            this._doc.Load(stream, encoding, detectEncodingFromByteOrderMarks, buffersize);
+            this.Reset();
         }
 
         /// <summary>
         /// Initializes a new instance of the HtmlNavigator and loads an HTML document from a TextReader.
         /// </summary>
         /// <param name="reader">The TextReader used to feed the HTML data into the document.</param>
-        public HtmlNodeNavigator(TextReader reader)
-        {
-            _doc.Load(reader);
-            Reset();
+        public HtmlNodeNavigator(TextReader reader) {
+            this._doc.Load(reader);
+            this.Reset();
         }
+
         #endregion
 
         #region Properties
@@ -136,94 +129,80 @@ namespace HtmlAgilityPack
         /// Gets the base URI for the current node.
         /// Always returns string.Empty in the case of HtmlNavigator implementation.
         /// </summary>
-        public override string BaseURI
-        {
-            get
-            {
-                InternalTrace(">");
-                return _nametable.GetOrAdd(string.Empty);
+        public override string BaseURI {
+            get {
+                this.InternalTrace(">");
+                return this._nametable.GetOrAdd(string.Empty);
             }
         }
 
         /// <summary>
         /// Gets the current HTML document.
         /// </summary>
-        public HtmlDocument CurrentDocument
-        {
-            get { return _doc; }
+        public HtmlDocument CurrentDocument {
+            get { return this._doc; }
         }
 
         /// <summary>
         /// Gets the current HTML node.
         /// </summary>
-        public HtmlNode CurrentNode
-        {
-            get { return _currentnode; }
+        public HtmlNode CurrentNode {
+            get { return this._currentnode; }
         }
 
         /// <summary>
         /// Gets a value indicating whether the current node has child nodes.
         /// </summary>
-        public override bool HasAttributes
-        {
-            get
-            {
-                InternalTrace(">" + (_currentnode.Attributes.Count > 0));
-                return (_currentnode.Attributes.Count > 0);
+        public override bool HasAttributes {
+            get {
+                this.InternalTrace(">" + (this._currentnode.Attributes.Count > 0));
+                return (this._currentnode.Attributes.Count > 0);
             }
         }
 
         /// <summary>
         /// Gets a value indicating whether the current node has child nodes.
         /// </summary>
-        public override bool HasChildren
-        {
-            get
-            {
-                InternalTrace(">" + (_currentnode.ChildNodes.Count > 0));
-                return (_currentnode.ChildNodes.Count > 0);
+        public override bool HasChildren {
+            get {
+                this.InternalTrace(">" + (this._currentnode.ChildNodes.Count > 0));
+                return (this._currentnode.ChildNodes.Count > 0);
             }
         }
 
         /// <summary>
         /// Gets a value indicating whether the current node is an empty element.
         /// </summary>
-        public override bool IsEmptyElement
-        {
-            get
-            {
-                InternalTrace(">" + !HasChildren);
+        public override bool IsEmptyElement {
+            get {
+                this.InternalTrace(">" + !this.HasChildren);
                 // REVIEW: is this ok?
-                return !HasChildren;
+                return !this.HasChildren;
             }
         }
 
         /// <summary>
         /// Gets the name of the current HTML node without the namespace prefix.
         /// </summary>
-        public override string LocalName
-        {
-            get
-            {
-                if (_attindex != -1)
-                {
-                    InternalTrace("att>" + _currentnode.Attributes[_attindex].Name);
-                    return _nametable.GetOrAdd(_currentnode.Attributes[_attindex].Name);
+        public override string LocalName {
+            get {
+                if (this._attindex != -1) {
+                    this.InternalTrace("att>" + this._currentnode.Attributes[this._attindex].Name);
+                    return this._nametable.GetOrAdd(this._currentnode.Attributes[this._attindex].Name);
                 }
-                InternalTrace("node>" + _currentnode.Name);
-                return _nametable.GetOrAdd(_currentnode.Name);
+
+                this.InternalTrace("node>" + this._currentnode.Name);
+                return this._nametable.GetOrAdd(this._currentnode.Name);
             }
         }
 
         /// <summary>
         /// Gets the qualified name of the current node.
         /// </summary>
-        public override string Name
-        {
-            get
-            {
-                InternalTrace(">" + _currentnode.Name);
-                return _nametable.GetOrAdd(_currentnode.Name);
+        public override string Name {
+            get {
+                this.InternalTrace(">" + this._currentnode.Name);
+                return this._nametable.GetOrAdd(this._currentnode.Name);
             }
         }
 
@@ -231,62 +210,54 @@ namespace HtmlAgilityPack
         /// Gets the namespace URI (as defined in the W3C Namespace Specification) of the current node.
         /// Always returns string.Empty in the case of HtmlNavigator implementation.
         /// </summary>
-        public override string NamespaceURI
-        {
-            get
-            {
-                InternalTrace(">");
-                return _nametable.GetOrAdd(string.Empty);
+        public override string NamespaceURI {
+            get {
+                this.InternalTrace(">");
+                return this._nametable.GetOrAdd(string.Empty);
             }
         }
 
         /// <summary>
         /// Gets the <see cref="XmlNameTable"/> associated with this implementation.
         /// </summary>
-        public override XmlNameTable NameTable
-        {
-            get
-            {
-                InternalTrace(null);
-                return _nametable;
+        public override XmlNameTable NameTable {
+            get {
+                this.InternalTrace(null);
+                return this._nametable;
             }
         }
 
         /// <summary>
         /// Gets the type of the current node.
         /// </summary>
-        public override XPathNodeType NodeType
-        {
-            get
-            {
-                switch (_currentnode.NodeType)
-                {
+        public override XPathNodeType NodeType {
+            get {
+                switch (this._currentnode.NodeType) {
                     case HtmlNodeType.Comment:
-                        InternalTrace(">" + XPathNodeType.Comment);
+                        this.InternalTrace(">" + XPathNodeType.Comment);
                         return XPathNodeType.Comment;
 
                     case HtmlNodeType.Document:
-                        InternalTrace(">" + XPathNodeType.Root);
+                        this.InternalTrace(">" + XPathNodeType.Root);
                         return XPathNodeType.Root;
 
                     case HtmlNodeType.Text:
-                        InternalTrace(">" + XPathNodeType.Text);
+                        this.InternalTrace(">" + XPathNodeType.Text);
                         return XPathNodeType.Text;
 
-                    case HtmlNodeType.Element:
-                        {
-                            if (_attindex != -1)
-                            {
-                                InternalTrace(">" + XPathNodeType.Attribute);
-                                return XPathNodeType.Attribute;
-                            }
-                            InternalTrace(">" + XPathNodeType.Element);
-                            return XPathNodeType.Element;
+                    case HtmlNodeType.Element: {
+                        if (this._attindex != -1) {
+                            this.InternalTrace(">" + XPathNodeType.Attribute);
+                            return XPathNodeType.Attribute;
                         }
+
+                        this.InternalTrace(">" + XPathNodeType.Element);
+                        return XPathNodeType.Element;
+                    }
 
                     default:
                         throw new NotImplementedException("Internal error: Unhandled HtmlNodeType: " +
-                                                          _currentnode.NodeType);
+                                                          this._currentnode.NodeType);
                 }
             }
         }
@@ -295,50 +266,44 @@ namespace HtmlAgilityPack
         /// Gets the prefix associated with the current node.
         /// Always returns string.Empty in the case of HtmlNavigator implementation.
         /// </summary>
-        public override string Prefix
-        {
-            get
-            {
-                InternalTrace(null);
-                return _nametable.GetOrAdd(string.Empty);
+        public override string Prefix {
+            get {
+                this.InternalTrace(null);
+                return this._nametable.GetOrAdd(string.Empty);
             }
         }
 
         /// <summary>
         /// Gets the text value of the current node.
         /// </summary>
-        public override string Value
-        {
-            get
-            {
-                InternalTrace("nt=" + _currentnode.NodeType);
-                switch (_currentnode.NodeType)
-                {
+        public override string Value {
+            get {
+                this.InternalTrace("nt=" + this._currentnode.NodeType);
+                switch (this._currentnode.NodeType) {
                     case HtmlNodeType.Comment:
-                        InternalTrace(">" + ((HtmlCommentNode) _currentnode).Comment);
-                        return ((HtmlCommentNode) _currentnode).Comment;
+                        this.InternalTrace(">" + ((HtmlCommentNode) this._currentnode).Comment);
+                        return ((HtmlCommentNode) this._currentnode).Comment;
 
                     case HtmlNodeType.Document:
-                        InternalTrace(">");
+                        this.InternalTrace(">");
                         return "";
 
                     case HtmlNodeType.Text:
-                        InternalTrace(">" + ((HtmlTextNode) _currentnode).Text);
-                        return ((HtmlTextNode) _currentnode).Text;
+                        this.InternalTrace(">" + ((HtmlTextNode) this._currentnode).Text);
+                        return ((HtmlTextNode) this._currentnode).Text;
 
-                    case HtmlNodeType.Element:
-                        {
-                            if (_attindex != -1)
-                            {
-                                InternalTrace(">" + _currentnode.Attributes[_attindex].Value);
-                                return _currentnode.Attributes[_attindex].Value;
-                            }
-                            return _currentnode.InnerText;
+                    case HtmlNodeType.Element: {
+                        if (this._attindex != -1) {
+                            this.InternalTrace(">" + this._currentnode.Attributes[this._attindex].Value);
+                            return this._currentnode.Attributes[this._attindex].Value;
                         }
+
+                        return this._currentnode.InnerText;
+                    }
 
                     default:
                         throw new NotImplementedException("Internal error: Unhandled HtmlNodeType: " +
-                                                          _currentnode.NodeType);
+                                                          this._currentnode.NodeType);
                 }
             }
         }
@@ -347,12 +312,10 @@ namespace HtmlAgilityPack
         /// Gets the xml:lang scope for the current node.
         /// Always returns string.Empty in the case of HtmlNavigator implementation.
         /// </summary>
-        public override string XmlLang
-        {
-            get
-            {
-                InternalTrace(null);
-                return _nametable.GetOrAdd(string.Empty);
+        public override string XmlLang {
+            get {
+                this.InternalTrace(null);
+                return this._nametable.GetOrAdd(string.Empty);
             }
         }
 
@@ -364,9 +327,8 @@ namespace HtmlAgilityPack
         /// Creates a new HtmlNavigator positioned at the same node as this HtmlNavigator.
         /// </summary>
         /// <returns>A new HtmlNavigator object positioned at the same node as the original HtmlNavigator.</returns>
-        public override XPathNavigator Clone()
-        {
-            InternalTrace(null);
+        public override XPathNavigator Clone() {
+            this.InternalTrace(null);
             return new HtmlNodeNavigator(this);
         }
 
@@ -376,16 +338,15 @@ namespace HtmlAgilityPack
         /// <param name="localName">The local name of the HTML attribute.</param>
         /// <param name="namespaceURI">The namespace URI of the attribute. Unsupported with the HtmlNavigator implementation.</param>
         /// <returns>The value of the specified HTML attribute. String.Empty or null if a matching attribute is not found or if the navigator is not positioned on an element node.</returns>
-        public override string GetAttribute(string localName, string namespaceURI)
-        {
-            InternalTrace("localName=" + localName + ", namespaceURI=" + namespaceURI);
-            HtmlAttribute att = _currentnode.Attributes[localName];
-            if (att == null)
-            {
-                InternalTrace(">null");
+        public override string GetAttribute(string localName, string namespaceURI) {
+            this.InternalTrace("localName=" + localName + ", namespaceURI=" + namespaceURI);
+            HtmlAttribute att = this._currentnode.Attributes[localName];
+            if (att == null) {
+                this.InternalTrace(">null");
                 return null;
             }
-            InternalTrace(">" + att.Value);
+
+            this.InternalTrace(">" + att.Value);
             return att.Value;
         }
 
@@ -395,9 +356,8 @@ namespace HtmlAgilityPack
         /// </summary>
         /// <param name="name">The local name of the namespace node.</param>
         /// <returns>Always returns string.Empty for the HtmlNavigator implementation.</returns>
-        public override string GetNamespace(string name)
-        {
-            InternalTrace("name=" + name);
+        public override string GetNamespace(string name) {
+            this.InternalTrace("name=" + name);
             return string.Empty;
         }
 
@@ -406,16 +366,15 @@ namespace HtmlAgilityPack
         /// </summary>
         /// <param name="other">The HtmlNavigator that you want to compare against.</param>
         /// <returns>true if the two navigators have the same position, otherwise, false.</returns>
-        public override bool IsSamePosition(XPathNavigator other)
-        {
+        public override bool IsSamePosition(XPathNavigator other) {
             HtmlNodeNavigator nav = other as HtmlNodeNavigator;
-            if (nav == null)
-            {
-                InternalTrace(">false");
+            if (nav == null) {
+                this.InternalTrace(">false");
                 return false;
             }
-            InternalTrace(">" + (nav._currentnode == _currentnode));
-            return (nav._currentnode == _currentnode);
+
+            this.InternalTrace(">" + (nav._currentnode == this._currentnode));
+            return (nav._currentnode == this._currentnode);
         }
 
         /// <summary>
@@ -423,27 +382,26 @@ namespace HtmlAgilityPack
         /// </summary>
         /// <param name="other">The HtmlNavigator positioned on the node that you want to move to.</param>
         /// <returns>true if successful, otherwise false. If false, the position of the navigator is unchanged.</returns>
-        public override bool MoveTo(XPathNavigator other)
-        {
+        public override bool MoveTo(XPathNavigator other) {
             HtmlNodeNavigator nav = other as HtmlNodeNavigator;
-            if (nav == null)
-            {
-                InternalTrace(">false (nav is not an HtmlNodeNavigator)");
+            if (nav == null) {
+                this.InternalTrace(">false (nav is not an HtmlNodeNavigator)");
                 return false;
             }
-            InternalTrace("moveto oid=" + nav.GetHashCode()
-                          + ", n:" + nav._currentnode.Name
-                          + ", a:" + nav._attindex);
 
-            if (nav._doc == _doc)
-            {
-                _currentnode = nav._currentnode;
-                _attindex = nav._attindex;
-                InternalTrace(">true");
+            this.InternalTrace("moveto oid=" + nav.GetHashCode()
+                                             + ", n:" + nav._currentnode.Name
+                                             + ", a:" + nav._attindex);
+
+            if (nav._doc == this._doc) {
+                this._currentnode = nav._currentnode;
+                this._attindex = nav._attindex;
+                this.InternalTrace(">true");
                 return true;
             }
+
             // we don't know how to handle that
-            InternalTrace(">false (???)");
+            this.InternalTrace(">false (???)");
             return false;
         }
 
@@ -453,17 +411,16 @@ namespace HtmlAgilityPack
         /// <param name="localName">The local name of the HTML attribute.</param>
         /// <param name="namespaceURI">The namespace URI of the attribute. Unsupported with the HtmlNavigator implementation.</param>
         /// <returns>true if the HTML attribute is found, otherwise, false. If false, the position of the navigator does not change.</returns>
-        public override bool MoveToAttribute(string localName, string namespaceURI)
-        {
-            InternalTrace("localName=" + localName + ", namespaceURI=" + namespaceURI);
-            int index = _currentnode.Attributes.GetAttributeIndex(localName);
-            if (index == -1)
-            {
-                InternalTrace(">false");
+        public override bool MoveToAttribute(string localName, string namespaceURI) {
+            this.InternalTrace("localName=" + localName + ", namespaceURI=" + namespaceURI);
+            int index = this._currentnode.Attributes.GetAttributeIndex(localName);
+            if (index == -1) {
+                this.InternalTrace(">false");
                 return false;
             }
-            _attindex = index;
-            InternalTrace(">true");
+
+            this._attindex = index;
+            this.InternalTrace(">true");
             return true;
         }
 
@@ -471,20 +428,19 @@ namespace HtmlAgilityPack
         /// Moves to the first sibling of the current node.
         /// </summary>
         /// <returns>true if the navigator is successful moving to the first sibling node, false if there is no first sibling or if the navigator is currently positioned on an attribute node.</returns>
-        public override bool MoveToFirst()
-        {
-            if (_currentnode.ParentNode == null)
-            {
-                InternalTrace(">false");
+        public override bool MoveToFirst() {
+            if (this._currentnode.ParentNode == null) {
+                this.InternalTrace(">false");
                 return false;
             }
-            if (_currentnode.ParentNode.FirstChild == null)
-            {
-                InternalTrace(">false");
+
+            if (this._currentnode.ParentNode.FirstChild == null) {
+                this.InternalTrace(">false");
                 return false;
             }
-            _currentnode = _currentnode.ParentNode.FirstChild;
-            InternalTrace(">true");
+
+            this._currentnode = this._currentnode.ParentNode.FirstChild;
+            this.InternalTrace(">true");
             return true;
         }
 
@@ -492,15 +448,14 @@ namespace HtmlAgilityPack
         /// Moves to the first HTML attribute.
         /// </summary>
         /// <returns>true if the navigator is successful moving to the first HTML attribute, otherwise, false.</returns>
-        public override bool MoveToFirstAttribute()
-        {
-            if (!HasAttributes)
-            {
-                InternalTrace(">false");
+        public override bool MoveToFirstAttribute() {
+            if (!this.HasAttributes) {
+                this.InternalTrace(">false");
                 return false;
             }
-            _attindex = 0;
-            InternalTrace(">true");
+
+            this._attindex = 0;
+            this.InternalTrace(">true");
             return true;
         }
 
@@ -508,15 +463,14 @@ namespace HtmlAgilityPack
         /// Moves to the first child of the current node.
         /// </summary>
         /// <returns>true if there is a first child node, otherwise false.</returns>
-        public override bool MoveToFirstChild()
-        {
-            if (!_currentnode.HasChildNodes)
-            {
-                InternalTrace(">false");
+        public override bool MoveToFirstChild() {
+            if (!this._currentnode.HasChildNodes) {
+                this.InternalTrace(">false");
                 return false;
             }
-            _currentnode = _currentnode.ChildNodes[0];
-            InternalTrace(">true");
+
+            this._currentnode = this._currentnode.ChildNodes[0];
+            this.InternalTrace(">true");
             return true;
         }
 
@@ -526,9 +480,8 @@ namespace HtmlAgilityPack
         /// </summary>
         /// <param name="scope">An XPathNamespaceScope value describing the namespace scope.</param>
         /// <returns>Always returns false for the HtmlNavigator implementation.</returns>
-        public override bool MoveToFirstNamespace(XPathNamespaceScope scope)
-        {
-            InternalTrace(null);
+        public override bool MoveToFirstNamespace(XPathNamespaceScope scope) {
+            this.InternalTrace(null);
             return false;
         }
 
@@ -537,17 +490,16 @@ namespace HtmlAgilityPack
         /// </summary>
         /// <param name="id">A string representing the ID value of the node to which you want to move. This argument does not need to be atomized.</param>
         /// <returns>true if the move was successful, otherwise false. If false, the position of the navigator is unchanged.</returns>
-        public override bool MoveToId(string id)
-        {
-            InternalTrace("id=" + id);
-            HtmlNode node = _doc.GetElementbyId(id);
-            if (node == null)
-            {
-                InternalTrace(">false");
+        public override bool MoveToId(string id) {
+            this.InternalTrace("id=" + id);
+            HtmlNode node = this._doc.GetElementbyId(id);
+            if (node == null) {
+                this.InternalTrace(">false");
                 return false;
             }
-            _currentnode = node;
-            InternalTrace(">true");
+
+            this._currentnode = node;
+            this.InternalTrace(">true");
             return true;
         }
 
@@ -557,9 +509,8 @@ namespace HtmlAgilityPack
         /// </summary>
         /// <param name="name">The local name of the namespace node.</param>
         /// <returns>Always returns false for the HtmlNavigator implementation.</returns>
-        public override bool MoveToNamespace(string name)
-        {
-            InternalTrace("name=" + name);
+        public override bool MoveToNamespace(string name) {
+            this.InternalTrace("name=" + name);
             return false;
         }
 
@@ -567,17 +518,16 @@ namespace HtmlAgilityPack
         /// Moves to the next sibling of the current node.
         /// </summary>
         /// <returns>true if the navigator is successful moving to the next sibling node, false if there are no more siblings or if the navigator is currently positioned on an attribute node. If false, the position of the navigator is unchanged.</returns>
-        public override bool MoveToNext()
-        {
-            if (_currentnode.NextSibling == null)
-            {
-                InternalTrace(">false");
+        public override bool MoveToNext() {
+            if (this._currentnode.NextSibling == null) {
+                this.InternalTrace(">false");
                 return false;
             }
-            InternalTrace("_c=" + _currentnode.CloneNode(false).OuterHtml);
-            InternalTrace("_n=" + _currentnode.NextSibling.CloneNode(false).OuterHtml);
-            _currentnode = _currentnode.NextSibling;
-            InternalTrace(">true");
+
+            this.InternalTrace("_c=" + this._currentnode.CloneNode(false).OuterHtml);
+            this.InternalTrace("_n=" + this._currentnode.NextSibling.CloneNode(false).OuterHtml);
+            this._currentnode = this._currentnode.NextSibling;
+            this.InternalTrace(">true");
             return true;
         }
 
@@ -585,16 +535,15 @@ namespace HtmlAgilityPack
         /// Moves to the next HTML attribute.
         /// </summary>
         /// <returns></returns>
-        public override bool MoveToNextAttribute()
-        {
-            InternalTrace(null);
-            if (_attindex >= (_currentnode.Attributes.Count - 1))
-            {
-                InternalTrace(">false");
+        public override bool MoveToNextAttribute() {
+            this.InternalTrace(null);
+            if (this._attindex >= (this._currentnode.Attributes.Count - 1)) {
+                this.InternalTrace(">false");
                 return false;
             }
-            _attindex++;
-            InternalTrace(">true");
+
+            this._attindex++;
+            this.InternalTrace(">true");
             return true;
         }
 
@@ -604,9 +553,8 @@ namespace HtmlAgilityPack
         /// </summary>
         /// <param name="scope">An XPathNamespaceScope value describing the namespace scope.</param>
         /// <returns>Always returns false for the HtmlNavigator implementation.</returns>
-        public override bool MoveToNextNamespace(XPathNamespaceScope scope)
-        {
-            InternalTrace(null);
+        public override bool MoveToNextNamespace(XPathNamespaceScope scope) {
+            this.InternalTrace(null);
             return false;
         }
 
@@ -614,15 +562,14 @@ namespace HtmlAgilityPack
         /// Moves to the parent of the current node.
         /// </summary>
         /// <returns>true if there is a parent node, otherwise false.</returns>
-        public override bool MoveToParent()
-        {
-            if (_currentnode.ParentNode == null)
-            {
-                InternalTrace(">false");
+        public override bool MoveToParent() {
+            if (this._currentnode.ParentNode == null) {
+                this.InternalTrace(">false");
                 return false;
             }
-            _currentnode = _currentnode.ParentNode;
-            InternalTrace(">true");
+
+            this._currentnode = this._currentnode.ParentNode;
+            this.InternalTrace(">true");
             return true;
         }
 
@@ -630,25 +577,23 @@ namespace HtmlAgilityPack
         /// Moves to the previous sibling of the current node.
         /// </summary>
         /// <returns>true if the navigator is successful moving to the previous sibling node, false if there is no previous sibling or if the navigator is currently positioned on an attribute node.</returns>
-        public override bool MoveToPrevious()
-        {
-            if (_currentnode.PreviousSibling == null)
-            {
-                InternalTrace(">false");
+        public override bool MoveToPrevious() {
+            if (this._currentnode.PreviousSibling == null) {
+                this.InternalTrace(">false");
                 return false;
             }
-            _currentnode = _currentnode.PreviousSibling;
-            InternalTrace(">true");
+
+            this._currentnode = this._currentnode.PreviousSibling;
+            this.InternalTrace(">true");
             return true;
         }
 
         /// <summary>
         /// Moves to the root node to which the current node belongs.
         /// </summary>
-        public override void MoveToRoot()
-        {
-            _currentnode = _doc.DocumentNode;
-            InternalTrace(null);
+        public override void MoveToRoot() {
+            this._currentnode = this._doc.DocumentNode;
+            this.InternalTrace(null);
         }
 
         #endregion
@@ -656,25 +601,21 @@ namespace HtmlAgilityPack
         #region Internal Methods
 
         [Conditional("TRACE")]
-        internal void InternalTrace(object traceValue)
-        {
-            if (!Trace)
-            {
+        internal void InternalTrace(object traceValue) {
+            if (!this.Trace) {
                 return;
             }
+
             string name = "";
-            string nodename = _currentnode == null ? "(null)" : _currentnode.Name;
+            string nodename = this._currentnode == null ? "(null)" : this._currentnode.Name;
             string nodevalue;
-            if (_currentnode == null)
-            {
+            if (this._currentnode == null) {
                 nodevalue = "(null)";
             }
-            else
-            {
-                switch (_currentnode.NodeType)
-                {
+            else {
+                switch (this._currentnode.NodeType) {
                     case HtmlNodeType.Comment:
-                        nodevalue = ((HtmlCommentNode) _currentnode).Comment;
+                        nodevalue = ((HtmlCommentNode) this._currentnode).Comment;
                         break;
 
                     case HtmlNodeType.Document:
@@ -682,27 +623,28 @@ namespace HtmlAgilityPack
                         break;
 
                     case HtmlNodeType.Text:
-                        nodevalue = ((HtmlTextNode) _currentnode).Text;
+                        nodevalue = ((HtmlTextNode) this._currentnode).Text;
                         break;
 
                     default:
-                        nodevalue = _currentnode.CloneNode(false).OuterHtml;
+                        nodevalue = this._currentnode.CloneNode(false).OuterHtml;
                         break;
                 }
             }
-           
-            HtmlAgilityPack.Trace.WriteLine(string.Format("oid={0},n={1},a={2},v={3},{4}", GetHashCode(), nodename, _attindex, nodevalue, traceValue), "N!" + name);
+
+            HtmlAgilityPack.Trace.WriteLine(
+                string.Format("oid={0},n={1},a={2},v={3},{4}", this.GetHashCode(), nodename, this._attindex, nodevalue,
+                    traceValue), "N!" + name);
         }
 
         #endregion
 
         #region Private Methods
 
-        private void Reset()
-        {
-            InternalTrace(null);
-            _currentnode = _doc.DocumentNode;
-            _attindex = -1;
+        void Reset() {
+            this.InternalTrace(null);
+            this._currentnode = this._doc.DocumentNode;
+            this._attindex = -1;
         }
 
         #endregion
