@@ -9,9 +9,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface TinyWasmViewController : UIViewController
+@interface TinyWasmViewPlayer : NSObject
 
-- (instancetype)initWithUrl:(NSString *)url name:(NSString *)name;
+- (void)loadTinyWasmWithUrl:(NSString *) url name: (NSString *)name;
 
 @end
 
