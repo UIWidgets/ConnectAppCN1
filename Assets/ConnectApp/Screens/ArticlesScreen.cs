@@ -6,6 +6,7 @@ using ConnectApp.Main;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
+using ConnectApp.Plugins;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
@@ -43,22 +44,27 @@ namespace ConnectApp.screens {
                             AnalyticsManager.AnalyticsClickEgg(1);
                         },
                         pushToGame = () => {
-                            var url = LocalDataManager.getTinyGameUrl();
-                            if (url.isEmpty() || url.Equals("no_game")) {
-                                CustomToast.show(new CustomToastItem(
-                                    context: context,
-                                    "暂无游戏",
-                                    TimeSpan.FromMilliseconds(2000)
-                                ));
-                                return;
+                            if (CCommonUtils.isIPhone) {
+                                // TODO: push to gamelist
+                                TinyWasmPlugin.PushToTinyWasmScreen("http://192.168.1.11:8080", "TinyRacing.wasm");
                             }
-                            dispatcher.dispatch(new MainNavigatorPushToWebViewAction {
-                                url = url,
-                                landscape = true,
-                                fullscreen = true,
-                                showOpenInBrowser = false
-                            });
-
+                            else {
+                                var url = LocalDataManager.getTinyGameUrl();
+                                if (url.isEmpty() || url.Equals("no_game")) {
+                                    CustomToast.show(new CustomToastItem(
+                                        context: context,
+                                        "暂无游戏",
+                                        TimeSpan.FromMilliseconds(2000)
+                                    ));
+                                    return;
+                                }
+                                dispatcher.dispatch(new MainNavigatorPushToWebViewAction {
+                                    url = url,
+                                    landscape = true,
+                                    fullscreen = true,
+                                    showOpenInBrowser = false
+                                });
+                            }
                         }
                     };
                     return new ArticlesScreen(viewModel: viewModel, actionModel: actionModel);
@@ -310,11 +316,11 @@ namespace ConnectApp.screens {
                     selectedColor: CColors.TextTitle,
                     unselectedColor: CColors.TextBody4,
                     unselectedTextStyle: new TextStyle(
-                        fontSize: 20,
+                        fontSize: 18,
                         fontFamily: "Roboto-Medium"
                     ),
                     selectedTextStyle: new TextStyle(
-                        fontSize: 20,
+                        fontSize: 18,
                         fontFamily: "Roboto-Medium"
                     ),
                     controller: this._tabController,

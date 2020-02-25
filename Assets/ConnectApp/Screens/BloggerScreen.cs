@@ -55,6 +55,9 @@ namespace ConnectApp.screens {
                         }),
                         unFollowUser = unFollowUserId =>
                             dispatcher.dispatch<IPromise>(Actions.fetchUnFollowUser(unFollowUserId: unFollowUserId)),
+                        pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
+                            routeName = MainNavigatorRoutes.Login
+                        }),
                         pushToUserDetail = userId => dispatcher.dispatch(new MainNavigatorPushToUserDetailAction {
                             userId = userId
                         })
