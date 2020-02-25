@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using SyntaxHighlight;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.widgets;
-using SyntaxHighlight;
 using UnityEngine;
 
 namespace markdown {
@@ -25,10 +25,12 @@ namespace markdown {
 
     public class CSharpSyntaxHighlighter : SyntaxHighlighter {
         Highlighter highlighter = new Highlighter();
+
         public override TextSpan format(string source) {
-            return highlighter.Highlight("C#", source);
+            return this.highlighter.Highlight("C#", source);
         }
     }
+
 
     public abstract class MarkdownWidget : StatefulWidget {
         protected MarkdownWidget(
@@ -42,7 +44,8 @@ namespace markdown {
             MarkdownImageBuilder imageBuilder,
             MarkdownCheckboxBuilder checkboxBuilder,
             bool fitContent = false,
-            bool selectable = false
+            bool selectable = false,
+            bool enableHTML = true
         ) : base(key) {
             Debug.Assert(data != null);
             this.data = data;
@@ -55,6 +58,7 @@ namespace markdown {
             this.checkboxBuilder = checkboxBuilder;
             this.fitContent = fitContent;
             this.selectable = selectable;
+            this.enableHTML = enableHTML;
         }
 
         public string data;
@@ -80,6 +84,8 @@ namespace markdown {
         public bool fitContent;
 
         public abstract Widget build(BuildContext context, List<Widget> children);
+
+        public bool enableHTML;
 
         public override State createState() {
             return new _MarkdownWidgetState();
@@ -131,7 +137,8 @@ namespace markdown {
                 imageDirectory: this.widget.imageDirectory,
                 imageBuilder: this.widget.imageBuilder,
                 checkboxBuilder: this.widget.checkboxBuilder,
-                fitContent: this.widget.fitContent
+                fitContent: this.widget.fitContent,
+                enableHTML: this.widget.enableHTML
             );
             this._children = builder.build(document.parseLines(lines.ToList()));
         }
@@ -211,9 +218,11 @@ namespace markdown {
             MarkdownImageBuilder imageBuilder = null,
             MarkdownCheckboxBuilder checkboxBuilder = null,
             ScrollPhysics physics = null,
-            bool shrinkWrap = false
+            bool shrinkWrap = false,
+            bool enableHTML = true
         ) : base(key, data, markdownStyleSheet, syntaxHighlighter,
-            onTapLink, imageDirectory, extensionSet, imageBuilder, checkboxBuilder, selectable) {
+            onTapLink, imageDirectory, extensionSet, imageBuilder,
+            checkboxBuilder, selectable, enableHTML) {
             this.padding = EdgeInsets.all(16);
             this.physics = physics;
             this.shrinkWrap = shrinkWrap;
@@ -235,11 +244,49 @@ namespace markdown {
         }
     }
 
+    public class MarkdownContent : MarkdownWidget {
+        public MarkdownContent(
+            Key key = null,
+            string data = null,
+            bool selectable = false,
+            MarkdownStyleSheet markdownStyleSheet = null,
+            SyntaxHighlighter syntaxHighlighter = null,
+            MarkdownTapLinkCallback onTapLink = null,
+            string imageDirectory = null,
+            ExtensionSet extensionSet = null,
+            MarkdownImageBuilder imageBuilder = null,
+            MarkdownCheckboxBuilder checkboxBuilder = null,
+            ScrollPhysics physics = null,
+            bool shrinkWrap = false,
+            bool enableHTML = true
+        ) : base(key, data, markdownStyleSheet, syntaxHighlighter,
+            onTapLink, imageDirectory, extensionSet, imageBuilder,
+            checkboxBuilder, selectable, enableHTML) {
+            this.padding = EdgeInsets.all(16);
+            this.physics = physics;
+            this.shrinkWrap = shrinkWrap;
+        }
+
+        public EdgeInsets padding;
+
+        public ScrollPhysics physics;
+
+        public bool shrinkWrap;
+
+        public override Widget build(BuildContext context, List<Widget> children) {
+            return new Container(
+                padding: this.padding,
+                child: new Column(
+                    children: children
+                )
+            );
+        }
+    }
+
     class TaskListSyntax : InlineSyntax {
         static string _pattern = @"^ *\[([ xX])\] +";
 
-        public TaskListSyntax() : base(_pattern) {
-        }
+        public TaskListSyntax() : base(_pattern) { }
 
         internal override bool onMatch(InlineParser parser, Match match) {
             var el = Element.withTag("input");
