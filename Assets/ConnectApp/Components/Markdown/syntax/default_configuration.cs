@@ -924,7 +924,10 @@ namespace SyntaxHighlight {
                     {"zomp", 0xFF39a78e},
                     {"zorba", 0xFFa59b91},
                     {"zuccini", 0xFF044022},
-                    {"zumthor", 0xFFedf6ff}
+                    {"zumthor", 0xFFedf6ff},
+                    {"c_green", 0xFF008000},
+                    {"c_red", 0xFFa31515},
+                    {"c_gray", 0xFF808080},
                 };
             }
         }
@@ -944,13 +947,13 @@ namespace SyntaxHighlight {
 <definitions>
   <definition name=""ASPX"" caseSensitive=""false"">
     <default>
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
     </default>
     <pattern name=""ServerSideBlock"" type=""block"" beginsWith=""&amp;lt;%"" endsWith=""%&amp;gt;"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""black"" backColor=""yellow""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""black"" backColor=""yellow""/>
     </pattern>
     <pattern name=""Markup"" type=""markup"" highlightAttributes=""true"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""maroon"" backColor=""transparent"">
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""maroon"" backColor=""transparent"">
         <bracketStyle foreColor=""blue"" backColor=""transparent""/>
         <attributeNameStyle foreColor=""red"" backColor=""transparent""/>
         <attributeValueStyle foreColor=""blue"" backColor=""transparent""/>
@@ -959,19 +962,19 @@ namespace SyntaxHighlight {
   </definition>
   <definition name=""C"" caseSensitive=""true"">
     <default>
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
     </default>
     <pattern name=""Comment"" type=""block"" beginsWith=""//"" endsWith=""\n"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
     </pattern>
     <pattern name=""MultiLineComment"" type=""block"" beginsWith=""/*"" endsWith=""*/"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
     </pattern>
     <pattern name=""String"" type=""block"" beginsWith=""&quot;"" endsWith=""&quot;"" escapesWith=""\"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""darkred"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""darkred"" backColor=""transparent""/>
     </pattern>
     <pattern name=""WordGroup01"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
       <word>write</word>
       <word>while</word>
       <word>volatile</word>
@@ -1055,19 +1058,19 @@ namespace SyntaxHighlight {
   </definition>
   <definition name=""C++"" caseSensitive=""true"">
     <default>
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
     </default>
     <pattern name=""Comment"" type=""block"" beginsWith=""//"" endsWith=""\n"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
     </pattern>
     <pattern name=""MultiLineComment"" type=""block"" beginsWith=""/*"" endsWith=""*/"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
     </pattern>
     <pattern name=""String"" type=""block"" beginsWith=""&quot;"" endsWith=""&quot;"" escapesWith=""\"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""darkred"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""darkred"" backColor=""transparent""/>
     </pattern>
     <pattern name=""WordGroup01"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
       <word>xor</word>
       <word>while</word>
       <word>volatile</word>
@@ -1167,10 +1170,10 @@ namespace SyntaxHighlight {
   </definition>
   <definition name=""C#"" caseSensitive=""true"">
     <default>
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""14"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
     </default>
     <pattern name=""Keyword"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""14"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
       <word>as</word>
       <word>is</word>
       <word>new</word>
@@ -1187,18 +1190,18 @@ namespace SyntaxHighlight {
       <word>null</word>
     </pattern>
     <pattern name=""Namespace"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""14"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
       <word>namespace</word>
       <word>using</word>
     </pattern>
     <pattern name=""MethodParameter"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""14"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
       <word>params</word>
       <word>ref</word>
       <word>out</word>
     </pattern>
     <pattern name=""Statement"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""14"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
       <word>if</word>
       <word>else</word>
       <word>switch</word>
@@ -1222,7 +1225,7 @@ namespace SyntaxHighlight {
       <word>lock</word>
     </pattern>
     <pattern name=""Modifier"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""14"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
       <word>internal</word>
       <word>private</word>
       <word>protected</word>
@@ -1241,7 +1244,7 @@ namespace SyntaxHighlight {
       <word>volatile</word>
     </pattern>
     <pattern name=""ValueType"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""14"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
       <word>void</word>
       <word>bool</word>
       <word>byte</word>
@@ -1260,7 +1263,7 @@ namespace SyntaxHighlight {
       <word>ushort</word>
     </pattern>
     <pattern name=""ReferenceType"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""14"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
       <word>class</word>
       <word>interface</word>
       <word>delegate</word>
@@ -1268,7 +1271,7 @@ namespace SyntaxHighlight {
       <word>string</word>
     </pattern>
     <pattern name=""Operator"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""red"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""14"" style=""normal"" foreColor=""purple"" backColor=""transparent""/>
       <word>+</word>
       <word>-</word>
       <word>=</word>
@@ -1279,19 +1282,19 @@ namespace SyntaxHighlight {
       <word>|</word>
     </pattern>
     <pattern name=""String"" type=""block"" beginsWith=""&amp;quot;"" endsWith=""&amp;quot;"" escapesWith=""\"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""#666666"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""14"" style=""normal"" foreColor=""c_red"" backColor=""transparent""/>
     </pattern>
     <pattern name=""VerbatimString"" type=""block"" beginsWith=""@&amp;quot;"" endsWith=""&amp;quot;"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""#666666"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""14"" style=""normal"" foreColor=""c_red"" backColor=""transparent""/>
     </pattern>
     <pattern name=""Comment"" type=""block"" beginsWith=""//"" endsWith=""\n"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""14"" style=""normal"" foreColor=""c_green"" backColor=""transparent""/>
     </pattern>
     <pattern name=""MultiLineComment"" type=""block"" beginsWith=""/*"" endsWith=""*/"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""14"" style=""normal"" foreColor=""c_gray"" backColor=""transparent""/>
     </pattern>
     <pattern name=""PreprocessorDirective"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""14"" style=""normal"" foreColor=""maroon"" backColor=""transparent""/>
       <word>#if</word>
       <word>#else</word>
       <word>#elif</word>
@@ -1304,23 +1307,24 @@ namespace SyntaxHighlight {
       <word>#region</word>
       <word>#endregion</word>
       <word>#pragma</word>
+      <word>#checksum</word>
     </pattern>
   </definition>
   <definition name=""COBOL"" caseSensitive=""true"">
     <default>
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
     </default>
     <pattern name=""Comment"" type=""block"" beginsWith=""//"" endsWith=""\n"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
     </pattern>
     <pattern name=""MultiLineComment"" type=""block"" beginsWith=""/*"" endsWith=""*/"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
     </pattern>
     <pattern name=""String"" type=""block"" beginsWith=""&quot;"" endsWith=""&quot;"" escapesWith=""\"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""darkred"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""darkred"" backColor=""transparent""/>
     </pattern>
     <pattern name=""WordGroup01"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
       <word>ZEROS</word>
       <word>ZERO-FILL</word>
       <word>ZEROES</word>
@@ -1936,19 +1940,19 @@ namespace SyntaxHighlight {
   </definition>
   <definition name=""Eiffel"" caseSensitive=""true"">
     <default>
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
     </default>
     <pattern name=""Comment"" type=""block"" beginsWith=""//"" endsWith=""\n"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
     </pattern>
     <pattern name=""MultiLineComment"" type=""block"" beginsWith=""/*"" endsWith=""*/"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
     </pattern>
     <pattern name=""String"" type=""block"" beginsWith=""&quot;"" endsWith=""&quot;"" escapesWith=""\"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""darkred"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""darkred"" backColor=""transparent""/>
     </pattern>
     <pattern name=""WordGroup01"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
       <word>xor</word>
       <word>when</word>
       <word>variant</word>
@@ -2007,19 +2011,19 @@ namespace SyntaxHighlight {
   </definition>
   <definition name=""Fortran"" caseSensitive=""true"">
     <default>
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
     </default>
     <pattern name=""Comment"" type=""block"" beginsWith=""//"" endsWith=""\n"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
     </pattern>
     <pattern name=""MultiLineComment"" type=""block"" beginsWith=""/*"" endsWith=""*/"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
     </pattern>
     <pattern name=""String"" type=""block"" beginsWith=""&quot;"" endsWith=""&quot;"" escapesWith=""\"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""darkred"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""darkred"" backColor=""transparent""/>
     </pattern>
     <pattern name=""WordGroup01"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
       <word>WRITE</word>
       <word>WHILE</word>
       <word>UNION</word>
@@ -2090,19 +2094,19 @@ namespace SyntaxHighlight {
   </definition>
   <definition name=""Haskell"" caseSensitive=""true"">
     <default>
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
     </default>
     <pattern name=""Comment"" type=""block"" beginsWith=""//"" endsWith=""\n"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
     </pattern>
     <pattern name=""MultiLineComment"" type=""block"" beginsWith=""/*"" endsWith=""*/"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
     </pattern>
     <pattern name=""String"" type=""block"" beginsWith=""&quot;"" endsWith=""&quot;"" escapesWith=""\"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""darkred"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""darkred"" backColor=""transparent""/>
     </pattern>
     <pattern name=""WordGroup01"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
       <word>zipWith3</word>
       <word>zipWith</word>
       <word>zip3</word>
@@ -2318,13 +2322,13 @@ namespace SyntaxHighlight {
   </definition>
   <definition name=""HTML"" caseSensitive=""false"">
     <default>
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
     </default>
     <pattern name=""MultiLineComment"" type=""block"" beginsWith=""&amp;lt;!--"" endsWith=""--&amp;gt;"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
     </pattern>
     <pattern name=""Markup"" type=""markup"" highlightAttributes=""true"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""maroon"" backColor=""transparent"">
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""maroon"" backColor=""transparent"">
         <bracketStyle foreColor=""blue"" backColor=""transparent""/>
         <attributeNameStyle foreColor=""red"" backColor=""transparent""/>
         <attributeValueStyle foreColor=""blue"" backColor=""transparent""/>
@@ -2333,10 +2337,10 @@ namespace SyntaxHighlight {
   </definition>
   <definition name=""Java"" caseSensitive=""true"">
     <default>
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
     </default>
     <pattern name=""Keyword"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
       <word>private</word>
       <word>protected</word>
       <word>public</word>
@@ -2377,13 +2381,13 @@ namespace SyntaxHighlight {
       <word>finally</word>
     </pattern>
     <pattern name=""Comment"" type=""block"" beginsWith=""//"" endsWith=""\n"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
     </pattern>
     <pattern name=""MultiLineComment"" type=""block"" beginsWith=""/*"" endsWith=""*/"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
     </pattern>
     <pattern name=""Operators"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""red"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""red"" backColor=""transparent""/>
       <word>+</word>
       <word>-</word>
       <word>=</word>
@@ -2391,10 +2395,10 @@ namespace SyntaxHighlight {
   </definition>
   <definition name=""JavaScript"" caseSensitive=""true"">
     <default>
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
     </default>
     <pattern name=""Function"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""purple"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""purple"" backColor=""transparent""/>
       <word>GetObject</word>
       <word>ScriptEngine</word>
       <word>ScriptEngineBuildVersion</word>
@@ -2402,7 +2406,7 @@ namespace SyntaxHighlight {
       <word>ScriptEngineMinorVersion</word>
     </pattern>
     <pattern name=""Method"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
       <word>abs</word>
       <word>acos</word>
       <word>anchor</word>
@@ -2541,7 +2545,7 @@ namespace SyntaxHighlight {
       <word>writeln</word>
     </pattern>
     <pattern name=""Object"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""red"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""red"" backColor=""transparent""/>
       <word>ActiveXObject</word>
       <word>Array</word>
       <word>arguments</word>
@@ -2560,7 +2564,7 @@ namespace SyntaxHighlight {
       <word>VBArray</word>
     </pattern>
     <pattern name=""Statement"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
       <word>if</word>
       <word>else</word>
       <word>switch</word>
@@ -2592,7 +2596,7 @@ namespace SyntaxHighlight {
       <word>@end</word>
     </pattern>
     <pattern name=""Operator"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""red"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""red"" backColor=""transparent""/>
       <word>+</word>
       <word>-</word>
       <word>=</word>
@@ -2603,7 +2607,7 @@ namespace SyntaxHighlight {
       <word>|</word>
     </pattern>
     <pattern name=""Property"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""red"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""red"" backColor=""transparent""/>
       <word>arguments</word>
       <word>callee</word>
       <word>caller</word>
@@ -2642,30 +2646,30 @@ namespace SyntaxHighlight {
       <word>undefined</word>
     </pattern>
     <pattern name=""String"" type=""block"" beginsWith=""&quot;"" endsWith=""&quot;"" escapesWith=""\"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""#666666"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""#666666"" backColor=""transparent""/>
     </pattern>
     <pattern name=""Comment"" type=""block"" beginsWith=""//"" endsWith=""\n"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
     </pattern>
     <pattern name=""MultiLineComment"" type=""block"" beginsWith=""/*"" endsWith=""*/"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
     </pattern>
   </definition>
   <definition name=""Mercury"" caseSensitive=""true"">
     <default>
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
     </default>
     <pattern name=""Comment"" type=""block"" beginsWith=""//"" endsWith=""\n"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
     </pattern>
     <pattern name=""MultiLineComment"" type=""block"" beginsWith=""/*"" endsWith=""*/"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
     </pattern>
     <pattern name=""String"" type=""block"" beginsWith=""&quot;"" endsWith=""&quot;"" escapesWith=""\"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""darkred"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""darkred"" backColor=""transparent""/>
     </pattern>
     <pattern name=""WordGroup01"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
       <word>where</word>
       <word>when</word>
       <word>use_module</word>
@@ -2720,10 +2724,10 @@ namespace SyntaxHighlight {
   </definition>
   <definition name=""MSIL"" caseSensitive=""true"">
     <default>
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
     </default>
     <pattern name=""PreprocessorDirective"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
       <word>.addon</word>
       <word>.algorithm</word>
       <word>.assembly</word>
@@ -2787,7 +2791,7 @@ namespace SyntaxHighlight {
       <word>.zeroinit</word>
     </pattern>
     <pattern name=""Keywords"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
       <word>abstract</word>
       <word>algorithm</word>
       <word>alignment</word>
@@ -2969,7 +2973,7 @@ namespace SyntaxHighlight {
       <word>with</word>
     </pattern>
     <pattern name=""Instructions"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
       <word>add</word>
       <word>add.ovf</word>
       <word>add.ovf.un</word>
@@ -3213,7 +3217,7 @@ namespace SyntaxHighlight {
       <word>xor</word>
     </pattern>
     <pattern name=""Operator"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""red"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""red"" backColor=""transparent""/>
       <word>+</word>
       <word>-</word>
       <word>=</word>
@@ -3227,30 +3231,30 @@ namespace SyntaxHighlight {
       <word>==</word>
     </pattern>
     <pattern name=""String"" type=""block"" beginsWith=""&quot;"" endsWith=""&quot;"" escapesWith=""\"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""#666666"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""#666666"" backColor=""transparent""/>
     </pattern>
     <pattern name=""Comment"" type=""block"" beginsWith=""//"" endsWith=""\n"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
     </pattern>
     <pattern name=""char"" type=""block"" beginsWith=""'"" endsWith=""'"" escapesWith=""\"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""red"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""red"" backColor=""transparent""/>
     </pattern>
   </definition>
   <definition name=""Pascal"" caseSensitive=""true"">
     <default>
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
     </default>
     <pattern name=""Comment"" type=""block"" beginsWith=""//"" endsWith=""\n"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
     </pattern>
     <pattern name=""MultiLineComment"" type=""block"" beginsWith=""/*"" endsWith=""*/"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
     </pattern>
     <pattern name=""String"" type=""block"" beginsWith=""&quot;"" endsWith=""&quot;"" escapesWith=""\"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""darkred"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""darkred"" backColor=""transparent""/>
     </pattern>
     <pattern name=""WordGroup01"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
       <word>xor</word>
       <word>with</word>
       <word>while</word>
@@ -3322,19 +3326,19 @@ namespace SyntaxHighlight {
   </definition>
   <definition name=""Perl"" caseSensitive=""true"">
     <default>
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
     </default>
     <pattern name=""Comment"" type=""block"" beginsWith=""//"" endsWith=""\n"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
     </pattern>
     <pattern name=""MultiLineComment"" type=""block"" beginsWith=""/*"" endsWith=""*/"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
     </pattern>
     <pattern name=""String"" type=""block"" beginsWith=""&quot;"" endsWith=""&quot;"" escapesWith=""\"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""darkred"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""darkred"" backColor=""transparent""/>
     </pattern>
     <pattern name=""WordGroup01"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
       <word>WRITE</word>
       <word>write</word>
       <word>warn</word>
@@ -3584,22 +3588,22 @@ namespace SyntaxHighlight {
   </definition>
   <definition name=""PHP"" caseSensitive=""false"">
     <default>
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
     </default>
     <pattern name=""Comment"" type=""block"" beginsWith=""//"" endsWith=""\n"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
     </pattern>
     <pattern name=""AlternativeComment"" type=""block"" beginsWith=""#"" endsWith=""\n"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
     </pattern>
     <pattern name=""MultiLineComment"" type=""block"" beginsWith=""/*"" endsWith=""*/"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
     </pattern>
     <pattern name=""String"" type=""block"" beginsWith=""&quot;"" endsWith=""&quot;"" escapesWith=""\"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""darkred"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""darkred"" backColor=""transparent""/>
     </pattern>
     <pattern name=""WordGroup01"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
       <word>while</word>
       <word>var</word>
       <word>true</word>
@@ -3636,7 +3640,7 @@ namespace SyntaxHighlight {
       <word>as</word>
     </pattern>
     <pattern name=""WordGroup02"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""orange"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""orange"" backColor=""transparent""/>
       <word>zend_version</word>
       <word>zend_test_func</word>
       <word>zend_logo_guid</word>
@@ -5533,19 +5537,19 @@ namespace SyntaxHighlight {
   </definition>
   <definition name=""Python"" caseSensitive=""true"">
     <default>
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
     </default>
     <pattern name=""Comment"" type=""block"" beginsWith=""//"" endsWith=""\n"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
     </pattern>
     <pattern name=""MultiLineComment"" type=""block"" beginsWith=""/*"" endsWith=""*/"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
     </pattern>
     <pattern name=""String"" type=""block"" beginsWith=""&quot;"" endsWith=""&quot;"" escapesWith=""\"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""#666666"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""#666666"" backColor=""transparent""/>
     </pattern>
     <pattern name=""WordGroup01"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
       <word>zfill</word>
       <word>XRangeType</word>
       <word>xor</word>
@@ -6024,19 +6028,19 @@ namespace SyntaxHighlight {
   </definition>
   <definition name=""Ruby"" caseSensitive=""true"">
     <default>
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
     </default>
     <pattern name=""Comment"" type=""block"" beginsWith=""#"" endsWith=""\n"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
     </pattern>
     <pattern name=""MultiLineComment"" type=""block"" beginsWith=""/*"" endsWith=""*/"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
     </pattern>
     <pattern name=""String"" type=""block"" beginsWith=""&quot;"" endsWith=""&quot;"" escapesWith=""\"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""#666666"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""#666666"" backColor=""transparent""/>
     </pattern>
     <pattern name=""WordGroup01"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
       <word>yield</word>
       <word>while</word>
       <word>when</word>
@@ -6079,7 +6083,7 @@ namespace SyntaxHighlight {
       <word>__FILE__</word>
     </pattern>
     <pattern name=""WordGroup02"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""darkblue"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""darkblue"" backColor=""transparent""/>
       <word>untrace_var</word>
       <word>trap</word>
       <word>trace_var</word>
@@ -6145,7 +6149,7 @@ namespace SyntaxHighlight {
       <word>Array</word>
     </pattern>
     <pattern name=""WordGroup03"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""red"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""red"" backColor=""transparent""/>
       <word>ZeroDivisionError</word>
       <word>TypeError</word>
       <word>Time</word>
@@ -6194,10 +6198,10 @@ namespace SyntaxHighlight {
   </definition>
   <definition name=""SQL"" caseSensitive=""false"">
     <default>
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
     </default>
     <pattern name=""SysTable"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""lawngreen"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""lawngreen"" backColor=""transparent""/>
       <word>sysaltfiles</word>
       <word>syslockinfo</word>
       <word>syscacheobjects</word>
@@ -6249,7 +6253,7 @@ namespace SyntaxHighlight {
       <word>systaskids</word>
     </pattern>
     <pattern name=""SysProc"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""brown"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""brown"" backColor=""transparent""/>
       <word>sp_bindsession</word>
       <word>sp_column_privileges_ex</word>
       <word>sp_createorphan</word>
@@ -6426,7 +6430,7 @@ namespace SyntaxHighlight {
       <word>xp_varbintohexstr</word>
     </pattern>
     <pattern name=""GlobalVariable"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""fuchsia"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""fuchsia"" backColor=""transparent""/>
       <word>@@DATEFIRST</word>
       <word>@@OPTIONS</word>
       <word>@@DBTS</word>
@@ -6462,7 +6466,7 @@ namespace SyntaxHighlight {
       <word>@@TOTAL_WRITE</word>
     </pattern>
     <pattern name=""ReservedKeyword"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
       <word>sysname</word>
       <word>ADD</word>
       <word>EXCEPT</word>
@@ -6620,7 +6624,7 @@ namespace SyntaxHighlight {
       <word>OUT</word>
     </pattern>
     <pattern name=""Function"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""fuchsia"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""fuchsia"" backColor=""transparent""/>
       <word>AVG</word>
       <word>MAX</word>
       <word>BINARY_CHECKSUM</word>
@@ -6768,7 +6772,7 @@ namespace SyntaxHighlight {
       <word>USER</word>
     </pattern>
     <pattern name=""DataType"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
       <word>bigint</word>
       <word>int</word>
       <word>smallint</word>
@@ -6798,7 +6802,7 @@ namespace SyntaxHighlight {
       <word>uniqueidentifier</word>
     </pattern>
     <pattern name=""Operator"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""silver"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""silver"" backColor=""transparent""/>
       <word>ALL</word>
       <word>AND</word>
       <word>EXISTS</word>
@@ -6815,7 +6819,7 @@ namespace SyntaxHighlight {
       <word>OUTER</word>
     </pattern>
     <pattern name=""SystemFunction"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""brown"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""brown"" backColor=""transparent""/>
       <word>fn_listextendedproperty</word>
       <word>fn_trace_getinfo</word>
       <word>fn_trace_gettable</word>
@@ -6827,27 +6831,27 @@ namespace SyntaxHighlight {
       <word>fn_virtualfilestats</word>
     </pattern>
     <pattern name=""Comment"" type=""block"" beginsWith=""--"" endsWith=""\n"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""teal"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""teal"" backColor=""transparent""/>
     </pattern>
     <pattern name=""BlockComment"" type=""block"" beginsWith=""/*"" endsWith=""*/"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""teal"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""teal"" backColor=""transparent""/>
     </pattern>
     <pattern name=""String"" type=""block"" beginsWith=""'"" endsWith=""'"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""red"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""red"" backColor=""transparent""/>
     </pattern>
   </definition>
   <definition name=""Visual Basic"" caseSensitive=""false"">
     <default>
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
     </default>
     <pattern name=""String"" type=""block"" beginsWith=""&quot;"" endsWith=""&quot;"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""#666666"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""#666666"" backColor=""transparent""/>
     </pattern>
     <pattern name=""Comment"" type=""block"" beginsWith=""&apos;"" endsWith=""\n"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
     </pattern>
     <pattern name=""Keyword"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
       <word>Xor</word>
       <word>WriteOnly</word>
       <word>WithEvents</word>
@@ -7003,16 +7007,16 @@ namespace SyntaxHighlight {
   </definition>
   <definition name=""VBScript"" caseSensitive=""false"">
     <default>
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
     </default>
     <pattern name=""String"" type=""block"" beginsWith=""&quot;"" endsWith=""&quot;"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""#666666"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""#666666"" backColor=""transparent""/>
     </pattern>
     <pattern name=""Comment"" type=""block"" beginsWith=""&apos;"" endsWith=""\n"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
     </pattern>
     <pattern name=""Keyword"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
       <word>year</word>
       <word>xor</word>
       <word>write</word>
@@ -7201,10 +7205,10 @@ namespace SyntaxHighlight {
   </definition>
   <definition name=""VB.NET"" caseSensitive=""false"">
     <default>
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
     </default>
     <pattern name=""Keyword"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
       <word>Alias</word>
       <word>Ansi</word>
       <word>As</word>
@@ -7272,7 +7276,7 @@ namespace SyntaxHighlight {
       <word>WriteOnly</word>
     </pattern>
     <pattern name=""Statement"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
       <word>AddHandler</word>
       <word>Call</word>
       <word>Class</word>
@@ -7331,7 +7335,7 @@ namespace SyntaxHighlight {
       <word>End</word>
     </pattern>
     <pattern name=""Property"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
       <word>Count</word>
       <word>DateString</word>
       <word>Description</word>
@@ -7353,18 +7357,18 @@ namespace SyntaxHighlight {
       <word>Today</word>
     </pattern>
     <pattern name=""Object"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
       <word>Err</word>
     </pattern>
     <pattern name=""Method"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
       <word>Add</word>
       <word>Clear</word>
       <word>Raise</word>
       <word>Remove</word>
     </pattern>
     <pattern name=""Function"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
       <word>Abs</word>
       <word>AppActivate</word>
       <word>Asc</word>
@@ -7530,7 +7534,7 @@ namespace SyntaxHighlight {
       <word>Year</word>
     </pattern>
     <pattern name=""DataType"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""blue"" backColor=""transparent""/>
       <word>Boolean</word>
       <word>Byte</word>
       <word>Char</word>
@@ -7545,13 +7549,13 @@ namespace SyntaxHighlight {
       <word>String</word>
     </pattern>
     <pattern name=""String"" type=""block"" beginsWith=""&quot;"" endsWith=""&quot;"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""#666666"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""#666666"" backColor=""transparent""/>
     </pattern>
     <pattern name=""Comment"" type=""block"" beginsWith=""&apos;"" endsWith=""\n"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
     </pattern>
     <pattern name=""Operator"" type=""word"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""red"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""red"" backColor=""transparent""/>
       <word>+</word>
       <word>-</word>
       <word>=</word>
@@ -7573,13 +7577,13 @@ namespace SyntaxHighlight {
   </definition>
   <definition name=""XML"" caseSensitive=""false"">
     <default>
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""black"" backColor=""transparent""/>
     </default>
     <pattern name=""MultiLineComment"" type=""block"" beginsWith=""&amp;lt;!-"" endsWith=""-&amp;gt;"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""green"" backColor=""transparent""/>
     </pattern>
     <pattern name=""Markup"" type=""markup"" highlightAttributes=""true"">
-      <font name=""Courier New"" size=""11"" style=""normal"" foreColor=""maroon"" backColor=""transparent"">
+      <font name=""Menlo"" size=""11"" style=""normal"" foreColor=""maroon"" backColor=""transparent"">
         <bracketStyle foreColor=""blue"" backColor=""transparent""/>
         <attributeNameStyle foreColor=""red"" backColor=""transparent""/>
         <attributeValueStyle foreColor=""blue"" backColor=""transparent""/>

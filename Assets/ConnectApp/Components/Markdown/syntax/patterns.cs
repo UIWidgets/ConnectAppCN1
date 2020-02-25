@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
-using Unity.UIWidgets.painting;
+using System.Linq;
 using Unity.UIWidgets.ui;
+using Unity.UIWidgets.painting;
 
 namespace SyntaxHighlight {
     public class Definition {
@@ -25,39 +26,32 @@ namespace SyntaxHighlight {
             var markupPatterns = new StringBuilder();
             var wordPatterns = new StringBuilder();
 
-            foreach (var pattern in this.Patterns.Values) {
-                if (pattern is BlockPattern) {
-                    if (blockPatterns.Length > 1) {
+            foreach(var pattern in this.Patterns.Values) {
+                if(pattern is BlockPattern) {
+                    if(blockPatterns.Length > 1) {
                         blockPatterns.Append("|");
                     }
-
                     blockPatterns.AppendFormat("(?'{0}'{1})", pattern.Name, pattern.GetRegexPattern());
-                }
-                else if (pattern is MarkupPattern) {
-                    if (markupPatterns.Length > 1) {
+                } else if(pattern is MarkupPattern) {
+                    if(markupPatterns.Length > 1) {
                         markupPatterns.Append("|");
                     }
-
                     markupPatterns.AppendFormat("(?'{0}'{1})", pattern.Name, pattern.GetRegexPattern());
-                }
-                else if (pattern is WordPattern) {
-                    if (wordPatterns.Length > 1) {
+                } else if(pattern is WordPattern) {
+                    if(wordPatterns.Length > 1) {
                         wordPatterns.Append("|");
                     }
-
                     wordPatterns.AppendFormat("(?'{0}'{1})", pattern.Name, pattern.GetRegexPattern());
                 }
             }
 
-            if (blockPatterns.Length > 0) {
+            if(blockPatterns.Length > 0) {
                 allPatterns.AppendFormat("(?'blocks'{0})+?", blockPatterns);
             }
-
-            if (markupPatterns.Length > 0) {
+            if(markupPatterns.Length > 0) {
                 allPatterns.AppendFormat("|(?'markup'{0})+?", markupPatterns);
             }
-
-            if (wordPatterns.Length > 0) {
+            if(wordPatterns.Length > 0) {
                 allPatterns.AppendFormat("|(?'words'{0})+?", wordPatterns);
             }
 
@@ -85,7 +79,8 @@ namespace SyntaxHighlight {
         public Color ForeColor { get; set; }
         public Color BackColor { get; set; }
 
-        public ColorPair() { }
+        public ColorPair() {
+        }
 
         public ColorPair(Color foreColor, Color backColor) {
             this.ForeColor = foreColor;
@@ -106,23 +101,19 @@ namespace SyntaxHighlight {
         }
 
         public override string GetRegexPattern() {
-            if (string.IsNullOrEmpty(this.EscapesWith)) {
-                if (this.EndsWith.CompareTo(@"\n") == 0) {
-                    return string.Format(@"{0}[^\n\r]*", Escape(this.BeginsWith));
+            if(String.IsNullOrEmpty(this.EscapesWith)) {
+                if(this.EndsWith.CompareTo(@"\n") == 0) {
+                    return String.Format(@"{0}[^\n\r]*", Escape(this.BeginsWith));
                 }
 
-                return string.Format(@"{0}[\w\W\s\S]*?{1}", Escape(this.BeginsWith), Escape(this.EndsWith));
+                return String.Format(@"{0}[\w\W\s\S]*?{1}", Escape(this.BeginsWith), Escape(this.EndsWith));
             }
 
-            return string.Format("{0}(?>{1}.|[^{2}]|.)*?{3}",
-                new object[] {
-                    Regex.Escape(this.BeginsWith), Regex.Escape(this.EscapesWith.Substring(0, 1)),
-                    Regex.Escape(this.EndsWith.Substring(0, 1)), Regex.Escape(this.EndsWith)
-                });
+            return String.Format("{0}(?>{1}.|[^{2}]|.)*?{3}", new object[] { Regex.Escape(this.BeginsWith), Regex.Escape(this.EscapesWith.Substring(0, 1)), Regex.Escape(this.EndsWith.Substring(0, 1)), Regex.Escape(this.EndsWith) });
         }
 
         public static string Escape(string str) {
-            if (str.CompareTo(@"\n") != 0) {
+            if(str.CompareTo(@"\n") != 0) {
                 str = Regex.Escape(str);
             }
 
@@ -136,8 +127,7 @@ namespace SyntaxHighlight {
         public ColorPair AttributeNameColors { get; set; }
         public ColorPair AttributeValueColors { get; set; }
 
-        public MarkupPattern(string name, Style style, bool highlightAttributes, ColorPair bracketColors,
-            ColorPair attributeNameColors, ColorPair attributeValueColors)
+        public MarkupPattern(string name, Style style, bool highlightAttributes, ColorPair bracketColors, ColorPair attributeNameColors, ColorPair attributeValueColors)
             : base(name, style) {
             this.HighlightAttributes = highlightAttributes;
             this.BracketColors = bracketColors;
@@ -189,24 +179,23 @@ namespace SyntaxHighlight {
         }
 
         public override string GetRegexPattern() {
-            var str = string.Empty;
-            if (this.Words.Count() > 0) {
+            var str = String.Empty;
+            if(this.Words.Count() > 0) {
                 var nonWords = this.GetNonWords();
-                str = string.Format(@"(?<![\w{0}])(?=[\w{0}])({1})(?<=[\w{0}])(?![\w{0}])", nonWords,
-                    string.Join("|", this.Words.ToArray()));
+                str = String.Format(@"(?<![\w{0}])(?=[\w{0}])({1})(?<=[\w{0}])(?![\w{0}])", nonWords, String.Join("|", this.Words.ToArray()));
             }
 
             return str;
         }
 
-        string GetNonWords() {
-            var input = string.Join("", this.Words.ToArray());
+        private string GetNonWords() {
+            var input = String.Join("", this.Words.ToArray());
             var list = new List<string>();
-            foreach (var match in Regex.Matches(input, @"\W").Cast<Match>().Where(x => !list.Contains(x.Value))) {
+            foreach(var match in Regex.Matches(input, @"\W").Cast<Match>().Where(x => !list.Contains(x.Value))) {
                 list.Add(match.Value);
             }
 
-            return string.Join("", list.ToArray());
+            return String.Join("", list.ToArray());
         }
     }
 }

@@ -116,6 +116,7 @@ namespace ConnectApp.Components {
             float ratioGap = 16,
             float horizontalGap = 16,
             float verticalGap = 16,
+            bool onlyShowFirst = false,
             Key key = null
         ) : base(key: key) {
             this.images = images;
@@ -123,6 +124,7 @@ namespace ConnectApp.Components {
             this.ratioGap = ratioGap;
             this.horizontalGap = horizontalGap;
             this.verticalGap = verticalGap;
+            this.onlyShowFirst = onlyShowFirst;
         }
 
         readonly List<string> images;
@@ -130,6 +132,8 @@ namespace ConnectApp.Components {
         readonly float ratioGap;
         readonly float horizontalGap;
         readonly float verticalGap;
+        readonly bool onlyShowFirst;
+
 
         public override Widget build(BuildContext context) {
             if (this.images.isNullOrEmpty()) {
@@ -140,7 +144,7 @@ namespace ConnectApp.Components {
             if (this.images.Count > 0) {
                 firstImage = new PlaceholderImage(
                     CImageUtils.SuitableSizeImageUrl(
-                        imageWidth: MediaQuery.of(context: context).size.width, 
+                        imageWidth: MediaQuery.of(context: context).size.width,
                         this.images[0]
                     ),
                     this.size + this.ratioGap * 2,
@@ -157,18 +161,25 @@ namespace ConnectApp.Components {
 
             Widget secondImage;
             if (this.images.Count > 1) {
-                secondImage = new PlaceholderImage(
-                    CImageUtils.SuitableSizeImageUrl(
-                        imageWidth: MediaQuery.of(context: context).size.width, 
-                        this.images[1]
-                    ),
-                    this.size + this.ratioGap,
-                    this.size + this.ratioGap,
-                    6,
-                    fit: BoxFit.cover,
-                    true,
-                    CColorUtils.GetSpecificDarkColorFromId(this.images[1])
-                );
+                secondImage = this.onlyShowFirst
+                    ? (Widget) new Container(
+                        width: this.size + this.ratioGap * 2,
+                        height: this.size + this.ratioGap * 2,
+                        decoration: new BoxDecoration(borderRadius: BorderRadius.all(6),
+                            color: Color.fromRGBO(207, 213, 219, 1))
+                    )
+                    : new PlaceholderImage(
+                        CImageUtils.SuitableSizeImageUrl(
+                            imageWidth: MediaQuery.of(context: context).size.width,
+                            this.images[1]
+                        ),
+                        this.size + this.ratioGap,
+                        this.size + this.ratioGap,
+                        6,
+                        fit: BoxFit.cover,
+                        true,
+                        CColorUtils.GetSpecificDarkColorFromId(this.images[1])
+                    );
             }
             else {
                 secondImage = new Container();
@@ -176,18 +187,25 @@ namespace ConnectApp.Components {
 
             Widget thirdImage;
             if (this.images.Count > 2) {
-                thirdImage = new PlaceholderImage(
-                    CImageUtils.SuitableSizeImageUrl(
-                        imageWidth: MediaQuery.of(context: context).size.width, 
-                        this.images[2]
-                    ),
-                    width: this.size,
-                    height: this.size,
-                    6,
-                    fit: BoxFit.cover,
-                    true,
-                    CColorUtils.GetSpecificDarkColorFromId(this.images[2])
-                );
+                thirdImage = this.onlyShowFirst
+                    ? (Widget) new Container(
+                        width: this.size + this.ratioGap * 2,
+                        height: this.size + this.ratioGap * 2,
+                        decoration: new BoxDecoration(borderRadius: BorderRadius.all(6),
+                            color: Color.fromRGBO(137, 150, 165, 1))
+                    )
+                    : new PlaceholderImage(
+                        CImageUtils.SuitableSizeImageUrl(
+                            imageWidth: MediaQuery.of(context: context).size.width,
+                            this.images[2]
+                        ),
+                        width: this.size,
+                        height: this.size,
+                        6,
+                        fit: BoxFit.cover,
+                        true,
+                        CColorUtils.GetSpecificDarkColorFromId(this.images[2])
+                    );
             }
             else {
                 thirdImage = new Container();
