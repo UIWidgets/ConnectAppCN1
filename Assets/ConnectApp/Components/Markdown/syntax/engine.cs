@@ -1,7 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using ConnectApp.Constants;
 using Unity.UIWidgets.painting;
 
 namespace SyntaxHighlight {
@@ -10,14 +11,14 @@ namespace SyntaxHighlight {
     }
 
     public class Engine : IEngine {
-        const RegexOptions DefaultRegexOptions = RegexOptions.ExplicitCapture | RegexOptions.IgnorePatternWhitespace;
+        private const RegexOptions DefaultRegexOptions = RegexOptions.ExplicitCapture | RegexOptions.IgnorePatternWhitespace;
 
         List<TextSpan> textSpans;
         int processedLength;
         string source;
 
         public TextSpan Highlight(Definition definition, string input) {
-            if (definition == null) {
+            if(definition == null) {
                 throw new ArgumentNullException("definition");
             }
 
@@ -25,54 +26,50 @@ namespace SyntaxHighlight {
             this.processedLength = 0;
             this.source = input;
             this.HighlightUsingRegex(definition, input);
-            if (this.processedLength < this.source.Length) {
+            if(this.processedLength < this.source.Length) {
                 this.textSpans.Add(new TextSpan(this.source.Substring(this.processedLength)));
             }
-
             return new TextSpan(
                 children: this.textSpans,
                 style: definition.Style.toTextStyle()
             );
         }
 
-        void HighlightUsingRegex(Definition definition, string input) {
+        private void HighlightUsingRegex(Definition definition, string input) {
             var regexOptions = this.GetRegexOptions(definition);
             var evaluator = this.GetMatchEvaluator(definition);
             var regexPattern = definition.GetRegexPattern();
             Regex.Replace(input, regexPattern, evaluator, regexOptions);
         }
 
-        RegexOptions GetRegexOptions(Definition definition) {
-            if (definition.CaseSensitive) {
+        private RegexOptions GetRegexOptions(Definition definition) {
+            if(definition.CaseSensitive) {
                 return DefaultRegexOptions | RegexOptions.IgnoreCase;
             }
 
             return DefaultRegexOptions;
         }
 
-        string ElementMatchHandler(Definition definition, Match match) {
-            if (definition == null) {
+        private string ElementMatchHandler(Definition definition, Match match) {
+            if(definition == null) {
                 throw new ArgumentNullException("definition");
             }
-
-            if (match == null) {
+            if(match == null) {
                 throw new ArgumentNullException("match");
             }
 
             var pattern = definition.Patterns.First(x => match.Groups[x.Key].Success).Value;
-            if (match.Index > this.processedLength) {
-                this.textSpans.Add(new TextSpan(this.source.Substring(this.processedLength,
-                    match.Index - this.processedLength)));
+            if(match.Index > this.processedLength) {
+                this.textSpans.Add(new TextSpan(this.source.Substring(this.processedLength, match.Index - this.processedLength)));
             }
-
-            if (pattern != null) {
-                if (pattern is BlockPattern blockPattern) {
+            if(pattern != null) {
+                if(pattern is BlockPattern blockPattern) {
                     this.textSpans.Add(this.ProcessBlockPatternMatch(definition, blockPattern, match));
                 }
-                else if (pattern is MarkupPattern markupPattern) {
+                else if(pattern is MarkupPattern markupPattern) {
                     this.textSpans.Add(this.ProcessMarkupPatternMatch(definition, markupPattern, match));
                 }
-                else if (pattern is WordPattern wordPattern) {
+                else if(pattern is WordPattern wordPattern) {
                     this.textSpans.Add(this.ProcessWordPatternMatch(definition, wordPattern, match));
                 }
             }
@@ -82,7 +79,7 @@ namespace SyntaxHighlight {
             return "";
         }
 
-        MatchEvaluator GetMatchEvaluator(Definition definition) {
+        private MatchEvaluator GetMatchEvaluator(Definition definition) {
             return match => this.ElementMatchHandler(definition, match);
         }
 

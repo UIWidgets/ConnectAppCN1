@@ -138,9 +138,10 @@ namespace ConnectApp.screens {
                     endView = new Visibility(
                         visible: this._isLoading,
                         child: new Container(
+                            color: CColors.Background,
                             padding: EdgeInsets.symmetric(16),
                             child: new CustomActivityIndicator(
-                                loadingColor: LoadingColor.white,
+                                loadingColor: LoadingColor.black,
                                 animating: this._isLoading ? AnimatingType.repeat : AnimatingType.reset
                             )
                         )
