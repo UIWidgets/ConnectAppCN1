@@ -392,4 +392,11 @@ namespace ConnectApp.Models.Api {
         public int currentPage;
         public RankData rankData;
     }
+
+    [Serializable]
+    public class FetchGameResponse {
+        public List<RankData> rankList;
+        public bool hasMore;
+        public int currentPage;
+    }
 }
