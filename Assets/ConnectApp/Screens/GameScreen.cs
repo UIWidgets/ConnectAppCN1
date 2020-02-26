@@ -33,6 +33,9 @@ namespace ConnectApp.screens {
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new GameScreenActionModel {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
+                        pushToGameDetail = gameId => dispatcher.dispatch(new MainNavigatorPushToGameDetailAction {
+                            gameId = gameId
+                        }),
                         startFetchGame = () => dispatcher.dispatch(new StartFetchGameAction()),
                         fetchGame = page => dispatcher.dispatch<IPromise>(Actions.fetchGames(page: page))
                     };
@@ -150,8 +153,8 @@ namespace ConnectApp.screens {
             var game = rankDict[key: gameId];
             return new GameCard(
                 game: game,
-                () => TinyWasmPlugin.PushToTinyWasmScreen(url: game.redirectURL, name: game.resetLabel)
-            );
+                () => this.widget.actionModel.pushToGameDetail(obj: game.id),
+                () => TinyWasmPlugin.PushToTinyWasmScreen(url: game.redirectURL, name: game.resetLabel));
         }
     }
 }

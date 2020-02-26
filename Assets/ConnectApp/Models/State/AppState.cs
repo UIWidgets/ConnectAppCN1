@@ -244,6 +244,7 @@ namespace ConnectApp.Models.State {
                 },
                 gameState = new GameState {
                     gameLoading = false,
+                    gameDetailLoading = false,
                     gameIds = new List<string>(),
                     gamePage = 1,
                     gameHasMore = false
