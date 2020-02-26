@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using html;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.material;
@@ -92,6 +93,7 @@ namespace markdown {
         public List<_TableElement> _tables = new List<_TableElement>();
         public List<_InlineElement> _inlines = new List<_InlineElement>();
         public List<GestureRecognizer> _linkHandlers = new List<GestureRecognizer>();
+        public bool enableHTML;
 
         bool _isInBlockquote = false;
 
@@ -102,7 +104,8 @@ namespace markdown {
             string imageDirectory,
             MarkdownImageBuilder imageBuilder,
             MarkdownCheckboxBuilder checkboxBuilder,
-            bool fitContent = false
+            bool fitContent = false,
+            bool enableHTML = true
         ) {
             this.builderDelegate = dele;
             this.selectable = selectable;
@@ -111,6 +114,7 @@ namespace markdown {
             this.imageBuilder = imageBuilder;
             this.checkboxBuilder = checkboxBuilder;
             this.fitContent = fitContent;
+            this.enableHTML = enableHTML;
         }
 
         public List<Widget> build(List<Node> nodes) {
@@ -182,6 +186,11 @@ namespace markdown {
         }
 
         public override void visitText(Text text) {
+            if (this.enableHTML && text is HTML html) {
+                this.visitHTML(html);
+                return;
+            }
+
             if (this._blocks.Last().tag == null) {
                 return;
             }
@@ -209,6 +218,12 @@ namespace markdown {
             }
 
             this._inlines.Last().children.Add(child);
+        }
+
+        void visitHTML(HTML html) {
+            this._blocks.Last().children.Add(
+                new HtmlView(data: html.textContent)
+            );
         }
 
         public override void visitElementAfter(Element element) {

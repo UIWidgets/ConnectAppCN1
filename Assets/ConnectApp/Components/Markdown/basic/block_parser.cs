@@ -504,7 +504,7 @@ namespace markdown {
                 parser.advance();
             }
 
-            return new Text(childLines.join("\n"));
+            return new HTML(childLines.join("\n"));
         }
     }
 
@@ -514,7 +514,7 @@ namespace markdown {
         }
 
         public override Regex pattern {
-            get { return new Regex(@"^ {0,3}</?\w+(?:>|\s+[^>]*>)\s*$"); }
+            get { return new Regex(@"^ {0,3}</?\w+(?:>|\s+[^>]*>)"); }
         }
     }
 
@@ -545,7 +545,7 @@ namespace markdown {
             }
 
             parser.advance();
-            return new Text(childLines.join("\n"));
+            return new HTML(childLines.join("\n"));
         }
     }
 

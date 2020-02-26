@@ -221,8 +221,7 @@ namespace markdown {
 
     /// Represents a hard line break.
     class LineBreakSyntax : InlineSyntax {
-        public LineBreakSyntax() : base(@"(?:\\|  +)\n") {
-        }
+        public LineBreakSyntax() : base(@"(?:\\|  +)\n") { }
 
 
         /// Create a void <br> element.
@@ -256,8 +255,7 @@ namespace markdown {
 
     /// Escape punctuation preceded by a backslash.
     class EscapeSyntax : InlineSyntax {
-        public EscapeSyntax() : base(@"\\[!""#$%&'()*+,\-./:;<=>?@\[\\\]^_`{|}~]''") {
-        }
+        public EscapeSyntax() : base(@"\\[!""#$%&'()*+,\-./:;<=>?@\[\\\]^_`{|}~]''") { }
 
         internal override bool onMatch(InlineParser parser, Match match) {
 // Insert the substitution.
@@ -276,8 +274,7 @@ namespace markdown {
     /// TODO(srawlins): improve accuracy while ensuring performance, once
     /// Markdown benchmarking is more mature.
     class InlineHtmlSyntax : TextSyntax {
-        public InlineHtmlSyntax() : base(@"<[/!?]?[A-Za-z][A-Za-z0-9-]*(?:\s[^>]*)?>") {
-        }
+        public InlineHtmlSyntax() : base(@"<[/!?]?[A-Za-z][A-Za-z0-9-]*(?:\s[^>]*)?>") { }
     }
 
     /// Matches autolinks like `<foo@bar.example.com>`.
@@ -287,8 +284,7 @@ namespace markdown {
         static string _email =
             @"[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*";
 
-        public EmailAutolinkSyntax() : base($"<({_email})>") {
-        }
+        public EmailAutolinkSyntax() : base($"<({_email})>") { }
 
         internal override bool onMatch(InlineParser parser, Match match) {
             var url = match.Groups[1].Value;
@@ -301,8 +297,7 @@ namespace markdown {
 
     /// Matches autolinks like `<http://foo.com>`.
     class AutolinkSyntax : InlineSyntax {
-        public AutolinkSyntax() : base(@"<(([a-zA-Z][a-zA-Z\-\+\.]+):(?://)?[^\s>]*)>") {
-        }
+        public AutolinkSyntax() : base(@"<(([a-zA-Z][a-zA-Z\-\+\.]+):(?://)?[^\s>]*)>") { }
 
         internal override bool onMatch(InlineParser parser, Match match) {
             var url = match.Groups[1].Value;
@@ -345,8 +340,7 @@ namespace markdown {
         static Regex regExpEndsWithColon = new Regex(@"\&[a - zA - Z0 - 9] +;$");
         static Regex regExpWhiteSpace = new Regex(@"\s");
 
-        public AutolinkExtensionSyntax() : base(string.Format("{0}(({1})({2})({3}))", start, scheme, domain, path)) {
-        }
+        public AutolinkExtensionSyntax() : base(string.Format("{0}(({1})({2})({3}))", start, scheme, domain, path)) { }
 
         internal override bool tryMatch(InlineParser parser, int startMatchPos = 0) {
             return base.tryMatch(parser, parser.pos > 0 ? parser.pos - 1 : 0);
@@ -528,7 +522,7 @@ namespace markdown {
                 this.length, this.isLeftFlanking, this.isRightFlanking);
         }
 
-// Whether a delimiter in this run can open emphasis or strong emphasis.
+        // Whether a delimiter in this run can open emphasis or strong emphasis.
         internal bool canOpen {
             get {
                 return this.isLeftFlanking &&
@@ -536,7 +530,7 @@ namespace markdown {
             }
         }
 
-// Whether a delimiter in this run can close emphasis or strong emphasis.
+        // Whether a delimiter in this run can close emphasis or strong emphasis.
         internal bool canClose {
             get {
                 return this.isRightFlanking &&
@@ -630,8 +624,7 @@ namespace markdown {
 
     /// Matches strikethrough syntax according to the GFM spec.
     class StrikethroughSyntax : TagSyntax {
-        public StrikethroughSyntax() : base("~+", true) {
-        }
+        public StrikethroughSyntax() : base("~+", true) { }
 
 
         internal override bool onMatchEnd(InlineParser parser, Match match, TagState state) {
@@ -713,7 +706,7 @@ namespace markdown {
                     return this._tryAddInlineLink(parser, state, inlineLink);
                 }
 
-// Reset the parser position.
+                // Reset the parser position.
                 parser.pos = leftParenIndex;
 
 // At this point, we've matched `[...](`, but that `(` did not pan out to
@@ -860,7 +853,7 @@ namespace markdown {
                     return null;
                 }
 
-// TODO(srawlins): only check 999 characters, for performance reasons?
+                // TODO(srawlins): only check 999 characters, for performance reasons?
             }
 
             var label = buffer.ToString();
@@ -1079,7 +1072,7 @@ namespace markdown {
                 return null;
             }
 
-// The whitespace should be followed by a title delimiter.
+            // The whitespace should be followed by a title delimiter.
             var delimiter = parser.charAt(parser.pos);
             if (delimiter != CharCode.apostrophe &&
                 delimiter != CharCode.quote &&
@@ -1142,8 +1135,7 @@ namespace markdown {
     /// `![alternate text][label]`.
     class ImageSyntax : LinkSyntax {
         public ImageSyntax(Resolver linkResolver = null)
-            : base(linkResolver, @"!\[") {
-        }
+            : base(linkResolver, @"!\[") { }
 
         protected override Node _createNode(TagState state, string destination, string title) {
             var element = Element.empty("img");
@@ -1188,8 +1180,7 @@ namespace markdown {
         // CommonMark.
         static string _pattern = @"(`+(?!`))((?:.|\n)*?[^`])\1(?!`)";
 
-        public CodeSyntax() : base(_pattern) {
-        }
+        public CodeSyntax() : base(_pattern) { }
 
         internal override bool tryMatch(InlineParser parser, int startMatchPos) {
             if (parser.pos > 0 && parser.charAt(parser.pos - 1) == CharCode.backquote) {
@@ -1228,8 +1219,7 @@ namespace markdown {
     class EmojiSyntax : InlineSyntax {
         // Emoji "aliases" are mostly limited to lower-case letters, numbers, and
         // underscores, but GitHub also supports `:+1:` and `:-1:`.
-        internal EmojiSyntax() : base(@":([a-z0-9_+-]+):") {
-        }
+        internal EmojiSyntax() : base(@":([a-z0-9_+-]+):") { }
 
         internal override bool onMatch(InlineParser parser, Match match) {
             var alias = match.Groups[1].Value;
