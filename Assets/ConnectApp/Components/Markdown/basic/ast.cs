@@ -76,13 +76,16 @@ namespace markdown {
         }
     }
 
+    public class HTML : Text {
+        public HTML(string text) : base(text) { }
+    }
+
     public class UnparsedContent : Node {
         public UnparsedContent(string textContent) {
             this.textContent = textContent;
         }
 
-        public override void accept(NodeVisitor visitor) {
-        }
+        public override void accept(NodeVisitor visitor) { }
 
         public override string textContent { get; }
     }
