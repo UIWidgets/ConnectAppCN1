@@ -2,7 +2,6 @@
 using System.Xml.Linq;
 
 namespace SyntaxHighlight {
-
     public class ColorsFromName {
         static Dictionary<string, uint> _colors {
             get {
@@ -934,9 +933,10 @@ namespace SyntaxHighlight {
         }
 
         public static uint ColorFromName(string name) {
-            if(_colors.TryGetValue(name, out var color)) {
+            if (_colors.TryGetValue(name, out var color)) {
                 return color;
             }
+
             return 0;
         }
     }
@@ -2461,7 +2461,7 @@ namespace SyntaxHighlight {
       <word>getVarDate</word>
       <word>getYear</word>
       <word>hasOwnProperty</word>
-      <word>indexOf</word>
+      <word>IndexOf</word>
       <word>isFinite</word>
       <word>isNaN</word>
       <word>isPrototypeOf</word>
@@ -5803,7 +5803,7 @@ namespace SyntaxHighlight {
       <word>InputType</word>
       <word>init_frozen</word>
       <word>init_builtin</word>
-      <word>indexOf</word>
+      <word>IndexOf</word>
       <word>index</word>
       <word>import</word>
       <word>imp</word>
