@@ -177,34 +177,6 @@ namespace markdown {
         }
     }
 
-//    public class MarkdownBody : MarkdownWidget {
-//        public MarkdownBody(
-//            Key key,
-//            string data,
-//            MarkdownStyleSheet markdownStyleSheet,
-//            SyntaxHighlighter syntaxHighlighter1,
-//            MarkdownTapLinkCallback onTapLink,
-//            string imageDirectory,
-//            MarkdownImageBuilder imageBuilder,
-//            MarkdownCheckboxBuilder checkboxBuilder,
-//            bool fitContent = true
-//        ) : base(
-//            key,
-//            data,
-//            markdownStyleSheet,
-//            syntaxHighlighter1,
-//            onTapLink,
-//            imageDirectory,
-//            imageBuilder,
-//            checkboxBuilder,
-//            fitContent) {
-//        }
-//
-//        public override Widget build(BuildContext context, List<Widget> children) {
-//            throw new NotImplementedException();
-//        }
-//    }
-
     public class Markdown : MarkdownWidget {
         public Markdown(
             Key key = null,
@@ -240,45 +212,6 @@ namespace markdown {
                 physics: this.physics,
                 shrinkWrap: this.shrinkWrap,
                 children: children
-            );
-        }
-    }
-
-    public class MarkdownContent : MarkdownWidget {
-        public MarkdownContent(
-            Key key = null,
-            string data = null,
-            bool selectable = false,
-            MarkdownStyleSheet markdownStyleSheet = null,
-            SyntaxHighlighter syntaxHighlighter = null,
-            MarkdownTapLinkCallback onTapLink = null,
-            string imageDirectory = null,
-            ExtensionSet extensionSet = null,
-            MarkdownImageBuilder imageBuilder = null,
-            MarkdownCheckboxBuilder checkboxBuilder = null,
-            ScrollPhysics physics = null,
-            bool shrinkWrap = false,
-            bool enableHTML = true
-        ) : base(key, data, markdownStyleSheet, syntaxHighlighter,
-            onTapLink, imageDirectory, extensionSet, imageBuilder,
-            checkboxBuilder, selectable, enableHTML) {
-            this.padding = EdgeInsets.all(16);
-            this.physics = physics;
-            this.shrinkWrap = shrinkWrap;
-        }
-
-        public EdgeInsets padding;
-
-        public ScrollPhysics physics;
-
-        public bool shrinkWrap;
-
-        public override Widget build(BuildContext context, List<Widget> children) {
-            return new Container(
-                padding: this.padding,
-                child: new Column(
-                    children: children
-                )
             );
         }
     }
