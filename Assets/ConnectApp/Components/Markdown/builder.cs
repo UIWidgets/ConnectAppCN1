@@ -221,8 +221,7 @@ namespace markdown {
         }
 
         void visitHTML(HTML html) {
-            this._addParentInlineIfNeeded("p");
-            this._inlines.Last().children.Add(
+            this._blocks.Last().children.Add(
                 new HtmlView(data: html.textContent)
             );
         }

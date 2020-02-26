@@ -294,6 +294,7 @@ namespace html {
             "article",
             "aside",
             "body",
+            "html",
             "center",
             "dd",
             "dfn",
@@ -356,56 +357,62 @@ namespace html {
 
 
         public override Widget build(BuildContext context) {
-            string data = this.html;
+            try {
+                string data = this.html;
 
-            if (this.renderNewlines) {
-                data = data.replaceAll("\n", "<br />");
-            }
-
-            HtmlDocument document = new HtmlDocument();
-            document.LoadHtml(data);
-            HtmlNode body = document.DocumentNode;
-
-            List<Widget> widgetList = new List<Widget>();
-            ParseContext parseContext = new ParseContext(
-                rootWidgetList: widgetList,
-                childStyle: DefaultTextStyle.of(context).style
-            );
-
-            // don't ignore the top level "body"
-            this._parseNode(body, parseContext, context);
-
-            // filter out empty widgets
-            List<Widget> children = new List<Widget>();
-            foreach (var w in widgetList) {
-                if (w is BlockText blockText) {
-                    if (blockText.child.text == null) {
-                        continue;
-                    }
-
-                    TextSpan childTextSpan = blockText.child.text;
-                    if ((childTextSpan.text == null || childTextSpan.text.isEmpty()) &&
-                        (childTextSpan.children == null || childTextSpan.children.isEmpty())) {
-                        continue;
-                    }
+                if (this.renderNewlines) {
+                    data = data.replaceAll("\n", "<br />");
                 }
-                else if (w is LinkBlock linkBlock) {
-                    if (linkBlock.children.isEmpty()) {
-                        continue;
+
+                HtmlDocument document = new HtmlDocument();
+                document.LoadHtml(data);
+                HtmlNode body = document.DocumentNode;
+
+                List<Widget> widgetList = new List<Widget>();
+                ParseContext parseContext = new ParseContext(
+                    rootWidgetList: widgetList,
+                    childStyle: DefaultTextStyle.of(context).style
+                );
+
+                // don't ignore the top level "body"
+                this._parseNode(body, parseContext, context);
+
+                // filter out empty widgets
+                List<Widget> children = new List<Widget>();
+                foreach (var w in widgetList) {
+                    if (w is BlockText blockText) {
+                        if (blockText.child.text == null) {
+                            continue;
+                        }
+
+                        TextSpan childTextSpan = blockText.child.text;
+                        if ((childTextSpan.text == null || childTextSpan.text.isEmpty()) &&
+                            (childTextSpan.children == null || childTextSpan.children.isEmpty())) {
+                            continue;
+                        }
                     }
+                    else if (w is LinkBlock linkBlock) {
+                        if (linkBlock.children.isEmpty()) {
+                            continue;
+                        }
+                    }
+                    // else if (w is LinkTextSpan linkTextSpan) {
+                    //     if (linkTextSpan.text == "" && linkTextSpan.children.isEmpty()) {
+                    //         continue;
+                    //     }
+                    // }
+
+                    children.Add(w);
                 }
-                // else if (w is LinkTextSpan linkTextSpan) {
-                //     if (linkTextSpan.text == "" && linkTextSpan.children.isEmpty()) {
-                //         continue;
-                //     }
-                // }
 
-                children.Add(w);
+                return new Column(
+                    children: children
+                );
             }
-
-            return new Column(
-                children: children
-            );
+            catch (Exception e) {
+                Debug.LogError(e);
+                return new Container();
+            }
         }
 
         // THE WORKHORSE FUNCTION!!
