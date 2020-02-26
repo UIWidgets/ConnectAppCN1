@@ -1797,6 +1797,13 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case MainNavigatorPushToGameDetailAction action: {
+                    Router.navigator.push(new CustomPageRoute(
+                        context => new GameDetailScreenConnector(gameId: action.gameId)
+                    ));
+
+                    break;
+                }
 
                 case MainNavigatorPushToLeaderBoardDetailAction action: {
                     if (action.id.isNotEmpty()) {
@@ -3976,6 +3983,21 @@ namespace ConnectApp.redux.reducers {
 
                 case FetchGameFailureAction _: {
                     state.gameState.gameLoading = false;
+                    break;
+                }
+
+                case StartFetchGameDetailAction _: {
+                    state.gameState.gameDetailLoading = true;
+                    break;
+                }
+
+                case FetchGameDetailSuccessAction action: {
+                    state.gameState.gameDetailLoading = false;
+                    break;
+                }
+
+                case FetchGameDetailFailureAction _: {
+                    state.gameState.gameDetailLoading = false;
                     break;
                 }
             }

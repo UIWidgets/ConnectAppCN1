@@ -159,4 +159,8 @@ namespace ConnectApp.redux.actions {
     public class MainNavigatorPushToLeaderBoardAction : BaseAction {
         public int initIndex = 0;
     }
+
+    public class MainNavigatorPushToGameDetailAction : BaseAction {
+        public string gameId;
+    }
 }
