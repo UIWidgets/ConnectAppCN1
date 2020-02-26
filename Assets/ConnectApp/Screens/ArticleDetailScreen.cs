@@ -308,6 +308,7 @@ namespace ConnectApp.screens {
                 contentWidget = new CustomMarkdown(
                     markdownStyleSheet: MarkdownUtils.defaultStyle(),
                     data: this._article.markdownPreviewBody,
+                    syntaxHighlighter: new markdown.CSharpSyntaxHighlighter(),
                     onTapLink: url => this.widget.actionModel.openUrl(url), contentHead: contentHead,
                     relatedArticles: relatedArticles, commentList: comments, refreshController: this._refreshController,
                     enablePullUp: this._article.hasMore, enablePullDown: false,
