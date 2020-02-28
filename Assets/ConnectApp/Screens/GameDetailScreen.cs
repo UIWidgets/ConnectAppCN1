@@ -69,10 +69,10 @@ namespace ConnectApp.screens {
         public override void initState() {
             base.initState();
             StatusBarManager.statusBarStyle(false);
-            SchedulerBinding.instance.addPostFrameCallback(_ => {
-                this.widget.actionModel.startFetchGameDetail();
-                this.widget.actionModel.fetchGameDetail();
-            });
+            // SchedulerBinding.instance.addPostFrameCallback(_ => {
+            //     this.widget.actionModel.startFetchGameDetail();
+            //     this.widget.actionModel.fetchGameDetail();
+            // });
         }
 
         public override Widget build(BuildContext context) {
