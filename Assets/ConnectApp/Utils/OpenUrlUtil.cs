@@ -3,6 +3,7 @@ using ConnectApp.Constants;
 using ConnectApp.redux.actions;
 using Unity.UIWidgets;
 using Unity.UIWidgets.foundation;
+using UnityEngine;
 
 namespace ConnectApp.Utils {
     public static class OpenUrlUtil {
@@ -67,9 +68,11 @@ namespace ConnectApp.Utils {
                 }
             }
             else {
-                dispatcher.dispatch(new MainNavigatorPushToWebViewAction {
-                    url = url
-                });
+                // open by default browser
+                Application.OpenURL(url: url);
+                // dispatcher.dispatch(new MainNavigatorPushToWebViewAction {
+                //     url = url
+                // });
             }
         }
     }
