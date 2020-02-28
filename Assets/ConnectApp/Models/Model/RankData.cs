@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace ConnectApp.Models.Model {
     [Serializable]
@@ -15,5 +16,6 @@ namespace ConnectApp.Models.Model {
         public string redirectURL;
         public string image;
         public string myFavoriteTagId;
+        public List<string> attachmentURLs;
     }
 }
