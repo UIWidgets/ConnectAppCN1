@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using ConnectApp.Constants;
 using ConnectApp.Models.Model;
+using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -56,7 +57,7 @@ namespace ConnectApp.Components {
                                         ),
                                         new SizedBox(height: 2),
                                         new Text(
-                                            data: this.game.resetDesc,
+                                            data: this.game.resetLabel,
                                             style: CTextStyle.PRegularBody4,
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis
@@ -104,11 +105,11 @@ namespace ConnectApp.Components {
         readonly RankData game;
 
         public override Widget build(BuildContext context) {
-            if (this.game == null) {
+            if (this.game == null || this.game.attachmentURLs.isNullOrEmpty()) {
                 return new Container();
             }
 
-            var listCount = 5;
+            var attachmentURLs = this.game.attachmentURLs;
             
             return new Container(
                 child: new Column(
@@ -130,15 +131,15 @@ namespace ConnectApp.Components {
                             height: MediaQuery.of(context: context).size.width * 0.4f,
                             child: ListView.builder(
                                 scrollDirection: Axis.horizontal,
-                                itemCount: listCount,
+                                itemCount: attachmentURLs.Count,
                                 itemBuilder: (cxt, index) => new Container(
-                                    margin: EdgeInsets.only(index == 0 ? 16 : 8, right: index == listCount - 1 ? 16 : 0),
+                                    margin: EdgeInsets.only(index == 0 ? 16 : 8, right: index == attachmentURLs.Count - 1 ? 16 : 0),
                                     child: new AspectRatio(
-                                        aspectRatio: 2,
+                                        aspectRatio: 16 / 9f,
                                         child: new PlaceholderImage(
-                                            "http://via.placeholder.com/350x150",
+                                            attachmentURLs[index: index],
                                             borderRadius: 8,
-                                            fit: BoxFit.fill,
+                                            fit: BoxFit.cover,
                                             useCachedNetworkImage: true
                                         )
                                     )
@@ -172,13 +173,13 @@ namespace ConnectApp.Components {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
                         new Text(
-                            "功能介绍",
+                            "简介",
                             style: CTextStyle.H5
                         ),
                         new Padding(
                             padding: EdgeInsets.only(top: 16),
                             child: new Text(
-                                "“Tiny Racing” browser game made in Unity3d Project Tiny. 使用tiny开发的小游戏。使用tiny开发的小游戏。使用tiny开发的小游戏。使用tiny开发的小游戏。使用tiny开发的小游戏。使用tiny开发的小游戏。使用tiny开发的小游戏。使用tiny开发的小游戏。",
+                                this.game.resetDesc ?? "暂无简介",
                                 style: CTextStyle.PRegularBody
                             )
                         )

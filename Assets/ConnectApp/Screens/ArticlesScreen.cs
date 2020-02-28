@@ -257,7 +257,7 @@ namespace ConnectApp.screens {
                         new CustomButton(
                             padding: EdgeInsets.only(16, 8, 16, 8),
                             onPressed: () => this.widget.actionModel.pushToGame(),
-                            child: Image.asset("image/lantern-egg")
+                            child: Image.asset("image/egg-gamepad")
                         )
                     }
                 )
@@ -397,7 +397,7 @@ namespace ConnectApp.screens {
                         new CustomButton(
                             padding: EdgeInsets.only(8, 8, 16, 8),
                             onPressed: () => this.widget.actionModel.pushToGame(),
-                            child: Image.asset("image/lantern-egg")
+                            child: Image.asset("image/egg-gamepad")
                         )
                     }
                 )

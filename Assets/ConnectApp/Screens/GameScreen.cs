@@ -137,7 +137,7 @@ namespace ConnectApp.screens {
             return new CustomAppBar(
                 () => this.widget.actionModel.mainRouterPop(),
                 new Text(
-                    "游戏",
+                    "Unity Tiny 小游戏",
                     style: CTextStyle.PXLargeMedium
                 )
             );
