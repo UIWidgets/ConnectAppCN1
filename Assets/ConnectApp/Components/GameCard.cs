@@ -30,6 +30,16 @@ namespace ConnectApp.Components {
                 return new Container();
             }
 
+            Widget subTitle = new Container();
+            if (this.game.resetSubLabel.isNotEmpty()) {
+                subTitle = new Text(
+                    data: this.game.resetSubLabel,
+                    style: CTextStyle.PSmallBody4,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis
+                );
+            }
+            
             return new GestureDetector(
                 onTap: () => this.onTap?.Invoke(),
                 child: new Container(
@@ -61,12 +71,7 @@ namespace ConnectApp.Components {
                                                 maxLines: 1,
                                                 overflow: TextOverflow.ellipsis
                                             ),
-                                            new Text(
-                                                data: this.game.resetDesc,
-                                                style: CTextStyle.PSmallBody4,
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis
-                                            )
+                                            subTitle
                                         }
                                     )
                                 )
