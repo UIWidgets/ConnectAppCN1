@@ -12,6 +12,7 @@ namespace ConnectApp.Models.Model {
         public DateTime? updatedTime;
         public string resetTitle;
         public string resetLabel;
+        public string resetSubLabel;
         public string resetDesc;
         public string redirectURL;
         public string image;

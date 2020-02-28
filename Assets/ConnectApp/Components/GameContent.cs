@@ -26,6 +26,16 @@ namespace ConnectApp.Components {
             if (this.game == null) {
                 return new Container();
             }
+            
+            Widget subTitle = new Container();
+            if (this.game.resetSubLabel.isNotEmpty()) {
+                subTitle = new Text(
+                    data: this.game.resetSubLabel,
+                    style: CTextStyle.PRegularBody4,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis
+                );
+            }
 
             return new Container(
                 padding: EdgeInsets.only(16, 10, 16, 24),
@@ -56,12 +66,7 @@ namespace ConnectApp.Components {
                                             overflow: TextOverflow.ellipsis
                                         ),
                                         new SizedBox(height: 2),
-                                        new Text(
-                                            data: this.game.resetLabel,
-                                            style: CTextStyle.PRegularBody4,
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis
-                                        ),
+                                        subTitle,
                                         new Flexible(child: new Container()),
                                         new CustomButton(
                                             padding: EdgeInsets.zero,
