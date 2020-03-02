@@ -30,6 +30,15 @@
 
 @implementation TinyWasmViewPlayer
 
++ (nonnull instancetype)instance {
+    static id _shared;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        _shared = [[self alloc] init];
+    });
+    return _shared;
+}
+
 - (void)loadTinyWasmWithUrl:(NSString *) url name: (NSString *)name {
     UIView *unityView = UnityGetGLView();
     
