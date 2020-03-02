@@ -74,6 +74,8 @@ namespace Plugins.Editor {
                 value: "$(PROJECT_DIR)/Libraries/Plugins/iOS/Bugly");
             proj.AddBuildProperty(targetGuid: targetGuid, name: "LIBRARY_SEARCH_PATHS",
                 value: "$(PROJECT_DIR)/Libraries/Plugins/iOS/TinyWasm");
+            proj.AddBuildProperty(targetGuid: targetGuid, name: "LIBRARY_SEARCH_PATHS",
+                value: "$(PROJECT_DIR)/Libraries/Plugins/iOS/FPSLabel");
 
             // Add Framework
             proj.AddFrameworkToProject(targetGuid: targetGuid, framework: "libz.tbd", weak: true);
