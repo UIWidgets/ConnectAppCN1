@@ -14,7 +14,7 @@ namespace ConnectApp.Api {
                 email = email,
                 password = password
             };
-            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/auth/live/login", parameter: para);
+            var request = HttpManager.POST($"{Config.apiAddress_cn}{Config.apiPath}/auth/live/login", parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var loginInfo = JsonConvert.DeserializeObject<LoginInfo>(value: responseText);
                 promise.Resolve(value: loginInfo);
@@ -27,7 +27,7 @@ namespace ConnectApp.Api {
             var para = new WechatLoginParameter {
                 code = code
             };
-            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/auth/live/wechat", parameter: para);
+            var request = HttpManager.POST($"{Config.apiAddress_cn}{Config.apiPath}/auth/live/wechat", parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var loginInfo = JsonConvert.DeserializeObject<LoginInfo>(value: responseText);
                 promise.Resolve(value: loginInfo);
@@ -41,7 +41,7 @@ namespace ConnectApp.Api {
                 token = token,
                 action = action
             };
-            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/auth/qrlogin", parameter: para);
+            var request = HttpManager.POST($"{Config.apiAddress_cn}{Config.apiPath}/auth/qrlogin", parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var successDictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(value: responseText);
                 var success = successDictionary.ContainsKey("success") ? successDictionary["success"] : false;
@@ -57,7 +57,7 @@ namespace ConnectApp.Api {
                 {"locale", "zh_CN"},
                 {"is_reg", "true"}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/authUrl", parameter: para);
+            var request = HttpManager.GET($"{Config.apiAddress_cn}{Config.apiPath}/authUrl", parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var urlDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(value: responseText);
                 promise.Resolve(urlDictionary["url"]);
@@ -67,7 +67,7 @@ namespace ConnectApp.Api {
 
         public static IPromise<FetchInitDataResponse> InitData() {
             var promise = new Promise<FetchInitDataResponse>();
-            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/initData");
+            var request = HttpManager.GET($"{Config.apiAddress_cn}{Config.apiPath}/initData");
             HttpManager.resume(request: request).Then(responseText => {
                 var initDataResponse = JsonConvert.DeserializeObject<FetchInitDataResponse>(value: responseText);
                 promise.Resolve(value: initDataResponse);

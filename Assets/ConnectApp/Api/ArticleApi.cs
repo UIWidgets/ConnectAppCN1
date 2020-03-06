@@ -17,7 +17,7 @@ namespace ConnectApp.Api {
                 {"needRank", true},
                 {"afterTime", HistoryManager.homeAfterTime(userId: userId)}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/recommends", parameter: para);
+            var request = HttpManager.GET($"{Config.apiAddress_cn}{Config.apiPath}/recommends", parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var articlesResponse = JsonConvert.DeserializeObject<FetchArticlesResponse>(value: responseText);
                 promise.Resolve(value: articlesResponse);
@@ -46,7 +46,7 @@ namespace ConnectApp.Api {
                 }
             }
 
-            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/feeds", parameter: para);
+            var request = HttpManager.GET($"{Config.apiAddress_cn}{Config.apiPath}/feeds", parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var followArticlesResponse =
                     JsonConvert.DeserializeObject<FetchFollowArticlesResponse>(value: responseText);
@@ -64,7 +64,7 @@ namespace ConnectApp.Api {
                 para.Add("isPush", "true");
             }
 
-            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/p/{articleId}", parameter: para);
+            var request = HttpManager.GET($"{Config.apiAddress_cn}{Config.apiPath}/p/{articleId}", parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var articleDetailResponse =
                     JsonConvert.DeserializeObject<FetchArticleDetailResponse>(value: responseText);
@@ -83,7 +83,7 @@ namespace ConnectApp.Api {
                 para.Add("before", value: currOldestMessageId);
             }
 
-            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/messages",
+            var request = HttpManager.GET($"{Config.apiAddress_cn}{Config.apiPath}/channels/{channelId}/messages",
                 parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var responseComments = JsonConvert.DeserializeObject<FetchCommentsResponse>(value: responseText);
@@ -99,7 +99,7 @@ namespace ConnectApp.Api {
                 itemId = articleId
             };
             var request =
-                HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/like?isAppRepeatLike=true&addCount={addCount}",
+                HttpManager.POST($"{Config.apiAddress_cn}{Config.apiPath}/like?isAppRepeatLike=true&addCount={addCount}",
                     parameter: para);
             HttpManager.resume(request: request).Then(responseText => promise.Resolve())
                 .Catch(exception => promise.Reject(ex: exception));
@@ -113,7 +113,7 @@ namespace ConnectApp.Api {
                 itemId = articleId,
                 tagIds = tagIds
             };
-            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/favorites", parameter: para);
+            var request = HttpManager.POST($"{Config.apiAddress_cn}{Config.apiPath}/favorites", parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var favoriteArticleResponse = JsonConvert.DeserializeObject<List<Favorite>>(value: responseText);
                 promise.Resolve(value: favoriteArticleResponse);
@@ -126,7 +126,7 @@ namespace ConnectApp.Api {
             var para = new Dictionary<string, object> {
                 {"id", favoriteId}
             };
-            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/unfavorite", parameter: para);
+            var request = HttpManager.POST($"{Config.apiAddress_cn}{Config.apiPath}/unfavorite", parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var unFavoriteArticleResponse = JsonConvert.DeserializeObject<Favorite>(value: responseText);
                 promise.Resolve(value: unFavoriteArticleResponse);
@@ -139,7 +139,7 @@ namespace ConnectApp.Api {
             var para = new ReactionParameter {
                 reactionType = "like"
             };
-            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/messages/{commentId}/addReaction",
+            var request = HttpManager.POST($"{Config.apiAddress_cn}{Config.apiPath}/messages/{commentId}/addReaction",
                 parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var message = JsonConvert.DeserializeObject<Message>(value: responseText);
@@ -153,7 +153,7 @@ namespace ConnectApp.Api {
             var para = new ReactionParameter {
                 reactionType = "like"
             };
-            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/messages/{commentId}/removeReaction",
+            var request = HttpManager.POST($"{Config.apiAddress_cn}{Config.apiPath}/messages/{commentId}/removeReaction",
                 parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var message = JsonConvert.DeserializeObject<Message>(value: responseText);
@@ -173,7 +173,7 @@ namespace ConnectApp.Api {
                 nonce = nonce,
                 app = true
             };
-            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/messages",
+            var request = HttpManager.POST($"{Config.apiAddress_cn}{Config.apiPath}/channels/{channelId}/messages",
                 parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var message = JsonConvert.DeserializeObject<Message>(value: responseText);

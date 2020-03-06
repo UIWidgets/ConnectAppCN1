@@ -394,18 +394,27 @@ namespace ConnectApp.Components {
             }
 
             var children = new List<Widget> {
-                new SizedBox(width: 16)
+                new SizedBox(width: 10)
             };
             if (this.bloggerIds.Count <= 3) {
-                this.bloggerIds.ForEach(bloggerId => {
+                for (int i = 0; i < this.bloggerIds.Count; i++) {
+                    var bloggerId = this.bloggerIds[i]; 
                     var rankData = this.rankDict.ContainsKey(key: bloggerId)
                         ? this.rankDict[key: bloggerId]
                         : new RankData();
                     if (this.userDict.ContainsKey(key: rankData.itemId)) {
                         var user = this.userDict[key: rankData.itemId];
-                        children.Add(this._buildBlogger(user: user, resetTitle: rankData.resetTitle));
+                        if (i == this.bloggerIds.Count - 1) {
+                            children.Add(new Container(
+                                padding: EdgeInsets.only(right: 10),
+                                child: this._buildBlogger(user: user, resetTitle: rankData.resetTitle)
+                            ));
+                        }
+                        else {
+                            children.Add(this._buildBlogger(user: user, resetTitle: rankData.resetTitle));
+                        }
                     }
-                });
+                }
             }
             else {
                 var _showBloggerCount = 3;
@@ -419,11 +428,20 @@ namespace ConnectApp.Components {
                         children.Add(this._buildBlogger(user: user, resetTitle: rankData.resetTitle));
                     }
                 }
-
-                children.Add(this._buildMoreBlogger(this.bloggerIds.GetRange(_showBloggerCount,
-                    this.bloggerIds.Count - _showBloggerCount > 3 ? 3 : this.bloggerIds.Count - _showBloggerCount)));
+                
+                children.Add(new Container(
+                    padding: EdgeInsets.only(right: 10),
+                    child: this._buildMoreBlogger(
+                        this.bloggerIds.GetRange(
+                            _showBloggerCount,
+                        this.bloggerIds.Count - _showBloggerCount > 3 
+                            ? 3 
+                            : this.bloggerIds.Count - _showBloggerCount
+                        )
+                    )
+                ));
             }
-
+            
             return new Container(
                 color: CColors.White,
                 height: 302,
@@ -477,10 +495,17 @@ namespace ConnectApp.Components {
                 onTap: () => this.onPressItem?.Invoke(text: user.id),
                 child: new Container(
                     width: 160,
-                    margin: EdgeInsets.only(right: 16),
+                    margin: EdgeInsets.all(6),
                     decoration: new BoxDecoration(
                         color: CColors.White,
-                        borderRadius: BorderRadius.all(6)
+                        borderRadius: BorderRadius.all(6),
+                        boxShadow: new List<BoxShadow> {
+                            new BoxShadow(
+                                CColors.Black.withOpacity(0.08f),
+                                blurRadius: 10,
+                                spreadRadius: 1.0f
+                            )
+                        }
                     ),
                     child: new ClipRRect(
                         borderRadius: BorderRadius.all(6),
@@ -534,10 +559,17 @@ namespace ConnectApp.Components {
                 onTap: () => this.onPressMore?.Invoke(),
                 child: new Container(
                     width: 160,
-                    margin: EdgeInsets.only(right: 16),
+                    margin: EdgeInsets.all(6),
                     decoration: new BoxDecoration(
                         color: CColors.White,
-                        borderRadius: BorderRadius.all(6)
+                        borderRadius: BorderRadius.all(6),
+                        boxShadow: new List<BoxShadow> {
+                            new BoxShadow(
+                                CColors.Black.withOpacity(0.08f),
+                                blurRadius: 10,
+                                spreadRadius: 1.0f
+                            )
+                        }
                     ),
                     child: new ClipRRect(
                         borderRadius: BorderRadius.all(6),

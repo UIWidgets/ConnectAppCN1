@@ -161,8 +161,7 @@ namespace ConnectApp.Components {
                                         videoSliceMap.ContainsKey(map.attachmentId)) {
                                         var videoSlice = videoSliceMap[map.attachmentId];
                                         videoStatus = videoSlice.status;
-                                        if (videoSlice.verifyType == "license" &&
-                                            videoSlice.verifyArg == "premium_above" && licence.isEmpty()) {
+                                        if (videoSlice.canWatch == false) {
                                             needUpdate = true;
                                             limitSeconds = videoSlice.limitSeconds;
                                         }
@@ -406,7 +405,7 @@ namespace ConnectApp.Components {
                                                 playVideo(downloadUrl, false, 0);
                                             }
                                             else {
-                                                playVideo($"{Config.apiAddress}/playlist/{attachmentId}", needUpdate,
+                                                playVideo($"{Config.apiAddress_cn}/playlist/{attachmentId}", needUpdate,
                                                     limitSeconds);
                                             }
                                         }

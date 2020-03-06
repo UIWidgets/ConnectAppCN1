@@ -10,7 +10,7 @@ namespace ConnectApp.Api {
     public static class SplashApi {
         public static Promise<Splash> FetchSplash() {
             var promise = new Promise<Splash>();
-            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/ads");
+            var request = HttpManager.GET($"{Config.apiAddress_cn}{Config.apiPath}/ads");
             HttpManager.resume(request: request).Then(responseText => {
                 var splashResponse = JsonConvert.DeserializeObject<Splash>(value: responseText);
                 promise.Resolve(value: splashResponse);

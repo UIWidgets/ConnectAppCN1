@@ -420,32 +420,25 @@ namespace ConnectApp.screens {
             var originItems = new List<Widget> {
                 this._buildContentHead()
             };
-            if (this._article.bodyType == "markdown" && this._article.markdownBody.isNotEmpty()) {
-                originItems.Add(new Markdown(null, this._article.markdownBody,
-                    syntaxHighlighter: new markdown.CSharpSyntaxHighlighter(),
-                    onTapLink: url => this.widget.actionModel.openUrl(url)));
-            }
-            else {
-                originItems.AddRange(
-                    ContentDescription.map(
-                        context: context,
-                        cont: this._article.body,
-                        contentMap: this._article.contentMap,
-                        this._article.videoSliceMap,
-                        this._article.videoPosterMap,
-                        openUrl: this.widget.actionModel.openUrl,
-                        playVideo: this.widget.actionModel.playVideo,
-                        this.widget.actionModel.pushToLogin,
-                        UserInfoManager.isLogin()
-                            ? CCommonUtils.GetUserLicense(UserInfoManager.getUserInfo().userId,
-                                this.widget.viewModel.userLicenseDict)
-                            : "",
-                        this.widget.actionModel.browserImage
-                    )
-                );
-            }
-
-
+            
+            originItems.AddRange(
+                ContentDescription.map(
+                    context: context,
+                    cont: this._article.body,
+                    contentMap: this._article.contentMap,
+                    this._article.videoSliceMap,
+                    this._article.videoPosterMap,
+                    openUrl: this.widget.actionModel.openUrl,
+                    playVideo: this.widget.actionModel.playVideo,
+                    this.widget.actionModel.pushToLogin,
+                    UserInfoManager.isLogin()
+                        ? CCommonUtils.GetUserLicense(UserInfoManager.getUserInfo().userId,
+                            this.widget.viewModel.userLicenseDict)
+                        : "",
+                    this.widget.actionModel.browserImage
+                )
+            );
+            
             // originItems.Add(this._buildActionCards(this._article.like));
             originItems.Add(this._buildRelatedArticles());
             commentIndex = originItems.Count;
