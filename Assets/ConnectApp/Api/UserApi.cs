@@ -9,7 +9,7 @@ namespace ConnectApp.Api {
     public static class UserApi {
         public static Promise<FetchUserProfileResponse> FetchUserProfile(string userId) {
             var promise = new Promise<FetchUserProfileResponse>();
-            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/u/{userId}");
+            var request = HttpManager.GET($"{Config.apiAddress_cn}{Config.apiPath}/u/{userId}");
             HttpManager.resume(request: request).Then(responseText => {
                 var userProfileResponse = JsonConvert.DeserializeObject<FetchUserProfileResponse>(value: responseText);
                 promise.Resolve(value: userProfileResponse);
@@ -23,7 +23,7 @@ namespace ConnectApp.Api {
                 {"page", pageNumber},
                 {"type", "article"}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/u/{userId}/activities",
+            var request = HttpManager.GET($"{Config.apiAddress_cn}{Config.apiPath}/u/{userId}/activities",
                 parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var userArticleResponse = JsonConvert.DeserializeObject<FetchUserArticleResponse>(value: responseText);
@@ -37,7 +37,7 @@ namespace ConnectApp.Api {
             var para = new Dictionary<string, object> {
                 {"page", pageNumber}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/u/{userId}/likes", parameter: para);
+            var request = HttpManager.GET($"{Config.apiAddress_cn}{Config.apiPath}/u/{userId}/likes", parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var userArticleResponse = JsonConvert.DeserializeObject<FetchUserLikeArticleResponse>(value: responseText);
                 promise.Resolve(value: userArticleResponse);
@@ -51,7 +51,7 @@ namespace ConnectApp.Api {
                 type = "user",
                 followeeId = userId
             };
-            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/follow", parameter: para);
+            var request = HttpManager.POST($"{Config.apiAddress_cn}{Config.apiPath}/follow", parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var followResponse = JsonConvert.DeserializeObject<Dictionary<string, bool>>(value: responseText);
                 promise.Resolve(followResponse["success"]);
@@ -64,7 +64,7 @@ namespace ConnectApp.Api {
             var para = new FollowParameter {
                 followeeId = userId
             };
-            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/unfollow", parameter: para);
+            var request = HttpManager.POST($"{Config.apiAddress_cn}{Config.apiPath}/unfollow", parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var unFollowResponse = JsonConvert.DeserializeObject<Dictionary<string, bool>>(value: responseText);
                 promise.Resolve(unFollowResponse["success"]);
@@ -77,7 +77,7 @@ namespace ConnectApp.Api {
             var para = new Dictionary<string, object> {
                 {"offset", offset}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/u/{userId}/followingUsers",
+            var request = HttpManager.GET($"{Config.apiAddress_cn}{Config.apiPath}/u/{userId}/followingUsers",
                 parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var followingUserResponse =
@@ -92,7 +92,7 @@ namespace ConnectApp.Api {
             var para = new Dictionary<string, object> {
                 {"offset", offset}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/u/{userId}/followers",
+            var request = HttpManager.GET($"{Config.apiAddress_cn}{Config.apiPath}/u/{userId}/followers",
                 parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var followerResponse = JsonConvert.DeserializeObject<FetchFollowerResponse>(value: responseText);
@@ -106,7 +106,7 @@ namespace ConnectApp.Api {
             var para = new Dictionary<string, object> {
                 {"offset", offset}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/u/{userId}/followingTeams",
+            var request = HttpManager.GET($"{Config.apiAddress_cn}{Config.apiPath}/u/{userId}/followingTeams",
                 parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var followingTeamResponse =
@@ -122,7 +122,7 @@ namespace ConnectApp.Api {
                 {"needTeam", "true"},
                 {"offset", offset}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/u/{userId}/followings",
+            var request = HttpManager.GET($"{Config.apiAddress_cn}{Config.apiPath}/u/{userId}/followings",
                 parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var followingResponse = JsonConvert.DeserializeObject<FetchFollowingResponse>(value: responseText);
@@ -141,7 +141,7 @@ namespace ConnectApp.Api {
                 jobRoleId = jobRoleId,
                 placeId = placeId
             };
-            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/u/{userId}/updateUserBasicInfo",
+            var request = HttpManager.POST($"{Config.apiAddress_cn}{Config.apiPath}/u/{userId}/updateUserBasicInfo",
                 parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var editPersonalInfoResponse =
@@ -156,7 +156,7 @@ namespace ConnectApp.Api {
             var para = new UpdateAvatarParameter {
                 avatar = $"data:image/jpeg;base64,{avatar}"
             };
-            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/u/{userId}/updateUserAvatar",
+            var request = HttpManager.POST($"{Config.apiAddress_cn}{Config.apiPath}/u/{userId}/updateUserAvatar",
                 parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var updateAvatarResponse =
@@ -172,7 +172,7 @@ namespace ConnectApp.Api {
                 token = token,
                 userId = userId
             };
-            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/registerToken",
+            var request = HttpManager.POST($"{Config.apiAddress_cn}{Config.apiPath}/registerToken",
                 parameter: para);
             HttpManager.resume(request: request).Then(responseText => { promise.Resolve(); })
                 .Catch(exception => promise.Reject(ex: exception));
