@@ -15,7 +15,7 @@ namespace ConnectApp.Api {
                 itemId = itemId,
                 reasons = new List<string> {"other:" + reportContext}
             };
-            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/report", parameter: para);
+            var request = HttpManager.POST($"{Config.apiAddress_cn}{Config.apiPath}/report", parameter: para);
             HttpManager.resume(request: request).Then(responseText => { promise.Resolve(); })
                 .Catch(exception => promise.Reject(ex: exception));
             return promise;
@@ -36,7 +36,7 @@ namespace ConnectApp.Api {
                 content = content,
                 data = data
             };
-            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/feedback", parameter: para);
+            var request = HttpManager.POST($"{Config.apiAddress_cn}{Config.apiPath}/feedback", parameter: para);
             HttpManager.resume(request: request).Then(responseText => { promise.Resolve(); })
                 .Catch(exception => promise.Reject(ex: exception));
             return promise;

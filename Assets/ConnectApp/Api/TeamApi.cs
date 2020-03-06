@@ -9,7 +9,7 @@ namespace ConnectApp.Api {
     public static class TeamApi {
         public static Promise<FetchTeamResponse> FetchTeam(string teamId) {
             var promise = new Promise<FetchTeamResponse>();
-            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/teams/{teamId}");
+            var request = HttpManager.GET($"{Config.apiAddress_cn}{Config.apiPath}/teams/{teamId}");
             HttpManager.resume(request: request).Then(responseText => {
                 var teamResponse = JsonConvert.DeserializeObject<FetchTeamResponse>(value: responseText);
                 promise.Resolve(value: teamResponse);
@@ -22,7 +22,7 @@ namespace ConnectApp.Api {
             var para = new Dictionary<string, object> {
                 {"page", pageNumber}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/teams/{teamId}/projects",
+            var request = HttpManager.GET($"{Config.apiAddress_cn}{Config.apiPath}/teams/{teamId}/projects",
                 parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var teamArticleResponse = JsonConvert.DeserializeObject<FetchTeamArticleResponse>(value: responseText);
@@ -37,7 +37,7 @@ namespace ConnectApp.Api {
                 {"teamId", teamId},
                 {"offset", offset}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/teams/{teamId}/followers",
+            var request = HttpManager.GET($"{Config.apiAddress_cn}{Config.apiPath}/teams/{teamId}/followers",
                 parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var followerResponse = JsonConvert.DeserializeObject<FetchFollowerResponse>(value: responseText);
@@ -51,7 +51,7 @@ namespace ConnectApp.Api {
             var para = new Dictionary<string, object> {
                 {"page", pageNumber}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/teams/{teamId}/members",
+            var request = HttpManager.GET($"{Config.apiAddress_cn}{Config.apiPath}/teams/{teamId}/members",
                 parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var teamMemberResponse = JsonConvert.DeserializeObject<FetchTeamMemberResponse>(value: responseText);
@@ -66,7 +66,7 @@ namespace ConnectApp.Api {
                 type = "team",
                 followeeId = teamId
             };
-            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/follow", parameter: para);
+            var request = HttpManager.POST($"{Config.apiAddress_cn}{Config.apiPath}/follow", parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var followResponse = JsonConvert.DeserializeObject<Dictionary<string, bool>>(value: responseText);
                 promise.Resolve(followResponse["success"]);
@@ -79,7 +79,7 @@ namespace ConnectApp.Api {
             var para = new FollowParameter {
                 followeeId = teamId
             };
-            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/unfollow", parameter: para);
+            var request = HttpManager.POST($"{Config.apiAddress_cn}{Config.apiPath}/unfollow", parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var unFollowResponse = JsonConvert.DeserializeObject<Dictionary<string, bool>>(value: responseText);
                 promise.Resolve(unFollowResponse["success"]);

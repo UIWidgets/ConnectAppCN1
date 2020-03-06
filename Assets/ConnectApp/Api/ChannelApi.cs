@@ -18,7 +18,7 @@ namespace ConnectApp.Api {
                 {"joined", joined ? "true" : "false"},
                 {discoverAll ? "discoverAll" : "discover", "true"}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/channels", parameter: para);
+            var request = HttpManager.GET($"{Config.apiAddress_cn}{Config.apiPath}/channels", parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var publicChannelsResponse = JsonConvert.DeserializeObject<FetchChannelsResponse>(value: responseText);
                 promise.Resolve(value: publicChannelsResponse);
@@ -28,7 +28,7 @@ namespace ConnectApp.Api {
 
         public static Promise<FetchStickChannelResponse> FetchStickChannel(string channelId) {
             var promise = new Promise<FetchStickChannelResponse>();
-            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/stick");
+            var request = HttpManager.POST($"{Config.apiAddress_cn}{Config.apiPath}/channels/{channelId}/stick");
             HttpManager.resume(request: request).Then(responseText => {
                 var stickChannel = JsonConvert.DeserializeObject<FetchStickChannelResponse>(value: responseText);
                 promise.Resolve(value: stickChannel);
@@ -38,7 +38,7 @@ namespace ConnectApp.Api {
 
         public static Promise<FetchUnStickChannelResponse> FetchUnStickChannel(string channelId) {
             var promise = new Promise<FetchUnStickChannelResponse>();
-            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/unStick");
+            var request = HttpManager.POST($"{Config.apiAddress_cn}{Config.apiPath}/channels/{channelId}/unStick");
             HttpManager.resume(request: request).Then(responseText => {
                 var unStickChannel = JsonConvert.DeserializeObject<FetchUnStickChannelResponse>(value: responseText);
                 promise.Resolve(value: unStickChannel);
@@ -48,7 +48,7 @@ namespace ConnectApp.Api {
 
         public static Promise<FetchMuteChannelResponse> FetchMuteChannel(string channelId) {
             var promise = new Promise<FetchMuteChannelResponse>();
-            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/mute");
+            var request = HttpManager.POST($"{Config.apiAddress_cn}{Config.apiPath}/channels/{channelId}/mute");
             HttpManager.resume(request: request).Then(responseText => {
                 var muteChannel = JsonConvert.DeserializeObject<FetchMuteChannelResponse>(value: responseText);
                 promise.Resolve(value: muteChannel);
@@ -58,7 +58,7 @@ namespace ConnectApp.Api {
 
         public static Promise<FetchUnMuteChannelResponse> FetchUnMuteChannel(string channelId) {
             var promise = new Promise<FetchUnMuteChannelResponse>();
-            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/unMute");
+            var request = HttpManager.POST($"{Config.apiAddress_cn}{Config.apiPath}/channels/{channelId}/unMute");
             HttpManager.resume(request: request).Then(responseText => {
                 var unMuteChannel = JsonConvert.DeserializeObject<FetchUnMuteChannelResponse>(value: responseText);
                 promise.Resolve(value: unMuteChannel);
@@ -78,7 +78,7 @@ namespace ConnectApp.Api {
             } else if (after != null) {
                 para.Add("after", value: after);
             }
-            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/messages",
+            var request = HttpManager.GET($"{Config.apiAddress_cn}{Config.apiPath}/channels/{channelId}/messages",
                 parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 promise.Resolve(JsonConvert.DeserializeObject<FetchChannelMessagesResponse>(value: responseText));
@@ -88,7 +88,7 @@ namespace ConnectApp.Api {
 
         public static Promise<DeleteChannelMessageResponse> DeleteChannelMessage(string messageId = null) {
             var promise = new Promise<DeleteChannelMessageResponse>();
-            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/messages/{messageId}/delete");
+            var request = HttpManager.POST($"{Config.apiAddress_cn}{Config.apiPath}/messages/{messageId}/delete");
             HttpManager.resume(request: request).Then(responseText => {
                 promise.Resolve(JsonConvert.DeserializeObject<DeleteChannelMessageResponse>(value: responseText));
             }).Catch(exception => promise.Reject(ex: exception));
@@ -97,7 +97,7 @@ namespace ConnectApp.Api {
 
         public static Promise<AckChannelMessagesResponse> AckChannelMessage(string messageId) {
             var promise = new Promise<AckChannelMessagesResponse>();
-            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/messages/{messageId}/ack");
+            var request = HttpManager.POST($"{Config.apiAddress_cn}{Config.apiPath}/messages/{messageId}/ack");
             HttpManager.resume(request: request).Then(responseText => {
                 promise.Resolve(JsonConvert.DeserializeObject<AckChannelMessagesResponse>(value: responseText));
             }).Catch(exception => promise.Reject(ex: exception));
@@ -106,7 +106,7 @@ namespace ConnectApp.Api {
 
         public static Promise<FetchChannelInfoResponse> FetchChannelInfo(string channelId) {
             var promise = new Promise<FetchChannelInfoResponse>();
-            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}");
+            var request = HttpManager.GET($"{Config.apiAddress_cn}{Config.apiPath}/channels/{channelId}");
             HttpManager.resume(request: request).Then(responseText => {
                 promise.Resolve(JsonConvert.DeserializeObject<FetchChannelInfoResponse>(value: responseText));
             }).Catch(exception => promise.Reject(ex: exception));
@@ -115,7 +115,7 @@ namespace ConnectApp.Api {
 
         public static Promise<FetchChannelMembersResponse> FetchChannelMembers(string channelId, int offset = 0) {
             var promise = new Promise<FetchChannelMembersResponse>();
-            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/members",
+            var request = HttpManager.GET($"{Config.apiAddress_cn}{Config.apiPath}/channels/{channelId}/members",
                 parameter: new Dictionary<string, object> {
                     {"offset", offset}
                 });
@@ -127,7 +127,7 @@ namespace ConnectApp.Api {
 
         public static Promise<FetchChannelMemberResponse> FetchChannelMember(string channelId, string userId) {
             var promise = new Promise<FetchChannelMemberResponse>();
-            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/members/{userId}");
+            var request = HttpManager.GET($"{Config.apiAddress_cn}{Config.apiPath}/channels/{channelId}/members/{userId}");
             HttpManager.resume(request: request).Then(responseText => {
                 promise.Resolve(JsonConvert.DeserializeObject<FetchChannelMemberResponse>(value: responseText));
             }).Catch(exception => promise.Reject(ex: exception));
@@ -136,7 +136,7 @@ namespace ConnectApp.Api {
 
         public static Promise<JoinChannelResponse> JoinChannel(string channelId, string groupId = null) {
             var promise = new Promise<JoinChannelResponse>();
-            UnityWebRequest request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}" +
+            UnityWebRequest request = HttpManager.POST($"{Config.apiAddress_cn}{Config.apiPath}" +
                 (groupId.isEmpty() ? $"/channels/{channelId}/join" : $"/groups/{groupId}/join"));
 
             HttpManager.resume(request: request).Then(responseText => {
@@ -150,10 +150,10 @@ namespace ConnectApp.Api {
             var promise = new Promise<LeaveChannelResponse>();
             UnityWebRequest request;
             if (groupId.isEmpty() || memberId.isEmpty()) {
-                request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/leave");
+                request = HttpManager.POST($"{Config.apiAddress_cn}{Config.apiPath}/channels/{channelId}/leave");
             }
             else {
-                request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/groups/{groupId}/leave",
+                request = HttpManager.POST($"{Config.apiAddress_cn}{Config.apiPath}/groups/{groupId}/leave",
                     parameter: new Dictionary<string, string> {
                         {"memberId", memberId}
                     });
@@ -169,7 +169,7 @@ namespace ConnectApp.Api {
             byte[] attachmentData, string filename, string fileType, string parentMessageId = "") {
             var promise = new Promise<FetchSendMessageResponse>();
             var request = HttpManager.POST(
-                $"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/messages/attachments",
+                $"{Config.apiAddress_cn}{Config.apiPath}/channels/{channelId}/messages/attachments",
                 new List<List<object>> {
                     new List<object> {"channel", channelId},
                     new List<object> {"content", content},
@@ -193,7 +193,7 @@ namespace ConnectApp.Api {
 
         public static Promise<FetchChannelMembersResponse> FetchChannelMemberSuggestions(string channelId) {
             var promise = new Promise<FetchChannelMembersResponse>();
-            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/members",
+            var request = HttpManager.GET($"{Config.apiAddress_cn}{Config.apiPath}/channels/{channelId}/members",
                 new Dictionary<string, object> {
                     {"get", "active"}
                 });
@@ -207,7 +207,7 @@ namespace ConnectApp.Api {
         public static Promise<FetchChannelMemberQueryResponse> FetchChannelMemberQuery(string channelId,
             string query) {
             var promise = new Promise<FetchChannelMemberQueryResponse>();
-            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/searchMembers",
+            var request = HttpManager.GET($"{Config.apiAddress_cn}{Config.apiPath}/channels/{channelId}/searchMembers",
                 parameter: new Dictionary<string, object> {
                     {"q", query}
                 });
@@ -221,7 +221,7 @@ namespace ConnectApp.Api {
         public static Promise<UpdateChannelMessagesReactionResponse> UpdateReaction(
             string messageId, string likeEmoji, bool isRemove = false) {
             var promise = new Promise<UpdateChannelMessagesReactionResponse>();
-            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/messages/{messageId}/{(isRemove ? "removeReaction" : "addReaction")}",
+            var request = HttpManager.POST($"{Config.apiAddress_cn}{Config.apiPath}/messages/{messageId}/{(isRemove ? "removeReaction" : "addReaction")}",
                 likeEmoji != null ? new Dictionary<string, object> {
                     {"reactionType" , "like"},
                     {"likeEmoji", likeEmoji}

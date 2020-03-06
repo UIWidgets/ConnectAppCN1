@@ -260,7 +260,7 @@ namespace ConnectApp.screens {
                         AnalyticsManager.ClickShare(type, "Event", "Event_" + eventObj.id, eventObj.title);
 
                         var linkUrl =
-                            $"{Config.apiAddress}/events/{eventObj.id}";
+                            $"{Config.unity_cn_url}/events/{eventObj.id}";
                         if (type == ShareType.clipBoard) {
                             this.widget.actionModel.copyText(linkUrl);
                             CustomDialogUtils.showToast("复制链接成功", Icons.check_circle_outline);
@@ -372,7 +372,7 @@ namespace ConnectApp.screens {
                         if (isLoggedIn && eventObj.type.isNotEmpty()) {
                             if (eventObj.type == "bagevent") {
                                 this.widget.actionModel.openUrl(
-                                    $"{Config.apiAddress}/events/{eventObj.id}/purchase");
+                                    $"{Config.unity_cn_url}/events/{eventObj.id}/purchase");
                             }
                             else if (eventObj.type == "customize" && eventObj.typeParam.isNotEmpty()) {
                                 this.widget.actionModel.openUrl(eventObj.typeParam);

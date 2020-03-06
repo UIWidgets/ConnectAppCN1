@@ -15,7 +15,7 @@ namespace ConnectApp.Api {
                 {"page", pageNumber},
                 {"mode", mode}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/events", parameter: para);
+            var request = HttpManager.GET($"{Config.apiAddress_cn}{Config.apiPath}/events", parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var eventsResponse = JsonConvert.DeserializeObject<FetchEventsResponse>(value: responseText);
                 promise.Resolve(value: eventsResponse);
@@ -31,7 +31,7 @@ namespace ConnectApp.Api {
                 {"page", pageNumber},
                 {"mode", mode}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/events", parameter: para);
+            var request = HttpManager.GET($"{Config.apiAddress_cn}{Config.apiPath}/events", parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var eventsResponse = JsonConvert.DeserializeObject<FetchEventsResponse>(value: responseText);
                 promise.Resolve(value: eventsResponse);
