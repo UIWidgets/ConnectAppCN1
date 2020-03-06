@@ -13,9 +13,9 @@ namespace ConnectApp.Plugins {
         static extern void switchFPSLabelShowStatus(bool isOpen);
 #elif UNITY_ANDROID
         // TODO: FPSLabel support Android not yet 
-        void switchFPSLabelShowStatus(bool isOpen) { }
+        static void switchFPSLabelShowStatus(bool isOpen) { }
 #else
-        void switchFPSLabelShowStatus(bool isOpen) { }
+        static void switchFPSLabelShowStatus(bool isOpen) { }
 #endif
     }
 }

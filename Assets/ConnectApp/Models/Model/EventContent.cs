@@ -75,5 +75,6 @@ namespace ConnectApp.Models.Model {
         public string status;
         public int trialSlicesCount;
         public int limitSeconds;
+        public bool canWatch;
     }
 }

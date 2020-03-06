@@ -12,7 +12,7 @@ namespace ConnectApp.Api {
             var para = new Dictionary<string, object> {
                 {"page", pageNumber}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/notifications", parameter: para);
+            var request = HttpManager.GET($"{Config.apiAddress_cn}{Config.apiPath}/notifications", parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var notificationResponse = JsonConvert.DeserializeObject<FetchNotificationResponse>(value: responseText);
                 promise.Resolve(value: notificationResponse);
@@ -22,7 +22,7 @@ namespace ConnectApp.Api {
 
         public static Promise FetchMakeAllSeen() {
             var promise = new Promise();
-            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/notifications/make-all-seen");
+            var request = HttpManager.POST($"{Config.apiAddress_cn}{Config.apiPath}/notifications/make-all-seen");
             HttpManager.resume(request: request).Then(responseText => promise.Resolve())
                 .Catch(exception => promise.Reject(ex: exception));
             return promise;

@@ -17,7 +17,7 @@ namespace ConnectApp.Api {
                 para.Add("before", value: currOldestMessageId);
             }
 
-            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/messages",
+            var request = HttpManager.GET($"{Config.apiAddress_cn}{Config.apiPath}/channels/{channelId}/messages",
                 parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var messagesResponse = JsonConvert.DeserializeObject<FetchCommentsResponse>(value: responseText);
@@ -34,7 +34,7 @@ namespace ConnectApp.Api {
                 parentMessageId = parentMessageId,
                 nonce = nonce
             };
-            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/channels/{channelId}/messages",
+            var request = HttpManager.POST($"{Config.apiAddress_cn}{Config.apiPath}/channels/{channelId}/messages",
                 parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var sendMessageResponse = new FetchSendMessageResponse {

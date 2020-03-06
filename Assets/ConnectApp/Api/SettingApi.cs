@@ -13,7 +13,7 @@ namespace ConnectApp.Api {
                 {"platform", platform},
                 {"store", store}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/reviewUrl", parameter: para);
+            var request = HttpManager.GET($"{Config.apiAddress_cn}{Config.apiPath}/reviewUrl", parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var urlDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(value: responseText);
                 promise.Resolve(urlDictionary["url"]);
@@ -28,7 +28,7 @@ namespace ConnectApp.Api {
                 {"store", store},
                 {"version", version}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/version", parameter: para);
+            var request = HttpManager.GET($"{Config.apiAddress_cn}{Config.apiPath}/version", parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var versionDictionary = JsonConvert.DeserializeObject<CheckNewVersionResponse>(value: responseText);
                 promise.Resolve(value: versionDictionary);

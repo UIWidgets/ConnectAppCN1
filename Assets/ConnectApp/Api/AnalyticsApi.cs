@@ -19,7 +19,7 @@ namespace ConnectApp.Api {
                 appTime = DateTime.UtcNow,
                 extraData = data
             };
-            var request = HttpManager.POST($"{Config.apiAddress}{Config.apiPath}/statistic", parameter: para);
+            var request = HttpManager.POST($"{Config.apiAddress_cn}{Config.apiPath}/statistic", parameter: para);
             HttpManager.resume(request: request).Then(responseText => { promise.Resolve(); })
                 .Catch(exception => promise.Reject(ex: exception));
             return promise;

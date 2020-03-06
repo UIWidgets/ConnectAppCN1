@@ -306,7 +306,7 @@ namespace ConnectApp.Utils {
             this.m_CandidateIndex = 0;
             this.m_CandidateURLs.Clear();
 
-            var requestUrl = $"{Config.apiAddress}{Config.apiPath}/socketgw";
+            var requestUrl = $"{Config.apiAddress_cn}{Config.apiPath}/socketgw";
             var request = HttpManager.GET(requestUrl, null);
 
             HttpManager.resumeAll(request).Then(responseContent => {

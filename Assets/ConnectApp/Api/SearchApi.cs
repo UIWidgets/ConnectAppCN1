@@ -13,7 +13,7 @@ namespace ConnectApp.Api {
             var para = new Dictionary<string, object> {
                 {"searchType", "project"}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/search/popularSearch",
+            var request = HttpManager.GET($"{Config.apiAddress_cn}{Config.apiPath}/search/popularSearch",
                 parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var popularSearch = JsonConvert.DeserializeObject<List<PopularSearch>>(value: responseText);
@@ -27,7 +27,7 @@ namespace ConnectApp.Api {
             var para = new Dictionary<string, object> {
                 {"searchType", "user"}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/search/popularSearch",
+            var request = HttpManager.GET($"{Config.apiAddress_cn}{Config.apiPath}/search/popularSearch",
                 parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var popularSearch = JsonConvert.DeserializeObject<List<PopularSearch>>(value: responseText);
@@ -45,7 +45,7 @@ namespace ConnectApp.Api {
                 {"searchAllLoadMore", "false"},
                 {"page", pageNumber}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/search", parameter: para);
+            var request = HttpManager.GET($"{Config.apiAddress_cn}{Config.apiPath}/search", parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var searchResponse = JsonConvert.DeserializeObject<FetchSearchArticleResponse>(value: responseText);
                 promise.Resolve(value: searchResponse);
@@ -59,7 +59,7 @@ namespace ConnectApp.Api {
                 {"q", keyword},
                 {"page", pageNumber}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/search/users", parameter: para);
+            var request = HttpManager.GET($"{Config.apiAddress_cn}{Config.apiPath}/search/users", parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var searchUserResponse = JsonConvert.DeserializeObject<FetchSearchUserResponse>(value: responseText);
                 promise.Resolve(value: searchUserResponse);
@@ -73,7 +73,7 @@ namespace ConnectApp.Api {
                 {"q", keyword},
                 {"page", pageNumber}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}{Config.apiPath}/search/teams", parameter: para);
+            var request = HttpManager.GET($"{Config.apiAddress_cn}{Config.apiPath}/search/teams", parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var searchTeamResponse = JsonConvert.DeserializeObject<FetchSearchTeamResponse>(value: responseText);
                 promise.Resolve(value: searchTeamResponse);
