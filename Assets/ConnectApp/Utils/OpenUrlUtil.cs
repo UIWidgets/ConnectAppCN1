@@ -3,6 +3,7 @@ using ConnectApp.Constants;
 using ConnectApp.redux.actions;
 using Unity.UIWidgets;
 using Unity.UIWidgets.foundation;
+using UnityEngine;
 
 namespace ConnectApp.Utils {
     public static class OpenUrlUtil {
@@ -12,8 +13,9 @@ namespace ConnectApp.Utils {
             }
 
             var uri = new Uri(uriString: url);
-            var host = new Uri(uriString: Config.apiAddress).Host;
-            if (uri.Host.Equals(value: host)) {
+            var host_cn = new Uri(uriString: Config.apiAddress_cn).Host;
+            var host_com = new Uri(uriString: Config.apiAddress_com).Host;
+            if (uri.Host.Equals(value: host_cn) || uri.Host.Equals(value: host_com)) {
                 if (uri.AbsolutePath.StartsWith("/p/")) {
                     var articleId = uri.AbsolutePath.Remove(0, "/p/".Length);
                     if (CTemporaryValue.currentPageModelId.isNotEmpty() &&
@@ -49,6 +51,17 @@ namespace ConnectApp.Utils {
                         teamId = teamId,
                     });
                 }
+                else if (uri.AbsolutePath.StartsWith("/channels/")) {
+                    var channelId = uri.AbsolutePath.Remove(0, "/channels/".Length);
+                    if (CTemporaryValue.currentPageModelId.isNotEmpty() &&
+                        CTemporaryValue.currentPageModelId.Equals(value: channelId)) {
+                        return;
+                    }
+
+                    dispatcher.dispatch(new MainNavigatorPushToChannelShareAction {
+                        channelId = channelId
+                    });
+                }
                 else if (uri.AbsolutePath.StartsWith("/mconnect/channels/")) {
                     var channelId = uri.AbsolutePath.Remove(0, "/mconnect/channels/".Length);
                     if (CTemporaryValue.currentPageModelId.isNotEmpty() &&
@@ -67,9 +80,11 @@ namespace ConnectApp.Utils {
                 }
             }
             else {
-                dispatcher.dispatch(new MainNavigatorPushToWebViewAction {
-                    url = url
-                });
+                // open by default browser
+                Application.OpenURL(url: url);
+                // dispatcher.dispatch(new MainNavigatorPushToWebViewAction {
+                //     url = url
+                // });
             }
         }
     }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using ConnectApp.Api;
+using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using Unity.UIWidgets.Redux;
 
@@ -14,6 +15,15 @@ namespace ConnectApp.redux.actions {
     }
 
     public class FetchGameFailureAction : BaseAction {
+    }
+
+    public class StartFetchGameDetailAction : RequestAction {
+    }
+
+    public class FetchGameDetailSuccessAction : BaseAction {
+    }
+
+    public class FetchGameDetailFailureAction : BaseAction {
     }
 
     public static partial class Actions {
@@ -32,6 +42,22 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new FetchGameFailureAction());
+                        Debuger.LogError(message: error);
+                    });
+            });
+        }
+
+        public static object fetchGameDetail(string gameId) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return GameApi.FetchGameDetail(gameId: gameId)
+                    .Then(gameDetailResponse => {
+                        dispatcher.dispatch(new RankListAction {rankList = new List<RankData> {
+                            gameDetailResponse
+                        }});
+                        dispatcher.dispatch(new FetchGameDetailSuccessAction ());
+                    })
+                    .Catch(error => {
+                        dispatcher.dispatch(new FetchGameDetailFailureAction());
                         Debuger.LogError(message: error);
                     });
             });
