@@ -17,6 +17,7 @@ extern "C" {
     void pushToQRScan() {
         UIViewController *vc = UnityGetGLViewController();
         QRScanViewController *qrScanVc = [[QRScanViewController alloc] init];
+        qrScanVc.modalPresentationStyle = UIModalPresentationFullScreen;
         qrScanVc.qrCodeBlock = ^(NSString * qrCode) {
             UIWidgetsMethodMessage(@"QRScan", @"OnReceiveQRCode", @[qrCode]);
         };

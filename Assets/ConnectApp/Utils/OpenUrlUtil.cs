@@ -15,9 +15,26 @@ namespace ConnectApp.Utils {
             var uri = new Uri(uriString: url);
             var host_cn = new Uri(uriString: Config.apiAddress_cn).Host;
             var host_com = new Uri(uriString: Config.apiAddress_com).Host;
-            if (uri.Host.Equals(value: host_cn) || uri.Host.Equals(value: host_com)) {
+            var host_unity_cn = new Uri(uriString: Config.unity_cn_url).Host;
+            
+            if (uri.Host.Equals(value: host_cn) 
+                || uri.Host.Equals(value: host_com) 
+                || uri.Host.Equals(value: host_unity_cn)) {
                 if (uri.AbsolutePath.StartsWith("/p/")) {
                     var articleId = uri.AbsolutePath.Remove(0, "/p/".Length);
+                    if (CTemporaryValue.currentPageModelId.isNotEmpty() &&
+                        CTemporaryValue.currentPageModelId.Equals(value: articleId)) {
+                        return;
+                    }
+
+                    dispatcher.dispatch(
+                        new MainNavigatorPushToArticleDetailAction {
+                            articleId = articleId
+                        }
+                    );
+                }
+                else if (uri.AbsolutePath.StartsWith("/projects/")) {
+                    var articleId = uri.AbsolutePath.Remove(0, "/projects/".Length);
                     if (CTemporaryValue.currentPageModelId.isNotEmpty() &&
                         CTemporaryValue.currentPageModelId.Equals(value: articleId)) {
                         return;
@@ -51,8 +68,10 @@ namespace ConnectApp.Utils {
                         teamId = teamId,
                     });
                 }
-                else if (uri.AbsolutePath.StartsWith("/channels/")) {
-                    var channelId = uri.AbsolutePath.Remove(0, "/channels/".Length);
+                else if (uri.AbsolutePath.StartsWith("/channels/") && uri.AbsolutePath.EndsWith("/share")) {
+                    var channelId = uri.AbsolutePath
+                        .Replace("/channels/", "")
+                        .Replace("/share", "");
                     if (CTemporaryValue.currentPageModelId.isNotEmpty() &&
                         CTemporaryValue.currentPageModelId.Equals(value: channelId)) {
                         return;

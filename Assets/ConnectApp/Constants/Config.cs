@@ -26,7 +26,7 @@ namespace ConnectApp.Constants {
 
         public const string versionName = "2.0.2";
 
-        public const int versionCode = 108;
+        public const int versionCode = 109;
 
         public const string messengerTag = "messenger";
 
@@ -34,7 +34,7 @@ namespace ConnectApp.Constants {
 
         public const string widgetOriginCodeUrl = "https://github.com/UnityTech/UIWidgets";
 
-        public const string unityStoreUrl = "https://store.unity.com/";
+        public const string unityStoreUrl = "https://store.unity.com";
 
         public const string unityLearnPremiumUrl = "https://unity.com/learn-premium";
         
