@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using ConnectApp.Constants;
 using ConnectApp.Models.Model;
+using ConnectApp.redux;
 using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
@@ -48,6 +49,11 @@ namespace ConnectApp.Components {
     public class _KingKongViewState : State<KingKongView> {
         public override void initState() {
             base.initState();
+            int currentTabIndex = StoreProvider.store.getState().tabBarState.currentTabIndex;
+            if (currentTabIndex != 0) {
+                return;
+            }
+
             Promise.Delayed(TimeSpan.FromMilliseconds(1)).Then(() => {
                 var rect = this.context.getContextRect();
                 var kingKongTypes = PreferencesManager.initKingKongType();
@@ -328,6 +334,7 @@ namespace ConnectApp.Components {
             StringCallback followUser = null,
             StringCallback unFollowUser = null,
             VoidCallback pushToLogin = null,
+            GestureTapCallback onPressBloggerMore = null,
             GestureTapCallback onPressMore = null,
             StringCallback onPressItem = null,
             Key key = null
@@ -340,6 +347,7 @@ namespace ConnectApp.Components {
             this.followUser = followUser;
             this.unFollowUser = unFollowUser;
             this.pushToLogin = pushToLogin;
+            this.onPressBloggerMore = onPressBloggerMore;
             this.onPressMore = onPressMore;
             this.onPressItem = onPressItem;
         }
@@ -352,6 +360,7 @@ namespace ConnectApp.Components {
         readonly StringCallback followUser;
         readonly StringCallback unFollowUser;
         readonly VoidCallback pushToLogin;
+        readonly GestureTapCallback onPressBloggerMore;
         readonly GestureTapCallback onPressMore;
         readonly StringCallback onPressItem;
 
@@ -385,18 +394,27 @@ namespace ConnectApp.Components {
             }
 
             var children = new List<Widget> {
-                new SizedBox(width: 16)
+                new SizedBox(width: 10)
             };
             if (this.bloggerIds.Count <= 3) {
-                this.bloggerIds.ForEach(bloggerId => {
+                for (int i = 0; i < this.bloggerIds.Count; i++) {
+                    var bloggerId = this.bloggerIds[i]; 
                     var rankData = this.rankDict.ContainsKey(key: bloggerId)
                         ? this.rankDict[key: bloggerId]
                         : new RankData();
                     if (this.userDict.ContainsKey(key: rankData.itemId)) {
                         var user = this.userDict[key: rankData.itemId];
-                        children.Add(this._buildBlogger(user: user, resetTitle: rankData.resetTitle));
+                        if (i == this.bloggerIds.Count - 1) {
+                            children.Add(new Container(
+                                padding: EdgeInsets.only(right: 10),
+                                child: this._buildBlogger(user: user, resetTitle: rankData.resetTitle)
+                            ));
+                        }
+                        else {
+                            children.Add(this._buildBlogger(user: user, resetTitle: rankData.resetTitle));
+                        }
                     }
-                });
+                }
             }
             else {
                 var _showBloggerCount = 3;
@@ -410,11 +428,20 @@ namespace ConnectApp.Components {
                         children.Add(this._buildBlogger(user: user, resetTitle: rankData.resetTitle));
                     }
                 }
-
-                children.Add(this._buildMoreBlogger(this.bloggerIds.GetRange(_showBloggerCount,
-                    this.bloggerIds.Count - _showBloggerCount > 3 ? 3 : this.bloggerIds.Count - _showBloggerCount)));
+                
+                children.Add(new Container(
+                    padding: EdgeInsets.only(right: 10),
+                    child: this._buildMoreBlogger(
+                        this.bloggerIds.GetRange(
+                            _showBloggerCount,
+                        this.bloggerIds.Count - _showBloggerCount > 3 
+                            ? 3 
+                            : this.bloggerIds.Count - _showBloggerCount
+                        )
+                    )
+                ));
             }
-
+            
             return new Container(
                 color: CColors.White,
                 height: 302,
@@ -431,7 +458,7 @@ namespace ConnectApp.Components {
                                     "image/blogger",
                                     "推荐博主",
                                     EdgeInsets.only(16, 16, bottom: 16),
-                                    onPress: this.onPressMore
+                                    onPress: this.onPressBloggerMore
                                 ),
                                 new Container(
                                     height: 230,
@@ -468,10 +495,17 @@ namespace ConnectApp.Components {
                 onTap: () => this.onPressItem?.Invoke(text: user.id),
                 child: new Container(
                     width: 160,
-                    margin: EdgeInsets.only(right: 16),
+                    margin: EdgeInsets.all(6),
                     decoration: new BoxDecoration(
                         color: CColors.White,
-                        borderRadius: BorderRadius.all(6)
+                        borderRadius: BorderRadius.all(6),
+                        boxShadow: new List<BoxShadow> {
+                            new BoxShadow(
+                                CColors.Black.withOpacity(0.08f),
+                                blurRadius: 10,
+                                spreadRadius: 1.0f
+                            )
+                        }
                     ),
                     child: new ClipRRect(
                         borderRadius: BorderRadius.all(6),
@@ -483,10 +517,12 @@ namespace ConnectApp.Components {
                                     child: new Stack(
                                         fit: StackFit.expand,
                                         children: new List<Widget> {
-                                            Image.asset(
-                                                "image/blogger-avatar-pattern",
-                                                fit: BoxFit.fill
-                                            ),
+                                            user.coverImage.isNotEmpty()
+                                                ? Image.network(user.coverImage, fit: BoxFit.fill)
+                                                : Image.asset(
+                                                    "image/blogger-avatar-pattern",
+                                                    fit: BoxFit.fill
+                                                ),
                                             Positioned.fill(
                                                 new Center(
                                                     child: Avatar.User(user: user, 64, true)
@@ -523,10 +559,17 @@ namespace ConnectApp.Components {
                 onTap: () => this.onPressMore?.Invoke(),
                 child: new Container(
                     width: 160,
-                    margin: EdgeInsets.only(right: 16),
+                    margin: EdgeInsets.all(6),
                     decoration: new BoxDecoration(
                         color: CColors.White,
-                        borderRadius: BorderRadius.all(6)
+                        borderRadius: BorderRadius.all(6),
+                        boxShadow: new List<BoxShadow> {
+                            new BoxShadow(
+                                CColors.Black.withOpacity(0.08f),
+                                blurRadius: 10,
+                                spreadRadius: 1.0f
+                            )
+                        }
                     ),
                     child: new ClipRRect(
                         borderRadius: BorderRadius.all(6),
@@ -563,9 +606,11 @@ namespace ConnectApp.Components {
                     var left = 0;
                     if (index == 1) {
                         left = 36;
-                    } else if (index == 2) {
+                    }
+                    else if (index == 2) {
                         left = 72;
                     }
+
                     items.Add(new Positioned(
                             Avatar.User(user: user, 44, true),
                             left: left
@@ -584,6 +629,7 @@ namespace ConnectApp.Components {
             else if (bloggerIds.Count == 3) {
                 width = 124;
             }
+
             var avatar = new Container(
                 height: 44,
                 width: width,
@@ -706,7 +752,8 @@ namespace ConnectApp.Components {
                                                                     80,
                                                                     0,
                                                                     8,
-                                                                    8
+                                                                    8,
+                                                                    true
                                                                 )
                                                             ),
                                                             new Expanded(

@@ -43,22 +43,28 @@ namespace ConnectApp.screens {
                             AnalyticsManager.AnalyticsClickEgg(1);
                         },
                         pushToGame = () => {
-                            var url = LocalDataManager.getTinyGameUrl();
-                            if (url.isEmpty() || url.Equals("no_game")) {
-                                CustomToast.show(new CustomToastItem(
-                                    context: context,
-                                    "暂无游戏",
-                                    TimeSpan.FromMilliseconds(2000)
-                                ));
-                                return;
+                            if (CCommonUtils.isIPhone) {
+                                dispatcher.dispatch(new MainNavigatorPushToAction {
+                                    routeName = MainNavigatorRoutes.Game
+                                });
                             }
-                            dispatcher.dispatch(new MainNavigatorPushToWebViewAction {
-                                url = url,
-                                landscape = true,
-                                fullscreen = true,
-                                showOpenInBrowser = false
-                            });
-
+                            else {
+                                var url = LocalDataManager.getTinyGameUrl();
+                                if (url.isEmpty() || url.Equals("no_game")) {
+                                    CustomToast.show(new CustomToastItem(
+                                        context: context,
+                                        "暂无游戏",
+                                        TimeSpan.FromMilliseconds(2000)
+                                    ));
+                                    return;
+                                }
+                                dispatcher.dispatch(new MainNavigatorPushToWebViewAction {
+                                    url = url,
+                                    landscape = true,
+                                    fullscreen = true,
+                                    showOpenInBrowser = false
+                                });
+                            }
                         }
                     };
                     return new ArticlesScreen(viewModel: viewModel, actionModel: actionModel);
@@ -251,7 +257,7 @@ namespace ConnectApp.screens {
                         new CustomButton(
                             padding: EdgeInsets.only(16, 8, 16, 8),
                             onPressed: () => this.widget.actionModel.pushToGame(),
-                            child: Image.asset("image/lantern-egg")
+                            child: Image.asset("image/egg-gamepad")
                         )
                     }
                 )
@@ -310,11 +316,11 @@ namespace ConnectApp.screens {
                     selectedColor: CColors.TextTitle,
                     unselectedColor: CColors.TextBody4,
                     unselectedTextStyle: new TextStyle(
-                        fontSize: 20,
+                        fontSize: 18,
                         fontFamily: "Roboto-Medium"
                     ),
                     selectedTextStyle: new TextStyle(
-                        fontSize: 20,
+                        fontSize: 18,
                         fontFamily: "Roboto-Medium"
                     ),
                     controller: this._tabController,
@@ -391,7 +397,7 @@ namespace ConnectApp.screens {
                         new CustomButton(
                             padding: EdgeInsets.only(8, 8, 16, 8),
                             onPressed: () => this.widget.actionModel.pushToGame(),
-                            child: Image.asset("image/lantern-egg")
+                            child: Image.asset("image/egg-gamepad")
                         )
                     }
                 )

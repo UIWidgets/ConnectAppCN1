@@ -9,6 +9,7 @@ using ConnectApp.Main;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
+using RSG;
 using Unity.UIWidgets.engine;
 using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.foundation;
@@ -70,9 +71,12 @@ namespace ConnectApp.Plugins {
                 AnalyticsManager.AnalyticsQRScan(state: QRState.check);
             }).Catch(error => {
                 CustomDialogUtils.hiddenCustomDialog();
-                PushToQRScan();
                 CustomDialogUtils.showToast("验证失败", iconData: Icons.sentiment_dissatisfied);
-                AnalyticsManager.AnalyticsQRScan(state: QRState.check, false);
+                Promise.Delayed(new TimeSpan(0, 0, 1))
+                    .Then(() => {
+                        PushToQRScan();
+                        AnalyticsManager.AnalyticsQRScan(state: QRState.check, false);
+                    });
             });
         }
 

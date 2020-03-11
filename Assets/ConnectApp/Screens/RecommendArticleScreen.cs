@@ -70,7 +70,9 @@ namespace ConnectApp.screens {
                             }
                         ),
                         openUrl = JPushPlugin.openUrlScheme,
-                        pushToLeaderBoard = () => dispatcher.dispatch(new MainNavigatorPushToLeaderBoardAction()),
+                        pushToLeaderBoard = initIndex => dispatcher.dispatch(new MainNavigatorPushToLeaderBoardAction {
+                            initIndex = initIndex
+                        }),
                         pushToLeaderBoardDetail = id =>
                             dispatcher.dispatch(new MainNavigatorPushToLeaderBoardDetailAction {id = id}
                             ),
@@ -228,7 +230,7 @@ namespace ConnectApp.screens {
                                     }
 
                                     if (type == KingKongType.leaderBoard) {
-                                        this.widget.actionModel.pushToLeaderBoard();
+                                        this.widget.actionModel.pushToLeaderBoard(0);
                                     }
 
                                     if (type == KingKongType.activity) {
@@ -418,6 +420,7 @@ namespace ConnectApp.screens {
                     this.widget.actionModel.unFollowUser(arg: userId);
                 },
                 () => this.widget.actionModel.pushToLogin(),
+                () => this.widget.actionModel.pushToLeaderBoard(2),
                 () => this.widget.actionModel.pushToBlogger(),
                 userId => this.widget.actionModel.pushToUserDetail(obj: userId)
             );
@@ -425,21 +428,21 @@ namespace ConnectApp.screens {
 
         Widget _buildRecommendLeaderBoard() {
             return new RecommendLeaderBoard(
-                data: this.widget.viewModel.homeTopCollectionIds,
+                data: this.widget.viewModel.homeCollectionIds,
                 rankDict: this.widget.viewModel.rankDict,
                 favoriteTagDict: this.widget.viewModel.favoriteTagDict,
                 favoriteTagArticleDict: this.widget.viewModel.favoriteTagArticleDict,
-                () => this.widget.actionModel.pushToLeaderBoard(),
+                () => this.widget.actionModel.pushToLeaderBoard(0),
                 collectionId => this.widget.actionModel.pushToLeaderBoardDetail(obj: collectionId)
             );
         }
 
         Widget _buildLeaderBoard() {
             return new LeaderBoard(
-                data: this.widget.viewModel.homeCollectionIds,
+                data: this.widget.viewModel.homeTopCollectionIds,
                 rankDict: this.widget.viewModel.rankDict,
                 favoriteTagDict: this.widget.viewModel.favoriteTagDict,
-                () => this.widget.actionModel.pushToLeaderBoard(),
+                () => this.widget.actionModel.pushToLeaderBoard(0),
                 collectionId => this.widget.actionModel.pushToLeaderBoardDetail(obj: collectionId)
             );
         }

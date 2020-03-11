@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using SyntaxHighlight;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.material;
@@ -22,6 +23,14 @@ namespace markdown {
         public abstract TextSpan format(string source);
     }
 
+    public class CSharpSyntaxHighlighter : SyntaxHighlighter {
+        Highlighter highlighter = new Highlighter();
+
+        public override TextSpan format(string source) {
+            return this.highlighter.Highlight("C#", source);
+        }
+    }
+
 
     public abstract class MarkdownWidget : StatefulWidget {
         protected MarkdownWidget(
@@ -35,7 +44,8 @@ namespace markdown {
             MarkdownImageBuilder imageBuilder,
             MarkdownCheckboxBuilder checkboxBuilder,
             bool fitContent = false,
-            bool selectable = false
+            bool selectable = false,
+            bool enableHTML = true
         ) : base(key) {
             Debug.Assert(data != null);
             this.data = data;
@@ -48,6 +58,7 @@ namespace markdown {
             this.checkboxBuilder = checkboxBuilder;
             this.fitContent = fitContent;
             this.selectable = selectable;
+            this.enableHTML = enableHTML;
         }
 
         public string data;
@@ -73,6 +84,8 @@ namespace markdown {
         public bool fitContent;
 
         public abstract Widget build(BuildContext context, List<Widget> children);
+
+        public bool enableHTML;
 
         public override State createState() {
             return new _MarkdownWidgetState();
@@ -124,7 +137,8 @@ namespace markdown {
                 imageDirectory: this.widget.imageDirectory,
                 imageBuilder: this.widget.imageBuilder,
                 checkboxBuilder: this.widget.checkboxBuilder,
-                fitContent: this.widget.fitContent
+                fitContent: this.widget.fitContent,
+                enableHTML: this.widget.enableHTML
             );
             this._children = builder.build(document.parseLines(lines.ToList()));
         }
@@ -163,34 +177,6 @@ namespace markdown {
         }
     }
 
-//    public class MarkdownBody : MarkdownWidget {
-//        public MarkdownBody(
-//            Key key,
-//            string data,
-//            MarkdownStyleSheet markdownStyleSheet,
-//            SyntaxHighlighter syntaxHighlighter1,
-//            MarkdownTapLinkCallback onTapLink,
-//            string imageDirectory,
-//            MarkdownImageBuilder imageBuilder,
-//            MarkdownCheckboxBuilder checkboxBuilder,
-//            bool fitContent = true
-//        ) : base(
-//            key,
-//            data,
-//            markdownStyleSheet,
-//            syntaxHighlighter1,
-//            onTapLink,
-//            imageDirectory,
-//            imageBuilder,
-//            checkboxBuilder,
-//            fitContent) {
-//        }
-//
-//        public override Widget build(BuildContext context, List<Widget> children) {
-//            throw new NotImplementedException();
-//        }
-//    }
-
     public class Markdown : MarkdownWidget {
         public Markdown(
             Key key = null,
@@ -204,9 +190,11 @@ namespace markdown {
             MarkdownImageBuilder imageBuilder = null,
             MarkdownCheckboxBuilder checkboxBuilder = null,
             ScrollPhysics physics = null,
-            bool shrinkWrap = false
+            bool shrinkWrap = false,
+            bool enableHTML = true
         ) : base(key, data, markdownStyleSheet, syntaxHighlighter,
-            onTapLink, imageDirectory, extensionSet, imageBuilder, checkboxBuilder, selectable) {
+            onTapLink, imageDirectory, extensionSet, imageBuilder,
+            checkboxBuilder, selectable, enableHTML) {
             this.padding = EdgeInsets.all(16);
             this.physics = physics;
             this.shrinkWrap = shrinkWrap;
@@ -231,8 +219,7 @@ namespace markdown {
     class TaskListSyntax : InlineSyntax {
         static string _pattern = @"^ *\[([ xX])\] +";
 
-        public TaskListSyntax() : base(_pattern) {
-        }
+        public TaskListSyntax() : base(_pattern) { }
 
         internal override bool onMatch(InlineParser parser, Match match) {
             var el = Element.withTag("input");

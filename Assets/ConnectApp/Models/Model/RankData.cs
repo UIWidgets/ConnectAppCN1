@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace ConnectApp.Models.Model {
     [Serializable]
@@ -11,8 +12,11 @@ namespace ConnectApp.Models.Model {
         public DateTime? updatedTime;
         public string resetTitle;
         public string resetLabel;
+        public string resetSubLabel;
+        public string resetDesc;
         public string redirectURL;
         public string image;
         public string myFavoriteTagId;
+        public List<string> attachmentURLs;
     }
 }

@@ -101,6 +101,7 @@ namespace ConnectApp.redux.reducers {
                     MyReactionsManager.clearData();
                     state.loginState.loginInfo = new LoginInfo();
                     state.loginState.isLoggedIn = false;
+                    state.loginState.newNotifications = null;
                     UserInfoManager.clearUserInfo();
                     BuglyAgent.SetUserId("anonymous");
                     state.articleState.articleHistory = HistoryManager.articleHistoryList();
@@ -1796,6 +1797,13 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case MainNavigatorPushToGameDetailAction action: {
+                    Router.navigator.push(new CustomPageRoute(
+                        context => new GameDetailScreenConnector(gameId: action.gameId)
+                    ));
+
+                    break;
+                }
 
                 case MainNavigatorPushToLeaderBoardDetailAction action: {
                     if (action.id.isNotEmpty()) {
@@ -3949,6 +3957,47 @@ namespace ConnectApp.redux.reducers {
                 case FetchChannelMentionQuerySuccessAction action: {
                     state.channelState.queryMentions = action.members;
                     state.channelState.mentionSearching = false;
+                    break;
+                }
+
+                case StartFetchGameAction _: {
+                    state.gameState.gameLoading = true;
+                    break;
+                }
+
+                case FetchGameSuccessAction action: {
+                    state.gameState.gameLoading = false;
+                    if (action.pageNumber == 1) {
+                        state.gameState.gameIds = action.gameIds;
+                    }
+                    else {
+                        var gameIds = state.gameState.gameIds;
+                        gameIds.AddRange(collection: action.gameIds);
+                        state.gameState.gameIds = gameIds;
+                    }
+
+                    state.gameState.gameHasMore = action.hasMore;
+                    state.gameState.gamePage = action.pageNumber;
+                    break;
+                }
+
+                case FetchGameFailureAction _: {
+                    state.gameState.gameLoading = false;
+                    break;
+                }
+
+                case StartFetchGameDetailAction _: {
+                    state.gameState.gameDetailLoading = true;
+                    break;
+                }
+
+                case FetchGameDetailSuccessAction action: {
+                    state.gameState.gameDetailLoading = false;
+                    break;
+                }
+
+                case FetchGameDetailFailureAction _: {
+                    state.gameState.gameDetailLoading = false;
                     break;
                 }
             }

@@ -346,7 +346,7 @@ namespace ConnectApp.screens {
                 new ShareView(
                     projectType: ProjectType.iEvent,
                     onPressed: type => {
-                        var linkUrl = $"{Config.apiAddress}/mconnect/channels/{this.widget.viewModel.channel.id}";
+                        var linkUrl = $"{Config.unity_cn_url}/channels/{this.widget.viewModel.channel.id}/share";
                         if (type == ShareType.clipBoard) {
                             this.widget.actionModel.copyText(obj: linkUrl);
                             CustomDialogUtils.showToast("复制链接成功", iconData: Icons.check_circle_outline);

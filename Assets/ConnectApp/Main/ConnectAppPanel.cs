@@ -25,6 +25,11 @@ namespace ConnectApp.Main {
             WebViewManager.instance.initWebView(this.gameObject);
             InitBugly();
             AnalyticsManager.EnterApp();
+            if (CCommonUtils.isIPhone) {
+                if (LocalDataManager.getFPSLabelStatus()) { 
+                    FPSLabelPlugin.SwitchFPSLabelShowStatus(true);
+                }
+            }
         }
 
         static void InitBugly() {

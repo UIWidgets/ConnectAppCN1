@@ -5,6 +5,21 @@ namespace ConnectApp.Utils {
     public static class LocalDataManager {
         const string _leaderBoardUpdatedTimeKey = "leaderBoardUpdatedTimeKey";
         const string _tinyGameUrlKey = "tinyGameUrlKey";
+        const string _fpsLabelStatusKey = "fpsLabelStatusKey";
+        
+        public static void setFPSLabelStatus(bool isOpen) {
+            PlayerPrefs.SetInt(key: _fpsLabelStatusKey, Convert.ToInt32(value: isOpen));
+            PlayerPrefs.Save();
+        }
+        
+        public static bool getFPSLabelStatus() {
+            if (PlayerPrefs.HasKey(key: _fpsLabelStatusKey)) {
+                var isOpen = PlayerPrefs.GetInt(key: _fpsLabelStatusKey);
+                return Convert.ToBoolean(value: isOpen);
+            }
+            setFPSLabelStatus(false);
+            return false;
+        }
 
         public static void saveTinyGameUrl(string url) {
             PlayerPrefs.SetString(key: _tinyGameUrlKey, value: url);

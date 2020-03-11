@@ -2,13 +2,17 @@ namespace ConnectApp.Constants {
     public static class Config {
         public const bool enableDebug = false;
 
-        public const string apiAddress = "https://connect.unity.com";
+        public const string apiAddress_cn = "https://connect.unity.cn";
+        
+        public const string apiAddress_com = "https://connect.unity.com";
+        
+        public const string unity_cn_url = "https://unity.cn";
 
-        public const string apiPath = "/api/connectapp/v3";
+        public const string apiPath = "/api/connectapp/v4";
+        
+        public const string domain = ".connect.unity.cn";
 
-        public const string domain = ".connect.unity.com";
-
-        public const string idBaseUrl = "https://id.unity.com";
+        public const string idBaseUrl = "https://id.unity.cn";
 
         public const string termsOfService = "https://unity.cn/legal/terms-of-service";
 
@@ -20,9 +24,9 @@ namespace ConnectApp.Constants {
 
         public const string miniId = "gh_f731aec0bdd0";
 
-        public const string versionName = "2.0.0";
+        public const string versionName = "2.0.2";
 
-        public const int versionCode = 102;
+        public const int versionCode = 109;
 
         public const string messengerTag = "messenger";
 
@@ -30,7 +34,7 @@ namespace ConnectApp.Constants {
 
         public const string widgetOriginCodeUrl = "https://github.com/UnityTech/UIWidgets";
 
-        public const string unityStoreUrl = "https://store.unity.com/";
+        public const string unityStoreUrl = "https://store.unity.com";
 
         public const string unityLearnPremiumUrl = "https://unity.com/learn-premium";
         

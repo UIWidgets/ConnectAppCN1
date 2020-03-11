@@ -8,7 +8,7 @@ using Unity.UIWidgets.ui;
 namespace ConnectApp.Utils {
     public static class CStringUtils {
         public static string JointProjectShareLink(string projectId) {
-            return $"{Config.apiAddress}/p/{projectId}?app=true";
+            return $"{Config.unity_cn_url}/projects/{projectId}?app=true";
         }
 
         public static string CountToString(int count, string placeholder = "") {
