@@ -1,29 +1,68 @@
 using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Constants;
+using ConnectApp.Main;
+using ConnectApp.Models.State;
+using ConnectApp.Models.ViewModel;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
-    public class EventsScreen : StatefulWidget {
-        public EventsScreen(
+    public class EventsScreenConnector : StatelessWidget {
+        public EventsScreenConnector(
             Key key = null
         ) : base(key: key) {
-            
         }
+
+        public override Widget build(BuildContext context) {
+            return new StoreConnector<AppState, EventsScreenViewModel>(
+                converter: state => new EventsScreenViewModel {
+                    currentTabBarIndex = state.tabBarState.currentTabIndex
+                },
+                builder: (context1, viewModel, dispatcher) =>
+                    new EventsScreen(viewModel: viewModel));
+        }
+    }
+
+
+    public class EventsScreen : StatefulWidget {
+        public EventsScreen(
+            EventsScreenViewModel viewModel = null,
+            Key key = null
+        ) : base(key: key) {
+            this.viewModel = viewModel;
+        }
+
+        public readonly EventsScreenViewModel viewModel;
 
         public override State createState() {
             return new _EventsScreenState();
         }
     }
 
-    class _EventsScreenState : AutomaticKeepAliveClientMixin<EventsScreen> {
+    class _EventsScreenState : AutomaticKeepAliveClientMixin<EventsScreen>, RouteAware {
         string _selectValue = "all";
 
         protected override bool wantKeepAlive {
             get { return true; }
+        }
+
+        public override void initState() {
+            base.initState();
+            StatusBarManager.statusBarStyle(false);
+        }
+
+        public override void didChangeDependencies() {
+            base.didChangeDependencies();
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(context: this.context));
+        }
+
+        public override void dispose() {
+            Router.routeObserve.unsubscribe(this);
+            base.dispose();
         }
 
         public override Widget build(BuildContext context) {
@@ -79,6 +118,21 @@ namespace ConnectApp.screens {
                     }
                 )
             );
+        }
+
+        public void didPopNext() {
+            if (this.widget.viewModel.currentTabBarIndex == 1) {
+                StatusBarManager.statusBarStyle(false);
+            }
+        }
+
+        public void didPush() {
+        }
+
+        public void didPop() {
+        }
+
+        public void didPushNext() {
         }
     }
 }
