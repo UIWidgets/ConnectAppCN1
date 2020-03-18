@@ -530,7 +530,7 @@ namespace ConnectApp.Constants {
         public static readonly Color Green = new Color(0xFF00FF00);
         public static readonly Color Blue = new Color(0xFF0000FF);
         public static readonly Color Grey = new Color(0xFF9E9E9E);
-        public static readonly Color DarkGray = new Color(0xFF7F7F7F);
+        public static readonly Color DarkGray = new Color(0x88FFFFFF);
 
         public static readonly Color Background = new Color(0xFFFAFAFA);
         public static readonly Color Icon = new Color(0xFF979A9E);

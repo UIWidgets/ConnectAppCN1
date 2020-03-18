@@ -116,7 +116,7 @@ namespace ConnectApp.screens {
                                         margin: EdgeInsets.only(bottom: 16),
                                         alignment: Alignment.center,
                                         child: Image.asset(
-                                            name: "image/img-unity_app_logo",
+                                            name: "image/unity-icon-logo",
                                             width: 128,
                                             height: 128,
                                             fit: BoxFit.cover
@@ -125,7 +125,7 @@ namespace ConnectApp.screens {
                                     new Container(
                                         alignment: Alignment.center,
                                         child: Image.asset(
-                                            name: "image/img-unity_text_logo",
+                                            name: "image/unity-text-logo",
                                             width: 149,
                                             height: 24,
                                             fit: BoxFit.cover
