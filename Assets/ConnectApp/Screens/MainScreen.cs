@@ -20,7 +20,7 @@ namespace ConnectApp.screens {
                     child: new CustomTabBarConnector(
                         new List<Widget> {
                             new ArticlesScreenConnector(),
-                            new EventsScreen(),
+                            new EventsScreenConnector(),
                             new MessengerScreenConnector(),
                             new PersonalScreenConnector()
                         },
@@ -60,9 +60,11 @@ namespace ConnectApp.screens {
 
                             if (toIndex != 2 || UserInfoManager.isLogin()) {
                                 var myUserId = UserInfoManager.getUserInfo().userId;
-                                if (toIndex == 3 && myUserId.isNotEmpty()) { // mine page
+                                if (toIndex == 3 && myUserId.isNotEmpty()) {
+                                    // mine page
                                     StoreProvider.store.dispatcher.dispatch(Actions.fetchUserProfile(userId: myUserId));
                                 }
+
                                 StatusBarManager.statusBarStyle(toIndex == 3 && UserInfoManager.isLogin());
                                 StoreProvider.store.dispatcher.dispatch(new SwitchTabBarIndexAction {index = toIndex});
                                 JPushPlugin.showPushAlert(toIndex != 2);

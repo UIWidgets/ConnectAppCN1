@@ -13,6 +13,7 @@ namespace ConnectApp.Models.ViewModel {
         public int completedEventTotal;
         public int homeEventPageNumber;
         public bool homeEventHasMore;
+        public int currentTabBarIndex;
         public Dictionary<string, IEvent> eventsDict;
         public Dictionary<string, Place> placeDict;
     }
