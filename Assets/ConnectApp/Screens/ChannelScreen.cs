@@ -109,6 +109,11 @@ namespace ConnectApp.screens {
                             });
                         }
                     }
+                    else {
+                        var dbMessages = MessengerDBApi.SyncLoadMessages(channelId: this.channelId);
+                        dbMessages.Reverse();
+                        messages = dbMessages;
+                    }
 
                     var channelInfoLoading = false;
                     var channelMessageLoading = false;
