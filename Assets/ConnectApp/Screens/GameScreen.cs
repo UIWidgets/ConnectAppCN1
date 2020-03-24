@@ -10,6 +10,7 @@ using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
@@ -134,12 +135,13 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildNavigationBar() {
-            return new CustomAppBar(
-                () => this.widget.actionModel.mainRouterPop(),
+            return new CustomNavigationBar(
                 new Text(
                     "Unity Tiny 小游戏",
-                    style: CTextStyle.PXLargeMedium
-                )
+                    style: CTextStyle.H2
+                ),
+                padding: EdgeInsets.only(16, bottom: 8),
+                onBack: () => this.widget.actionModel.mainRouterPop()
             );
         }
 
