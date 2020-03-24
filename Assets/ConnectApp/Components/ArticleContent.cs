@@ -18,7 +18,8 @@ namespace ConnectApp.Components {
         dailyCollection,
         leaderBoard,
         activity,
-        blogger
+        blogger,
+        tinyGame
     }
 
     public delegate void TypeCallback(KingKongType type);
@@ -47,27 +48,27 @@ namespace ConnectApp.Components {
     }
 
     public class _KingKongViewState : State<KingKongView> {
-        public override void initState() {
-            base.initState();
-            int currentTabIndex = StoreProvider.store.getState().tabBarState.currentTabIndex;
-            if (currentTabIndex != 0) {
-                return;
-            }
-
-            Promise.Delayed(TimeSpan.FromMilliseconds(1)).Then(() => {
-                var rect = this.context.getContextRect();
-                var kingKongTypes = PreferencesManager.initKingKongType();
-                if (!kingKongTypes.Contains(item: KingKongType.dailyCollection)) {
-                    this._showDailyCollectionDialog(rect: rect, kingKongTypes: kingKongTypes);
-                }
-                else if (!kingKongTypes.Contains(item: KingKongType.leaderBoard)) {
-                    this._showLeaderBoardDialog(rect: rect, kingKongTypes: kingKongTypes);
-                }
-                else if (!kingKongTypes.Contains(item: KingKongType.blogger)) {
-                    this._showBloggerDialog(rect: rect);
-                }
-            });
-        }
+        // public override void initState() {
+        //     base.initState();
+        //     int currentTabIndex = StoreProvider.store.getState().tabBarState.currentTabIndex;
+        //     if (currentTabIndex != 0) {
+        //         return;
+        //     }
+        //
+        //     Promise.Delayed(TimeSpan.FromMilliseconds(1)).Then(() => {
+        //         var rect = this.context.getContextRect();
+        //         var kingKongTypes = PreferencesManager.initKingKongType();
+        //         if (!kingKongTypes.Contains(item: KingKongType.dailyCollection)) {
+        //             this._showDailyCollectionDialog(rect: rect, kingKongTypes: kingKongTypes);
+        //         }
+        //         else if (!kingKongTypes.Contains(item: KingKongType.leaderBoard)) {
+        //             this._showLeaderBoardDialog(rect: rect, kingKongTypes: kingKongTypes);
+        //         }
+        //         else if (!kingKongTypes.Contains(item: KingKongType.blogger)) {
+        //             this._showBloggerDialog(rect: rect);
+        //         }
+        //     });
+        // }
 
         void _showDailyCollectionDialog(Rect rect, List<KingKongType> kingKongTypes) {
             PreferencesManager.updateKingKongType(type: KingKongType.dailyCollection);

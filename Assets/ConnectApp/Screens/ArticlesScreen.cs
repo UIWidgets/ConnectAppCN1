@@ -257,7 +257,7 @@ namespace ConnectApp.screens {
                         new CustomButton(
                             padding: EdgeInsets.only(16, 8, 16, 8),
                             onPressed: () => this.widget.actionModel.pushToGame(),
-                            child: Image.asset("image/egg-gamepad")
+                            child: new GamepadButton()
                         )
                     }
                 )
