@@ -544,7 +544,7 @@ namespace ConnectApp.Plugins {
         static void setAlias(int sequence, string alias) {
         }
 
-        static void deleteAlias(int sequence) {
+        static void deleteAlias(int sequence, string alias) {
         }
 
         static void setTags(int sequence, string tagsJsonStr) {
