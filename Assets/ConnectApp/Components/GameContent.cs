@@ -15,17 +15,23 @@ namespace ConnectApp.Components {
         public GameBrief(
             RankData game,
             Key titleKey = null,
-            GestureTapCallback onPlay = null,
+            Key briefKey = null,
+            Widget playButton = null,
+            Widget shareWidget = null,
             Key key = null
         ) : base(key: key) {
             this.game = game;
             this.titleKey = titleKey;
-            this.onPlay = onPlay;
+            this.briefKey = briefKey;
+            this.playButton = playButton;
+            this.shareWidget = shareWidget;
         }
 
         readonly RankData game;
         readonly Key titleKey;
-        readonly GestureTapCallback onPlay;
+        readonly Key briefKey;
+        readonly Widget playButton;
+        readonly Widget shareWidget;
 
         public override Widget build(BuildContext context) {
             if (this.game == null) {
@@ -33,6 +39,7 @@ namespace ConnectApp.Components {
             }
 
             return new Container(
+                key: this.briefKey,
                 padding: EdgeInsets.symmetric(24, 16),
                 child: new Row(
                     children: new List<Widget> {
@@ -69,26 +76,12 @@ namespace ConnectApp.Components {
                                             overflow: TextOverflow.ellipsis
                                         ),
                                         new Flexible(child: new Container()),
-                                        new CustomButton(
-                                            padding: EdgeInsets.zero,
-                                            child: new Container(
-                                                width: 60,
-                                                height: 28,
-                                                decoration: new BoxDecoration(
-                                                    color: CColors.PrimaryBlue,
-                                                    borderRadius: BorderRadius.all(14)
-                                                ),
-                                                alignment: Alignment.center,
-                                                child: new Text(
-                                                    "开始",
-                                                    style: new TextStyle(
-                                                        fontSize: 14,
-                                                        fontFamily: "Roboto-Medium",
-                                                        color: CColors.White
-                                                    )
-                                                )
-                                            ),
-                                            onPressed: this.onPlay
+                                        new Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: new List<Widget> {
+                                                this.playButton,
+                                                this.shareWidget
+                                            }
                                         )
                                     }
                                 )

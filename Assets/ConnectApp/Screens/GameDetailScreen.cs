@@ -44,6 +44,10 @@ namespace ConnectApp.screens {
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new GameDetailScreenActionModel {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
+                        copyText = text => dispatcher.dispatch(new CopyTextAction {text = text}),
+                        shareToWechat = (type, title, description, linkUrl, imageUrl, path) =>
+                            dispatcher.dispatch<IPromise>(
+                                Actions.shareToWechat(type, title, description, linkUrl, imageUrl)),
                         startFetchGameDetail = () => dispatcher.dispatch(new StartFetchGameDetailAction()),
                         fetchGameDetail = () =>
                             dispatcher.dispatch<IPromise>(Actions.fetchGameDetail(gameId: this.gameId))
@@ -77,16 +81,19 @@ namespace ConnectApp.screens {
         bool _isHaveTitle;
         Animation<RelativeRect> _animation;
         AnimationController _controller;
-        float _titleHeight;
+        float _titlePosition;
+        float _playButtonPosition;
         float _aspectRatio;
         static readonly GlobalKey gameTitleKey = GlobalKey.key("game-title");
+        static readonly GlobalKey gameBriefKey = GlobalKey.key("game-brief");
 
         public override void initState() {
             base.initState();
             StatusBarManager.statusBarStyle(true);
             this._showNavBarShadow = true;
             this._isHaveTitle = false;
-            this._titleHeight = 0.0f;
+            this._titlePosition = 0.0f;
+            this._playButtonPosition = 0.0f;
             this._aspectRatio = 16.0f / 9;
             if (CCommonUtils.isAndroid) {
                 this._aspectRatio = 3f / 2;
@@ -98,7 +105,7 @@ namespace ConnectApp.screens {
             );
             var rectTween = new RelativeRectTween(
                 RelativeRect.fromLTRB(0, 44, 0, 0),
-                RelativeRect.fromLTRB(0, 13, 0, 0)
+                RelativeRect.fromLTRB(0, 0, 0, 0)
             );
             this._animation = rectTween.animate(this._controller);
             // SchedulerBinding.instance.addPostFrameCallback(_ => {
@@ -109,6 +116,7 @@ namespace ConnectApp.screens {
 
         Widget _buildHeadTop(RankData game, BuildContext context) {
             Widget titleWidget = new Container();
+            Widget playButton = new Container();
             if (this._isHaveTitle) {
                 titleWidget = new Text(
                     game.resetTitle,
@@ -117,6 +125,8 @@ namespace ConnectApp.screens {
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.left
                 );
+                
+                playButton = _buildPlayButton(game: game);
             }
 
             return new AnimatedContainer(
@@ -155,12 +165,84 @@ namespace ConnectApp.screens {
                                 children: new List<Widget> {
                                     new PositionedTransition(
                                         rect: this._animation,
-                                        child: titleWidget
+                                        child: new Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: new List<Widget> {
+                                                titleWidget,
+                                                playButton
+                                            }
+                                        )
                                     )
                                 }
                             )
                         )
                     }
+                )
+            );
+        }
+
+        static Widget _buildPlayButton(RankData game) {
+            return new CustomButton(
+                padding: EdgeInsets.zero,
+                child: new Container(
+                    width: 60,
+                    height: 28,
+                    decoration: new BoxDecoration(
+                        color: CColors.PrimaryBlue,
+                        borderRadius: BorderRadius.all(14)
+                    ),
+                    alignment: Alignment.center,
+                    child: new Text(
+                        "开始",
+                        style: new TextStyle(
+                            fontSize: 14,
+                            fontFamily: "Roboto-Medium",
+                            color: CColors.White
+                        )
+                    )
+                ),
+                onPressed: () => TinyWasmPlugin.PushToTinyWasmScreen(url: game.redirectURL, name: game.resetLabel)
+            );
+        }
+
+        Widget _buildShareWidget(RankData game) {
+            return new CustomButton(
+                onPressed: () => ActionSheetUtils.showModalActionSheet(
+                    new ShareView(
+                        projectType: ProjectType.iEvent,
+                        onPressed: type => {
+                            // AnalyticsManager.ClickShare(type, "Event", "Event_" + eventObj.id, eventObj.title);
+                            var linkUrl =
+                                $"{Config.unity_cn_url}/games/{game.id}";
+                            if (type == ShareType.clipBoard) {
+                                this.widget.actionModel.copyText(linkUrl);
+                                CustomDialogUtils.showToast("复制链接成功", iconData: Icons.check_circle_outline);
+                            }
+                            else {
+                                var imageUrl = CImageUtils.SizeTo200ImageUrl(imageUrl: game.image);
+                                CustomDialogUtils.showCustomDialog(
+                                    child: new CustomLoadingDialog()
+                                );
+                                this.widget.actionModel.shareToWechat(
+                                        arg1: type, 
+                                        arg2: game.resetTitle,
+                                        arg3: game.resetSubLabel,
+                                        arg4: linkUrl,
+                                        arg5: imageUrl
+                                        , null)
+                                    .Then(onResolved: CustomDialogUtils.hiddenCustomDialog)
+                                    .Catch(_ => CustomDialogUtils.hiddenCustomDialog());
+                            }
+                        }
+                    )
+                ),
+                child: new Container(
+                    color: CColors.Transparent,
+                    child: new Icon(
+                        icon: Icons.outline_share,
+                        size: 24,
+                        color: CColors.Icon
+                    )
                 )
             );
         }
@@ -225,11 +307,12 @@ namespace ConnectApp.screens {
 
             var pixels = notification.metrics.pixels;
             var topPadding = 44 + CCommonUtils.getSafeAreaTopPadding(context: context);
-            if (this._titleHeight == 0.0f) {
+
+            if (this._playButtonPosition == 0.0f) {
                 var width = MediaQuery.of(context).size.width;
                 var imageHeight = width / this._aspectRatio;
-                this._titleHeight = imageHeight + gameTitleKey.currentContext.size.height - topPadding +
-                                    16; // topPadding 是顶部的高度 16 是文字与图片的间隙
+                this._playButtonPosition = imageHeight + gameBriefKey.currentContext.size.height - topPadding - 24 - 6; 
+                // topPadding 是顶部的高度, 24 是底部的 padding, 6 是按钮到左边图片到底部的距离
             }
 
             if (pixels >= 44 + topPadding) {
@@ -245,7 +328,7 @@ namespace ConnectApp.screens {
                 }
             }
 
-            if (pixels > this._titleHeight) {
+            if (pixels > this._playButtonPosition) {
                 if (!this._isHaveTitle) {
                     this._controller.forward();
                     this.setState(() => { this._isHaveTitle = true; });
@@ -273,7 +356,9 @@ namespace ConnectApp.screens {
                 return new GameBrief(
                     game: game,
                     titleKey: gameTitleKey,
-                    () => TinyWasmPlugin.PushToTinyWasmScreen(url: game.redirectURL, name: game.resetLabel)
+                    briefKey: gameBriefKey,
+                    _buildPlayButton(game: game),
+                    this._buildShareWidget(game: game)
                 );
             }
 

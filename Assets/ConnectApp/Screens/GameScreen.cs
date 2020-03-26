@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
+using ConnectApp.Main;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
@@ -64,7 +65,7 @@ namespace ConnectApp.screens {
         }
     }
 
-    class _GameScreenState : State<GameScreen> {
+    class _GameScreenState : State<GameScreen>, RouteAware {
         const int firstPageNumber = 1;
         RefreshController _refreshController;
 
@@ -78,6 +79,16 @@ namespace ConnectApp.screens {
             });
         }
 
+        public override void didChangeDependencies() {
+            base.didChangeDependencies();
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(context: this.context));
+        }
+        
+        public override void dispose() {
+            Router.routeObserve.unsubscribe(this);
+            base.dispose();
+        }
+        
         void _onRefresh(bool up) {
             var pageNumber = up ? firstPageNumber : this.widget.viewModel.gamePage + 1;
             this.widget.actionModel.fetchGame(arg: pageNumber)
@@ -157,6 +168,19 @@ namespace ConnectApp.screens {
                 game: game,
                 () => this.widget.actionModel.pushToGameDetail(obj: game.id),
                 () => TinyWasmPlugin.PushToTinyWasmScreen(url: game.redirectURL, name: game.resetLabel));
+        }
+        
+        public void didPopNext() { 
+            StatusBarManager.statusBarStyle(false);
+        }
+
+        public void didPush() {
+        }
+
+        public void didPop() {
+        }
+
+        public void didPushNext() {
         }
     }
 }
