@@ -64,7 +64,7 @@ static AVPlayerController *avp = nil;
 }
 
 -(WMPlayerModel *)setupModelWithUrl:(NSString *)videoUrl cookie:(NSString *)cookie needUpdate:(BOOL)needUpdate limitSeconds:(int)limitSeconds{
-    NSString *Cookie = [NSString stringWithFormat:@"%@; path=/; domain=.connect.unity.com;",cookie];
+    NSString *Cookie = [NSString stringWithFormat:@"%@; path=/; domain=.unity.cn;",cookie];
     WMPlayerModel *model = [[WMPlayerModel alloc]init];
     NSDictionary *options = @{AVURLAssetHTTPCookiesKey : @[[Cookie cookie]]};
     AVURLAsset *videoURLAsset = [AVURLAsset URLAssetWithURL:[NSURL URLWithString:videoUrl] options:options];
