@@ -212,10 +212,9 @@ namespace ConnectApp.screens {
                         projectType: ProjectType.iEvent,
                         onPressed: type => {
                             // AnalyticsManager.ClickShare(type, "Event", "Event_" + eventObj.id, eventObj.title);
-                            var linkUrl =
-                                $"{Config.unity_cn_url}/games/{game.id}";
+                            var linkUrl = CStringUtils.JointTinyGameShareLink(gameId: game.id);;
                             if (type == ShareType.clipBoard) {
-                                this.widget.actionModel.copyText(linkUrl);
+                                this.widget.actionModel.copyText(obj: linkUrl);
                                 CustomDialogUtils.showToast("复制链接成功", iconData: Icons.check_circle_outline);
                             }
                             else {

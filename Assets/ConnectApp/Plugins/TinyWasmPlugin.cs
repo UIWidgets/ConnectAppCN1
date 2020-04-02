@@ -13,7 +13,7 @@ namespace ConnectApp.Plugins {
     public static class TinyWasmPlugin {
         public static bool isListen;
         public static void PushToTinyWasmScreen(string url, string name) {
-            if (!CCommonUtils.isIPhone || !url.isNotEmpty() || !name.isNotEmpty()) {
+            if (!url.isNotEmpty() || !name.isNotEmpty()) {
                 return;
             }
             if (!isListen) {
@@ -45,8 +45,24 @@ namespace ConnectApp.Plugins {
         [DllImport("__Internal")]
         static extern void pushToTinyWasmScreen(string url, string name);
 #elif UNITY_ANDROID
-        // TODO: TinyWasm support Android not yet 
-        static void pushToTinyWasmScreen(string url, string name) { }
+        static AndroidJavaObject _plugin;
+
+        static AndroidJavaObject Plugin() {
+            if (_plugin == null) {
+                using (
+                    AndroidJavaClass managerClass =
+                        new AndroidJavaClass("com.unity3d.unityconnect.plugins.TinyWasmPlugin")
+                ) {
+                    _plugin = managerClass.CallStatic<AndroidJavaObject>("getInstance");
+                }
+            }
+
+            return _plugin;
+        }
+
+        static void pushToTinyWasmScreen(string url, string name) {
+            Plugin().Call("pushToTinyWasmScreen", url, name, LocalDataManager.getFPSLabelStatus());
+        }
 #else
         static void pushToTinyWasmScreen(string url, string name) { }
 #endif
