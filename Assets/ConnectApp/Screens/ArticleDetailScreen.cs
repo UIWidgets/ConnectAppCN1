@@ -638,6 +638,10 @@ namespace ConnectApp.screens {
         }
 
         bool _onUserNotification(UserScrollNotification notification) {
+            var axisDirection = notification.metrics.axisDirection;
+            if (axisDirection == AxisDirection.left || axisDirection == AxisDirection.right) {
+                return true;
+            }
             if (notification.direction == ScrollDirection.reverse) {
                 if (!this._isPullUp) {
                     this.setState(() => this._isPullUp = true);
