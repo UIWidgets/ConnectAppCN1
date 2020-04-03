@@ -82,7 +82,7 @@ namespace ConnectApp.screens {
 
     public class _NotificationScreenState : State<NotificationScreen>, RouteAware {
         const int firstPageNumber = 1;
-        int _pageNumber = firstPageNumber;
+        int notificationPageNumber = firstPageNumber;
         RefreshController _refreshController;
 
         public override void initState() {
@@ -214,9 +214,8 @@ namespace ConnectApp.screens {
         }
 
         void _onRefresh(bool up) {
-            this._pageNumber = up ? firstPageNumber : this.widget.viewModel.page + 1;
-
-            this.widget.actionModel.fetchNotifications(arg: this._pageNumber)
+            this.notificationPageNumber = up ? firstPageNumber : this.notificationPageNumber + 1;
+            this.widget.actionModel.fetchNotifications(arg: this.notificationPageNumber)
                 .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(_ => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed));
         }

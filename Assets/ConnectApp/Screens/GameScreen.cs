@@ -67,6 +67,7 @@ namespace ConnectApp.screens {
 
     class _GameScreenState : State<GameScreen>, RouteAware {
         const int firstPageNumber = 1;
+        int gamePageNumber = firstPageNumber;
         RefreshController _refreshController;
 
         public override void initState() {
@@ -90,8 +91,8 @@ namespace ConnectApp.screens {
         }
         
         void _onRefresh(bool up) {
-            var pageNumber = up ? firstPageNumber : this.widget.viewModel.gamePage + 1;
-            this.widget.actionModel.fetchGame(arg: pageNumber)
+            this.gamePageNumber = up ? firstPageNumber : this.gamePageNumber + 1;
+            this.widget.actionModel.fetchGame(arg: this.gamePageNumber)
                 .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(_ => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed));
         }

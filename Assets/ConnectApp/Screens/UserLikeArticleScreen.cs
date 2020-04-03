@@ -96,7 +96,7 @@ namespace ConnectApp.screens {
 
     class _UserLikeArticleScreenState : State<UserLikeArticleScreen>, RouteAware {
         const int firstPageNumber = 1;
-        int _articlePageNumber = firstPageNumber;
+        int likeArticlePageNumber = firstPageNumber;
         RefreshController _refreshController;
 
         public override void initState() {
@@ -120,8 +120,8 @@ namespace ConnectApp.screens {
         }
 
         void _onRefresh(bool up) {
-            this._articlePageNumber = up ? firstPageNumber : this.widget.viewModel.likeArticlePage + 1;
-            this.widget.actionModel.fetchUserLikeArticle(arg: this._articlePageNumber)
+            this.likeArticlePageNumber = up ? firstPageNumber : this.likeArticlePageNumber + 1;
+            this.widget.actionModel.fetchUserLikeArticle(arg: this.likeArticlePageNumber)
                 .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(_ => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed));
         }

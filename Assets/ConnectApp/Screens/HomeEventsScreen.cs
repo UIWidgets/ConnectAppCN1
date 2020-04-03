@@ -65,6 +65,7 @@ namespace ConnectApp.screens {
 
     public class _HomeEventsScreenState : State<HomeEventsScreen> {
         const int firstPageNumber = 1;
+        int homeEventPageNumber = firstPageNumber;
         RefreshController _refreshController;
 
         public override void initState() {
@@ -77,9 +78,8 @@ namespace ConnectApp.screens {
         }
 
         void _onRefresh(bool up) {
-            var pageNumber = up ? firstPageNumber : this.widget.viewModel.homeEventPageNumber + 1;
-
-            this.widget.actionModel.fetchHomeEvents(arg: pageNumber)
+            this.homeEventPageNumber = up ? firstPageNumber : this.homeEventPageNumber + 1;
+            this.widget.actionModel.fetchHomeEvents(arg: this.homeEventPageNumber)
                 .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(_ => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed));
         }
