@@ -80,7 +80,7 @@ namespace ConnectApp.Components {
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: new List<Widget> {
                                                 this.playButton,
-                                                this.shareWidget
+                                                this.shareWidget ?? new Container()
                                             }
                                         )
                                     }

@@ -53,6 +53,7 @@ namespace ConnectApp.Components {
             var replyCount = this.message.parentMessageId.isNotEmpty()
                 ? (this.message.lowerMessageIds ?? new List<string>()).Count
                 : (this.message.replyMessageIds ?? new List<string>()).Count;
+            
             return new Container(
                 color: CColors.White,
                 padding: EdgeInsets.only(16, 16, 16),
@@ -72,7 +73,7 @@ namespace ConnectApp.Components {
                                 child: new Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: new List<Widget> {
-                                        this._buildCommentAvatarName(),
+                                        this._buildCommentAvatarName(UserInfoManager.isMe(userId: this.message.author.id)),
                                         this._buildCommentContent(),
                                         new Row(
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -125,7 +126,7 @@ namespace ConnectApp.Components {
             );
         }
 
-        Widget _buildCommentAvatarName() {
+        Widget _buildCommentAvatarName(bool isMe) {
             var textStyle = CTextStyle.PMediumBody3.apply(heightFactor: 0, heightDelta: 1);
             return new Container(
                 height: 24,
@@ -153,7 +154,7 @@ namespace ConnectApp.Components {
                                 )
                             )
                         ),
-                        new CustomButton(
+                        !isMe ? new CustomButton(
                             padding: EdgeInsets.only(16, 0, 0, 8),
                             onPressed: this.moreCallBack,
                             child: new Icon(
@@ -161,7 +162,7 @@ namespace ConnectApp.Components {
                                 size: 20,
                                 color: CColors.BrownGrey
                             )
-                        )
+                        ) : (Widget)new Container()
                     }
                 )
             );

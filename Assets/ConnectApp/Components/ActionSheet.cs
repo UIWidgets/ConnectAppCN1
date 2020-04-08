@@ -122,10 +122,13 @@ namespace ConnectApp.Components {
                     child: new Container(
                         alignment: Alignment.center,
                         height: 49,
+                        padding: EdgeInsets.symmetric(horizontal: 16),
                         color: CColors.White,
                         child: new Text(
                             data: item.title,
-                            style: CTextStyle.PLargeBody.copyWith(color: titleColor)
+                            style: CTextStyle.PLargeBody.copyWith(color: titleColor),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis
                         )
                     )
                 );

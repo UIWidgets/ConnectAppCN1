@@ -11,6 +11,7 @@ namespace ConnectApp.Utils {
         const string _articleHistoryKey = "articleHistoryKey";
         const string _eventHistoryKey = "eventHistoryKey";
         const string _blockArticleKey = "blockArticleKey";
+        const string _blockUserKey = "blockUserKey";
         const string _visitorId = "visitor";
         const int _searchArticleHistoryLimit = 5;
         const int _articleHistoryLimit = 50;
@@ -223,6 +224,44 @@ namespace ConnectApp.Utils {
             PlayerPrefs.SetString(_blockArticleKey + userId, newBlockArticle);
             PlayerPrefs.Save();
             return blockArticleList;
+        }
+        
+        public static HashSet<string> blockUserIdSet(string currentUserId = null) {
+            if (currentUserId == null) {
+                return new HashSet<string>();
+            }
+
+            var blockUserData = PlayerPrefs.GetString(_blockUserKey + currentUserId);
+            var blockUserIdSet = new HashSet<string>();
+            if (blockUserData.isNotEmpty()) {
+                blockUserIdSet = JsonConvert.DeserializeObject<HashSet<string>>(value: blockUserData);
+            }
+
+            return blockUserIdSet;
+        }
+
+        public static bool isBlockUser(string userId) {
+            return blockUserIdSet(currentUserId: UserInfoManager.getUserInfo().userId).Contains(item: userId);
+        }
+
+        public static HashSet<string> updateBlockUserId(string blockUserId, string currentUserId, bool remove) {
+            var blockUserData = PlayerPrefs.GetString(_blockUserKey + currentUserId);
+            var blockUserIdSet = new HashSet<string>();
+            if (blockUserData.isNotEmpty()) {
+                blockUserIdSet = JsonConvert.DeserializeObject<HashSet<string>>(value: blockUserData);
+            }
+
+            if (remove) {
+                blockUserIdSet.Remove(item: blockUserId);
+            }
+            else {
+                blockUserIdSet.Add(item: blockUserId);
+            }
+            
+            var newBlockUserData = JsonConvert.SerializeObject(value: blockUserIdSet);
+            PlayerPrefs.SetString(_blockUserKey + currentUserId, value: newBlockUserData);
+            PlayerPrefs.Save();
+            return blockUserIdSet;
         }
     }
 }

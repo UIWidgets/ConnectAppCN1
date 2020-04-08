@@ -255,7 +255,7 @@ namespace ConnectApp.screens {
                         CustomDialogUtils.showToast("复制链接成功", iconData: Icons.check_circle_outline);
                     }
                     else if (type == ShareType.block) {
-                        ReportManager.block(
+                        ReportManager.blockProject(
                             isLoggedIn: this.widget.viewModel.isLoggedIn,
                             () => this.widget.actionModel.pushToLogin(),
                             () => this.widget.actionModel.pushToBlock(article.id),

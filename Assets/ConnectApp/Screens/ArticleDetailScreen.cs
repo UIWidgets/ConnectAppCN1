@@ -101,6 +101,9 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch(new BlockArticleAction {articleId = articleId});
                             dispatcher.dispatch(new DeleteArticleHistoryAction {articleId = articleId});
                         },
+                        blockUser = userId => {
+                            dispatcher.dispatch(new BlockUserAction {blockUserId = userId});
+                        },
                         startFetchArticleDetail = () => dispatcher.dispatch(new StartFetchArticleDetailAction()),
                         fetchArticleDetail = id =>
                             dispatcher.dispatch<IPromise>(
@@ -931,7 +934,6 @@ namespace ConnectApp.screens {
             if (this.widget.viewModel.channelMessageList.ContainsKey(key: this._article.channelId)) {
                 channelComments = this.widget.viewModel.channelMessageList[key: this._article.channelId];
             }
-
             var mediaQuery = MediaQuery.of(this.context);
             var comments = new List<Widget> {
                 new Container(
@@ -978,6 +980,9 @@ namespace ConnectApp.screens {
                 }
 
                 var message = messageDict[key: commentId];
+                if (HistoryManager.isBlockUser(userId: message.author.id)) { // is block user
+                    continue;
+                }
                 var userLicense = CCommonUtils.GetUserLicense(userId: message.author.id,
                     userLicenseMap: this.widget.viewModel.userLicenseDict);
                 bool isPraised = _isPraised(message: message, loginUserId: this.widget.viewModel.loginUserId);
@@ -1017,9 +1022,11 @@ namespace ConnectApp.screens {
                     parentAuthorId: parentAuthorId,
                     () => ReportManager.showReportView(
                         isLoggedIn: this.widget.viewModel.isLoggedIn,
+                        userName: message.author.fullName,
                         reportType: ReportType.comment,
                         () => this.widget.actionModel.pushToLogin(),
-                        () => this.widget.actionModel.pushToReport(arg1: commentId, arg2: ReportType.comment)
+                        () => this.widget.actionModel.pushToReport(arg1: commentId, arg2: ReportType.comment),
+                        blockUserCallback: () => this.widget.actionModel.blockUser(obj: message.author.id)
                     ),
                     replyCallBack: () => this._sendComment(
                         "Article_Comment",
@@ -1045,6 +1052,19 @@ namespace ConnectApp.screens {
                 comments.Add(item: card);
             }
 
+            // fix when only has one comment, blocked it show empty view 
+            if (comments.Count == 1) {
+                var blankView = new Container(
+                    height: height - titleHeight,
+                    child: new BlankView(
+                        "快来写下第一条评论吧",
+                        "image/default-comment"
+                    )
+                );
+                comments.Add(item: blankView);
+                return comments;
+            }
+            
             float endHeight = 0;
             if (!this._article.hasMore) {
                 comments.Add(new EndView());
@@ -1144,7 +1164,6 @@ namespace ConnectApp.screens {
             if (this.widget.viewModel.articleId.isNotEmpty()) {
                 CTemporaryValue.currentPageModelId = this.widget.viewModel.articleId;
             }
-
             StatusBarManager.statusBarStyle(false);
         }
 

@@ -14,6 +14,7 @@ namespace ConnectApp.Models.ActionModel {
         public Action<string> pushToTeamDetail;
         public Action<string, ReportType> pushToReport;
         public Action<string> pushToBlock;
+        public Action<string> blockUser;
         public Action startFetchArticleDetail;
         public Func<string, IPromise> fetchArticleDetail;
         public Func<string, string, IPromise> fetchArticleComments;
