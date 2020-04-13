@@ -11,6 +11,9 @@ namespace ConnectApp.Utils {
             return $"{Config.unity_cn_url}/projects/{projectId}?app=true";
         }
         
+        public static string JointEventShareLink(string eventId) {
+            return $"{Config.unity_com_url}/events/{eventId}";
+        }
         public static string JointTinyGameShareLink(string gameId) {
             return $"{Config.unity_cn_url}/tinyGame/{gameId}/share";
         }
