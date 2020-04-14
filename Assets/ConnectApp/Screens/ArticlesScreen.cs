@@ -43,28 +43,9 @@ namespace ConnectApp.screens {
                             AnalyticsManager.AnalyticsClickEgg(1);
                         },
                         pushToGame = () => {
-                            if (CCommonUtils.isIPhone) {
-                                dispatcher.dispatch(new MainNavigatorPushToAction {
-                                    routeName = MainNavigatorRoutes.Game
-                                });
-                            }
-                            else {
-                                var url = LocalDataManager.getTinyGameUrl();
-                                if (url.isEmpty() || url.Equals("no_game")) {
-                                    CustomToast.show(new CustomToastItem(
-                                        context: context,
-                                        "暂无游戏",
-                                        TimeSpan.FromMilliseconds(2000)
-                                    ));
-                                    return;
-                                }
-                                dispatcher.dispatch(new MainNavigatorPushToWebViewAction {
-                                    url = url,
-                                    landscape = true,
-                                    fullscreen = true,
-                                    showOpenInBrowser = false
-                                });
-                            }
+                            dispatcher.dispatch(new MainNavigatorPushToAction {
+                                routeName = MainNavigatorRoutes.Game
+                            });
                         }
                     };
                     return new ArticlesScreen(viewModel: viewModel, actionModel: actionModel);
@@ -154,6 +135,7 @@ namespace ConnectApp.screens {
             if (this._selectedIndex == 0) {
                 this._followArticlePixels = pixels;
             }
+
             if (this._selectedIndex == 1) {
                 this._recommendArticlePixels = pixels;
             }
@@ -185,13 +167,14 @@ namespace ConnectApp.screens {
             if (pixels > MediaQuery.of(context: this.context).size.height) {
                 if (!this._isRefresh) {
                     this._isRefresh = true;
-                    EventBus.publish(sName: EventBusConstant.article_refresh, new List<object>{TabBarItemStatus.toRefresh});
+                    EventBus.publish(sName: EventBusConstant.article_refresh,
+                        new List<object> {TabBarItemStatus.toRefresh});
                 }
             }
             else {
                 if (this._isRefresh) {
                     this._isRefresh = false;
-                    EventBus.publish(sName: EventBusConstant.article_refresh, new List<object>{status});
+                    EventBus.publish(sName: EventBusConstant.article_refresh, new List<object> {status});
                 }
             }
         }
@@ -257,7 +240,7 @@ namespace ConnectApp.screens {
                         new CustomButton(
                             padding: EdgeInsets.only(16, 8, 16, 8),
                             onPressed: () => this.widget.actionModel.pushToGame(),
-                            child: Image.asset("image/egg-gamepad")
+                            child: new GamepadButton()
                         )
                     }
                 )
@@ -287,17 +270,22 @@ namespace ConnectApp.screens {
                         this.setState(() => this._selectedIndex = newValue);
                         if (newValue == 0) {
                             AnalyticsManager.AnalyticsClickHomeFocus();
-                            this._changeTabBarItemStatus(pixels: this._followArticlePixels, status: TabBarItemStatus.normal);
+                            this._changeTabBarItemStatus(pixels: this._followArticlePixels,
+                                status: TabBarItemStatus.normal);
                         }
+
                         if (newValue == 1) {
-                            this._changeTabBarItemStatus(pixels: this._recommendArticlePixels, status: TabBarItemStatus.normal);
+                            this._changeTabBarItemStatus(pixels: this._recommendArticlePixels,
+                                status: TabBarItemStatus.normal);
                         }
                     },
                     1,
                     trailing: this._buildTrailing(),
                     headerDecoration: new BoxDecoration(
                         color: CColors.White,
-                        border: new Border(bottom: new BorderSide(this._navBarHeight <= 0 ? CColors.Separator2 : CColors.Transparent))
+                        border: new Border(bottom: new BorderSide(this._navBarHeight <= 0
+                            ? CColors.Separator2
+                            : CColors.Transparent))
                     ),
                     indicator: new CustomGradientsTabIndicator(
                         insets: EdgeInsets.symmetric(horizontal: 8),

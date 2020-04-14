@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Linq;
+using ConnectApp.Components.Swiper;
 using ConnectApp.Constants;
 using ConnectApp.Models.Model;
 using ConnectApp.Utils;
@@ -12,15 +14,24 @@ namespace ConnectApp.Components {
     public class GameBrief : StatelessWidget {
         public GameBrief(
             RankData game,
-            GestureTapCallback onPlay = null,
+            Key titleKey = null,
+            Key briefKey = null,
+            Widget playButton = null,
+            Widget shareWidget = null,
             Key key = null
         ) : base(key: key) {
             this.game = game;
-            this.onPlay = onPlay;
+            this.titleKey = titleKey;
+            this.briefKey = briefKey;
+            this.playButton = playButton;
+            this.shareWidget = shareWidget;
         }
 
         readonly RankData game;
-        readonly GestureTapCallback onPlay;
+        readonly Key titleKey;
+        readonly Key briefKey;
+        readonly Widget playButton;
+        readonly Widget shareWidget;
 
         public override Widget build(BuildContext context) {
             if (this.game == null) {
@@ -28,7 +39,8 @@ namespace ConnectApp.Components {
             }
 
             return new Container(
-                padding: EdgeInsets.only(16, 10, 16, 24),
+                key: this.briefKey,
+                padding: EdgeInsets.symmetric(24, 16),
                 child: new Row(
                     children: new List<Widget> {
                         new Container(
@@ -51,6 +63,7 @@ namespace ConnectApp.Components {
                                         new SizedBox(height: 6),
                                         new Text(
                                             data: this.game.resetTitle,
+                                            key: this.titleKey,
                                             style: CTextStyle.H5,
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis
@@ -63,32 +76,75 @@ namespace ConnectApp.Components {
                                             overflow: TextOverflow.ellipsis
                                         ),
                                         new Flexible(child: new Container()),
-                                        new CustomButton(
-                                            padding: EdgeInsets.zero,
-                                            child: new Container(
-                                                width: 60,
-                                                height: 28,
-                                                decoration: new BoxDecoration(
-                                                    color: CColors.PrimaryBlue,
-                                                    borderRadius: BorderRadius.all(14)
-                                                ),
-                                                alignment: Alignment.center,
-                                                child: new Text(
-                                                    "开始",
-                                                    style: new TextStyle(
-                                                        fontSize: 14,
-                                                        fontFamily: "Roboto-Medium",
-                                                        color: CColors.White
-                                                    )
-                                                )
-                                            ),
-                                            onPressed: this.onPlay
+                                        new Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: new List<Widget> {
+                                                this.playButton,
+                                                this.shareWidget ?? new Container()
+                                            }
                                         )
                                     }
                                 )
                             )
                         )
                     }
+                )
+            );
+        }
+    }
+
+
+    public class GameImageGalleryHeader : StatelessWidget {
+        public GameImageGalleryHeader(
+            RankData game,
+            Key key = null
+        ) : base(key: key) {
+            this.game = game;
+        }
+
+        readonly RankData game;
+
+        public override Widget build(BuildContext context) {
+            var attachmentUrLs = this.game.attachmentURLs;
+            if (attachmentUrLs.isNullOrEmpty()) {
+                return new Container();
+            }
+
+            Widget swiperContent;
+            if (attachmentUrLs.Count == 1) {
+                var imageUrl = attachmentUrLs.FirstOrDefault();
+                swiperContent = new GestureDetector(
+                    onTap: () => { },
+                    child: new PlaceholderImage(
+                        imageUrl: imageUrl,
+                        fit: BoxFit.fill,
+                        useCachedNetworkImage: true,
+                        color: CColorUtils.GetSpecificDarkColorFromId(id: imageUrl)
+                    )
+                );
+            }
+            else {
+                swiperContent = new Swiper.Swiper(
+                    (cxt, index) => {
+                        var imageUrl = attachmentUrLs[index: index];
+                        return new PlaceholderImage(
+                            CImageUtils.SizeToScreenImageUrl(imageUrl: imageUrl),
+                            fit: BoxFit.fill,
+                            useCachedNetworkImage: true,
+                            color: CColorUtils.GetSpecificDarkColorFromId(id: imageUrl)
+                        );
+                    },
+                    itemCount: attachmentUrLs.Count,
+                    autoplay: true,
+                    onTap: index => { },
+                    pagination: new SwiperPagination(margin: EdgeInsets.only(bottom: 5))
+                );
+            }
+
+            return new Container(
+                child: new AspectRatio(
+                    aspectRatio: 16 / 9f,
+                    child: swiperContent
                 )
             );
         }
@@ -110,7 +166,7 @@ namespace ConnectApp.Components {
             }
 
             var attachmentURLs = this.game.attachmentURLs;
-            
+
             return new Container(
                 child: new Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -133,7 +189,8 @@ namespace ConnectApp.Components {
                                 scrollDirection: Axis.horizontal,
                                 itemCount: attachmentURLs.Count,
                                 itemBuilder: (cxt, index) => new Container(
-                                    margin: EdgeInsets.only(index == 0 ? 16 : 8, right: index == attachmentURLs.Count - 1 ? 16 : 0),
+                                    margin: EdgeInsets.only(index == 0 ? 16 : 8,
+                                        right: index == attachmentURLs.Count - 1 ? 16 : 0),
                                     child: new AspectRatio(
                                         aspectRatio: 16 / 9f,
                                         child: new PlaceholderImage(
@@ -168,22 +225,30 @@ namespace ConnectApp.Components {
             }
 
             return new Container(
-                padding: EdgeInsets.only(16, 40, 16),
-                child: new Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: new List<Widget> {
-                        new Text(
-                            "简介",
-                            style: CTextStyle.H5
-                        ),
-                        new Padding(
-                            padding: EdgeInsets.only(top: 16),
-                            child: new Text(
-                                this.game.resetDesc ?? "暂无简介",
-                                style: CTextStyle.PRegularBody
+                padding: EdgeInsets.only(16, 0, 16, 25),
+                color: CColors.White,
+                child: new Container(
+                    decoration: new BoxDecoration(
+                        color: CColors.Separator2,
+                        borderRadius: BorderRadius.circular(8)
+                    ),
+                    padding: EdgeInsets.all(16),
+                    child: new Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: new List<Widget> {
+                            new Text(
+                                "简介",
+                                style: CTextStyle.H5.defaultHeight()
+                            ),
+                            new Padding(
+                                padding: EdgeInsets.only(top: 16),
+                                child: new Text(
+                                    this.game.resetDesc ?? "暂无简介",
+                                    style: CTextStyle.PLargeBody2
+                                )
                             )
-                        )
-                    }
+                        }
+                    )
                 )
             );
         }

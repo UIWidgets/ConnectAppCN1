@@ -19,5 +19,6 @@ namespace ConnectApp.Models.State {
         public string title { get; set; }
         public JobRole jobRole { get; set; }
         public string place { get; set; }
+        public HashSet<string> blockUserIdSet { get; set; }
     }
 }

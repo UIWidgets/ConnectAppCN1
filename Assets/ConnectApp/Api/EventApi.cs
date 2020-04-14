@@ -17,7 +17,7 @@ namespace ConnectApp.Api {
                 {"language", "zh_CN"},
                 {"mode", mode}
             };
-            var request = HttpManager.GET($"{Config.apiAddress_cn}{Config.apiPath}/events", parameter: para);
+            var request = HttpManager.GET($"{Config.apiAddress_com}{Config.apiPath}/events", parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var eventsResponse = JsonConvert.DeserializeObject<FetchEventsResponse>(value: responseText);
                 promise.Resolve(value: eventsResponse);
@@ -27,7 +27,7 @@ namespace ConnectApp.Api {
 
         public static IPromise<IEvent> FetchEventDetail(string eventId) {
             var promise = new Promise<IEvent>();
-            var request = HttpManager.GET($"{Config.apiAddress_cn}{Config.apiPath}/events/{eventId}");
+            var request = HttpManager.GET($"{Config.apiAddress_com}{Config.apiPath}/events/{eventId}");
             HttpManager.resume(request: request).Then(responseText => {
                 var eventDetail = JsonConvert.DeserializeObject<IEvent>(value: responseText);
                 promise.Resolve(value: eventDetail);
@@ -37,7 +37,7 @@ namespace ConnectApp.Api {
 
         public static Promise<string> JoinEvent(string eventId) {
             var promise = new Promise<string>();
-            var request = HttpManager.POST($"{Config.apiAddress_cn}{Config.apiPath}/events/{eventId}/join");
+            var request = HttpManager.POST($"{Config.apiAddress_com}{Config.apiPath}/events/{eventId}/join");
             HttpManager.resume(request: request).Then(responseText => promise.Resolve(value: eventId))
                 .Catch(exception => promise.Reject(ex: exception));
             return promise;

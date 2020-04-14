@@ -27,5 +27,6 @@ namespace ConnectApp.Models.ActionModel {
         public Func<string, IPromise> unFollowUser;
         public Func<string, IPromise> deleteFavoriteTag;
         public Action<string> pushToCreateFavorite;
+        public Action<bool> blockUserAction;
     }
 }

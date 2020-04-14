@@ -66,7 +66,7 @@ namespace ConnectApp.Api {
             var para = new Dictionary<string, object> {
                 {"page", page}
             };
-            var request = HttpManager.GET($"{Config.apiAddress_cn}{Config.apiPath}/rankList/homeEvent", parameter: para);
+            var request = HttpManager.GET($"{Config.apiAddress_com}{Config.apiPath}/rankList/homeEvent", parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var eventsResponse = JsonConvert.DeserializeObject<FetchHomeEventsResponse>(value: responseText);
                 promise.Resolve(value: eventsResponse);

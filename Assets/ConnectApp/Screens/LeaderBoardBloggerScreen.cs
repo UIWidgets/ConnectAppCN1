@@ -62,6 +62,7 @@ namespace ConnectApp.screens {
 
     class _LeaderBoardBloggerScreenState : State<LeaderBoardBloggerScreen> {
         const int firstPageNumber = 1;
+        int leaderBoardBloggerPageNumber = firstPageNumber;
         bool _isLoading;
 
         public override void initState() {
@@ -81,8 +82,8 @@ namespace ConnectApp.screens {
 
             if (notification.metrics.pixels >= notification.metrics.maxScrollExtent && !this._isLoading) {
                 this.setState(() => this._isLoading = true);
-                var pageNumber = this.widget.viewModel.bloggerPageNumber + 1;
-                this.widget.actionModel.fetchBlogger(arg: pageNumber)
+                this.leaderBoardBloggerPageNumber++;
+                this.widget.actionModel.fetchBlogger(arg: this.leaderBoardBloggerPageNumber)
                     .Then(() => this.setState(() => this._isLoading = false))
                     .Catch(_ => this.setState(() => this._isLoading = false));
             }

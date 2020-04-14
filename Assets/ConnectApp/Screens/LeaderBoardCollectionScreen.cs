@@ -64,6 +64,7 @@ namespace ConnectApp.screens {
 
     class _LeaderBoardCollectionScreenState : State<LeaderBoardCollectionScreen> {
         const int firstPageNumber = 1;
+        int leaderBoardCollectionPageNumber = firstPageNumber;
         bool _isLoading;
 
         public override void initState() {
@@ -83,8 +84,8 @@ namespace ConnectApp.screens {
 
             if (notification.metrics.pixels >= notification.metrics.maxScrollExtent && !this._isLoading) {
                 this.setState(() => this._isLoading = true);
-                var pageNumber = this.widget.viewModel.collectionPageNumber + 1;
-                this.widget.actionModel.fetchCollection(arg: pageNumber)
+                this.leaderBoardCollectionPageNumber++;
+                this.widget.actionModel.fetchCollection(arg: this.leaderBoardCollectionPageNumber)
                     .Then(() => this.setState(() => this._isLoading = false))
                     .Catch(_ => this.setState(() => this._isLoading = false));
             }

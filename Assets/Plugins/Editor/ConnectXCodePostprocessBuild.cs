@@ -48,8 +48,7 @@ namespace Plugins.Editor {
     <string>development</string>
     <key>com.apple.developer.associated-domains</key>
     <array>
-        <string>applinks:connect-download.unity.com</string>
-        <string>applinks:connect.unity.com</string>
+        <string>applinks:applink.unity.cn</string>
     </array>
 </dict>
 </plist>";

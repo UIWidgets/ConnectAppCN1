@@ -21,7 +21,7 @@ namespace ConnectApp.Utils {
                         pushToCopy?.Invoke();
                     }
                     else if (type == ShareType.block) {
-                        ReportManager.block(
+                        ReportManager.blockProject(
                             isLoggedIn: isLoggedIn,
                             pushToLogin: pushToLogin,
                             pushToBlock: pushToBlock,

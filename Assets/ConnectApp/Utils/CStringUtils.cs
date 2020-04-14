@@ -10,6 +10,13 @@ namespace ConnectApp.Utils {
         public static string JointProjectShareLink(string projectId) {
             return $"{Config.unity_cn_url}/projects/{projectId}?app=true";
         }
+        
+        public static string JointEventShareLink(string eventId) {
+            return $"{Config.unity_com_url}/events/{eventId}";
+        }
+        public static string JointTinyGameShareLink(string gameId) {
+            return $"{Config.unity_cn_url}/tinyGame/{gameId}/share";
+        }
 
         public static string CountToString(int count, string placeholder = "") {
             if (count > 0 && count < 1000) {

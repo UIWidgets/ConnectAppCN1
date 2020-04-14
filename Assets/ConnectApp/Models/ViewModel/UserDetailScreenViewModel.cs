@@ -21,5 +21,7 @@ namespace ConnectApp.Models.ViewModel {
         public Dictionary<string, Team> teamDict;
         public string currentUserId;
         public bool isLoggedIn;
+        public bool isBlockUser;
+        public bool isMe;
     }
 }
