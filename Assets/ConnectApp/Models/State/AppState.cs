@@ -138,7 +138,8 @@ namespace ConnectApp.Models.State {
                     fullName = "",
                     title = "",
                     jobRole = new JobRole(),
-                    place = ""
+                    place = "",
+                    blockUserIdSet = HistoryManager.blockUserIdSet(isLogin ? loginInfo.userId : null)
                 },
                 teamState = new TeamState {
                     teamLoading = false,

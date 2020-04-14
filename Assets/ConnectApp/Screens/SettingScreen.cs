@@ -149,19 +149,17 @@ namespace ConnectApp.screens {
                                     }
                                 );
                             }),
-                            CCommonUtils.isIPhone ? _buildGapView() : new Container(),
-                            CCommonUtils.isIPhone 
-                                ? _switchRow(
-                                    "帧率监测",
-                                    value: this.fpsLabelIsOpen,
-                                    value => {
-                                        LocalDataManager.setFPSLabelStatus(isOpen: value);
-                                        this.fpsLabelIsOpen = value;
-                                        this.setState(() => {});
-                                        FPSLabelPlugin.SwitchFPSLabelShowStatus(isOpen: value);
-                                    }
-                                ) 
-                                : new Container(),
+                            _buildGapView(),
+                            _switchRow(
+                                CCommonUtils.isIPhone ? "帧率监测" : "帧率监测 (暂仅支持 TinyGame)",
+                                value: this.fpsLabelIsOpen,
+                                value => {
+                                    LocalDataManager.setFPSLabelStatus(isOpen: value);
+                                    this.fpsLabelIsOpen = value;
+                                    this.setState(() => {});
+                                    FPSLabelPlugin.SwitchFPSLabelShowStatus(isOpen: value);
+                                }
+                            ),
                             this.widget.viewModel.isLoggedIn ? _buildGapView() : new Container(),
                             this.widget.viewModel.isLoggedIn ? this._buildLogoutBtn() : new Container()
                         }

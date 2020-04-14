@@ -61,7 +61,8 @@ namespace ConnectApp.redux.reducers {
                         HistoryManager.searchArticleHistoryList(userId: action.loginInfo.userId);
                     state.articleState.blockArticleList =
                         HistoryManager.blockArticleList(userId: action.loginInfo.userId);
-
+                    state.userState.blockUserIdSet =
+                        HistoryManager.blockUserIdSet(action.loginInfo.userId);
                     break;
                 }
 
@@ -84,6 +85,8 @@ namespace ConnectApp.redux.reducers {
                         HistoryManager.searchArticleHistoryList(userId: action.loginInfo.userId);
                     state.articleState.blockArticleList =
                         HistoryManager.blockArticleList(userId: action.loginInfo.userId);
+                    state.userState.blockUserIdSet =
+                        HistoryManager.blockUserIdSet(action.loginInfo.userId);
                     break;
                 }
 
@@ -108,6 +111,7 @@ namespace ConnectApp.redux.reducers {
                     state.eventState.eventHistory = HistoryManager.eventHistoryList();
                     state.searchState.searchArticleHistoryList = HistoryManager.searchArticleHistoryList();
                     state.articleState.blockArticleList = HistoryManager.blockArticleList();
+                    state.userState.blockUserIdSet = HistoryManager.blockUserIdSet();
                     state.favoriteState.favoriteTagIdDict = new Dictionary<string, List<string>>();
                     state.favoriteState.favoriteTagDict = new Dictionary<string, FavoriteTag>();
                     state.favoriteState.favoriteDetailArticleIdDict = new Dictionary<string, List<string>>();
@@ -441,7 +445,13 @@ namespace ConnectApp.redux.reducers {
                     state.articleState.blockArticleList = blockArticleList;
                     break;
                 }
-
+                
+                case BlockUserAction action: {
+                    state.userState.blockUserIdSet =  HistoryManager.updateBlockUserId(action.blockUserId,
+                        currentUserId: state.loginState.loginInfo.userId, remove: action.remove);
+                    break;
+                }
+                
                 case FetchArticleCommentsSuccessAction action: {
                     var channelMessageList = new Dictionary<string, List<string>>();
                     var channelMessageDict = new Dictionary<string, Dictionary<string, Message>>();

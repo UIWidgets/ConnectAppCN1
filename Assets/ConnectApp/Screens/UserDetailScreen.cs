@@ -62,7 +62,9 @@ namespace ConnectApp.screens {
                         userDict = state.userState.userDict,
                         teamDict = state.teamState.teamDict,
                         currentUserId = currentUserId,
-                        isLoggedIn = state.loginState.isLoggedIn
+                        isLoggedIn = state.loginState.isLoggedIn,
+                        isBlockUser = HistoryManager.isBlockUser(userId: this.userId),
+                        isMe = UserInfoManager.isMe(userId: this.userId)
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -140,7 +142,10 @@ namespace ConnectApp.screens {
                             }
                         ),
                         shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch<IPromise>(
-                            Actions.shareToWechat(type, title, description, linkUrl, imageUrl))
+                            Actions.shareToWechat(type, title, description, linkUrl, imageUrl)),
+                        blockUserAction = remove => {
+                            dispatcher.dispatch(new BlockUserAction {blockUserId = this.userId, remove = remove});
+                        }
                     };
                     return new UserDetailScreen(viewModel: viewModel, actionModel: actionModel);
                 }
@@ -403,8 +408,8 @@ namespace ConnectApp.screens {
                             )
                         ),
                         new SizedBox(width: 8),
-                        this._buildFollowButton(true),
-                        new SizedBox(width: 16)
+                        this.widget.viewModel.isBlockUser ? new Container() : this._buildFollowButton(true),
+                        new SizedBox(width: 8)
                     }
                 );
             }
@@ -451,7 +456,8 @@ namespace ConnectApp.screens {
                                         )
                                     }
                                 )
-                            )
+                            ),
+                            this._buildMoreButton(hasUser: hasUser)
                         }
                     )
                 )
@@ -549,6 +555,39 @@ namespace ConnectApp.screens {
                                     return this._buildUserArticleTitle();
                                 }
 
+                                if (this.widget.viewModel.isBlockUser && index == 2 && this._selectedIndex == 0) {
+                                    var height = MediaQuery.of(context: context).size.height - headerHeight;
+                                    return new Container(
+                                        height: height,
+                                        child: new BlankView(
+                                            "该用户已被您屏蔽",
+                                            "image/default-blocked"
+                                        )
+                                    );
+                                }
+                                
+                                if (this.widget.viewModel.isBlockUser && index == 2 && this._selectedIndex == 1) {
+                                    var height = MediaQuery.of(context: context).size.height - headerHeight;
+                                    return new Container(
+                                        height: height,
+                                        child: new BlankView(
+                                            "该用户已被您屏蔽",
+                                            "image/default-blocked"
+                                        )
+                                    );
+                                }
+                                
+                                if (this.widget.viewModel.isBlockUser && index == 2 && this._selectedIndex == 2) {
+                                    var height = MediaQuery.of(context: context).size.height - headerHeight;
+                                    return new Container(
+                                        height: height,
+                                        child: new BlankView(
+                                            "该用户已被您屏蔽",
+                                            "image/default-blocked"
+                                        )
+                                    );
+                                }
+                                
                                 if (userArticleLoading && index == 2 && this._selectedIndex == 0) {
                                     var height = MediaQuery.of(context: context).size.height - headerHeight;
                                     return new Container(
@@ -778,7 +817,7 @@ namespace ConnectApp.screens {
                                                 )
                                             }
                                         ),
-                                        this._buildFollowButton()
+                                        this.widget.viewModel.isBlockUser ? new Container() : this._buildFollowButton()
                                     }
                                 )
                             )
@@ -861,6 +900,28 @@ namespace ConnectApp.screens {
                     )
                 )
             );
+        }
+
+        Widget _buildMoreButton(bool hasUser) {
+            return this.widget.viewModel.isMe
+                ? (Widget) new Container()
+                : new CustomButton(
+                    padding: EdgeInsets.only(16, 8, 8, 8),
+                    onPressed: () => ReportManager.showBlockUserView(
+                        isLoggedIn: this.widget.viewModel.isLoggedIn,
+                        hasBeenBlocked: this.widget.viewModel.isBlockUser,
+                        () => this.widget.actionModel.pushToLogin(),
+                        () => this.widget.actionModel.blockUserAction(false),
+                        () => this.widget.actionModel.blockUserAction(true)
+                    ),
+                    child: new Icon(
+                        icon: Icons.ellipsis,
+                        size: 24,
+                        color: hasUser
+                            ? this._hideNavBar ? CColors.White : CColors.Icon
+                            : CColors.Icon
+                    )
+                );
         }
 
         Widget _buildFollowButton(bool isTop = false) {

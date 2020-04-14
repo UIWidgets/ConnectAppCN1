@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using ConnectApp.Models.Api;
+using Unity.UIWidgets.foundation;
 
 namespace ConnectApp.Models.Model {
     [Serializable]
@@ -59,6 +60,8 @@ namespace ConnectApp.Models.Model {
             DateTime? lastPublishedTime = null,
             string type = null,
             string body = null,
+            string bodyType = null,
+            string markdownPreviewBody = null,
             bool? like = null,
             int? appCurrentUserLikeCount = null,
             List<Favorite> favorites = null,
@@ -88,7 +91,9 @@ namespace ConnectApp.Models.Model {
                 publishedTime = publishedTime ?? this.publishedTime,
                 lastPublishedTime = lastPublishedTime ?? this.lastPublishedTime,
                 type = type ?? this.type,
+                bodyType = bodyType ?? this.bodyType,
                 body = body ?? this.body,
+                markdownPreviewBody = markdownPreviewBody ?? this.markdownPreviewBody,
                 like = like ?? this.like,
                 appCurrentUserLikeCount = appCurrentUserLikeCount ?? this.appCurrentUserLikeCount,
                 favorites = favorites ?? this.favorites,
@@ -126,6 +131,8 @@ namespace ConnectApp.Models.Model {
                 lastPublishedTime: other.lastPublishedTime,
                 type: other.type,
                 body: other.body,
+                bodyType: other.bodyType,
+                other.markdownPreviewBody.isEmpty() ? this.markdownPreviewBody : other.markdownPreviewBody,
                 like: other.like,
                 appCurrentUserLikeCount: other.appCurrentUserLikeCount,
                 favorites: other.favorites,

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using ConnectApp.Models.Model;
 using ConnectApp.Plugins;
 using Newtonsoft.Json;
@@ -58,6 +59,10 @@ namespace ConnectApp.Utils {
             }
 
             JPushPlugin.registerHmsToken();
+        }
+
+        public static bool isMe(string userId) {
+            return userId == getUserInfo().userId;
         }
     }
 }

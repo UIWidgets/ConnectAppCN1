@@ -229,24 +229,6 @@
         <action android:name="com.xiaomi.mipush.ERROR" />
       </intent-filter>
     </receiver>
-    <!--华为Hms 推送-->
-    <service
-            android:name=".HuaWeiMessageService"
-            android:exported="false">
-      <intent-filter>
-        <action android:name="com.huawei.push.action.MESSAGING_EVENT" />
-      </intent-filter>
-    </service>
-    <service
-            android:name="com.huawei.hms.support.api.push.service.HmsMsgService"
-            android:enabled="true"
-            android:exported="true"
-            android:process=":pushservice">
-      <intent-filter>
-        <action android:name="com.huawei.push.msg.NOTIFY_MSG" />
-        <action android:name="com.huawei.push.msg.PASSBY_MSG" />
-      </intent-filter>
-    </service>
     <!-- unity 配置信息-->
     <meta-data
             android:name="unity.build-id"
@@ -292,8 +274,6 @@
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
   <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
   <uses-permission android:name="android.permission.CAMERA" />
-  <!--  AG渠道号查询权限 for Huawei Analytics -->
-  <uses-permission android:name="com.huawei.appmarket.service.commondata.permission.GET_COMMON_DATA" />
   <!-- Optional for location -->
   <uses-permission
           android:name="android.permission.READ_LOGS"

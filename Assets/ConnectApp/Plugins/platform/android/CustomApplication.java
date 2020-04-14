@@ -9,9 +9,6 @@ import android.os.Process;
 import com.dueeeke.videoplayer.ijk.IjkPlayerFactory;
 import com.dueeeke.videoplayer.player.VideoViewConfig;
 import com.dueeeke.videoplayer.player.VideoViewManager;
-import com.huawei.hianalytics.hms.HiAnalyticsTools;
-import com.huawei.hms.analytics.HiAnalytics;
-import com.huawei.hms.analytics.HiAnalyticsInstance;
 import com.tencent.mm.opensdk.openapi.IWXAPI;
 import com.tencent.mm.opensdk.openapi.WXAPIFactory;
 import com.unity3d.unityconnect.plugins.CommonPlugin;
@@ -67,19 +64,6 @@ public class CustomApplication extends Application {
     }
 
     void initialHWAnalytics() {
-        //Enable Analytics Kit Log
-        HiAnalyticsTools.enableLog();
-        //Generate the Analytics Instance
-        HiAnalyticsInstance instance = HiAnalytics.getInstance(this);
-        //Enable collection capability
-        instance.setAnalyticsCollectionEnabled(true);
-        //Enable Automatically collection capability
-        instance.setAutoCollectionEnabled(true);
-
-        //自定义打点
-        Bundle bundle = new Bundle();
-        bundle.putString("log_time", new Date().toString());
-        instance.logEvent("INITIAL_HUAWEI_ANALYTICS_SUCCESS", bundle);
     }
 
 

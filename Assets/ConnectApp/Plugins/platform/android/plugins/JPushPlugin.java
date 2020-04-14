@@ -6,8 +6,6 @@ import android.text.TextUtils;
 
 import com.google.gson.Gson;
 import com.google.zxing.util.FeedbackUtil;
-import com.huawei.hms.aaid.HmsInstanceId;
-import com.huawei.hms.push.HmsMessaging;
 import com.unity.uiwidgets.plugin.UIWidgetsMessageManager;
 import com.unity3d.unityconnect.RomUtils;
 import com.xiaomi.mipush.sdk.MiPushClient;
@@ -85,20 +83,6 @@ public class JPushPlugin {
      * get token
      */
     private void getToken() {
-        new Thread() {
-            @Override
-            public void run() {
-                try {
-                    String token =  HmsInstanceId.getInstance(CommonPlugin.mContext).getToken(hmsAppId, "HCM");
-                    if (token.length()>0){
-                        HashMap<String, String> hashMap = new HashMap<>();
-                        hashMap.put("token", token);
-                        UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("jpush", "RegisterToken", Arrays.asList(new Gson().toJson(hashMap)));
-                    }
-                } catch (Exception e) {
-                }
-            }
-        }.start();
     }
 
     public void setChannel(String channel) {
@@ -141,10 +125,6 @@ public class JPushPlugin {
                     MiPushClient.subscribe(mContext, tagsJsonArr.getString(i), "");
                 }
             } else if (RomUtils.isHuawei()) {
-                for (int i = 0; i < tagsJsonArr.length(); i++) {
-                    // >= EMUI 10.0 
-                    HmsMessaging.getInstance(CommonPlugin.mContext).subscribe(tagsJsonArr.getString(i));
-                }
             } else {
                 for (int i = 0; i < tagsJsonArr.length(); i++) {
                     tagSet.add(tagsJsonArr.getString(i));
