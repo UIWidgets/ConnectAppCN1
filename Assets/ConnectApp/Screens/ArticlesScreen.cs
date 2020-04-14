@@ -43,8 +43,20 @@ namespace ConnectApp.screens {
                             AnalyticsManager.AnalyticsClickEgg(1);
                         },
                         pushToGame = () => {
-                            dispatcher.dispatch(new MainNavigatorPushToAction {
-                                routeName = MainNavigatorRoutes.Game
+                            var url = LocalDataManager.getTinyGameUrl();
+                            if (url.isEmpty() || url.Equals("no_game")) {
+                                CustomToast.show(new CustomToastItem(
+                                    context: context,
+                                    "暂无游戏",
+                                    TimeSpan.FromMilliseconds(2000)
+                                ));
+                                return;
+                            }
+                            dispatcher.dispatch(new MainNavigatorPushToWebViewAction {
+                                url = url,
+                                landscape = true,
+                                fullscreen = true,
+                                showOpenInBrowser = false
                             });
                         }
                     };
