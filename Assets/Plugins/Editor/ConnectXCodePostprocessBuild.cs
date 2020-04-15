@@ -1,3 +1,4 @@
+#if UNITY_IOS
 using System.IO;
 using System.Text;
 using ConnectApp.Constants;
@@ -72,6 +73,7 @@ namespace Plugins.Editor {
             proj.AddFrameworkToProject(targetGuid: targetGuid, framework: "MediaPlayer.framework", weak: true);
             proj.AddFrameworkToProject(targetGuid: targetGuid, framework: "Photos.framework", weak: false);
             proj.AddFrameworkToProject(targetGuid: targetGuid, framework: "SafariServices.framework", weak: false);
+            proj.AddFrameworkToProject(targetGuid: targetGuid, framework: "WebKit.framework", weak: false);
 
             // Update Build Setting
             proj.SetBuildProperty(targetGuid: targetGuid, name: "ENABLE_BITCODE", value: "NO");
@@ -199,3 +201,4 @@ namespace Plugins.Editor {
         }
     }
 }
+#endif
