@@ -29,7 +29,7 @@
   $ git submodule update
   ```
 #### Running in Unity Editor
-  1. Use Unity Editor (**Unity 2018.3** or above) open the `ConnectAppCN/`.
+  1. Use Unity Editor (**Unity 2018.4.10f1 (LTS)** or **Unity 2019.1.14f1** or above) open the `ConnectAppCN/`.
   2. Find `Assets/ConnectApp/Main` folder in `Project` Tab.
   3. Double click the `ConnectApp.unity` for preview the project.
   4. Double click the `ConnectAppPanel.cs` evoke `Rider` for Edit Code.
