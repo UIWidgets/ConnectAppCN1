@@ -23,7 +23,7 @@
 ## Get started
 #### Get repo
   ```shell
-  $ git clone git@github.com:UnityTech/ConnectAppCN.git
+  $ git clone https://github.com/UnityTech/ConnectAppCN.git
   $ cd ConnectAppCN/
   $ git submodule init
   $ git submodule update
@@ -33,7 +33,13 @@
   2. Find `Assets/ConnectApp/Main` folder in `Project` Tab.
   3. Double click the `ConnectApp.unity` for preview the project.
   4. Double click the `ConnectAppPanel.cs` evoke `Rider` for Edit Code.
-  5. Click the `Play` button and you will see the project running in the `Game` window.
+  5. Check whether the following dependencies are included in the `manifest.json` file (`ConnectAppCN\Packages\manifest.json`). If so, please delete and then reload the Unity Editor (because these two libraries and projects depend on UIWidgets, but the dependencies are different, resulting in conflicts)
+  
+    ...
+    "com.unity.doc_zh": "xxx",
+    "com.unity.messenger": "xxx",
+    ...
+  6. Click the `Play` button and you will see the project running in the `Game` window.
   PS: if "Game" window show "No cameras rendering" Toast, You can click the menu in the upper right corner of the "Game" window and uncheck the "Warn if No cameras rendering" option to make it disappear.
   
 #### Running in Android (need to install Android Studio)
