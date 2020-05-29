@@ -1,8 +1,8 @@
 <p align="center">
-<img src="https://github.com/finnif/ConnectAppCN/raw/master/Images/AppLogo.png" alt="Unity Connect" width="200">
+<img src="https://github.com/ConnectAppCN/raw/master/Images/AppLogo.png" alt="Unity Connect" width="200">
 </p>
 <p align="center">
-<img src="https://github.com/finnif/ConnectAppCN/raw/master/Images/TextLogo.png" alt="Unity Connect" width="200">
+<img src="https://github.com/ConnectAppCN/raw/master/Images/TextLogo.png" alt="Unity Connect" width="200">
 </p>
 
 <h1 align="center"></h1>
@@ -11,14 +11,14 @@
 
 ### Preview（iOS & Android）
 
-<span style="border:solid 1px 000;margin:2px;"><img src="https://github.com/finnif/ConnectAppCN/raw/master/Images/Preview_iOS.png"  width="350" ></span>
-<span style="border:solid 1px 000;margin:2px;"><img src="https://github.com/finnif/ConnectAppCN/raw/master/Images/Preview_Android.png"  width="350" ></span>
+<span style="border:solid 1px 000;margin:2px;"><img src="https://github.com/ConnectAppCN/raw/master/Images/Preview_iOS.png"  width="350" ></span>
+<span style="border:solid 1px 000;margin:2px;"><img src="https://github.com/ConnectAppCN/raw/master/Images/Preview_Android.png"  width="350" ></span>
 
 ### Download
 
-<a href="https://unity.cn/connectApp/download" target="_blank"><img height="60px" src="https://github.com/finnif/ConnectAppCN/raw/master/Images/UnityOfficial_EN.png"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://apps.apple.com/cn/app/unity-connect/id1441624698?mt=8" target="_blank"><img height="60px" src="https://github.com/finnif/ConnectAppCN/raw/master/Images/AppStore_EN.png"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://appgallery.cloud.huawei.com/uowap/index.html#/detailApp/C100771325" target="_blank"><img height="60px" src="https://github.com/finnif/ConnectAppCN/raw/master/Images/AppGallery_EN.png"></a>
+<a href="https://unity.cn/connectApp/download" target="_blank"><img height="60px" src="https://github.com/ConnectAppCN/raw/master/Images/UnityOfficial_EN.png"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://apps.apple.com/cn/app/unity-connect/id1441624698?mt=8" target="_blank"><img height="60px" src="https://github.com/ConnectAppCN/raw/master/Images/AppStore_EN.png"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://appgallery.cloud.huawei.com/uowap/index.html#/detailApp/C100771325" target="_blank"><img height="60px" src="https://github.com/ConnectAppCN/raw/master/Images/AppGallery_EN.png"></a>
 
-<a href="https://unity.cn/connectApp/download" target="_blank"><img height="250px" src="https://github.com/finnif/ConnectAppCN/raw/master/Images/QRCode_EN.png">
+<a href="https://unity.cn/connectApp/download" target="_blank"><img height="250px" src="https://github.com/ConnectAppCN/raw/master/Images/QRCode_EN.png">
 
 ## Get started
 #### Get repo
