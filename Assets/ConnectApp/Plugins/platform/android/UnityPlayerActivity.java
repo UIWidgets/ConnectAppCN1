@@ -58,13 +58,13 @@ public class UnityPlayerActivity extends Activity {
     @Override
     protected void onStart() {
         super.onStart();
-        mUnityPlayer.start();
+//        mUnityPlayer.start();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        mUnityPlayer.stop();
+//        mUnityPlayer.stop();
     }
 
     // Low Memory Unity

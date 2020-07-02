@@ -22,6 +22,7 @@ import com.jph.takephoto.model.CropOptions;
 import com.jph.takephoto.model.TResult;
 import com.jph.takephoto.model.TakePhotoOptions;
 import com.unity.uiwidgets.plugin.UIWidgetsMessageManager;
+import com.unity3d.player.R;
 
 import java.io.File;
 import java.util.Arrays;

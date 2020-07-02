@@ -81,7 +81,7 @@ namespace ConnectApp.screens {
         bool _isHaveTitle;
         Animation<RelativeRect> _animation;
         AnimationController _controller;
-        float _titlePosition;
+        // float _titlePosition;
         float _playButtonPosition;
         float _aspectRatio;
         static readonly GlobalKey gameTitleKey = GlobalKey.key("game-title");
@@ -92,7 +92,7 @@ namespace ConnectApp.screens {
             StatusBarManager.statusBarStyle(true);
             this._showNavBarShadow = true;
             this._isHaveTitle = false;
-            this._titlePosition = 0.0f;
+            // this._titlePosition = 0.0f;
             this._playButtonPosition = 0.0f;
             this._aspectRatio = 16.0f / 9;
             if (CCommonUtils.isAndroid) {

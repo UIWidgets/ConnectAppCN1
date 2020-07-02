@@ -11,6 +11,7 @@ import android.view.WindowManager;
 
 import com.dueeeke.videoplayer.player.VideoView;
 import com.unity.uiwidgets.plugin.UIWidgetsMessageManager;
+import com.unity3d.player.R;
 import com.unity3d.unityconnect.plugins.AVPlayerPlugin;
 import com.unity3d.unityconnect.plugins.CommonPlugin;
 import com.unity3d.unityconnect.plugins.JPushPlugin;

@@ -1,36 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:tools="http://schemas.android.com/tools"
-          package="com.unity3d.unityconnect"
-          android:installLocation="preferExternal">
-
-  <supports-screens
-          android:anyDensity="true"
-          android:largeScreens="true"
-          android:normalScreens="true"
-          android:smallScreens="true"
-          android:xlargeScreens="true" />
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools" package="com.unity3d.player" android:installLocation="preferExternal">
+  <supports-screens android:anyDensity="true" android:largeScreens="true" android:normalScreens="true" android:smallScreens="true" android:xlargeScreens="true" />
   <!-- Required -->
-  <application
-          android:name=".CustomApplication"
-          android:banner="@drawable/app_banner"
-          android:icon="@mipmap/app_icon"
-          android:isGame="true"
-          android:label="@string/app_name"
-          android:roundIcon="@mipmap/app_icon_round"
-          android:theme="@android:style/Theme.Material.Light.LightStatusBar"
-          android:usesCleartextTraffic="true"
-          tools:targetApi="m">
-    <activity
-            android:name=".UnityPlayerActivityStatusBar"
-            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale|layoutDirection|density"
-            android:hardwareAccelerated="true"
-            android:label="@string/app_name"
-            android:launchMode="singleTask"
-            android:screenOrientation="fullSensor">
+  <application android:name="com.unity3d.unityconnect.CustomApplication" android:theme="@android:style/Theme.Material.Light.LightStatusBar" android:usesCleartextTraffic="true" tools:targetApi="m" android:isGame="true">
+    <activity android:name="com.unity3d.unityconnect.UnityPlayerActivityStatusBar" android:label="@string/app_name" android:screenOrientation="fullSensor" android:launchMode="singleTask" android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale|layoutDirection|density" android:hardwareAccelerated="true">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
-
         <category android:name="android.intent.category.LAUNCHER" />
         <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
       </intent-filter>
@@ -45,50 +20,31 @@
         <!--协议部分-->
         <data android:scheme="unityconnect" />
       </intent-filter>
-      <meta-data
-              android:name="unityplayer.UnityActivity"
-              android:value="true" />
+      <meta-data android:name="unityplayer.UnityActivity" android:value="true" />
+      <meta-data android:name="android.notch_support" android:value="true" />
     </activity>
-    <activity
-            android:name=".wxapi.WXEntryActivity"
-            android:exported="true"
-            android:label="@string/app_name"
-            android:launchMode="singleTask"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"></activity>
-    <activity
-            android:name="com.google.zxing.activity.CaptureActivity"
-            android:screenOrientation="portrait"
-            android:theme="@android:style/Theme.NoTitleBar"></activity>
-    <activity
-            android:name=".QRScanActivity"
-            android:screenOrientation="portrait"></activity>
-    <activity
-            android:name="com.custom.webview.WebViewActivity"
-            android:screenOrientation="portrait"
-            android:theme="@android:style/Theme.NoTitleBar"></activity>
-    <activity
-            android:name=".PickImageActivity"
-            android:screenOrientation="portrait"></activity>
+    <activity android:name="com.unity3d.unityconnect.wxapi.WXEntryActivity" android:exported="true" android:label="@string/app_name" android:launchMode="singleTask" android:theme="@android:style/Theme.Translucent.NoTitleBar">
+    </activity>
+    <activity android:name="com.google.zxing.activity.CaptureActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar">
+    </activity>
+    <activity android:name="com.unity3d.unityconnect.QRScanActivity" android:screenOrientation="portrait">
+    </activity>
+    <activity android:name="com.custom.webview.WebViewActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar">
+    </activity>
+    <activity android:name="com.unity3d.unityconnect.PickImageActivity" android:screenOrientation="portrait">
+    </activity>
     <!--JPush-->
     <!--Required SDK核心功能-->
-    <activity
-            android:name="cn.jpush.android.ui.PushActivity"
-            android:configChanges="orientation|keyboardHidden"
-            android:exported="false"
-            android:theme="@android:style/Theme.NoTitleBar">
+    <activity android:name="cn.jpush.android.ui.PushActivity" android:configChanges="orientation|keyboardHidden" android:exported="false" android:theme="@android:style/Theme.NoTitleBar">
       <intent-filter>
         <action android:name="cn.jpush.android.ui.PushActivity" />
-
         <category android:name="android.intent.category.DEFAULT" />
         <category android:name="${applicationId}" />
       </intent-filter>
     </activity>
     <!-- Required SDK 核心功能-->
     <!-- 可配置android:process参数将PushService放在其他进程中 -->
-    <service
-            android:name="cn.jpush.android.service.PushService"
-            android:exported="false"
-            android:process=":pushcore">
+    <service android:name="cn.jpush.android.service.PushService" android:exported="false" android:process=":pushcore">
       <intent-filter>
         <action android:name="cn.jpush.android.intent.REGISTER" />
         <action android:name="cn.jpush.android.intent.REPORT" />
@@ -97,11 +53,7 @@
       </intent-filter>
     </service>
     <!-- since 3.0.9 Required SDK 核心功能-->
-    <provider
-            android:name="cn.jpush.android.service.DataProvider"
-            android:authorities="${applicationId}.DataProvider"
-            android:exported="false"
-            android:process=":pushcore" />
+    <provider android:name="cn.jpush.android.service.DataProvider" android:authorities="${applicationId}.DataProvider" android:exported="false" android:process=":pushcore" />
     <!-- since 1.8.0 option 可选项。用于同一设备中不同应用的JPush服务相互拉起的功能。 -->
     <!-- 若不启用该功能可删除该组件，将不拉起其他应用也不能被其他应用拉起 -->
     <!-- <service
@@ -114,15 +66,9 @@
       </intent-filter>
     </service> -->
     <!-- since 3.1.0 Required SDK 核心功能-->
-    <provider
-            android:name="cn.jpush.android.service.DownloadProvider"
-            android:authorities="${applicationId}.DownloadProvider"
-            android:exported="true" />
+    <provider android:name="cn.jpush.android.service.DownloadProvider" android:authorities="${applicationId}.DownloadProvider" android:exported="true" />
     <!-- Required SDK核心功能-->
-    <receiver
-            android:name="cn.jpush.android.service.PushReceiver"
-            android:enabled="true"
-            android:exported="false">
+    <receiver android:name="cn.jpush.android.service.PushReceiver" android:enabled="true" android:exported="false">
       <intent-filter android:priority="1000">
         <action android:name="cn.jpush.android.intent.NOTIFICATION_RECEIVED_PROXY" />
         <!--Required  显示通知栏 -->
@@ -136,28 +82,22 @@
       <intent-filter>
         <action android:name="android.intent.action.PACKAGE_ADDED" />
         <action android:name="android.intent.action.PACKAGE_REMOVED" />
-
         <data android:scheme="package" />
       </intent-filter>
     </receiver>
     <!-- Required SDK核心功能-->
-    <receiver
-            android:name="cn.jpush.android.service.AlarmReceiver"
-            android:exported="false" />
+    <receiver android:name="cn.jpush.android.service.AlarmReceiver" android:exported="false" />
     <!-- User defined.  For test only  用户自定义接收消息器,3.0.7开始支持,目前新tag/alias接口设置结果会在该广播接收器对应的方法中回调-->
     <!--since 3.3.0 接收JPush相关事件-->
     <receiver android:name="com.unity3d.unityconnect.PushMessageReceiver">
       <intent-filter>
         <action android:name="cn.jpush.android.intent.RECEIVE_MESSAGE" />
-        <category android:name="${applicationId}"></category>
+        <category android:name="${applicationId}">
+        </category>
       </intent-filter>
     </receiver>
     <!--since 3.3.0 Required SDK核心功能-->
-    <activity
-            android:name="cn.jpush.android.service.JNotifyActivity"
-            android:exported="true"
-            android:taskAffinity="jpush.custom"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+    <activity android:name="cn.jpush.android.service.JNotifyActivity" android:exported="true" android:taskAffinity="jpush.custom" android:theme="@android:style/Theme.Translucent.NoTitleBar">
       <intent-filter>
         <action android:name="cn.jpush.android.intent.JNotifyActivity" />
         <category android:name="${applicationId}" />
@@ -166,59 +106,33 @@
     <!-- since 3.3.0 Required SDK 核心功能-->
     <!-- 可配置android:process参数将PushService放在其他进程中 -->
     <!--User defined.  For test only 继承自cn.jpush.android.service.JCommonService-->
-    <service
-            android:name=".PushService"
-            android:process=":pushcore">
+    <service android:name="com.unity3d.unityconnect.PushService" android:process=":pushcore">
       <intent-filter>
         <action android:name="cn.jiguang.user.service.action" />
       </intent-filter>
     </service>
     <!-- Required  . Enable it you can get statistics data with channel -->
-    <meta-data
-            android:name="JPUSH_CHANNEL"
-            android:value="official" />
-    <meta-data
-            android:name="JPUSH_APPKEY"
-            android:value="a50eff2d99416a0495f02766" />
+    <meta-data android:name="JPUSH_CHANNEL" android:value="official" />
+    <meta-data android:name="JPUSH_APPKEY" android:value="a50eff2d99416a0495f02766" />
     <!--小米推送-->
-    <service
-            android:name="com.xiaomi.push.service.XMPushService"
-            android:enabled="true"
-            android:process=":pushservice" />
-    <service
-            android:name="com.xiaomi.push.service.XMJobService"
-            android:enabled="true"
-            android:exported="false"
-            android:permission="android.permission.BIND_JOB_SERVICE"
-            android:process=":pushservice" />
+    <service android:name="com.xiaomi.push.service.XMPushService" android:enabled="true" android:process=":pushservice" />
+    <service android:name="com.xiaomi.push.service.XMJobService" android:enabled="true" android:exported="false" android:permission="android.permission.BIND_JOB_SERVICE" android:process=":pushservice" />
     <!--注：此service必须在3.0.1版本以后（包括3.0.1版本）加入-->
-    <service
-            android:name="com.xiaomi.mipush.sdk.PushMessageHandler"
-            android:enabled="true"
-            android:exported="true" />
-    <service
-            android:name="com.xiaomi.mipush.sdk.MessageHandleService"
-            android:enabled="true" />
+    <service android:name="com.xiaomi.mipush.sdk.PushMessageHandler" android:enabled="true" android:exported="true" />
+    <service android:name="com.xiaomi.mipush.sdk.MessageHandleService" android:enabled="true" />
     <!--注：此service必须在2.2.5版本以后（包括2.2.5版本）加入-->
-    <receiver
-            android:name="com.xiaomi.push.service.receivers.NetworkStatusReceiver"
-            android:exported="true">
+    <receiver android:name="com.xiaomi.push.service.receivers.NetworkStatusReceiver" android:exported="true">
       <intent-filter>
         <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
         <category android:name="android.intent.category.DEFAULT" />
       </intent-filter>
     </receiver>
-    <receiver
-            android:name="com.xiaomi.push.service.receivers.PingReceiver"
-            android:exported="false"
-            android:process=":pushservice">
+    <receiver android:name="com.xiaomi.push.service.receivers.PingReceiver" android:exported="false" android:process=":pushservice">
       <intent-filter>
         <action android:name="com.xiaomi.push.PING_TIMER" />
       </intent-filter>
     </receiver>
-    <receiver
-            android:name=".MIPushMessageReceiver"
-            android:exported="true">
+    <receiver android:name="com.unity3d.unityconnect.MIPushMessageReceiver" android:exported="true">
       <intent-filter>
         <action android:name="com.xiaomi.mipush.RECEIVE_MESSAGE" />
       </intent-filter>
@@ -230,34 +144,16 @@
       </intent-filter>
     </receiver>
     <!-- unity 配置信息-->
-    <meta-data
-            android:name="unity.build-id"
-            android:value="208ce93d-a48f-4180-83fa-67f027f2d149" />
-    <meta-data
-            android:name="unity.splash-mode"
-            android:value="0" />
-    <meta-data
-            android:name="unity.splash-enable"
-            android:value="True" />
-    <meta-data
-            android:name="notch.config"
-            android:value="portrait|landscape" />
+    <meta-data android:name="unity.build-id" android:value="71708ecb-a987-4443-9540-3320bc83f13a" />
+    <meta-data android:name="unity.splash-mode" android:value="0" />
+    <meta-data android:name="unity.splash-enable" android:value="True" />
+    <meta-data android:name="notch.config" android:value="portrait|landscape" />
   </application>
-
   <uses-feature android:glEsVersion="0x00020000" />
-  <uses-feature
-          android:name="android.hardware.touchscreen"
-          android:required="false" />
-  <uses-feature
-          android:name="android.hardware.touchscreen.multitouch"
-          android:required="false" />
-  <uses-feature
-          android:name="android.hardware.touchscreen.multitouch.distinct"
-          android:required="false" />
-  <uses-feature
-          android:name="android.software.leanback"
-          android:required="false" />
-
+  <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+  <uses-feature android:name="android.hardware.touchscreen.multitouch" android:required="false" />
+  <uses-feature android:name="android.hardware.touchscreen.multitouch.distinct" android:required="false" />
+  <uses-feature android:name="android.software.leanback" android:required="false" />
   <supports-gl-texture android:name="GL_OES_compressed_ETC1_RGB8_texture" />
   <!-- Required  一些系统要求的权限，如访问网络等-->
   <uses-permission android:name="android.permission.RECEIVE_USER_PRESENT" />
@@ -265,19 +161,13 @@
   <uses-permission android:name="android.permission.READ_PHONE_STATE" />
   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-  <uses-permission
-          android:name="android.permission.WRITE_SETTINGS"
-          tools:ignore="ProtectedPermissions" />
-  <uses-permission
-          android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"
-          tools:ignore="ProtectedPermissions" />
+  <uses-permission android:name="android.permission.WRITE_SETTINGS" tools:ignore="ProtectedPermissions" />
+  <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" tools:ignore="ProtectedPermissions" />
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
   <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
   <uses-permission android:name="android.permission.CAMERA" />
   <!-- Optional for location -->
-  <uses-permission
-          android:name="android.permission.READ_LOGS"
-          tools:ignore="ProtectedPermissions" />
+  <uses-permission android:name="android.permission.READ_LOGS" tools:ignore="ProtectedPermissions" />
   <uses-permission android:name="android.permission.VIBRATE" />
   <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
   <!-- 用于开启 debug 版本的应用在6.0 系统上 层叠窗口权限 -->
@@ -287,15 +177,11 @@
   <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS" />
   <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
   <!--JPush 权限 -->
-  <permission
-          android:name="com.unity3d.unityconnect.permission.JPUSH_MESSAGE"
-          android:protectionLevel="signature" />
+  <permission android:name="com.unity3d.unityconnect.permission.JPUSH_MESSAGE" android:protectionLevel="signature" />
   <uses-permission android:name="com.unity3d.unityconnect.permission.JPUSH_MESSAGE" />
   <!-- 小米推送 权限-->
-  <permission
-          android:name="com.unity3d.unityconnect.permission.MIPUSH_RECEIVE"
-          android:protectionLevel="signature" />
-
+  <permission android:name="com.unity3d.unityconnect.permission.MIPUSH_RECEIVE" android:protectionLevel="signature" />
   <uses-permission android:name="android.permission.GET_TASKS" />
   <uses-permission android:name="com.unity3d.unityconnect.permission.MIPUSH_RECEIVE" />
+  <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
 </manifest>
