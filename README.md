@@ -31,7 +31,7 @@
   ```
 
 #### 在 Unity Editor 上运行
-  1. 使用 Unity Editor（推荐 Editor 版本：**Unity 2018.4.10f1 (LTS)** 或 **Unity 2019.1.14f1** 及以上）打开项目目录 `ConnectAppCN/`。
+  1. 使用 Unity Editor（推荐 Editor 版本：**Unity 2018.4.10f1 (LTS)** 或 **Unity 2019.1.14f1** 及以上。如果使用 **Unity 2019.4.1f1** 版本，可以切到 `2019.4.1f1` 分支）打开项目目录 `ConnectAppCN/`。
   2. 在 Unity Editor 界面的 `Project` 选项卡中找到 `Assets/ConnectApp/Main` 文件目录。
   3. 双击 `ConnectApp.unity` 文件，可以预览项目的预载显示效果。
   4. 双击 `ConnectAppPanel.cs` 文件，以唤起代码编辑软件（例如：`Rider`）。
