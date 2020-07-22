@@ -57,6 +57,8 @@ namespace ConnectApp.Constants {
         public static readonly IconData tab_mine_fill = new IconData(0xe62e, "iconfont");
         public static readonly IconData baseline_forward_arrow = new IconData(0xe601, "iconfont");
         public static readonly IconData outline_share = new IconData(0xe636, "iconfont");
+        public static readonly IconData outline_carousel = new IconData(0xe637, "iconfont");
+        public static readonly IconData outline_list = new IconData(0xe638, "iconfont");
         
         public static readonly IconData outline_keyboard = new IconData(0xeaf9, "Outline Material Icons");
         public static readonly IconData outline_question_answer = new IconData(0xeaa4, "Outline Material Icons");
